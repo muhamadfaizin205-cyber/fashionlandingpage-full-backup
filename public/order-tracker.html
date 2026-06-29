@@ -446,21 +446,35 @@ async function loadOrders(){
       if(msg.order_email!==email)return;
       
       if(payload.eventType==='INSERT'){
-        // New message arrived
+        // Skip our own optimistic messages already in array
+        if(msgs.find(function(x){return x.id===msg.id})) return;
+        // Skip our own sent messages (already added optimistically)
+        if(msg.sender_type==='client') return;
+        // New admin message
         if(msg.sender_type==='admin'){
           playReceiveSound();
-          // Browser notification if tab not focused
           if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){
             new Notification('Dean Designers',{body:msg.voice_url?'Sent a voice message':msg.image_url?'Sent an image':msg.message||'New message',icon:'/favicon.png'});
           }
         }
-        // Reload chat if on chat tab
-        if(curTab==='chat') loadChat();
+        // Append without full reload
+        msgs.push(msg);
+        if(curTab==='chat'){
+          var oldInp=document.getElementById('ci');
+          var savedTxt=oldInp?oldInp.value:'';
+          renderChat();
+          var newInp=document.getElementById('ci');
+          if(newInp&&savedTxt)newInp.value=savedTxt;
+          setTimeout(function(){var cb=document.getElementById('chat-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},50);
+        }
       } else if(payload.eventType==='UPDATE'){
-        if(curTab==='chat') loadChat();
+        // Update in local array only
+        var idx=msgs.findIndex(function(m){return m.id===msg.id});
+        if(idx>-1) msgs[idx]=msg;
+        if(curTab==='chat') renderChat();
       } else if(payload.eventType==='DELETE'){
-        // Message deleted
-        if(curTab==='chat') loadChat();
+        msgs=msgs.filter(function(m){return m.id!==(payload.old&&payload.old.id)});
+        if(curTab==='chat') renderChat();
       }
     }).subscribe();
   }catch(e){console.warn('Realtime error:',e)}
