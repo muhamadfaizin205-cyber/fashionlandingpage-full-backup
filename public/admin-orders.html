@@ -327,6 +327,34 @@ a{color:inherit;text-decoration:none}
 .opp-row-icon{color:var(--txt3);flex-shrink:0}
 .opp-row-label{font-size:11px;color:var(--txt3)}
 .opp-row-val{font-size:13px;color:var(--txt);font-weight:500}
+
+/* ══ WhatsApp/IG Style Admin Chat ══ */
+.cr-area{display:flex;flex-direction:column;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff20'/%3E%3C/svg%3E") #E5DDD5}
+.cr-head{background:linear-gradient(135deg,#1DBF73,#17B169) !important;padding:12px 16px !important}
+.cr-head h3{color:#fff !important}
+.cr-head .cr-status{color:rgba(255,255,255,0.85) !important;font-size:11px}
+.cr-msgs{flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth}
+.cr-msgs::-webkit-scrollbar{width:4px}
+.cr-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:4px}
+.cm-wrap,.cm{animation:msgSlideIn .2s ease-out}
+.cm.client .cm-bubble,.cm.admin-sent .cm-bubble{border-radius:16px 16px 4px 16px !important;background:#DCF8C6 !important;color:#111 !important;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+.cm.admin .cm-bubble{border-radius:16px 16px 16px 4px !important;background:#fff !important;color:#111 !important;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+.cr-bar{background:#F0F2F5 !important;padding:8px 10px !important;border-top:none !important}
+.cr-inp{background:#fff !important;border:none !important;border-radius:24px !important;padding:10px 16px !important;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06) !important}
+.cr-send{border-radius:50% !important;background:linear-gradient(135deg,#1DBF73,#17B169) !important;width:44px;height:44px;box-shadow:0 2px 8px rgba(29,191,115,0.3) !important}
+.cr-send:hover{transform:scale(1.05)}
+.cr-attach{color:#54656F !important;border-radius:50% !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.cr-attach:hover{background:rgba(0,0,0,0.06)}
+/* Day separator */
+.chat-day-sep{text-align:center;margin:8px 0}
+.chat-day-sep span{background:rgba(255,255,255,0.85);color:#54656F;font-size:11px;font-weight:600;padding:4px 12px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+/* Typing */
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 14px;background:#fff;border-radius:16px 16px 16px 4px;box-shadow:0 1px 2px rgba(0,0,0,0.08);width:fit-content}
+.typing-dot{width:8px;height:8px;background:#94A3B8;border-radius:50%;animation:typingBounce 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
 </style>
 </head>
 <body>
@@ -1069,6 +1097,7 @@ function renderChatRoom(target){
   var EDIT_WIN=5*60*1000;
   var h='<div class="chat-room"><div class="cr-header"><button style="width:28px;height:28px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt2);border:none;cursor:pointer;flex-shrink:0" onclick="closeChatRoom('+isMob+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><div class="cr-avatar">'+ci+'<div class="cr-dot'+(clientOnline?' online':'')+'" id="cr-client-dot"></div></div><div class="cr-info"><div class="cr-name">'+esc(cname||'')+'</div><div class="cr-sub" id="cr-client-status">'+statusTxt+'</div></div></div>';
   h+='<div class="cr-msgs" id="cr-msgs'+sfx+'">';
+  var _lastDay='';chatMsgs.forEach(function(_m){var _mDay=new Date(_m.created_at).toDateString();var _now=new Date();if(_mDay!==_lastDay){_lastDay=_mDay;var _dl=_mDay===_now.toDateString()?'Today':_mDay===new Date(_now-86400000).toDateString()?'Yesterday':new Date(_m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});h+='<div class="chat-day-sep"><span>'+_dl+'</span></div>';}});
   if(!chatMsgs.length)h+='<div class="cr-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Start a conversation</p></div>';
   else chatMsgs.forEach(function(m){
     var isA=m.sender_type==='admin',cls=isA?'admin':'client';
