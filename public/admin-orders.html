@@ -744,45 +744,102 @@ var aiAgentLogs=[];
 
 function renderAIAgentView(){
   var el=document.getElementById('ai-agent-area');if(!el)return;
-  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">';
+
+  var h='';
+
+  // ── Top Stats Row ──
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">';
   
-  // Card 1: Status
-  h+='<div style="background:#fff;border-radius:16px;padding:22px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04)">';
-  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">';
-  h+='<div style="width:42px;height:42px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:12px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>';
-  h+='<div><div style="font-size:16px;font-weight:800;color:var(--txt)">AI Agent Status</div><div style="font-size:12px;color:var(--txt3)">Auto-publish 2 articles/day</div></div></div>';
-  h+='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#F0FDF4;border-radius:10px;margin-bottom:14px">';
-  h+='<div style="width:8px;height:8px;background:#1DBF73;border-radius:50%;animation:pulse 2s infinite"></div>';
-  h+='<span style="font-size:13px;font-weight:600;color:#16a34a">Active — Runs daily at 16:00 WIB</span></div>';
-  h+='<div style="font-size:12px;color:var(--txt3);line-height:1.6">GPT-4o via Aivene API · 30 SEO topics rotating · Promotes createclothingdesign.com</div>';
+  h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+  h+='<span style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Status</span>';
+  h+='<div style="width:8px;height:8px;background:#1DBF73;border-radius:50%;box-shadow:0 0 0 3px rgba(29,191,115,0.15)"></div></div>';
+  h+='<div style="font-size:20px;font-weight:800;color:var(--txt);margin-bottom:2px">Active</div>';
+  h+='<div style="font-size:11px;color:var(--txt3)">Daily 16:00 WIB</div></div>';
+
+  h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Total Articles</div>';
+  h+='<div id="stat-total" style="font-size:28px;font-weight:800;color:#8B5CF6">—</div>';
+  h+='<div style="font-size:11px;color:var(--txt3)">AI published</div></div>';
+
+  h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Today</div>';
+  h+='<div id="stat-today" style="font-size:28px;font-weight:800;color:#1DBF73">—</div>';
+  h+='<div style="font-size:11px;color:var(--txt3)">Published</div></div>';
+
+  h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Last Run</div>';
+  h+='<div id="stat-last" style="font-size:13px;font-weight:700;color:var(--txt)">—</div>';
+  h+='<div style="font-size:11px;color:var(--txt3)">Auto schedule</div></div>';
   h+='</div>';
 
-  // Card 2: Stats
-  h+='<div style="background:#fff;border-radius:16px;padding:22px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04)">';
-  h+='<div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">📊 Publishing Stats</div>';
-  h+='<div id="agent-stats">Loading...</div>';
+  // ── Main Content Grid ──
+  h+='<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin-bottom:16px">';
+
+  // Left: Controls
+  h+='<div style="display:flex;flex-direction:column;gap:14px">';
+
+  // Auto Generate Card
+  h+='<div style="background:#fff;border-radius:14px;padding:22px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">';
+  h+='<div style="width:36px;height:36px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>';
+  h+='<div><div style="font-size:14px;font-weight:800;color:var(--txt)">Auto Agent</div><div style="font-size:11px;color:var(--txt3)">2 articles + AI images daily</div></div></div>';
+  h+='<button id="agent-run-btn" onclick="runAIAgent()" style="width:100%;padding:12px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(139,92,246,0.25);transition:all .15s">';
+  h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21"/></svg>Run Now (2 Articles)</button></div>';
+
+  // Custom Topic Card  
+  h+='<div style="background:#fff;border-radius:14px;padding:22px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">';
+  h+='<div style="width:36px;height:36px;background:linear-gradient(135deg,#0EA5E9,#0284C7);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+  h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>';
+  h+='<div><div style="font-size:14px;font-weight:800;color:var(--txt)">Custom Topic</div><div style="font-size:11px;color:var(--txt3)">Write on any topic anytime</div></div></div>';
+  h+='<textarea id="custom-topic-inp" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:none;height:70px;outline:none;color:var(--txt);margin-bottom:10px;box-sizing:border-box" placeholder="e.g. How to launch a streetwear brand in Southeast Asia 2026..."></textarea>';
+  h+='<button onclick="runCustomTopic()" style="width:100%;padding:11px;background:linear-gradient(135deg,#0EA5E9,#0284C7);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(14,165,233,0.25)">';
+  h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21"/></svg>Generate This Topic</button></div>';
+
+  // Schedule Info
+  h+='<div style="background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(109,40,217,0.04));border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:18px">';
+  h+='<div style="font-size:12px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Schedule</div>';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+  h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">Daily — 16:00 WIB (09:00 UTC)</span></div>';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+  h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">2 articles per run with AI images</span></div>';
+  h+='<div style="display:flex;align-items:center;gap:10px">';
+  h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>';
+  h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">30 SEO topics rotating pool</span></div>';
   h+='</div>';
   h+='</div>';
 
-  // Manual Trigger Section
-  h+='<div style="background:#fff;border-radius:16px;padding:24px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:16px">';
-  h+='<div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:6px">⚡ Manual Trigger</div>';
-  h+='<div style="font-size:13px;color:var(--txt3);margin-bottom:16px">Publish 2 new articles right now without waiting for the daily schedule.</div>';
-  h+='<button id="agent-run-btn" onclick="runAIAgent()" style="padding:13px 28px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(139,92,246,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate 2 Articles Now</button>';
-  h+='</div>';
-
-  // Live Log
-  h+='<div style="background:#0F1419;border-radius:16px;padding:24px;min-height:200px">';
-  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
-  h+='<div style="font-size:13px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px">Live Log</div>';
-  h+='<button onclick="clearAgentLog()" style="font-size:11px;color:#64748B;background:none;border:none;cursor:pointer">Clear</button></div>';
-  h+='<div id="agent-log" style="font-family:monospace;font-size:12px;color:#94A3B8;line-height:1.8">';
+  // Right: Live Log
+  h+='<div style="background:#0D1117;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">';
+  h+='<div style="padding:16px 18px;border-bottom:1px solid #21262D;display:flex;align-items:center;justify-content:space-between">';
+  h+='<div style="display:flex;align-items:center;gap:8px">';
+  h+='<div style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></div>';
+  h+='<div style="width:12px;height:12px;border-radius:50%;background:#FFBD2E"></div>';
+  h+='<div style="width:12px;height:12px;border-radius:50%;background:#28C940"></div>';
+  h+='<span style="font-size:12px;color:#6E7681;margin-left:8px;font-family:monospace">agent.log</span></div>';
+  h+='<button onclick="clearAgentLog()" style="font-size:11px;color:#6E7681;background:none;border:1px solid #30363D;padding:3px 8px;border-radius:4px;cursor:pointer">Clear</button></div>';
+  h+='<div id="agent-log" style="flex:1;overflow-y:auto;padding:16px 18px;font-family:monospace;font-size:12px;line-height:1.9;min-height:300px;max-height:500px">';
   if(aiAgentLogs.length){
-    aiAgentLogs.forEach(function(l){h+='<div style="color:'+(l.type==='success'?'#1DBF73':l.type==='error'?'#FF3B30':'#94A3B8')+'">'+esc(l.msg)+'</div>';});
+    aiAgentLogs.forEach(function(l){
+      h+='<div style="color:'+(l.type==='success'?'#3FB950':l.type==='error'?'#F85149':l.type==='warn'?'#E3B341':'#8B949E')+'">'+esc(l.msg)+'</div>';
+    });
   }else{
-    h+='<div style="color:#334155">No logs yet. Click "Generate 2 Articles Now" to start.</div>';
+    h+='<div style="color:#484F58">$ Waiting for agent to run...</div>';
+    h+='<div style="color:#484F58">$ Click "Run Now" to publish articles immediately</div>';
+    h+='<div style="color:#484F58">$ Or wait for daily schedule at 16:00 WIB</div>';
   }
   h+='</div></div>';
+  h+='</div>';
+
+  // Recent AI Articles
+  h+='<div style="background:#fff;border-radius:14px;padding:22px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+  h+='<div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:14px">Recent AI Articles</div>';
+  h+='<div id="recent-ai-articles">Loading...</div>';
+  h+='</div>';
 
   el.innerHTML=h;
   loadAgentStats();
@@ -790,17 +847,42 @@ function renderAIAgentView(){
 
 async function loadAgentStats(){
   if(!sb)return;
-  var{data}=await sb.from('articles').select('id,created_at,author_name').eq('author_name','Dean Designers AI').order('created_at',{ascending:false});
-  var el=document.getElementById('agent-stats');if(!el)return;
-  if(!data||!data.length){el.innerHTML='<div style="font-size:13px;color:var(--txt3)">No AI articles published yet.</div>';return;}
+  var{data}=await sb.from('articles').select('id,title,created_at,cover_image,author_name').eq('author_name','Dean Designers AI').order('created_at',{ascending:false}).limit(20);
+  
+  var total=document.getElementById('stat-total');
+  var today_el=document.getElementById('stat-today');
+  var last_el=document.getElementById('stat-last');
+  var recent_el=document.getElementById('recent-ai-articles');
+  
+  if(!data||!data.length){
+    if(total)total.textContent='0';
+    if(today_el)today_el.textContent='0';
+    if(last_el)last_el.textContent='Never';
+    if(recent_el)recent_el.innerHTML='<div style="font-size:13px;color:var(--txt3);text-align:center;padding:20px">No AI articles yet. Run the agent to publish your first articles.</div>';
+    return;
+  }
+  
   var today=new Date().toDateString();
   var todayCount=data.filter(function(a){return new Date(a.created_at).toDateString()===today}).length;
-  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#8B5CF6">'+data.length+'</div><div style="font-size:11px;color:var(--txt3)">Total Published</div></div>';
-  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#1DBF73">'+todayCount+'</div><div style="font-size:11px;color:var(--txt3)">Today</div></div>';
-  h+='</div>';
-  if(data[0]){h+='<div style="margin-top:10px;font-size:11px;color:var(--txt3)">Last: '+fmtDate(data[0].created_at)+'</div>';}
-  el.innerHTML=h;
+  
+  if(total)total.textContent=data.length;
+  if(today_el)today_el.textContent=todayCount;
+  if(last_el)last_el.textContent=fmtDate(data[0].created_at);
+  
+  if(recent_el){
+    var rh='<div style="display:flex;flex-direction:column;gap:10px">';
+    data.slice(0,5).forEach(function(a){
+      rh+='<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:10px">';
+      if(a.cover_image)rh+='<img src="'+esc(a.cover_image)+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0"/>';
+      else rh+='<div style="width:48px;height:48px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>';
+      rh+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.title)+'</div>';
+      rh+='<div style="font-size:11px;color:var(--txt3);margin-top:2px">'+fmtDate(a.created_at)+'</div></div>';
+      rh+='<span style="background:rgba(29,191,115,0.1);color:var(--green);padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;flex-shrink:0">Published</span>';
+      rh+='</div>';
+    });
+    rh+='</div>';
+    recent_el.innerHTML=rh;
+  }
 }
 
 function addAgentLog(msg,type){
@@ -809,368 +891,72 @@ function addAgentLog(msg,type){
   var el=document.getElementById('agent-log');
   if(el){
     var div=document.createElement('div');
-    div.style.color=type==='success'?'#1DBF73':type==='error'?'#FF3B30':'#94A3B8';
+    div.style.color=type==='success'?'#3FB950':type==='error'?'#F85149':type==='warn'?'#E3B341':'#8B949E';
     div.textContent='['+ts+'] '+msg;
     el.appendChild(div);
     el.scrollTop=el.scrollHeight;
   }
 }
 
-function clearAgentLog(){aiAgentLogs=[];var el=document.getElementById('agent-log');if(el)el.innerHTML='<div style="color:#334155">Log cleared.</div>';}
+function clearAgentLog(){
+  aiAgentLogs=[];
+  var el=document.getElementById('agent-log');
+  if(el){el.innerHTML='<div style="color:#484F58">$ Log cleared</div>';}
+}
 
 async function runAIAgent(){
-  if(aiAgentRunning){alert('Agent is already running!');return;}
+  if(aiAgentRunning){return;}
   aiAgentRunning=true;
   var btn=document.getElementById('agent-run-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='<div style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div>Generating articles...';}
-  addAgentLog('Starting AI Agent...','info');
-  addAgentLog('Connecting to Aivene API (GPT-4o)...','info');
+  if(btn){btn.disabled=true;btn.innerHTML='<div style="width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>Running...';}
+  addAgentLog('Initializing AI Article Agent...','info');
+  addAgentLog('Connecting to Aivene GPT-4o API...','info');
+  addAgentLog('Selecting 2 topics from SEO pool...','info');
   try{
     var res=await fetch('/api/auto-article',{method:'GET'});
     var data=await res.json();
     if(data.success){
-      addAgentLog('✅ '+data.message,'success');
+      addAgentLog('Agent completed successfully','success');
       if(data.articles){
         data.articles.forEach(function(a,i){
-          addAgentLog('📄 Article '+(i+1)+': '+a.title,'success');
+          addAgentLog('Article '+(i+1)+' published: '+a.title,'success');
         });
       }
-      addAgentLog('Articles published to website!','success');
-      loadAgentStats();
+      addAgentLog('Articles now live on website','success');
+      setTimeout(function(){loadAgentStats();},1000);
     }else{
-      addAgentLog('❌ Error: '+(data.error||'Unknown error'),'error');
+      addAgentLog('Error: '+(data.error||'Unknown error'),'error');
     }
   }catch(err){
-    addAgentLog('❌ Network error: '+err.message,'error');
+    addAgentLog('Network error: '+err.message,'error');
   }
   aiAgentRunning=false;
-  if(btn){btn.disabled=false;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate 2 Articles Now';}
+  if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21"/></svg>Run Now (2 Articles)';}
 }
 
-// ── Articles CMS ──
-let articlesList=[],editingArticle=null;
-async function loadArticles(){
-  var{data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
-  if(error)console.log('Articles load error:',error.message);
-  articlesList=data||[];
-  console.log('loadArticles result:',articlesList.length,'articles');
-}
-async function renderArticlesView(){
-  await loadArticles();
-  var el=document.getElementById('articles-area');if(!el){console.log('articles-area NOT FOUND');return}
-  console.log('Articles loaded:',articlesList.length);
-  if(!articlesList.length){el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--txt3)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p style="font-size:14px;font-weight:600;margin-bottom:4px">No articles yet</p><p style="font-size:12px">Click "+ New Article" to create your first article.</p></div>';return}
-  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
-  articlesList.forEach(function(a){
-    var status=a.published?'<span style="background:var(--green-bg);color:var(--green);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700">Published</span>':'<span style="background:#FEF3C7;color:#D97706;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700">Draft</span>';
-    h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .15s" onmouseover="this.style.boxShadow=\'0 4px 14px rgba(0,0,0,0.06)\'" onmouseout="this.style.boxShadow=\'none\'">';
-    if(a.cover_image)h+='<div style="height:140px;background:url(\''+esc(a.cover_image)+'\') center/cover;border-bottom:1px solid var(--border)"></div>';
-    else h+='<div style="height:140px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt3);border-bottom:1px solid var(--border)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
-    h+='<div style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+status+'<span style="font-size:10px;color:var(--txt3)">'+fmtDate(a.created_at)+'</span></div>';
-    h+='<h3 style="font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.3">'+esc(a.title)+'</h3>';
-    if(a.excerpt)h+='<p style="font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:10px">'+esc(a.excerpt).substring(0,100)+'</p>';
-    if(a.tags&&a.tags.length)h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'+a.tags.map(function(t){return'<span style="background:var(--bg);padding:2px 7px;border-radius:4px;font-size:10px;color:var(--txt3)">'+esc(t)+'</span>'}).join('')+'</div>';
-    h+='<div style="display:flex;gap:6px"><button class="btn-ghost" style="flex:1;padding:7px" onclick="viewArticle(\''+a.id+'\')">View</button><button class="btn-ghost" style="flex:1;padding:7px" onclick="openArticleEditor(\''+a.id+'\')">Edit</button><button style="flex:0;padding:7px 12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;color:#DC2626;font-size:12px;font-weight:600;cursor:pointer" onclick="deleteArticle(\''+a.id+'\')">Delete</button></div>';
-    h+='</div></div>';
-  });
-  h+='</div>';
-  el.innerHTML=h;
-}
-function viewArticle(id){
-  var a=articlesList.find(function(x){return x.id===id});if(!a)return;
-  var h='<div class="profile-modal-bg" onclick="if(event.target===this)this.remove()"><div class="profile-modal" style="max-width:760px;max-height:90vh;overflow-y:auto"><div class="profile-modal-head"><h3>'+esc(a.title)+'</h3><button class="profile-modal-close" onclick="this.closest(\'.profile-modal-bg\').remove()">×</button></div><div style="padding:24px">';
-  if(a.cover_image)h+='<img src="'+esc(a.cover_image)+'" style="width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:16px"/>';
-  h+='<div style="font-size:11px;color:#94A3B8;margin-bottom:12px">'+(a.author_name||'Dean Designers')+' · '+fmtDate(a.created_at)+(a.published?' · <span style=color:var(--green)>Published</span>':' · <span style=color:#D97706>Draft</span>')+'</div>';
-  if(a.tags&&a.tags.length)h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+a.tags.map(function(t){return'<span style="background:rgba(29,191,115,0.1);color:#1DBF73;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600">'+esc(t)+'</span>'}).join('')+'</div>';
-  h+='<div style="font-size:14px;line-height:1.85;color:#334155">'+a.content+'</div>';
-  h+='<div style="display:flex;gap:8px;margin-top:20px"><button class="btn-primary" onclick="this.closest(\'.profile-modal-bg\').remove();openArticleEditor(\''+id+'\')">Edit Article</button><button class="btn-ghost" onclick="this.closest(\'.profile-modal-bg\').remove()">Close</button></div>';
-  h+='</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend',h);
-}
-
-function updatePreview(){
-  var t=document.getElementById('art-title');
-  var c=document.getElementById('art-content');
-  var tags=document.getElementById('art-tags');
-  var pt=document.getElementById('pv-title');
-  var pb=document.getElementById('pv-body');
-  var ptags=document.getElementById('pv-tags');
-  if(pt&&t)pt.textContent=t.value||'Article Title';
-  if(pb&&c)pb.innerHTML=c.innerHTML||'<span style=color:#ccc>Start writing...</span>';
-  if(ptags&&tags){var arr=(tags.value||'').split(',').map(function(x){return x.trim()}).filter(Boolean);ptags.innerHTML=arr.map(function(x){return'<span style="background:rgba(29,191,115,0.1);color:#1DBF73;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">'+esc(x)+'</span>'}).join('')}
-}
-function updatePreviewCover(url){
-  var el=document.getElementById('pv-cover');
-  if(el)el.innerHTML=url?'<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;border-radius:10px"/>':'';
-}
-
-function generateSlug(title){return title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,60)}
-function ec(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('art-content').focus()}
-function ecPrompt(cmd){var v=prompt('Enter URL:');if(v)document.execCommand(cmd,false,v)}
-function ecColor(cmd,el){document.execCommand(cmd,false,el.value)}
-async function openArticleEditor(id){
-  editingArticle=null;
-  if(id){var found=articlesList.find(function(a){return a.id===id});if(found)editingArticle=found}
-  var a=editingArticle||{title:'',slug:'',content:'',excerpt:'',cover_image:'',tags:[],published:false};
-  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeArticleEditor()"><div class="profile-modal" style="max-width:95vw;width:1200px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column"><div class="profile-modal-head"><h3>'+(editingArticle?'Edit Article':'New Article')+'</h3><button class="profile-modal-close" onclick="closeArticleEditor()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
-  h+='<div class="profile-field"><div class="profile-label">Title *</div><input class="profile-input" id="art-title" oninput="updatePreview()" value="'+esc(a.title)+'" placeholder="Article title" oninput="document.getElementById(\'art-slug\').value=generateSlug(this.value)"/></div>';
-  h+='<div class="profile-field"><div class="profile-label">Slug</div><input class="profile-input" id="art-slug" value="'+esc(a.slug)+'" placeholder="article-url-slug"/></div>';
-  h+='<div class="profile-field"><div class="profile-label">Cover Image</div><div style="display:flex;gap:8px;align-items:center">';
-  if(a.cover_image)h+='<img src="'+esc(a.cover_image)+'" style="width:80px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"/>';
-  h+='<label class="btn-ghost" style="cursor:pointer"><input type="file" accept="image/*" style="display:none" onchange="uploadArticleCover(this)"/> Upload Image</label></div></div>';
-  h+='<div class="profile-field"><div class="profile-label">Excerpt (max 200 chars)</div><textarea class="profile-textarea" id="art-excerpt" oninput="updatePreview()" maxlength="200" placeholder="Short preview text...">'+esc(a.excerpt)+'</textarea></div>';
-  h+='<div class="profile-field"><div style="display:flex;align-items:center;justify-content:space-between"><div class="profile-label">Content *</div><button type="button" onclick="aiAutoGenerate()" style="padding:5px 12px;background:linear-gradient(135deg,#8B5CF6,#6366F1);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Auto-Generate</button></div>';
-  h+='<div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden"><div style="display:flex;gap:2px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center"><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'bold\')"><b>B</b></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'italic\')"><i>I</i></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'underline\')"><u>U</u></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'strikeThrough\')"><s>ab</s></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'subscript\')">x<sub>2</sub></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'superscript\')">x<sup>2</sup></button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><select style="padding:3px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card)" onchange="ec(\'fontSize\',this.value)"><option value="">Size</option><option value="1">S</option><option value="3">M</option><option value="5">L</option><option value="7">XL</option></select><input type="color" value="#000000" style="width:24px;height:24px;border:none;cursor:pointer;border-radius:4px" title="Text Color" onchange="ecColor(\'foreColor\',this)"/><input type="color" value="#FFFF00" style="width:24px;height:24px;border:none;cursor:pointer;border-radius:4px" title="Highlight" onchange="ecColor(\'hiliteColor\',this)"/><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><select style="padding:3px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card)" onchange="ec(\'formatBlock\',this.value)"><option value="">Style</option><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="p">P</option></select><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyLeft\')">⫷</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyCenter\')">☰</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyRight\')">⫸</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertUnorderedList\')">• ≡</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertOrderedList\')">1. ≡</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'indent\')">⇥</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'outdent\')">⇤</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ecPrompt(\'createLink\')">🔗</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'unlink\')">✂</button><label style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" style="cursor:pointer" title="Image">🖼<input type="file" accept="image/*" style="display:none" onchange="insertArticleImage(this)"/></label><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertHorizontalRule\')">—</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'undo\')">↩</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'redo\')">↪</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'removeFormat\')">✕</button></div><div contenteditable="true" id="art-content" oninput="updatePreview()" style="min-height:200px;padding:14px;font-size:13px;line-height:1.7;outline:none;font-family:inherit;color:var(--txt)">'+( a.content||'')+'</div></div></div>';
-  h+='<div class="profile-field"><div class="profile-label">Tags (comma separated)</div><input class="profile-input" id="art-tags" oninput="updatePreview()" value="'+(a.tags||[]).join(', ')+'" placeholder="streetwear, design, tips"/></div>';
-  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="art-published" '+(a.published?'checked':'')+' style="width:18px;height:18px;accent-color:var(--green)"/> Published</label></div>';
-  h+='<div style="display:flex;gap:8px"><button class="profile-save" style="flex:1" onclick="saveArticle()">Save Article</button><button class="btn-ghost" style="flex:0;padding:13px 20px" onclick="closeArticleEditor()">Cancel</button></div>';
-  h+='</div>';
-  h+='<div style="flex:1;min-width:0;overflow-y:auto;padding:24px;background:#FAFBFC" id="art-preview-col">';
-  h+='<div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">LIVE PREVIEW</div>';
-  h+='<div id="art-preview" style="background:#fff;border-radius:12px;padding:24px;border:1px solid var(--border);min-height:300px">';
-  h+='<div id="pv-cover" style="margin-bottom:14px"></div>';
-  h+='<div id="pv-title" style="font-size:24px;font-weight:800;margin-bottom:8px;color:#111;line-height:1.3">'+(a.title||'Article Title')+'</div>';
-  h+='<div id="pv-meta" style="font-size:11px;color:#94A3B8;margin-bottom:16px">Dean Designers · '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div>';
-  h+='<div id="pv-tags" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px"></div>';
-  h+='<div id="pv-body" style="font-size:14px;line-height:1.8;color:#334155">'+(a.content||'<span style=color:#ccc>Start writing to see preview...</span>')+'</div>';
-  h+='</div></div>';
-  h+='</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend',h);
-}
-function closeArticleEditor(){var m=document.querySelector('.profile-modal-bg');if(m)m.remove()}
-async function uploadArticleCover(input){
-  var file=input.files&&input.files[0];if(!file||!sb)return;
-  if(file.size>5*1024*1024){alert('Max 5MB');return}
-  var ext=file.name.split('.').pop()||'jpg';
-  var path='articles/cover_'+Date.now()+'.'+ext;
-  var{error}=await sb.storage.from('uploads').upload(path,file);
-  if(error){alert('Upload failed');return}
-  var{data}=sb.storage.from('uploads').getPublicUrl(path);
-  if(!data||!data.publicUrl)return;
-  if(editingArticle)editingArticle.cover_image=data.publicUrl;
-  else window._tempCover=data.publicUrl;
-  closeArticleEditor();openArticleEditor(editingArticle?editingArticle.id:null);setTimeout(function(){updatePreviewCover(data.publicUrl)},100);
-}
-async function insertArticleImage(input){
-  var file=input.files&&input.files[0];if(!file||!sb)return;
-  var ext=file.name.split('.').pop()||'jpg';
-  var path='articles/img_'+Date.now()+'.'+ext;
-  var{error}=await sb.storage.from('uploads').upload(path,file);
-  if(error)return;
-  var{data}=sb.storage.from('uploads').getPublicUrl(path);
-  if(!data||!data.publicUrl)return;
-  document.execCommand('insertImage',false,data.publicUrl);
-  input.value='';
-}
-async function saveArticle(){
-  var title=(document.getElementById('art-title').value||'').trim();
-  var slug=(document.getElementById('art-slug').value||'').trim()||generateSlug(title);
-  var content=(document.getElementById('art-content').innerHTML||'').trim();
-  var excerpt=(document.getElementById('art-excerpt').value||'').trim();
-  var tags=(document.getElementById('art-tags').value||'').split(',').map(function(t){return t.trim()}).filter(Boolean);
-  var published=document.getElementById('art-published').checked;
-  var cover=editingArticle?editingArticle.cover_image:(window._tempCover||'');
-  if(!title){alert('Title required');return}
-  if(!content){alert('Content required');return}
-  var payload={title:title,slug:slug,content:content,excerpt:excerpt,cover_image:cover,tags:tags,published:published,author_name:'Dean Designers'};
-  if(editingArticle){
-    await sb.from('articles').update(payload).eq('id',editingArticle.id);
-  }else{
-    await sb.from('articles').insert([payload]);
-  }
-  window._tempCover=null;
-  closeArticleEditor();renderArticlesView();
-}
-async function deleteArticle(id){
-  if(!confirm('Delete this article?'))return;
-  await sb.from('articles').delete().eq('id',id);
-  renderArticlesView();
-}
-
-
-// ── AI Article Writer (Claude) ──
-function openAIWriter(){
-  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAIWriter()"><div class="profile-modal" style="max-width:520px"><div class="profile-modal-head"><h3 style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Writer</h3><button class="profile-modal-close" onclick="closeAIWriter()">×</button></div><div class="profile-modal-body">';
-  h+='<div style="background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:14px;margin-bottom:18px;font-size:12px;color:#6366F1;line-height:1.6"><strong>Powered by OpenAI GPT-4o</strong> — GPT-4o menulis artikel + DALL-E 3 generate gambar. Kualitas setara profesor dan jurnalis top.</div>';
-  h+='<div class="profile-field"><div class="profile-label">Topic / Prompt *</div><textarea class="profile-textarea" id="ai-topic" style="min-height:80px" placeholder="Example: How to start a streetwear brand from scratch in 2025 — include market research, design process, production tips, and marketing strategy"></textarea></div>';
-  h+='<div class="profile-field"><div class="profile-label">Article Style</div><select class="profile-select" id="ai-style"><option value="guide">Comprehensive Guide</option><option value="tutorial">Step-by-Step Tutorial</option><option value="listicle">Listicle (Top 10...)</option><option value="opinion">Expert Opinion</option><option value="case-study">Case Study</option></select></div>';
-  h+='<div class="profile-field"><div class="profile-label">Language</div><select class="profile-select" id="ai-lang"><option value="English">English</option><option value="Indonesian">Indonesian</option></select></div>';
-  h+='<button class="profile-save" id="ai-gen-btn" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)" onclick="generateAIArticle()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate Article</button>';
-  h+='<div id="ai-status" style="margin-top:12px;text-align:center;font-size:12px;color:var(--txt3)"></div>';
-  h+='</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend',h);
-}
-function closeAIWriter(){var m=document.querySelector('.profile-modal-bg');if(m)m.remove()}
-async function generateAIArticle(){
-  var topic=(document.getElementById('ai-topic').value||'').trim();
-  if(!topic){alert('Enter a topic or prompt');return}
-  var style=document.getElementById('ai-style').value;
-  var lang=document.getElementById('ai-lang').value;
-  var btn=document.getElementById('ai-gen-btn');
-  var status=document.getElementById('ai-status');
-  btn.disabled=true;btn.textContent='Generating...';
-  status.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="width:16px;height:16px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>AI is writing your article — this may take 30-60 seconds...</div>';
+async function runCustomTopic(){
+  var inp=document.getElementById('custom-topic-inp');
+  if(!inp||!inp.value.trim()){alert('Please enter a topic first.');return;}
+  var topic=inp.value.trim();
+  if(aiAgentRunning){alert('Agent is already running. Please wait.');return;}
+  aiAgentRunning=true;
+  addAgentLog('Custom topic received: '+topic,'info');
+  addAgentLog('Sending to GPT-4o...','info');
   try{
-    var res=await fetch('/api/ai-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:topic,style:style,language:lang})});
+    var res=await fetch('/api/auto-article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({custom_topic:topic})});
     var data=await res.json();
-    if(data.error){status.innerHTML='<div style="color:#DC2626">Error: '+esc(data.error)+'</div>';btn.disabled=false;btn.textContent='Generate Article';return}
-    // Store image prompts for later generation
-    window._aiImagePrompts=data.image_prompts||[];
-    closeAIWriter();
-    editingArticle=null;window._tempCover=null;
-    var fakeArticle={title:data.title||topic,slug:data.slug||generateSlug(data.title||topic),content:data.content||'',excerpt:data.excerpt||'',cover_image:'',tags:data.tags||[],published:false};
-    editingArticle=fakeArticle;editingArticle.id=null;
-    openArticleEditor();
-    setTimeout(function(){
-      var t=document.getElementById('art-title');if(t)t.value=fakeArticle.title;
-      var s=document.getElementById('art-slug');if(s)s.value=fakeArticle.slug;
-      var e=document.getElementById('art-excerpt');if(e)e.value=fakeArticle.excerpt;
-      var ct=document.getElementById('art-content');if(ct)ct.innerHTML=fakeArticle.content;
-      var tg=document.getElementById('art-tags');if(tg)tg.value=(fakeArticle.tags||[]).join(', ');
-      updatePreview();
-      // Show image generation panel if prompts available
-      if(window._aiImagePrompts&&window._aiImagePrompts.length)showImageGenPanel();
-    },300);
+    if(data.success){
+      addAgentLog('Custom article published: '+data.articles[0].title,'success');
+      addAgentLog('Article is now live on website','success');
+      inp.value='';
+      setTimeout(function(){loadAgentStats();},1000);
+    }else{
+      addAgentLog('Error: '+(data.error||'Unknown'),'error');
+    }
   }catch(err){
-    status.innerHTML='<div style="color:#DC2626">Network error: '+esc(err.message)+'</div>';
-    btn.disabled=false;btn.textContent='Generate Article';
+    addAgentLog('Network error: '+err.message,'error');
   }
-}
-
-
-function showImageGenPanel(){
-  var prompts=window._aiImagePrompts||[];if(!prompts.length)return;
-  var panel=document.getElementById('art-editor-col');if(!panel)return;
-  var h='<div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(99,102,241,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:12px" id="ai-img-panel">';
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:13px;font-weight:700;color:#6366F1">AI Image Suggestions (DALL-E)</span><button onclick="genAllImages()" class="btn-primary" style="margin-left:auto;padding:6px 12px;font-size:11px;background:linear-gradient(135deg,#8B5CF6,#6366F1)">Generate All</button></div>';
-  prompts.forEach(function(p,i){
-    h+='<div style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)" id="ai-img-row-'+i+'">';
-    h+='<div style="width:60px;height:60px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden" id="ai-img-thumb-'+i+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
-    h+='<div style="flex:1;min-width:0"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:2px">'+(p.position==='cover'?'Cover Image':'Section Image')+'</div><div style="font-size:11px;color:var(--txt2);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+esc(p.prompt.substring(0,120))+'</div></div>';
-    h+='<button onclick="genSingleImage('+i+')" class="btn-ghost" style="padding:6px 10px;font-size:10px;flex-shrink:0" id="ai-img-btn-'+i+'">Generate</button>';
-    h+='</div>';
-  });
-  h+='</div>';
-  panel.insertAdjacentHTML('beforeend',h);
-}
-async function genSingleImage(idx){
-  var prompts=window._aiImagePrompts||[];if(!prompts[idx])return;
-  var btn=document.getElementById('ai-img-btn-'+idx);
-  var thumb=document.getElementById('ai-img-thumb-'+idx);
-  if(btn){btn.disabled=true;btn.textContent='Generating...'}
-  if(thumb)thumb.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>';
-  try{
-    var size=prompts[idx].position==='cover'?'1792x1024':'1024x1024';
-    var res=await fetch('/api/ai-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompts[idx].prompt,size:size})});
-    var data=await res.json();
-    if(data.error){alert('Image error: '+data.error);if(btn){btn.disabled=false;btn.textContent='Retry'}return}
-    // Upload to Supabase Storage
-    var imgRes=await fetch(data.url);var blob=await imgRes.blob();
-    var ext='png';var path='articles/ai_'+Date.now()+'_'+idx+'.'+ext;
-    var{error}=await sb.storage.from('uploads').upload(path,blob,{contentType:'image/png'});
-    if(error){alert('Upload failed');if(btn){btn.disabled=false;btn.textContent='Retry'}return}
-    var pubUrl=sb.storage.from('uploads').getPublicUrl(path);
-    var finalUrl=pubUrl.data.publicUrl;
-    // Show thumbnail
-    if(thumb)thumb.innerHTML='<img src="'+finalUrl+'" style="width:100%;height:100%;object-fit:cover"/>';
-    if(btn){btn.textContent='Insert';btn.disabled=false;btn.onclick=function(){insertAIImage(finalUrl,prompts[idx].position)}}
-    // Auto-set as cover if it's cover position
-    if(prompts[idx].position==='cover'){
-      if(editingArticle)editingArticle.cover_image=finalUrl;
-      else window._tempCover=finalUrl;
-      updatePreviewCover(finalUrl);
-    }
-  }catch(err){alert('Error: '+err.message);if(btn){btn.disabled=false;btn.textContent='Retry'}}
-}
-async function genAllImages(){
-  var prompts=window._aiImagePrompts||[];
-  for(var i=0;i<prompts.length;i++){await genSingleImage(i)}
-}
-function insertAIImage(url,position){
-  if(position==='cover'){
-    if(editingArticle)editingArticle.cover_image=url;
-    else window._tempCover=url;
-    updatePreviewCover(url);
-  }else{
-    var c=document.getElementById('art-content');
-    if(c){c.focus();document.execCommand('insertImage',false,url);updatePreview()}
-  }
-}
-
-
-async function aiAutoGenerate(){
-  var titleEl=document.getElementById('art-title');
-  var topic=titleEl?titleEl.value.trim():'';
-  if(!topic)topic='Professional clothing design service for streetwear brands — why createclothingdesign.com is the best platform in 2026';
-  var ct=document.getElementById('art-content');
-  if(ct)ct.innerHTML='<div style="text-align:center;padding:40px;color:#8B5CF6"><div style="width:24px;height:24px;border:2.5px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div><b>Step 1/2</b> — AI is writing your article...<br><small style="color:#94A3B8">30-60 seconds</small></div>';
-  updatePreview();
-  try{
-    var res=await fetch('/api/ai-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:topic,style:'guide',language:'English'})});
-    var data=await res.json();
-    if(data.error){ct.innerHTML='<p style="color:red">Error: '+data.error+'</p>';return}
-    if(titleEl&&data.title)titleEl.value=data.title;
-    var slugEl=document.getElementById('art-slug');if(slugEl&&data.slug)slugEl.value=data.slug;
-    var exEl=document.getElementById('art-excerpt');if(exEl&&data.excerpt)exEl.value=data.excerpt;
-    var tagEl=document.getElementById('art-tags');if(tagEl&&data.tags)tagEl.value=data.tags.join(', ');
-    if(ct&&data.content)ct.innerHTML=data.content;
-    updatePreview();
-    // Step 2: Auto-generate ALL images
-    window._aiImagePrompts=data.image_prompts||[];
-    if(window._aiImagePrompts.length){
-      showImageGenPanel();
-      if(ct){var status=document.createElement('div');status.id='ai-img-status';status.style.cssText='text-align:center;padding:12px;color:#8B5CF6;font-size:12px;font-weight:600';status.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div><b>Step 2/2</b> — Generating '+window._aiImagePrompts.length+' images with DALL-E...';var panel=document.getElementById('ai-img-panel');if(panel)panel.insertBefore(status,panel.firstChild.nextSibling)}
-      for(var i=0;i<window._aiImagePrompts.length;i++){
-        await genSingleImage(i);
-        var s=document.getElementById('ai-img-status');
-        if(s)s.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div>Generated '+(i+1)+'/'+window._aiImagePrompts.length+' images...';
-      }
-      var s=document.getElementById('ai-img-status');
-      if(s)s.innerHTML='<span style="color:var(--green)">✓ All '+window._aiImagePrompts.length+' images generated!</span>';
-    }
-  }catch(err){if(ct)ct.innerHTML='<p style="color:red">Network error: '+err.message+'</p>'}
-}
-
-
-// ── Admin Brief View ──
-async function renderBriefAdmin(email){
-  var{data}=await sb.from('briefs').select('*').eq('order_email',email).order('created_at',{ascending:false}).limit(1);
-  var brief=data&&data[0]?data[0]:null;
-  var status=brief?brief.status:'none';
-  var statusColor=status==='approved'?'#1DBF73':status==='submitted'?'#3B82F6':status==='revision'?'#F59E0B':'#94A3B8';
-  var statusLabel=status==='approved'?'✅ Approved':status==='submitted'?'📤 Submitted by Client':status==='revision'?'⚠️ Revision Requested':'📭 Not submitted yet';
-  var h='<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:14px">';
-  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
-  h+='<h3 style="font-size:15px;font-weight:800">📋 Design Brief</h3>';
-  h+='<span style="padding:5px 12px;background:'+statusColor+'20;color:'+statusColor+';border-radius:20px;font-size:11px;font-weight:700">'+statusLabel+'</span></div>';
-  if(!brief||status==='none'){h+='<p style="font-size:13px;color:var(--txt3);text-align:center;padding:20px">Client has not submitted a brief yet.</p>';}
-  else{
-    var fields=[['Brand',brief.brand_name],['Service',brief.service_type],['Description',brief.description],['Colors',brief.color_references],['Audience',brief.target_audience],['Notes',brief.notes]];
-    fields.forEach(function(f){if(f[1]){h+='<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:3px">'+f[0]+'</div><div style="font-size:13px;color:var(--txt);background:var(--bg);padding:8px 12px;border-radius:8px;line-height:1.5">'+esc(f[1])+'</div></div>'}});
-    if(status==='submitted'){
-      h+='<div style="margin-top:14px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">Feedback for client (optional)</div>';
-      h+='<textarea id="brief-fb" class="profile-textarea" style="min-height:70px" placeholder="Write feedback or revision notes...">'+esc(brief.admin_feedback||'')+'</textarea>';
-      h+='<div style="display:flex;gap:8px;margin-top:10px">';
-      h+='<button class="btn-primary" style="flex:1" onclick="approveBrief(&quot;'+brief.id+'&quot;)">&#x2705; Approve Brief</button>';
-      h+='<button style="flex:1;padding:10px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;color:#D97706;font-size:12px;font-weight:700;cursor:pointer" onclick="requestBriefRevision(&quot;'+brief.id+'&quot;)">&#x26A0;&#xFE0F; Request Revision</button>';
-      h+='</div></div>';
-    }
-  }
-  h+='</div>';
-  return h;
-}
-async function approveBrief(id){
-  var fb=(document.getElementById('brief-fb')||{}).value||'';
-  await sb.from('briefs').update({status:'approved',admin_feedback:fb,updated_at:new Date().toISOString()}).eq('id',id);
-  alert('✅ Brief approved!');
-  if(chatEmail)renderBriefAdmin(chatEmail).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
-}
-async function requestBriefRevision(id){
-  var fb=(document.getElementById('brief-fb')||{}).value||'';
-  if(!fb){alert('Please write feedback for the client first.');return}
-  await sb.from('briefs').update({status:'revision',admin_feedback:fb,updated_at:new Date().toISOString()}).eq('id',id);
-  alert('⚠️ Revision requested!');
-  if(chatEmail)renderBriefAdmin(chatEmail).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
+  aiAgentRunning=false;
 }
 
 // ── Client Profile Popup ──
