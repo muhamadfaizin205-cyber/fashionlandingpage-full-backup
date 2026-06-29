@@ -1705,10 +1705,14 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) { setLoading(false); return; }
     supabase.from("articles").select("*").eq("published", true)
       .order("created_at", { ascending: false })
-      .then(({ data }) => { if (data) setArticles(data); setLoading(false); });
+      .then(({ data, error }) => {
+        if (error) console.error("Articles fetch error:", error);
+        if (data) setArticles(data);
+        setLoading(false);
+      });
   }, []);
 
   if (selected) {
