@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Track Your Order — Dean Designers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#1DBF73;--green-dark:#19A463;--green-bg:rgba(29,191,115,0.08);--green-border:rgba(29,191,115,0.2);--bg:#F7F8FA;--card:#fff;--txt:#222325;--txt2:#62646A;--txt3:#95979D;--border:#E4E5E7;--shadow:0 2px 12px rgba(0,0,0,0.06);--blue:#446EE7;--yellow:#FFB33E;--red:#FF5A5F;--purple:#8E63F4}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased;font-size:14px;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+a{color:inherit;text-decoration:none}
+
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:30}
+.tb-logo{width:28px;height:28px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff}
+.tb-text{font-size:14px;font-weight:800}.tb-text span{color:var(--green)}
+.tb-right{margin-left:auto;display:flex;gap:6px}
+.tb-btn{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;background:var(--bg);color:var(--txt2);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.tb-btn:hover{background:var(--green-bg);color:var(--green)}
+
+.container{max-width:800px;margin:0 auto;padding:20px 16px 80px}
+
+/* Login */
+.login{max-width:420px;margin:60px auto 0;background:var(--card);border-radius:18px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.08);animation:fadeUp .3s}
+.login-icon{width:56px;height:56px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#fff;box-shadow:0 6px 20px rgba(29,191,115,0.25)}
+.login h1{font-size:22px;font-weight:800;text-align:center;margin-bottom:4px}
+.login-sub{text-align:center;font-size:13px;color:var(--txt2);margin-bottom:24px;line-height:1.5}
+.login-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:14px;outline:none;transition:border .15s;font-family:inherit;color:var(--txt)}
+.login-input:focus{border-color:var(--green)}
+.login-btn{width:100%;background:var(--green);color:#fff;border-radius:10px;padding:14px;font-size:14px;font-weight:700;margin-top:12px;transition:background .15s}
+.login-btn:hover{background:var(--green-dark)}
+.login-error{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px;font-size:12px;color:#DC2626;margin-top:10px;display:none}
+.login-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:16px}
+
+/* Welcome banner */
+.welcome{background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:14px;padding:20px 22px;color:#fff;margin-bottom:18px;animation:fadeUp .3s;display:flex;align-items:center;gap:16px}
+.welcome-icon{width:44px;height:44px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.welcome h2{font-size:16px;font-weight:800;margin-bottom:2px}.welcome p{font-size:12px;opacity:.9}
+.welcome-close{margin-left:auto;background:rgba(255,255,255,0.2);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0}
+
+/* Order selector */
+.order-selector{margin-bottom:16px}
+.order-select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;background:var(--card);color:var(--txt);cursor:pointer;outline:none;appearance:auto;font-family:inherit}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border);margin-bottom:18px}
+.tab{flex:1;padding:10px;border-radius:9px;font-size:13px;font-weight:600;text-align:center;color:var(--txt2);transition:all .15s;cursor:pointer;position:relative}
+.tab:hover{color:var(--txt)}
+.tab.active{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(29,191,115,0.25)}
+.tab-badge{position:absolute;top:4px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--card)}
+
+/* Status header */
+.order-card{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px;animation:fadeUp .3s}
+.order-head{padding:18px 20px;background:linear-gradient(135deg,var(--green-bg),transparent);border-bottom:1px solid var(--border)}
+.order-head-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.order-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--txt3)}
+.os-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:7px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.os-new{background:rgba(68,110,231,0.1);color:var(--blue)}.os-working{background:rgba(255,179,62,0.12);color:#D97706}.os-review{background:rgba(142,99,244,0.1);color:var(--purple)}.os-revision{background:rgba(255,90,95,0.1);color:var(--red)}.os-completed,.os-delivered{background:var(--green);color:#fff}
+.os-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.order-brand{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px}
+.order-service{font-size:13px;color:var(--txt2)}
+
+/* Deadline */
+.deadline{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.dl-label{font-size:11px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.dl-timer{display:flex;gap:6px}
+.dl-block{background:var(--bg);border-radius:8px;padding:6px 10px;text-align:center;min-width:48px}
+.dl-num{font-size:18px;font-weight:800;color:var(--txt);line-height:1}
+.dl-unit{font-size:9px;color:var(--txt3);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
+.dl-warning .dl-num{color:var(--yellow)}
+.dl-urgent .dl-num{color:var(--red)}
+.dl-done{color:var(--green);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+
+/* Timeline */
+.timeline{padding:20px;display:flex;flex-direction:column;gap:0}
+.tl-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.tl-step{display:flex;gap:12px;position:relative;padding-bottom:16px}
+.tl-step:last-child{padding-bottom:0}
+.tl-step:not(:last-child)::before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--border)}
+.tl-step.done:not(:last-child)::before{background:var(--green)}
+.tl-dot{width:28px;height:28px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--txt3);z-index:1}
+.tl-step.done .tl-dot{background:var(--green);border-color:var(--green);color:#fff}
+.tl-step.active .tl-dot{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 0 0 4px var(--green-bg);animation:pulse 2s infinite}
+.tl-name{font-size:13px;font-weight:700;color:var(--txt)}.tl-step.upcoming .tl-name{color:var(--txt3)}
+.tl-step.active .tl-name{color:var(--green)}
+.tl-desc{font-size:12px;color:var(--txt2);margin-top:1px}.tl-step.upcoming .tl-desc{color:var(--txt3)}
+
+/* Details grid */
+.details{padding:0 20px 20px}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.det{background:var(--bg);border-radius:10px;padding:12px 14px}
+.det-label{font-size:10px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.det-val{font-size:13px;font-weight:700;color:var(--txt);word-break:break-word}
+.det.hl{background:var(--green-bg);border:1px solid var(--green-border);grid-column:span 2}
+.det.hl .det-val{color:var(--green);font-size:18px;font-weight:800}
+.brief-box{background:var(--bg);border-radius:10px;padding:14px;margin-top:10px}
+.brief-label{font-size:10px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.brief-text{font-size:13px;color:var(--txt);line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto}
+
+/* Chat */
+.chat-area{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;height:520px;animation:fadeUp .3s}
+.chat-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--card)}
+.chat-head-avatar{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.chat-head-info h3{font-size:14px;font-weight:700;margin:0}.chat-head-info p{font-size:11px;color:var(--txt3);margin:0}
+.chat-head-dot{width:8px;height:8px;background:var(--green);border-radius:50%;margin-left:auto;flex-shrink:0}
+.chat-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;background:#F9FAFB}
+.chat-empty{text-align:center;color:var(--txt3);font-size:13px;padding:60px 16px}
+.cm{display:flex;gap:10px;max-width:85%;animation:fadeUp .15s;position:relative}
+.cm.client{align-self:flex-end;flex-direction:row-reverse}
+.cm.admin{align-self:flex-start}
+.cm-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px}
+.cm.admin .cm-avatar{background:var(--green);color:#fff}
+.cm.client .cm-avatar{background:var(--blue);color:#fff}
+.cm-body{flex:1;min-width:0}
+.cm-name{font-size:11px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.cm.admin .cm-name{color:var(--green)}
+.cm.client .cm-name{color:var(--blue);justify-content:flex-end}
+.cm-name-time{font-weight:400;color:var(--txt3);font-size:10px}
+.cm-bubble{padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.6;word-break:break-word}
+.cm.admin .cm-bubble{background:var(--card);color:var(--txt);border:1px solid var(--border);border-top-left-radius:4px}
+.cm.client .cm-bubble{background:var(--green);color:#fff;border-top-right-radius:4px}
+.cm-bubble-wrap{display:flex;align-items:flex-start;gap:6px}
+.cm.client .cm-bubble-wrap{flex-direction:row-reverse}
+.cm-delete{width:24px;height:24px;border-radius:50%;background:transparent;border:none;color:var(--txt3);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;margin-top:4px}
+.cm-delete:hover{background:var(--red);color:#fff}
+.cm:hover .cm-delete{display:flex}
+.del-popup{position:absolute;bottom:100%;right:0;z-index:10;padding-bottom:6px;animation:fadeUp .15s}
+.cm.admin .del-popup{left:0;right:auto}
+.del-popup-inner{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:200px}
+.del-popup-inner p{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:10px}
+.del-popup-btns{display:flex;gap:8px}
+.del-cancel{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;background:var(--bg);color:var(--txt2);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .12s}
+.del-cancel:hover{background:var(--border)}
+.del-confirm{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:inherit;transition:all .12s}
+.del-confirm:hover{opacity:.9}
+.chat-bar{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--card);align-items:center}
+.chat-inp{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:24px;font-size:13px;outline:none;font-family:inherit;color:var(--txt);background:var(--bg);transition:border .15s}
+.chat-inp:focus{border-color:var(--green);background:#fff}
+.chat-send{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.chat-send:hover{background:var(--green-dark)}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+.chat-img-btn{width:40px;height:40px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt3);transition:all .15s;flex-shrink:0}
+.chat-img-btn:hover{background:var(--green-bg);color:var(--green)}
+
+/* Help/FAQ */
+.help-section{animation:fadeUp .3s}
+.help-card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.help-card.open{border-color:var(--green)}
+.help-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;font-size:14px;font-weight:700;color:var(--txt);text-align:left;cursor:pointer;font-family:inherit}
+.help-q:hover{color:var(--green)}
+.help-arrow{width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;color:var(--txt3)}
+.help-card.open .help-arrow{background:var(--green);color:#fff;transform:rotate(180deg)}
+.help-a{max-height:0;overflow:hidden;transition:max-height .3s}
+.help-card.open .help-a{max-height:300px}
+.help-a p{padding:0 18px 16px;font-size:13px;color:var(--txt2);line-height:1.6}
+
+.help-contact{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:20px;text-align:center;margin-top:10px}
+.help-contact h3{font-size:15px;font-weight:800;margin-bottom:4px}
+.help-contact p{font-size:12px;color:var(--txt2);margin-bottom:14px}
+.help-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.help-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;font-size:12px;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--txt2);transition:all .15s}
+.help-btn:hover{border-color:var(--green);color:var(--green)}
+.help-btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px}
+.empty h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.empty p{font-size:13px;color:var(--txt2);max-width:300px;margin:0 auto;line-height:1.6}
+
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--txt2);font-size:13px}
+.spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px var(--green-bg)}50%{box-shadow:0 0 0 8px rgba(29,191,115,0.04)}}
+
+@media(max-width:480px){.det-grid{grid-template-columns:1fr}.det.hl{grid-column:1}.container{padding:14px 12px 60px}.chat-area{height:calc(100vh - 200px);min-height:400px}}
+@media(min-width:768px){.chat-area{height:560px}.chat-msgs{padding:24px}.cm{max-width:70%}.cm-bubble{padding:14px 18px;font-size:14px}}
+@media(min-width:1024px){.chat-area{height:600px}.container{max-width:900px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+  <div class="tb-text">Dean <span>Designers</span></div>
+  <div class="tb-right" id="tb-right"></div>
+</div>
+<div class="container" id="root"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+
+<script>
+const SB_URL="https://zqawpdspxdcmofnmrbku.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTE0MTYsImV4cCI6MjA5NzI2NzQxNn0.vRPaxLCPNPbNnHpsAClr_gr_pCpcbvBbDdAcEGhCT_E";
+const SK="dd_customer_email";
+const STATUSES=['new','working','review','revision','completed','delivered'];
+const S_LABELS={new:'New Order',working:'In Progress',review:'Under Review',revision:'In Revision',completed:'Completed',delivered:'Delivered'};
+const S_CLASS={new:'os-new',working:'os-working',review:'os-review',revision:'os-revision',completed:'os-completed',delivered:'os-delivered'};
+const STEPS=[{id:'new',n:'Order Received',d:'Payment confirmed and brief sent to designer'},{id:'working',n:'Design in Progress',d:'Your designer is creating concepts'},{id:'review',n:'Ready for Review',d:'Drafts ready — provide your feedback'},{id:'revision',n:'Applying Revisions',d:'Refining based on your feedback'},{id:'completed',n:'Design Completed',d:'All work finalized and approved'},{id:'delivered',n:'Files Delivered',d:'Final files sent to you'}];
+
+let sb=null,email=null,orders=[],selOrder=null,curTab='overview',msgs=[],deadlineTimer=null;
+
+// Security: rate limiting, session timeout, input validation
+let lastMsgTime=0;
+const MSG_COOLDOWN=1000;
+const MAX_MSG_LEN=50000;
+const MAX_FILE_SIZE=50*1024*1024;
+function canSendMsg(){const now=Date.now();if(now-lastMsgTime<MSG_COOLDOWN)return false;lastMsgTime=now;return true}
+
+// Login attempt limiting
+const LF_KEY='dd_login_fails';
+function getLoginFails(){try{const d=JSON.parse(localStorage.getItem(LF_KEY)||'{}');if(d.lockUntil&&Date.now()>=d.lockUntil){localStorage.removeItem(LF_KEY);return{count:0}}return d}catch(e){return{count:0}}}
+function addLoginFail(){const d=getLoginFails();d.count=(d.count||0)+1;if(d.count>=8)d.lockUntil=Date.now()+300000;localStorage.setItem(LF_KEY,JSON.stringify(d))}
+function clearLoginFails(){localStorage.removeItem(LF_KEY)}
+
+// Session timeout (2 hours for customers)
+const CUST_TIMEOUT=7200000;
+function checkCustSession(){const t=localStorage.getItem('dd_cust_time');if(t&&Date.now()-parseInt(t)>CUST_TIMEOUT){localStorage.removeItem(SK);localStorage.removeItem('dd_cust_time');location.reload();return false}localStorage.setItem('dd_cust_time',String(Date.now()));return true}
+setInterval(()=>{if(email)checkCustSession()},60000);
+
+function waitSB(){return new Promise((r,j)=>{const s=Date.now();(function c(){window.supabase&&window.supabase.createClient?r():Date.now()-s>10000?j(new Error('Load failed')):setTimeout(c,100)})()})}
+
+async function init(){
+  try{await waitSB();sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){document.getElementById('root').innerHTML='<div class="empty"><h3>Failed to load</h3><p>'+e.message+'</p></div>';return}
+  const p=new URLSearchParams(location.search);
+  const ue=p.get('email');
+  let se=null;try{se=localStorage.getItem(SK)}catch{}
+  email=ue||se;
+  if(email){try{localStorage.setItem(SK,email)}catch{};loadOrders()}else renderLogin();
+}
+
+function renderLogin(){
+  document.getElementById('root').innerHTML='<div class="login"><div class="login-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h1>Track Your Order</h1><div class="login-sub">Enter the email you used when placing your order.</div><input class="login-input" id="em" type="email" placeholder="you@example.com" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" id="lb" onclick="doLogin()">View My Orders</button><div class="login-error" id="le"></div><div class="login-note">Your email is your access key — no password needed.</div></div>';
+  setTimeout(()=>{const e=document.getElementById('em');if(e)e.focus()},100);
+}
+
+async function doLogin(){
+  const v=document.getElementById('em').value.trim().toLowerCase(),er=document.getElementById('le'),b=document.getElementById('lb');
+  const fails=getLoginFails();
+  if(fails.lockUntil&&Date.now()<fails.lockUntil){er.textContent='Too many attempts. Try again in 5 minutes.';er.style.display='block';return}
+  if(!v){er.textContent='Please enter your email';er.style.display='block';return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){er.textContent='Invalid email format';er.style.display='block';return}
+  er.style.display='none';b.disabled=true;b.textContent='Checking...';
+  const{data,error}=await sb.from('orders').select('id').ilike('email',v).limit(1);
+  if(error||!data||!data.length){addLoginFail();er.textContent='No orders found for this email.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
+  clearLoginFails();email=v;try{localStorage.setItem(SK,v);localStorage.setItem('dd_cust_time',String(Date.now()))}catch{};loadOrders();
+}
+
+async function loadOrders(){
+  document.getElementById('root').innerHTML='<div class="loading"><div class="spinner"></div> Loading your orders...</div>';
+  document.getElementById('tb-right').innerHTML='<button class="tb-btn" onclick="location.href=\'/\'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Home</button><button class="tb-btn" onclick="loadOrders()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg></button><button class="tb-btn" onclick="logout()">Sign Out</button>';
+  const{data,error}=await sb.from('orders').select('*').ilike('email',email).order('created_at',{ascending:false});
+  if(error){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>'+error.message+'</p></div>';return}
+  orders=data||[];
+  if(!orders.length){document.getElementById('root').innerHTML='<div style="text-align:center;padding:80px 20px;animation:fadeUp .3s"><div style="width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><h3 style="font-size:18px;font-weight:800;margin-bottom:6px">You don\'t have any active orders</h3><p style="font-size:14px;color:var(--txt2);max-width:360px;margin:0 auto 24px;line-height:1.6">Once you place an order on our website, it will appear here with real-time status tracking and direct chat with your designer.</p><a href="/" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--green);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s">Browse Services & Order Now <span style="font-size:18px">→</span></a></div>';return}
+  selOrder=orders[0];curTab='overview';
+  renderDashboard();
+  // Realtime subscriptions
+  try{
+    sb.channel('rt-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
+    sb.channel('rt-msgs-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},(payload)=>{
+      if(!payload.new&&!payload.old)return;
+      const msg=payload.new||payload.old;
+      if(msg.order_email!==email)return;
+      
+      if(payload.eventType==='INSERT'){
+        // New message arrived
+        if(msg.sender_type==='admin'){
+          playReceiveSound();
+        }
+        // Reload chat if on chat tab
+        if(curTab==='chat') loadChat();
+      } else if(payload.eventType==='DELETE'){
+        // Message deleted
+        if(curTab==='chat') loadChat();
+      }
+    }).subscribe();
+  }catch(e){console.warn('Realtime error:',e)}
+}
+
+function renderDashboard(){
+  const isNew=new URLSearchParams(location.search).get('new');
+  let h='';
+  // Welcome
+  if(isNew&&!sessionStorage.getItem('dd_welcomed')){
+    h+='<div class="welcome" id="wb"><div class="welcome-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><h2>Payment Confirmed!</h2><p>Your order has been received. Your designer will review your brief within 24 hours.</p></div><div class="welcome-close" onclick="document.getElementById(\'wb\').remove();sessionStorage.setItem(\'dd_welcomed\',1)">×</div></div>';
+  }
+  // Order selector
+  if(orders.length>1){
+    h+='<div class="order-selector"><select class="order-select" onchange="selOrder=orders.find(o=>o.id===this.value);curTab=\'overview\';renderDashboard()">';
+    orders.forEach(o=>{h+='<option value="'+o.id+'" '+(o.id===selOrder.id?'selected':'')+'>'+esc(o.brand_name)+' — '+esc(o.service)+' ($'+Number(o.price||0).toFixed(0)+')</option>'});
+    h+='</select></div>';
+  }
+  // Tabs
+  h+='<div class="tabs"><div class="tab '+(curTab==='overview'?'active':'')+'" onclick="curTab=\'overview\';renderDashboard()">Overview</div><div class="tab '+(curTab==='chat'?'active':'')+'" onclick="curTab=\'chat\';renderDashboard()">Chat</div><div class="tab '+(curTab==='help'?'active':'')+'" onclick="curTab=\'help\';renderDashboard()">Help</div></div>';
+  h+='<div id="tab-content"></div>';
+  document.getElementById('root').innerHTML=h;
+  if(curTab==='overview')renderOverview();
+  else if(curTab==='help')renderHelp();
+  else if(curTab==='chat')loadChat();
+}
+
+function renderOverview(){
+  const o=selOrder,ci=STATUSES.indexOf(o.status);
+  let dl=calcDeadline(o);
+  let h='<div class="order-card"><div class="order-head"><div class="order-head-top"><div class="order-id">Order #'+o.id.slice(0,8).toUpperCase()+' · '+fmtDate(o.created_at)+'</div><span class="os-badge '+(S_CLASS[o.status]||'')+'"><span class="os-dot"></span>'+S_LABELS[o.status]+'</span></div><div class="order-brand">'+esc(o.brand_name)+'</div><div class="order-service">'+esc(o.service)+' · '+esc(o.package_name||'')+'</div></div>';
+  // Deadline
+  h+='<div class="deadline"><div class="dl-label">Delivery Deadline</div><div id="dl-timer">'+dl+'</div></div>';
+  // Timeline
+  h+='<div class="timeline"><div class="tl-title">Progress</div>';
+  STEPS.forEach((s,i)=>{
+    let cls=i<ci?'done':i===ci?'active':'upcoming';
+    let icon=i<ci?'✓':''+(i+1);
+    h+='<div class="tl-step '+cls+'"><div class="tl-dot">'+icon+'</div><div><div class="tl-name">'+s.n+'</div><div class="tl-desc">'+s.d+'</div></div></div>';
+  });
+  h+='</div>';
+  // Details
+  h+='<div class="details"><div class="det-grid"><div class="det hl"><div class="det-label">Total Paid</div><div class="det-val">$'+Number(o.price||0).toFixed(2)+' USD</div></div><div class="det"><div class="det-label">Concepts</div><div class="det-val">'+(o.qty||1)+' Concept(s)</div></div><div class="det"><div class="det-label">Delivery</div><div class="det-val">'+esc(o.delivery||'—')+'</div></div><div class="det"><div class="det-label">Revisions</div><div class="det-val">'+esc(o.revisions||'—')+'</div></div><div class="det"><div class="det-label">Paid Via</div><div class="det-val">'+esc(o.paid_via||'PayPal')+'</div></div></div>';
+  if(o.brief)h+='<div class="brief-box"><div class="brief-label">Your Design Brief</div><div class="brief-text">'+esc(o.brief)+'</div></div>';
+  h+='</div></div>';
+  document.getElementById('tab-content').innerHTML=h;
+  startDeadlineTimer(o);
+}
+
+function calcDeadline(o){
+  let target=o.deadline_at?new Date(o.deadline_at):null;
+  if(!target&&o.delivery){const d=parseInt(o.delivery)||3;target=new Date(new Date(o.created_at).getTime()+d*86400000)}
+  if(!target)return'<span class="dl-done">No deadline set</span>';
+  if(['completed','delivered'].includes(o.status))return'<span class="dl-done">✓ Delivered</span>';
+  const diff=target-Date.now();
+  if(diff<=0)return'<span class="dl-done" style="color:var(--red)">Overdue</span>';
+  return fmtCountdown(diff,target);
+}
+
+function fmtCountdown(diff){
+  const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000);
+  let cls=d<1?'dl-urgent':d<2?'dl-warning':'';
+  return '<div class="dl-timer '+cls+'"><div class="dl-block"><div class="dl-num">'+d+'</div><div class="dl-unit">Days</div></div><div class="dl-block"><div class="dl-num">'+h+'</div><div class="dl-unit">Hrs</div></div><div class="dl-block"><div class="dl-num">'+m+'</div><div class="dl-unit">Min</div></div></div>';
+}
+
+function startDeadlineTimer(o){
+  if(deadlineTimer)clearInterval(deadlineTimer);
+  deadlineTimer=setInterval(()=>{const el=document.getElementById('dl-timer');if(el)el.innerHTML=calcDeadline(o);else clearInterval(deadlineTimer)},60000);
+}
+
+async function loadChat(){
+  curTab='chat';
+  const el=document.getElementById('tab-content');
+  if(!el)return renderDashboard();
+  el.innerHTML='<div class="loading"><div class="spinner"></div> Loading chat...</div>';
+  const{data}=await sb.from('messages').select('*').eq('order_email',email).order('created_at',{ascending:true});
+  msgs=data||[];
+  checkNewMessages(msgs);
+  const unread=(msgs).filter(m=>m.sender_type==='admin'&&!m.read).map(m=>m.id);
+  if(unread.length)sb.from('messages').update({read:true}).in('id',unread).then(()=>{});
+  renderChat();
+}
+
+function renderChat(){
+  const el=document.getElementById('tab-content');
+  if(!el)return;
+  const clientInitial=(email||'C').charAt(0).toUpperCase();
+  let h='<div class="chat-area">';
+  // Chat header
+  h+='<div class="chat-head"><div class="chat-head-avatar">DD</div><div class="chat-head-info"><h3>Dean Designers</h3><p>Design Team</p></div><div class="chat-head-dot"></div></div>';
+  // Messages
+  h+='<div class="chat-msgs" id="chat-msgs">';
+  if(!msgs.length)h+='<div class="chat-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p style="margin-top:12px">Start a conversation with your designer.<br>Ask questions, share references, or request updates.</p></div>';
+  else msgs.forEach(m=>{
+    const isAdmin=m.sender_type==='admin';
+    const cls=isAdmin?'admin':'client';
+    const name=isAdmin?'Dean Designers':'You';
+    const avatar=isAdmin?'DD':clientInitial;
+    const time=fmtTime(m.created_at);
+    h+='<div class="cm '+cls+'" id="msg-'+m.id+'">';
+    h+='<div class="cm-avatar">'+avatar+'</div>';
+    h+='<div class="cm-body">';
+    h+='<div class="cm-name">'+name+' <span class="cm-name-time">'+time+'</span></div>';
+    h+='<div class="cm-bubble-wrap">';
+    h+='<div class="cm-bubble">'+(m.image_url?'<img src="'+esc(m.image_url)+'" style="max-width:100%;border-radius:10px;margin-bottom:'+(m.message?'8px':'0')+';cursor:pointer" onclick="window.open(this.src)" />':'')+esc(m.message||'')+'</div>';
+    if(!isAdmin) h+='<button class="cm-delete" onclick="deleteMsg(\''+m.id+'\')" title="Delete message">×</button>';
+    h+='</div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  // Input bar
+  h+='<div class="chat-bar"><label class="chat-img-btn" title="Send image"><input type="file" accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps" style="display:none" onchange="sendChatImage(this)"/><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></label><input class="chat-inp" id="ci" placeholder="Type something here..." onkeydown="if(event.key===\'Enter\')sendMsg()"/><button class="chat-send" id="cs" onclick="sendMsg()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>';
+  el.innerHTML=h;
+  const box=document.getElementById('chat-msgs');if(box)box.scrollTop=box.scrollHeight;
+}
+
+async function sendMsg(){
+  if(!canSendMsg())return;
+  const inp=document.getElementById('ci'),btn=document.getElementById('cs');
+  if(!inp||!inp.value.trim())return;
+  btn.disabled=true;
+  const msg=inp.value.trim().substring(0,MAX_MSG_LEN);
+  await sb.from('messages').insert([{order_email:email,order_id:selOrder?.id||null,sender_email:email,sender_type:'client',message:msg,read:false}]);
+  playSendSound();
+  inp.value='';btn.disabled=false;
+  await loadChat();
+}
+
+async function sendChatImage(input){
+  const file=input.files&&input.files[0];
+  if(!file||!sb)return;
+  if(file.size>MAX_FILE_SIZE){alert('File too large. Maximum 50MB.');input.value='';return}
+  
+  if(!canSendMsg())return;
+  const ext=file.name.split('.').pop()||'jpg';
+  const path='chat/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+  const{error}=await sb.storage.from('uploads').upload(path,file);
+  if(error){alert('Upload failed');return}
+  const{data}=sb.storage.from('uploads').getPublicUrl(path);
+  if(!data||!data.publicUrl)return;
+  await sb.from('messages').insert([{order_email:email,order_id:selOrder?.id||null,sender_email:email,sender_type:'client',message:'',image_url:data.publicUrl,read:false}]);
+  playSendSound();
+  input.value='';
+  await loadChat();
+}
+
+async function deleteMsg(id){
+  // Show custom delete popup inside chat
+  const msgEl=document.getElementById('msg-'+id);
+  if(!msgEl)return;
+  // Remove any existing popup
+  const old=document.querySelector('.del-popup');if(old)old.remove();
+  const popup=document.createElement('div');
+  popup.className='del-popup';
+  popup.innerHTML='<div class="del-popup-inner"><p>Delete this message?</p><div class="del-popup-btns"><button class="del-cancel" onclick="this.closest(\'.del-popup\').remove()">Cancel</button><button class="del-confirm" onclick="confirmDelete(\''+id+'\')">Delete for Everyone</button></div></div>';
+  msgEl.appendChild(popup);
+}
+async function confirmDelete(id){
+  const popup=document.querySelector('.del-popup');if(popup)popup.remove();
+  await sb.from('messages').delete().eq('id',id);
+  msgs=msgs.filter(m=>m.id!==id);
+  renderChat();
+}
+
+// Sound effects
+let lastMsgCount=0;
+function playSendSound(){
+  try{
+    const c=new(window.AudioContext||window.webkitAudioContext)();
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.setValueAtTime(1200,c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(600,c.currentTime+0.06);
+    o.type='sine';g.gain.setValueAtTime(0.2,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.08);
+    o.start();o.stop(c.currentTime+0.08);
+  }catch(e){}
+}
+function playReceiveSound(){
+  try{
+    const c=new(window.AudioContext||window.webkitAudioContext)();
+    const o1=c.createOscillator(),o2=c.createOscillator(),g=c.createGain();
+    o1.connect(g);o2.connect(g);g.connect(c.destination);
+    o1.frequency.value=880;o2.frequency.value=1320;
+    o1.type='sine';o2.type='sine';
+    g.gain.setValueAtTime(0.15,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.3);
+    o1.start(c.currentTime);o1.stop(c.currentTime+0.15);
+    o2.start(c.currentTime+0.1);o2.stop(c.currentTime+0.3);
+  }catch(e){}
+}
+function checkNewMessages(newMsgs){
+  if(lastMsgCount>0&&newMsgs.length>lastMsgCount){
+    const latest=newMsgs[newMsgs.length-1];
+    if(latest&&latest.sender_type==='admin') playReceiveSound();
+  }
+  lastMsgCount=newMsgs.length;
+}
+
+function renderHelp(){
+  const faqs=[
+    {q:'How long until I get my designs?',a:'Delivery depends on your package: Basic 3 days, Standard 5 days, Premium 7 days. Track progress in the Overview tab.'},
+    {q:'How do I request revisions?',a:'Once your designer shares drafts, use the Chat tab to provide feedback. Revisions are included in your package.'},
+    {q:'Can I change my brief after ordering?',a:'Yes! Use the Chat tab to communicate any changes to your designer directly.'},
+    {q:'What file formats will I receive?',a:'All packages include AI source files, high-res PNG, JPG, PDF, and SVG — production-ready for print and digital.'},
+    {q:'How do I get a refund?',a:'We offer 100% money-back guarantee. Contact us via Chat or email deanstudio16@gmail.com.'},
+    {q:'Can I order more designs?',a:'Tap the Home button in the top bar to return to the landing page and place a new order.'},
+  ];
+  let h='<div class="help-section">';
+  faqs.forEach((f,i)=>{h+='<div class="help-card" id="hc'+i+'"><button class="help-q" onclick="toggleHelp('+i+')"><span>'+f.q+'</span><span class="help-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span></button><div class="help-a"><p>'+f.a+'</p></div></div>'});
+  h+='<div class="help-contact"><h3>Need more help?</h3><p>Reach out to us directly</p><div class="help-btns"><a class="help-btn primary" href="https://wa.me/6282221994691" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> WhatsApp</a><a class="help-btn" href="mailto:deanstudio16@gmail.com"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email</a></div></div></div>';
+  document.getElementById('tab-content').innerHTML=h;
+}
+
+function toggleHelp(i){document.getElementById('hc'+i).classList.toggle('open')}
+function logout(){localStorage.removeItem(SK);location.href='/order-tracker.html'}
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
+function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function fmtTime(d){if(!d)return'';return new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+</script>
+</body>
+</html>

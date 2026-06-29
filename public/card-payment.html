@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>USA International Payment — Secure Checkout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #0057FF;
+  --primary-dark: #0046cc;
+  --primary-light: #f0f5ff;
+  --primary-border: rgba(0,87,255,0.15);
+  --green: #10B981;
+  --green-light: #ecfdf5;
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --txt: #0f172a;
+  --txt2: #475569;
+  --txt3: #94a3b8;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { width: 100%; max-width: 460px; animation: fadeUp 0.45s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-shield {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,87,255,0.2);
+}
+.header-shield svg { color: #fff; }
+.header-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--txt);
+  letter-spacing: -0.3px;
+}
+.header-name span { color: var(--primary); }
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--green-light);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.3px;
+}
+.header-badge-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03);
+}
+
+/* Top section */
+.card-top {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  padding: 28px 28px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.card-top::before {
+  content: "";
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 160px; height: 160px;
+  background: rgba(0,87,255,0.08);
+  border-radius: 50%;
+}
+.card-top::after {
+  content: "";
+  position: absolute;
+  bottom: -40px; left: -30px;
+  width: 100px; height: 100px;
+  background: rgba(0,87,255,0.05);
+  border-radius: 50%;
+}
+.ct-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+.ct-amount {
+  font-size: 44px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1.5px;
+  position: relative; z-index: 1;
+}
+.ct-amount .cur {
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0.5;
+  margin-right: 2px;
+  vertical-align: top;
+  line-height: 2.6;
+}
+.ct-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin-top: 10px;
+  position: relative; z-index: 1;
+}
+.ct-status-dot {
+  width: 6px;
+  height: 6px;
+  background: #facc15;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+.ct-ref {
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  margin-top: 10px;
+  position: relative; z-index: 1;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Body */
+.card-body { padding: 28px; }
+
+/* Order info */
+.order-info {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 20px;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  border-radius: 12px;
+  padding: 4px 16px;
+}
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--primary-border);
+}
+.order-row:last-child { border-bottom: none; }
+.order-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--txt3);
+  text-transform: uppercase;
+}
+.order-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+/* Accepted methods */
+.methods { margin-bottom: 18px; }
+.methods-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--txt3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.methods-icons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+.m-icon:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(0,87,255,0.08); }
+.m-pp {
+  gap: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  padding: 7px 14px;
+}
+.pp-pay { color: #003087; }
+.pp-pal { color: #0070BA; }
+.m-visa {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  font-style: italic;
+  color: #1A1F71;
+  letter-spacing: 1px;
+  padding: 7px 14px;
+}
+.m-mc { gap: 0; padding: 5px 12px; }
+.m-mc svg { display: block; }
+.m-amex {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: #006FCF;
+  letter-spacing: 1px;
+  padding: 7px 12px;
+}
+
+/* PayPal container */
+#paypal-buttons { min-height: 50px; }
+
+/* Error */
+.error-msg {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #dc2626;
+  text-align: center;
+  margin-top: 12px;
+  display: none;
+}
+
+/* Trust */
+.trust-bar {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.t-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--txt2);
+}
+.t-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--primary-light);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+/* Compliance bar */
+.compliance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.comp-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--txt3);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.comp-badge svg { opacity: 0.4; }
+
+/* Success */
+.success-box { text-align: center; padding: 24px 0; animation: fadeUp 0.4s ease; }
+.success-icon {
+  width: 68px; height: 68px;
+  background: linear-gradient(135deg, var(--green), #059669);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 30px; font-weight: 800; color: #fff;
+  box-shadow: 0 8px 28px rgba(16,185,129,0.3);
+}
+.success-title { font-size: 20px; font-weight: 800; color: var(--txt); margin-bottom: 6px; }
+.success-sub { font-size: 13px; color: var(--txt2); line-height: 1.6; }
+.success-ref { font-family: monospace; font-size: 11px; color: var(--txt3); margin-top: 12px; }
+
+/* Footer */
+.page-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 10px;
+  color: var(--txt3);
+  letter-spacing: 0.3px;
+}
+
+/* Amount form */
+.amount-form { display: flex; flex-direction: column; gap: 14px; }
+.af-label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--txt3);
+  text-transform: uppercase;
+}
+.af-input-wrap {
+  display: flex; align-items: center;
+  background: #f8fafc;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 0 18px;
+  transition: border-color 0.2s;
+}
+.af-input-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,87,255,0.08); }
+.af-prefix { font-size: 22px; font-weight: 800; color: var(--txt3); margin-right: 6px; }
+.af-input {
+  flex: 1; font-family: 'Inter', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--txt); border: none;
+  background: transparent;
+  padding: 16px 0; outline: none; width: 100%;
+}
+.af-input::placeholder { color: #ddd; }
+.af-input::-webkit-inner-spin-button { display: none; }
+.af-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff; border: none; border-radius: 12px;
+  padding: 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(0,87,255,0.2);
+}
+.af-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,87,255,0.25); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <div class="header-shield">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="header-name">USA <span>International Payment</span></div>
+    </div>
+    <div class="header-badge"><span class="header-badge-dot"></span> Verified & Secured</div>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="card-top">
+      <div class="ct-label">Payment Amount</div>
+      <div class="ct-amount"><span class="cur">$</span><span id="display-amount">—</span></div>
+      <div class="ct-status"><span class="ct-status-dot"></span> <span id="status-text">Enter amount to proceed</span></div>
+      <div class="ct-ref" id="ref-id"></div>
+    </div>
+
+    <div class="card-body">
+      <!-- Order info -->
+      <div class="order-info" id="order-info">
+        <div class="order-row"><span class="order-label">Service</span><span class="order-value" id="info-service"></span></div>
+        <div class="order-row"><span class="order-label">Package</span><span class="order-value" id="info-package"></span></div>
+        <div class="order-row"><span class="order-label">Client</span><span class="order-value" id="info-brand"></span></div>
+      </div>
+
+      <!-- Accepted methods -->
+      <div class="methods">
+        <div class="methods-label">Accepted Payment Methods</div>
+        <div class="methods-icons">
+          <span class="m-icon m-pp"><span class="pp-pay">Pay</span><span class="pp-pal">Pal</span></span>
+          <span class="m-icon m-visa">VISA</span>
+          <span class="m-icon m-mc"><svg width="32" height="20" viewBox="0 0 32 20"><circle cx="11" cy="10" r="9" fill="#EB001B"/><circle cx="21" cy="10" r="9" fill="#F79E1B"/><path d="M16 2.8A9 9 0 0 1 19.4 10 9 9 0 0 1 16 17.2 9 9 0 0 1 12.6 10 9 9 0 0 1 16 2.8z" fill="#FF5F00"/></svg></span>
+          <span class="m-icon m-amex">AMEX</span>
+        </div>
+      </div>
+
+      <!-- PayPal Buttons -->
+      <div id="paypal-buttons"></div>
+
+      <!-- Error -->
+      <div class="error-msg" id="error-msg"></div>
+
+      <!-- Trust -->
+      <div class="trust-bar">
+        <div class="t-row">
+          <div class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <span>256-bit AES encryption · TLS 1.3 secured</span>
+        </div>
+        <div class="t-row">
+          <div class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <span>PayPal Buyer & Seller Protection included</span>
+        </div>
+        <div class="t-row">
+          <div class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <span>Regulated international payment processor</span>
+        </div>
+        <div class="compliance">
+          <span class="comp-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> PCI DSS Compliant</span>
+          <span class="comp-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> SOC 2 Certified</span>
+          <span class="comp-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> GDPR Ready</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">USA International Payment · Secure Global Transactions · Powered by PayPal</div>
+</div>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&disable-funding=paylater&enable-funding=card"></script>
+<script>
+  // Generate reference ID
+  var refId = 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  document.getElementById('ref-id').textContent = 'Ref: ' + refId;
+
+  var params = new URLSearchParams(window.location.search);
+  var urlAmount = params.get('amount');
+  var desc = params.get('desc') || 'International Payment';
+  var service = params.get('service');
+  var pkg = params.get('pkg');
+  var brand = params.get('brand');
+
+  if (service || pkg || brand) {
+    document.getElementById('order-info').style.display = 'flex';
+    if (service) document.getElementById('info-service').textContent = service;
+    if (pkg) document.getElementById('info-package').textContent = pkg;
+    if (brand) document.getElementById('info-brand').textContent = brand;
+  }
+
+  if (urlAmount && parseFloat(urlAmount) > 0) {
+    startPayment(parseFloat(urlAmount).toFixed(2));
+  } else {
+    showAmountForm();
+  }
+
+  function showAmountForm() {
+    document.getElementById('paypal-buttons').innerHTML =
+      '<div class="amount-form">' +
+        '<label class="af-label">Enter Payment Amount (USD)</label>' +
+        '<div class="af-input-wrap">' +
+          '<span class="af-prefix">$</span>' +
+          '<input type="number" id="amount-input" class="af-input" placeholder="0.00" min="1" step="0.01" autofocus />' +
+        '</div>' +
+        '<button class="af-btn" onclick="handleAmountSubmit()">Proceed to Secure Payment →</button>' +
+      '</div>';
+  }
+
+  function handleAmountSubmit() {
+    var val = parseFloat(document.getElementById('amount-input').value);
+    if (!val || val < 1) {
+      var el = document.getElementById('error-msg');
+      el.textContent = 'Please enter a valid amount (minimum $1.00 USD)';
+      el.style.display = 'block';
+      return;
+    }
+    document.getElementById('error-msg').style.display = 'none';
+    startPayment(val.toFixed(2));
+  }
+
+  function startPayment(amount) {
+    document.getElementById('display-amount').textContent = amount;
+    document.getElementById('status-text').textContent = 'Awaiting payment';
+    document.querySelector('.ct-status-dot').style.background = '#facc15';
+    document.getElementById('paypal-buttons').innerHTML = '';
+
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 50 },
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          intent: 'CAPTURE',
+          purchase_units: [{ amount: { value: amount, currency_code: 'USD' }, description: desc }],
+          application_context: { shipping_preference: 'NO_SHIPPING', user_action: 'PAY_NOW' },
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function() {
+          document.querySelector('.card-top').style.background = 'linear-gradient(135deg, #059669, #047857)';
+          document.querySelector('.ct-status-dot').style.cssText = 'background:#10B981;animation:none';
+          document.getElementById('status-text').textContent = 'Payment complete';
+          document.getElementById('paypal-buttons').innerHTML =
+            '<div class="success-box">' +
+              '<div class="success-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+              '<div class="success-title">Payment Confirmed</div>' +
+              '<div class="success-sub">$' + amount + ' USD has been received and processed successfully.</div>' +
+              '<div class="success-ref">' + refId + '</div>' +
+            '</div>';
+          document.querySelector('.trust-bar').style.display = 'none';
+          document.querySelector('.methods').style.display = 'none';
+          if (document.getElementById('error-msg')) document.getElementById('error-msg').style.display = 'none';
+        });
+      },
+      onError: function() {
+        var el = document.getElementById('error-msg');
+        el.textContent = 'Transaction declined. Please verify your card details or try an alternative payment method.';
+        el.style.display = 'block';
+      },
+      onCancel: function() {
+        var el = document.getElementById('error-msg');
+        el.textContent = 'Transaction cancelled. You may retry at any time.';
+        el.style.display = 'block';
+      },
+    }).render('#paypal-buttons');
+  }
+</script>
+</body>
+</html>
