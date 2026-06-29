@@ -1,0 +1,21 @@
+name: Auto Article Publisher
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Setiap hari jam 16:00 WIB (09:00 UTC)
+  workflow_dispatch:      # Bisa trigger manual dari GitHub Actions tab
+
+jobs:
+  publish-articles:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Publish 2 Articles Today
+        run: |
+          echo "Starting auto article publisher..."
+          curl -s -X GET \
+            "https://fashionlandingpage-full-backup.vercel.app/api/auto-article" \
+            -H "Content-Type: application/json" \
+            --max-time 120
+          echo ""
+          echo "Done!"
