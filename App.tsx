@@ -54,11 +54,7 @@ interface WizardState {
 }
 
 // ─── Constants ────────────────────────────────────────────
-const GROQ_API_KEY = [
-  "gsk_zmq98i2XzN3FY",
-  "Ot1FATbWGdyb3FY",
-  "Pv4tFM6Noslpw3IXkSpVYBGM",
-].join("");
+const GROQ_API_KEY = "isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN";
 
 // ─── Clothing Design Packages ─────────────────────────────
 const PACKAGES: Package[] = [
@@ -939,26 +935,37 @@ function Step4({
 CLIENT INPUT:
 ${userContext}
 
-INSTRUCTIONS:
-Write the brief in English. Structure it with these sections (use the headers):
+CRITICAL FORMATTING RULES:
+- Write in plain natural human language. NO asterisks (*), NO markdown, NO bold formatting, NO bullet symbols.
+- Use section headers like "PROJECT OVERVIEW", "DESIGN DIRECTION" etc. on their own line followed by a colon.
+- Write in flowing paragraphs, like a professional document — not a list.
+- Do NOT use dashes as bullet points. Write full sentences.
 
-**PROJECT OVERVIEW** — Summarize the project scope, brand identity, and target audience in 2-3 sentences.
+STRUCTURE:
 
-**DESIGN DIRECTION** — Describe the visual style, mood, and aesthetic direction in detail. Reference specific design movements, visual metaphors, or cultural influences that align with the concept. Be specific about typography feel, layout approach, and overall visual weight.
+PROJECT OVERVIEW:
+Summarize the project scope, brand identity, and target audience in 2-3 natural sentences.
 
-**COLOR PALETTE** — Define the primary and secondary color direction. If the client gave color references, expand on complementary tones, contrast strategy, and how colors should evoke the brand mood. If not specified, suggest a professional palette based on the concept.
+DESIGN DIRECTION:
+Describe the visual style, mood, and aesthetic in detail. Reference specific design movements, visual metaphors, or cultural influences. Be specific about typography feel, layout approach, and overall visual weight.
 
-**REFERENCES & INSPIRATION** — Expand on the client's references. Describe what elements to draw from each reference (composition, texture, type treatment, illustration style, etc). If no references given, suggest relevant visual references from the streetwear/brand design world.
+COLOR PALETTE:
+Define the primary and secondary color direction. Expand on complementary tones, contrast strategy, and how colors should evoke the brand mood.
 
-**TECHNICAL REQUIREMENTS** — List expected deliverables, file formats, resolution requirements, and any print-specific or digital-specific notes.
+REFERENCES AND INSPIRATION:
+Expand on the client's references. Describe what elements to draw from each reference. If no references given, suggest relevant visual references from the streetwear and brand design world.
 
-**DO'S AND DON'TS** — 3-4 specific do's and don'ts to guide the designer away from common pitfalls for this type of project.
+TECHNICAL REQUIREMENTS:
+Describe expected deliverables, file formats, resolution requirements, and any print-specific or digital-specific notes in full sentences.
 
-Write at least 400 words. Be specific, opinionated, and actionable — not vague. Every sentence should give the designer clear direction. Do not use placeholder language like "TBD" or "to be discussed".`;
+DOS AND DONTS:
+Write 3-4 specific guidelines to direct the designer, in full sentence form. No bullet points.
+
+Write at least 400 words. Be specific, opinionated, and actionable. Every sentence should give the designer clear direction. Do not use placeholder language.`;
 
     try {
       const res = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
+        "https://api.aivene.com/v1/chat/completions",
         {
           method: "POST",
           headers: {
@@ -966,7 +973,7 @@ Write at least 400 words. Be specific, opinionated, and actionable — not vague
             Authorization: `Bearer ${GROQ_API_KEY}`,
           },
           body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            model: "gpt-4o",
             messages: [{ role: "user", content: prompt }],
             max_tokens: 2000,
             temperature: 0.7,
