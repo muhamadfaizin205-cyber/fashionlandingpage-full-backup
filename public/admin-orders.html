@@ -1144,13 +1144,37 @@ async function sendAdminMsg(email,isMobile){
   var sfx=isMobile?'-m':'';var inp=document.getElementById('cr-inp'+sfx);
   if(!inp||!inp.value.trim())return;
   var msg=inp.value.trim().substring(0,MAX_MSG_LEN);
-  if(adEditing){await sb.from('messages').update({message:msg,edited_at:new Date().toISOString()}).eq('id',adEditing.id);adEditing=null;inp.value='';inp.style.height='auto';loadChatMsgs(isMobile?'mobile':undefined);return}
+  // Clear input immediately
+  inp.value='';inp.style.height='auto';
+  if(adEditing){
+    var eId=adEditing.id;adEditing=null;
+    await sb.from('messages').update({message:msg,edited_at:new Date().toISOString()}).eq('id',eId);
+    var idx=chatMsgs.findIndex(function(m){return m.id===eId});
+    if(idx>-1){chatMsgs[idx].message=msg;chatMsgs[idx].edited_at=new Date().toISOString();}
+    renderChatRoom(isMobile?'mobile':undefined);return;
+  }
   var order=orders.find(function(o){return o.email===email});
-  var payload={order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false,delivered:false};
-  if(adReplyTo)payload.reply_to=adReplyTo.id;
-  inp.value='';inp.style.height='auto';adReplyTo=null;
-  await sb.from('messages').insert([payload]);playSendSound();
-  loadChatMsgs(isMobile?'mobile':undefined);loadConversations();
+  // Optimistic: add immediately
+  var tempId='temp_'+Date.now();
+  var optimistic={id:tempId,order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false,delivered:false,created_at:new Date().toISOString(),_sending:true};
+  if(adReplyTo)optimistic.reply_to=adReplyTo.id;
+  chatMsgs.push(optimistic);
+  adReplyTo=null;
+  renderChatRoom(isMobile?'mobile':undefined);
+  playSendSound();
+  // Scroll to bottom immediately
+  setTimeout(function(){var cb=document.querySelector('.cr-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
+  // Send to server
+  try{
+    var{data}=await sb.from('messages').insert([{order_email:optimistic.order_email,order_id:optimistic.order_id,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false,delivered:false,reply_to:optimistic.reply_to||null}]).select();
+    var idx2=chatMsgs.findIndex(function(m){return m.id===tempId});
+    if(idx2>-1&&data&&data[0])chatMsgs[idx2]=data[0];
+    loadConversations();
+  }catch(e){
+    var idx3=chatMsgs.findIndex(function(m){return m.id===tempId});
+    if(idx3>-1)chatMsgs[idx3]._failed=true;
+    renderChatRoom(isMobile?'mobile':undefined);
+  }
 }
 async function sendAdminImage(email,input,isMobile){
   var file=input.files&&input.files[0];if(!file||!sb)return;
