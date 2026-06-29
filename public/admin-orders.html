@@ -513,6 +513,7 @@ function renderApp(){
         // Invite Customer
         '<button class="sb-ic '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite<span class="sb-ic-tip">Invite Customer</span></button>'+
         '<button class="sb-ic '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Articles<span class="sb-ic-tip">Articles</span></button>'+
+        
         '<div class="sb-divider"></div>'+
         // Landing page
         '<button class="sb-ic" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Website<span class="sb-ic-tip">Landing Page</span></button>'+
@@ -533,6 +534,7 @@ function renderApp(){
       '<div class="md-item '+(currentView==='packages'?'active':'')+'" onclick="switchView(\'packages\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Packages</div>'+
       '<div class="md-item '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite Customer</div>'+
       '<div class="md-item '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles</div>'+
+        '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
       '<div class="md-divider"></div>'+
       '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -601,12 +603,29 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Invite Customer</h1></div><div id="invite-area"></div></div>';
   } else if(currentView==='articles'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Articles</h1><div class="page-actions"><button class="btn-primary" onclick="openAIWriter()" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> AI Write</button><button class="btn-primary" onclick="openArticleEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Article</button></div></div><div id="articles-area"></div></div>';
+  } else if(currentView==='ai-agent'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Agent</h1></div><div id="ai-agent-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
   else if(currentView==='packages')renderPackagesView();
   else if(currentView==='invite')renderInviteView();
   else if(currentView==='articles')renderArticlesView();
+  else if(currentView==='ai-agent')renderAIAgentView();
+  // Inject AI Agent nav button
+  var sbIcons=document.querySelector('.sb-icons');
+  if(sbIcons&&!document.getElementById('agent-nav-btn')){
+    var agentBtn=document.createElement('button');
+    agentBtn.id='agent-nav-btn';
+    agentBtn.className='sb-ic';
+    agentBtn.title='AI Agent';
+    agentBtn.onclick=function(){switchView('ai-agent')};
+    agentBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent<span class="sb-ic-tip">AI Agent</span>';
+    sbIcons.appendChild(agentBtn);
+  }
+  if(document.getElementById('agent-nav-btn')){
+    document.getElementById('agent-nav-btn').className='sb-ic'+(currentView==='ai-agent'?' active':'');
+  }
 }
 
 // ── PACKAGES VIEW ──
@@ -717,6 +736,116 @@ async function saveOrder(id){
 }
 async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
 
+
+
+// ── AI Agent Dashboard ──
+var aiAgentRunning=false;
+var aiAgentLogs=[];
+
+function renderAIAgentView(){
+  var el=document.getElementById('ai-agent-area');if(!el)return;
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">';
+  
+  // Card 1: Status
+  h+='<div style="background:#fff;border-radius:16px;padding:22px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04)">';
+  h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">';
+  h+='<div style="width:42px;height:42px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);border-radius:12px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>';
+  h+='<div><div style="font-size:16px;font-weight:800;color:var(--txt)">AI Agent Status</div><div style="font-size:12px;color:var(--txt3)">Auto-publish 2 articles/day</div></div></div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#F0FDF4;border-radius:10px;margin-bottom:14px">';
+  h+='<div style="width:8px;height:8px;background:#1DBF73;border-radius:50%;animation:pulse 2s infinite"></div>';
+  h+='<span style="font-size:13px;font-weight:600;color:#16a34a">Active — Runs daily at 16:00 WIB</span></div>';
+  h+='<div style="font-size:12px;color:var(--txt3);line-height:1.6">GPT-4o via Aivene API · 30 SEO topics rotating · Promotes createclothingdesign.com</div>';
+  h+='</div>';
+
+  // Card 2: Stats
+  h+='<div style="background:#fff;border-radius:16px;padding:22px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04)">';
+  h+='<div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px">📊 Publishing Stats</div>';
+  h+='<div id="agent-stats">Loading...</div>';
+  h+='</div>';
+  h+='</div>';
+
+  // Manual Trigger Section
+  h+='<div style="background:#fff;border-radius:16px;padding:24px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:16px">';
+  h+='<div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:6px">⚡ Manual Trigger</div>';
+  h+='<div style="font-size:13px;color:var(--txt3);margin-bottom:16px">Publish 2 new articles right now without waiting for the daily schedule.</div>';
+  h+='<button id="agent-run-btn" onclick="runAIAgent()" style="padding:13px 28px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(139,92,246,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate 2 Articles Now</button>';
+  h+='</div>';
+
+  // Live Log
+  h+='<div style="background:#0F1419;border-radius:16px;padding:24px;min-height:200px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+  h+='<div style="font-size:13px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px">Live Log</div>';
+  h+='<button onclick="clearAgentLog()" style="font-size:11px;color:#64748B;background:none;border:none;cursor:pointer">Clear</button></div>';
+  h+='<div id="agent-log" style="font-family:monospace;font-size:12px;color:#94A3B8;line-height:1.8">';
+  if(aiAgentLogs.length){
+    aiAgentLogs.forEach(function(l){h+='<div style="color:'+(l.type==='success'?'#1DBF73':l.type==='error'?'#FF3B30':'#94A3B8')+'">'+esc(l.msg)+'</div>';});
+  }else{
+    h+='<div style="color:#334155">No logs yet. Click "Generate 2 Articles Now" to start.</div>';
+  }
+  h+='</div></div>';
+
+  el.innerHTML=h;
+  loadAgentStats();
+}
+
+async function loadAgentStats(){
+  if(!sb)return;
+  var{data}=await sb.from('articles').select('id,created_at,author_name').eq('author_name','Dean Designers AI').order('created_at',{ascending:false});
+  var el=document.getElementById('agent-stats');if(!el)return;
+  if(!data||!data.length){el.innerHTML='<div style="font-size:13px;color:var(--txt3)">No AI articles published yet.</div>';return;}
+  var today=new Date().toDateString();
+  var todayCount=data.filter(function(a){return new Date(a.created_at).toDateString()===today}).length;
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#8B5CF6">'+data.length+'</div><div style="font-size:11px;color:var(--txt3)">Total Published</div></div>';
+  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#1DBF73">'+todayCount+'</div><div style="font-size:11px;color:var(--txt3)">Today</div></div>';
+  h+='</div>';
+  if(data[0]){h+='<div style="margin-top:10px;font-size:11px;color:var(--txt3)">Last: '+fmtDate(data[0].created_at)+'</div>';}
+  el.innerHTML=h;
+}
+
+function addAgentLog(msg,type){
+  var ts=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  aiAgentLogs.push({msg:'['+ts+'] '+msg,type:type||'info'});
+  var el=document.getElementById('agent-log');
+  if(el){
+    var div=document.createElement('div');
+    div.style.color=type==='success'?'#1DBF73':type==='error'?'#FF3B30':'#94A3B8';
+    div.textContent='['+ts+'] '+msg;
+    el.appendChild(div);
+    el.scrollTop=el.scrollHeight;
+  }
+}
+
+function clearAgentLog(){aiAgentLogs=[];var el=document.getElementById('agent-log');if(el)el.innerHTML='<div style="color:#334155">Log cleared.</div>';}
+
+async function runAIAgent(){
+  if(aiAgentRunning){alert('Agent is already running!');return;}
+  aiAgentRunning=true;
+  var btn=document.getElementById('agent-run-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<div style="width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div>Generating articles...';}
+  addAgentLog('Starting AI Agent...','info');
+  addAgentLog('Connecting to Aivene API (GPT-4o)...','info');
+  try{
+    var res=await fetch('/api/auto-article',{method:'GET'});
+    var data=await res.json();
+    if(data.success){
+      addAgentLog('✅ '+data.message,'success');
+      if(data.articles){
+        data.articles.forEach(function(a,i){
+          addAgentLog('📄 Article '+(i+1)+': '+a.title,'success');
+        });
+      }
+      addAgentLog('Articles published to website!','success');
+      loadAgentStats();
+    }else{
+      addAgentLog('❌ Error: '+(data.error||'Unknown error'),'error');
+    }
+  }catch(err){
+    addAgentLog('❌ Network error: '+err.message,'error');
+  }
+  aiAgentRunning=false;
+  if(btn){btn.disabled=false;btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate 2 Articles Now';}
+}
 
 // ── Articles CMS ──
 let articlesList=[],editingArticle=null;
