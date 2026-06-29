@@ -443,13 +443,31 @@ function startApp(){
   sb.channel('admin-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
   sb.channel('admin-msgs-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},(payload)=>{
     if(payload.eventType==='INSERT'&&payload.new){
-      if(payload.new.sender_type==='client') playReceiveSound();
+      var m=payload.new;
+      // Skip if it's our own optimistic message already in array
+      if(chatMsgs.find(function(x){return x.id===m.id})) return;
+      // Skip our own sent messages (already added optimistically)
+      if(m.sender_type==='admin') { loadConversations(); return; }
+      // New client message — append without full reload
+      if(m.sender_type==='client') playReceiveSound();
       loadConversations();
-      if(chatEmail&&payload.new.order_email===chatEmail) loadChatMsgs();
+      if(chatEmail&&m.order_email===chatEmail){
+        chatMsgs.push(m);
+        if(!m.read) sb.from('messages').update({read:true,delivered:true}).eq('id',m.id).then(()=>{});
+        // Save input text
+        var sfx='';var inp=document.getElementById('cr-inp'+sfx);
+        var saved=inp?inp.value:'';
+        renderChatRoom();
+        var inp2=document.getElementById('cr-inp'+sfx);
+        if(inp2&&saved)inp2.value=saved;
+        setTimeout(function(){var cb=document.querySelector('.cr-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},50);
+      }
     }
     if(payload.eventType==='DELETE'){
+      var did=payload.old&&payload.old.id;
+      if(did){chatMsgs=chatMsgs.filter(function(m){return m.id!==did});}
       loadConversations();
-      if(chatEmail) loadChatMsgs();
+      if(chatEmail){renderChatRoom();}
     }
   }).subscribe();
 }
