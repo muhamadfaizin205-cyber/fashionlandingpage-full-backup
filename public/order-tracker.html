@@ -786,13 +786,23 @@ async function sendMsg(){
     var{data}=await sb.from('messages').insert([{order_email:optimistic.order_email,order_id:optimistic.order_id,sender_email:optimistic.sender_email,sender_type:'client',message:msg,read:false,delivered:false,reply_to:optimistic.reply_to||null}]).select();
     // Replace temp with real
     var idx2=msgs.findIndex(function(m){return m.id===tempId});
-    if(idx2>-1&&data&&data[0]){msgs[idx2]=data[0];}
-    else if(idx2>-1){msgs[idx2]._sending=false;}
+    if(idx2>-1&&data&&data[0]){
+      msgs[idx2]=data[0];
+      // Update bubble DOM - remove sending state
+      var tempEl=document.getElementById('msg-'+tempId);
+      if(tempEl){
+        tempEl.id='msg-'+data[0].id;
+        var meta=tempEl.querySelector('.cm-meta');
+        if(meta)meta.innerHTML='<span class="cm-time">'+fmtTime(data[0].created_at)+'</span>';
+        tempEl.style.opacity='1';
+      }
+    }else if(idx2>-1){msgs[idx2]._sending=false;}
   }catch(e){
-    // Mark failed
+    // Mark failed - update bubble
     var idx3=msgs.findIndex(function(m){return m.id===tempId});
     if(idx3>-1)msgs[idx3]._failed=true;
-    renderChat();
+    var failEl=document.getElementById('msg-'+tempId);
+    if(failEl)failEl.style.opacity='0.5';
   }
   btn.disabled=false;
 }
