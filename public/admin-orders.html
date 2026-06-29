@@ -1205,12 +1205,22 @@ async function sendAdminMsg(email,isMobile){
   try{
     var{data}=await sb.from('messages').insert([{order_email:optimistic.order_email,order_id:optimistic.order_id,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false,delivered:false,reply_to:optimistic.reply_to||null}]).select();
     var idx2=chatMsgs.findIndex(function(m){return m.id===tempId});
-    if(idx2>-1&&data&&data[0])chatMsgs[idx2]=data[0];
+    if(idx2>-1&&data&&data[0]){
+      chatMsgs[idx2]=data[0];
+      var tempEl=document.getElementById('msg-'+tempId);
+      if(tempEl){
+        tempEl.id='msg-'+data[0].id;
+        var meta=tempEl.querySelector('.cm-meta');
+        if(meta)meta.innerHTML='<span class="cm-time">'+fmtTime(data[0].created_at)+'</span>';
+        tempEl.style.opacity='1';
+      }
+    }
     loadConversations();
   }catch(e){
     var idx3=chatMsgs.findIndex(function(m){return m.id===tempId});
     if(idx3>-1)chatMsgs[idx3]._failed=true;
-    renderChatRoom(isMobile?'mobile':undefined);
+    var failEl=document.getElementById('msg-'+tempId);
+    if(failEl){failEl.style.opacity='0.4';failEl.title='Failed to send';}
   }
 }
 async function sendAdminImage(email,input,isMobile){
