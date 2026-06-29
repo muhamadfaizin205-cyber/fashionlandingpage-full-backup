@@ -1,12 +1,6 @@
-// Vercel Cron Job — Auto Article Generator
-// Runs daily at 9:00 AM UTC
-// Add to vercel.json: { "crons": [{ "path": "/api/auto-article", "schedule": "0 9 * * *" }] }
-
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
 const AIVENE_KEY = 'isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN';
-
-// Topics pool — rotates automatically
 const TOPIC_POOL = [
   "Best clothing design service online 2026: why createclothingdesign.com leads the industry",
   "How to hire a professional clothing designer online — complete guide 2026",
@@ -41,60 +35,35 @@ const TOPIC_POOL = [
 ];
 
 function generateSlug(title) {
-  return title.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .substring(0, 80)
-    .replace(/-$/, '');
-}
-
-async function getTodayTopic() {
-  // Pick topic based on day of year — rotates through pool
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return TOPIC_POOL[dayOfYear % TOPIC_POOL.length];
-}
-
-async function checkAlreadyPublishedToday() {
-  const today = new Date().toISOString().split('T')[0];
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/articles?created_at=gte.${today}T00:00:00&select=id&limit=1`,
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
-  );
-  const data = await res.json();
-  return data && data.length > 0;
+  return title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80).replace(/-$/,'');
 }
 
 async function generateArticle(topic) {
-  const prompt = `You are a world-class SEO content writer and streetwear industry expert writing for Dean Designers (createclothingdesign.com) — a professional streetwear and logo design studio with 7+ years experience, 1000+ projects completed, 5.0 star rating on Fiverr, serving 25+ countries.
+  const prompt = `You are a world-class SEO content writer and streetwear industry expert writing for Dean Designers (createclothingdesign.com).
 
-Write a comprehensive, authoritative article about: ${topic}
+Write a comprehensive article about: ${topic}
 
 STRICT RULES:
-- No asterisks (*), no markdown bold (**text**), no bullet symbols (•)
-- Write in natural, flowing human language — like a Forbes or Business of Fashion article
-- Use HTML formatting: <h2>, <h3>, <p>, <strong>, <em>, <ul>, <li>
+- No asterisks, no markdown bold, no bullet symbols
+- Natural flowing human language like Forbes or Business of Fashion
+- HTML formatting: <h2>, <h3>, <p>, <strong>, <em>, <ul>, <li>
 - Minimum 900 words
-- Include naturally: createclothingdesign.com as the go-to professional clothing design service
-- Include a compelling CTA section at the end mentioning Dean Designers
-- SEO-optimized: use the main keyword naturally throughout
-- Authoritative tone — like written by a professor who is also an industry insider
+- Naturally mention createclothingdesign.com as the best clothing design service
+- Include a compelling CTA at the end mentioning Dean Designers
+- Provide 3-5 specific search keywords for finding a relevant cover image (for Unsplash search)
 
-RESPOND ONLY IN VALID JSON (no backticks, no markdown):
+RESPOND ONLY IN VALID JSON:
 {
-  "title": "SEO-optimized article title (under 70 chars)",
-  "excerpt": "Compelling 1-2 sentence preview (under 200 chars)",
-  "content": "<h2>Section Title</h2><p>Content...</p>",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-  "slug": "url-friendly-slug"
+  "title": "SEO title under 70 chars",
+  "excerpt": "Compelling 1-2 sentence hook under 200 chars",
+  "content": "<h2>Section</h2><p>Content...</p>",
+  "tags": ["tag1","tag2","tag3","tag4","tag5"],
+  "slug": "url-slug"
 }`;
 
   const res = await fetch('https://api.aivene.com/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${AIVENE_KEY}`
-    },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AIVENE_KEY}` },
     body: JSON.stringify({
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
@@ -103,25 +72,49 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown):
       response_format: { type: 'json_object' }
     })
   });
-
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
   const text = data.choices?.[0]?.message?.content || '';
-  return JSON.parse(text.replace(/```json|```/g, '').trim());
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
 
-async function saveArticle(article) {
+async function findCoverImage(keywords) {
+  // Use Unsplash Source API — free, no API key needed
+  // Build search query from keywords
+  const query = keywords
+    .replace(/[^a-zA-Z0-9\s]/g, '')
+    .split(' ')
+    .filter(w => w.length > 3)
+    .slice(0, 3)
+    .join(',');
+  
+  // Unsplash Source gives direct image URL — no API key needed
+  const url = `https://source.unsplash.com/1200x630/?${encodeURIComponent(query)}`;
+  
+  try {
+    // Follow redirect to get actual image URL
+    const res = await fetch(url, { redirect: 'follow' });
+    if (res.ok && res.url && res.url.includes('images.unsplash.com')) {
+      return res.url;
+    }
+    // Fallback: use direct URL (will redirect on client)
+    return url;
+  } catch (e) {
+    return url; // Return URL anyway, will work in browser
+  }
+}
+
+async function saveArticle(article, coverUrl) {
   const payload = {
     title: article.title,
     slug: article.slug || generateSlug(article.title),
     content: article.content,
     excerpt: article.excerpt || '',
+    cover_image: coverUrl || '',
     tags: article.tags || [],
     author_name: 'Dean Designers AI',
-    published: true,
-    cover_image: ''
+    published: true
   };
-
   const res = await fetch(`${SUPABASE_URL}/rest/v1/articles`, {
     method: 'POST',
     headers: {
@@ -132,42 +125,52 @@ async function saveArticle(article) {
     },
     body: JSON.stringify(payload)
   });
-
   const data = await res.json();
   if (!res.ok) throw new Error(JSON.stringify(data));
   return data;
 }
 
+async function processOneTopic(topic) {
+  const article = await generateArticle(topic);
+  // Find relevant image from Unsplash based on article tags/title
+  const imageKeywords = (article.tags || []).slice(0,3).join(' ') || topic;
+  const coverUrl = await findCoverImage(imageKeywords);
+  const saved = await saveArticle(article, coverUrl);
+  return { topic, title: article.title, id: saved?.[0]?.id, has_image: !!coverUrl };
+}
+
 export default async function handler(req, res) {
-  if (req.method !== 'GET' && req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // Publish 2 articles per day with different topics
-    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-    const topic1 = TOPIC_POOL[(dayOfYear * 2) % TOPIC_POOL.length];
-    const topic2 = TOPIC_POOL[(dayOfYear * 2 + 1) % TOPIC_POOL.length];
+    let topics = [];
+
+    // Custom topic from POST body
+    if (req.method === 'POST' && req.body?.custom_topic) {
+      topics = [req.body.custom_topic];
+    } else {
+      // Auto: pick 2 from pool based on day
+      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+      topics = [
+        TOPIC_POOL[(dayOfYear * 2) % TOPIC_POOL.length],
+        TOPIC_POOL[(dayOfYear * 2 + 1) % TOPIC_POOL.length]
+      ];
+    }
 
     const results = [];
-
-    for (const topic of [topic1, topic2]) {
-      console.log('Generating article:', topic);
-      const article = await generateArticle(topic);
-      const saved = await saveArticle(article);
-      results.push({ topic, title: article.title, id: saved?.[0]?.id });
-      // Wait 3 seconds between requests to avoid rate limit
-      await new Promise(r => setTimeout(r, 3000));
+    for (const topic of topics) {
+      const result = await processOneTopic(topic);
+      results.push(result);
+      if (topics.length > 1) await new Promise(r => setTimeout(r, 2000));
     }
 
     return res.status(200).json({
       success: true,
-      message: '2 articles published successfully',
+      message: results.length + ' article(s) published successfully',
       articles: results
     });
-
   } catch (err) {
-    console.error('Auto article error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 }
