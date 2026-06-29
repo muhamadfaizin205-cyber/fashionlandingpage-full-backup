@@ -1001,6 +1001,8 @@ async function loadChatMsgs(target){
   // Restore saved input text
   var _newInp=document.getElementById('cr-inp'+_sfx);
   if(_newInp&&_savedTxt){_newInp.value=_savedTxt;adAutoGrow(_newInp)}
+  // Scroll to bottom - fix glitch
+  setTimeout(function(){var cb=document.querySelector('.cr-msgs');if(cb){cb.scrollTop=cb.scrollHeight;}},80);
   sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:true,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{});
 }
 function loadClientPresence(){
