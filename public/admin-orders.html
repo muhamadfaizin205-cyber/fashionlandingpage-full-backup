@@ -1110,19 +1110,25 @@ function adFindMsg(id){return chatMsgs.find(function(m){return m.id===id})}
 function adSvgReceipt(msg){if(msg.sender_type!=='admin')return'';var read=msg.read,del=msg.delivered||read;var c=read?'#53BDEB':'rgba(255,255,255,0.45)';if(!del)return'<svg class="msg-receipt" width="14" height="9" viewBox="0 0 16 11" fill="none"><path d="M11 .5L5 7 2.4 4.7 1 6.2l4 3.7L12.5 2z" fill="'+c+'"/></svg>';return'<svg class="msg-receipt" width="18" height="9" viewBox="0 0 20 11" fill="none"><path d="M14 .5L8 7l-.7-.7-1.4 1.5 2.1 2L15.5 2z" fill="'+c+'"/><path d="M10 .5L4 7 1.4 4.7 0 6.2l4 3.7L11.5 2z" fill="'+c+'"/></svg>'}
 
 function appendAdminBubble(m,isMob){
-  var sfx=isMob?'-m':'';
   var box=document.querySelector('.cr-msgs');
   if(!box){renderChatRoom(isMob?'mobile':undefined);return;}
   var isCl=m.sender_type==='client';
   var div=document.createElement('div');
-  div.className='cm '+(isCl?'client':'admin');
+  // Admin sent = right side, client = left side
+  div.className='cm '+(isCl?'client':'admin-sent');
   div.id='msg-'+m.id;
-  var bubble='<div class="cm-bubble">';
-  if(m.image_url)bubble+='<img class="cm-img" src="'+esc(m.image_url)+'" style="max-width:200px;border-radius:10px;cursor:pointer;display:block" onclick="openAdImg(this.src)"/>';
-  if(m.voice_url)bubble+='<div class="cm-voice" style="font-size:12px;color:#94A3B8">&#127908; Voice message</div>';
+  div.style.cssText='display:flex;flex-direction:column;max-width:72%;'+(isCl?'align-self:flex-start;align-items:flex-start':'align-self:flex-end;align-items:flex-end');
+  var bgColor=isCl?'#fff':'#DCF8C6';
+  var borderRadius=isCl?'16px 16px 16px 4px':'16px 16px 4px 16px';
+  var bubble='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,0.08);color:#111;position:relative">';
+  if(m.image_url)bubble+='<img src="'+esc(m.image_url)+'" style="max-width:200px;border-radius:10px;cursor:pointer;display:block;margin-bottom:4px" onclick="openAdImg(this.src)"/>';
+  if(m.voice_url)bubble+='<div style="font-size:12px;color:#667781">🎤 Voice message</div>';
   if(m.message)bubble+=esc(m.message);
-  if(m._sending)bubble='<div style="opacity:0.7">'+esc(m.message||'')+'</div>';
-  bubble+='<div class="cm-meta"><span class="cm-time">'+fmtTime(m.created_at)+'</span></div></div>';
+  if(m._sending){
+    bubble='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;opacity:0.7;box-shadow:0 1px 2px rgba(0,0,0,0.08)">'+esc(m.message||'')+'<div style="font-size:10px;color:#667781;margin-top:2px">sending...</div></div>';
+  } else {
+    bubble+='<div style="display:flex;align-items:center;gap:4px;margin-top:2px;float:right;margin-left:8px"><span style="font-size:10px;color:#667781">'+fmtTime(m.created_at)+'</span></div></div>';
+  }
   div.innerHTML=bubble;
   box.appendChild(div);
   box.scrollTop=box.scrollHeight;
