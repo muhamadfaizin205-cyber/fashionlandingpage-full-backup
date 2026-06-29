@@ -26,31 +26,70 @@ a{color:inherit;text-decoration:none}
 .login-btn:hover{background:var(--green-dark)}
 .login-error{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:8px 12px;font-size:12px;color:#DC2626;margin-top:10px;display:none}
 
-/* Layout: sidebar + main + chat panel */
-.app{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:50}
-.main{flex:1;display:flex;flex-direction:column;min-width:0;margin-left:220px}
-.main-scroll{flex:1;overflow-y:auto;padding:24px}
-.chat-panel{width:380px;background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;right:0;bottom:0;overflow:hidden;z-index:50}
-@media(min-width:901px){.main{margin-right:380px}}
+/* ═══ MODERN LAYOUT — Icon Sidebar + Content + Chat Panel ═══ */
+.app{display:flex;min-height:100vh;background:linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 30%,#E0F2F1 60%,#F1F8E9 100%)}
+/* Dark icon sidebar */
+.sidebar{width:200px;background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:16px;left:16px;bottom:16px;z-index:60;padding:20px 12px;border:1px solid rgba(255,255,255,0.5);border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.sb-logo{width:100%;display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:30px}.sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#1DBF73,#17B169);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(29,191,115,0.3)}.sb-logo-text{font-size:14px;font-weight:800;color:#1a1a2e;letter-spacing:-0.2px}
+.sb-icons{display:flex;flex-direction:column;gap:4px;flex:1}
+.sb-ic{width:100%;height:auto;padding:10px 14px;border-radius:12px;display:flex;align-items:center;gap:11px;color:#7C8DB5;cursor:pointer;transition:all .2s;position:relative;border:none;background:transparent;font-size:13px;font-weight:600;letter-spacing:0.1px}
+.sb-ic:hover{background:rgba(29,191,115,0.08);color:#1a1a2e}
+.sb-ic.active{background:linear-gradient(135deg,#1DBF73,#17B169);color:#fff;box-shadow:0 6px 20px rgba(29,191,115,0.35);font-weight:700}
+.sb-ic-badge{position:absolute;top:8px;right:10px;min-width:18px;height:18px;background:#EF4444;color:#fff;font-size:10px;font-weight:800;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #0F1419}
+.sb-ic-tip{position:absolute;left:62px;top:50%;transform:translateY(-50%);background:#1E293B;color:#fff;font-size:11px;font-weight:600;padding:7px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:all .2s;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.2);letter-spacing:0.2px}
+.sb-ic:hover .sb-ic-tip{opacity:0}
+.sb-divider{width:80%;height:1px;background:rgba(0,0,0,0.06);margin:12px auto}
+/* Profile button bottom of sidebar */
+.sb-profile-ic{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1DBF73,#16a34a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;cursor:pointer;overflow:hidden;border:2px solid rgba(29,191,115,0.2);transition:all .2s}
+.sb-profile-ic:hover{border-color:#1DBF73;transform:scale(1.05)}
+.sb-profile-ic img{width:100%;height:100%;object-fit:cover}
 
-/* Sidebar */
-.sb-brand{display:flex;align-items:center;gap:9px;padding:18px 16px}
-.sb-icon{width:30px;height:30px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff}
-.sb-name{font-size:14px;font-weight:800}.sb-name span{color:var(--green)}
-.sb-nav{padding:0 10px;flex:1}
-.sb-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--txt2);margin-bottom:2px;transition:all .12s}
-.sb-item:hover{background:var(--bg);color:var(--txt)}
-.sb-item.active{background:var(--green-bg);color:var(--green);font-weight:600}
-.sb-section{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;padding:16px 12px 6px}
-.sb-bottom{padding:12px;margin-top:auto}
-.sb-status{display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--green-bg);border-radius:8px;border:1px solid var(--green-border)}
-.sb-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-.sb-status-text{font-size:11px;font-weight:600;color:var(--green)}
+/* Main content area */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;margin-left:232px;margin-top:16px;margin-right:16px;margin-bottom:16px;background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border-radius:22px;border:1px solid rgba(255,255,255,0.5);box-shadow:0 8px 32px rgba(0,0,0,0.04);overflow:hidden}
+.main-scroll{flex:1;overflow-y:auto;padding:24px 28px;width:100%;box-sizing:border-box}
+/* Page header inside main */
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:26px;font-weight:800;color:#1a1a2e;letter-spacing:-0.5px}
+.page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-primary{padding:10px 18px;background:linear-gradient(135deg,#1DBF73,#17B169);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 14px rgba(29,191,115,0.25);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-primary:hover{background:var(--green-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(29,191,115,0.25)}
+.btn-ghost{padding:10px 16px;background:#fff;border:1.5px solid #E8EDF2;border-radius:12px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.page-search{flex:1;max-width:260px;position:relative}
+.page-search input{width:100%;padding:10px 14px 10px 36px;border:1.5px solid #E8EDF2;border-radius:14px;font-size:13px;outline:none;background:var(--card);font-family:inherit;transition:border .15s}
+.page-search input:focus{border-color:var(--green)}
+.page-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3)}
+
+/* Chat panel (sliding from right) */
+.chat-panel{width:400px;background:#fff;border:none;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:16px;right:-420px;bottom:16px;overflow:hidden;z-index:55;transition:right .3s cubic-bezier(.22,1,.36,1);box-shadow:-8px 0 40px rgba(0,0,0,0.08);border-radius:22px}
+.chat-panel.open{right:0}
+.cp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:54;opacity:0;pointer-events:none;transition:opacity .25s}
+.cp-overlay.show{opacity:1;pointer-events:auto}
+@media(min-width:1200px){.chat-panel.open{position:fixed}.main.with-chat{margin-right:400px}.cp-overlay{display:none}}
+
+/* Hamburger menu (mobile) */
+.hamburger{display:none;width:40px;height:40px;border-radius:9px;background:var(--card);border:1.5px solid var(--border);align-items:center;justify-content:center;color:var(--txt2);cursor:pointer}
+.mobile-drawer{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.mobile-drawer.open{opacity:1;pointer-events:auto}
+.mobile-drawer-content{position:absolute;left:0;top:0;bottom:0;width:260px;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);padding:20px 14px;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);border-radius:0 22px 22px 0;box-shadow:4px 0 30px rgba(0,0,0,0.08)}
+.mobile-drawer.open .mobile-drawer-content{transform:translateX(0)}
+.md-item{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;color:#64748B;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:4px;transition:all .15s}
+.md-item:hover{background:#F1F5F9;color:#1a1a2e}
+.md-item.active{background:linear-gradient(135deg,#1DBF73,#16a34a);color:#fff;box-shadow:0 4px 14px rgba(29,191,115,0.25)}
+.md-divider{height:1px;background:#1F2937;margin:10px 4px}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .mobile-drawer{display:block}
+  .main-scroll{padding:14px}
+  .chat-panel{width:100%;right:-100%}
+}
 
 /* Stats */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:#fff;border:none;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:transform .15s}.stat:hover{transform:translateY(-2px)}
 .stat-val{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px}
 .stat-label{font-size:11px;color:var(--txt3);font-weight:500}
 .stat-val.green{color:var(--green)}
@@ -102,31 +141,73 @@ a{color:inherit;text-decoration:none}
 
 /* Chat room */
 .chat-room{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.cr-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--card)}
-.cr-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-.cr-info{flex:1}.cr-name{font-size:13px;font-weight:700}.cr-sub{font-size:10px;color:var(--txt3)}
-.cr-dot{width:8px;height:8px;background:var(--green);border-radius:50%}
-.cr-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;background:#F9FAFB}
-.cr-empty{text-align:center;padding:60px 20px;color:var(--txt3);font-size:13px}
-.msg{display:flex;gap:10px;max-width:85%}
-.msg.admin{align-self:flex-end;flex-direction:row-reverse}
-.msg.client{align-self:flex-start}
-.msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px}
-.msg.admin .msg-av{background:var(--green);color:#fff}
-.msg.client .msg-av{background:var(--blue);color:#fff}
-.msg-body{flex:1;min-width:0}
-.msg-name{font-size:10px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
-.msg.admin .msg-name{color:var(--green);justify-content:flex-end}
-.msg.client .msg-name{color:var(--blue)}
-.msg-time{font-weight:400;color:var(--txt3);font-size:9px}
-.msg-bubble{padding:12px 16px;border-radius:18px;font-size:13px;line-height:1.6;word-break:break-word}
-.msg.admin .msg-bubble{background:var(--green);color:#fff;border-top-right-radius:4px}
-.msg.client .msg-bubble{background:var(--card);color:var(--txt);border:1px solid var(--border);border-top-left-radius:4px}
-.cr-input{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--card);align-items:center}
-.cr-inp{flex:1;padding:12px 18px;border:1.5px solid var(--border);border-radius:24px;font-size:13px;outline:none;font-family:inherit;color:var(--txt);background:var(--bg);transition:border .15s}
+.cr-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--card)}
+.cr-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;position:relative}
+.cr-info{flex:1;min-width:0}.cr-name{font-size:13px;font-weight:700}.cr-sub{font-size:10px;color:var(--txt3)}
+.cr-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;background:#9CA3AF;border-radius:50%;border:2px solid var(--card)}.cr-dot.online{background:#4ADE80}
+.cr-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:5px;background:#F0F2F5;scroll-behavior:smooth}
+.cr-msgs::-webkit-scrollbar{width:4px}.cr-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+.cr-empty{text-align:center;padding:50px 16px;color:var(--txt3);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.msg{display:flex;flex-direction:column;max-width:82%;animation:fadeUp .12s;position:relative}
+.msg.admin{align-self:flex-end;align-items:flex-end}
+.msg.client{align-self:flex-start;align-items:flex-start}
+.msg-reply{display:flex;gap:0;margin-bottom:3px;border-radius:7px;overflow:hidden;font-size:11px;cursor:pointer}
+.msg.admin .msg-reply{background:rgba(255,255,255,.15)}
+.msg.client .msg-reply{background:#F0F2F5}
+.msg-reply-bar{width:3px;flex-shrink:0;background:var(--green)}
+.msg-reply-body{padding:4px 8px;overflow:hidden;min-width:0}
+.msg-reply-name{display:block;font-weight:700;font-size:10px;color:var(--green);margin-bottom:1px}
+.msg.admin .msg-reply-name{color:rgba(255,255,255,.8)}
+.msg-reply-text{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.6;font-size:10.5px}
+.msg-bubble{padding:7px 10px 4px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word;min-width:60px;white-space:pre-wrap}
+.msg.admin .msg-bubble{background:var(--green);color:#fff;border-bottom-right-radius:4px}
+.msg.client .msg-bubble{background:#fff;color:var(--txt);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px}
+.msg-time{font-size:9.5px;opacity:.5}
+.msg-edited{font-size:9px;opacity:.4;font-style:italic}
+.msg-receipt{flex-shrink:0;margin-left:1px}
+.msg-acts{position:absolute;top:1px;display:flex;gap:2px;opacity:0;transition:opacity .1s}
+.msg.admin .msg-acts{left:-52px}
+.msg.client .msg-acts{right:-52px}
+.msg:hover .msg-acts{opacity:1}
+.msg-act{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.05);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#667781;font-size:11px;transition:all .1s}
+.msg-act:hover{background:rgba(0,0,0,.1)}
+.msg-img{max-width:200px;max-height:180px;border-radius:8px;cursor:pointer;object-fit:cover;margin-bottom:3px;display:block}
+.msg-voice{display:flex;align-items:center;gap:7px;min-width:160px;padding:3px 0}
+.msg-voice-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg.admin .msg-voice-btn{background:rgba(255,255,255,.2);color:#fff}
+.msg.client .msg-voice-btn{background:var(--green);color:#fff}
+.msg-voice-track{flex:1;height:3px;background:rgba(128,128,128,.2);border-radius:2px;overflow:hidden}
+.msg-voice-fill{height:100%;border-radius:2px;transition:width .1s linear}
+.msg.admin .msg-voice-fill{background:rgba(255,255,255,.5)}
+.msg.client .msg-voice-fill{background:var(--green)}
+.msg-voice-dur{font-size:10px;opacity:.5;min-width:26px;flex-shrink:0}
+.msg-typing{display:flex;gap:3px;padding:5px 2px;align-items:center}
+.msg-typing span{width:5px;height:5px;border-radius:50%;background:#8696A0;animation:typDot 1.4s infinite}
+.msg-typing span:nth-child(2){animation-delay:.2s}
+.msg-typing span:nth-child(3){animation-delay:.4s}
+@keyframes typDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.cr-action-bar{display:flex;align-items:center;gap:7px;padding:7px 12px;background:var(--bg);border-top:1px solid var(--border);flex-shrink:0}
+.cr-action-bar-label{font-size:10px;font-weight:700;color:var(--green)}
+.cr-action-bar-text{font-size:11px;color:var(--txt3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.cr-action-bar-close{background:none;border:none;color:var(--txt3);cursor:pointer;font-size:15px;line-height:1}
+.cr-input{display:flex;gap:7px;padding:10px 14px;border-top:1px solid var(--border);background:var(--card);align-items:flex-end}
+.cr-inp{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:18px;font-size:13px;outline:none;font-family:inherit;color:var(--txt);background:var(--bg);transition:border .15s;resize:none;max-height:90px;line-height:1.4;min-height:38px}
 .cr-inp:focus{border-color:var(--green);background:#fff}
-.cr-send{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
+.cr-send{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s;border:none;cursor:pointer}
 .cr-send:hover{background:var(--green-dark)}
+.cr-att{width:36px;height:36px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt3);flex-shrink:0;transition:all .12s;border:none}
+.cr-att:hover{background:var(--green-bg);color:var(--green)}
+.cr-mic{width:36px;height:36px;border-radius:50%;background:transparent;border:none;color:var(--txt3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.cr-mic:hover{color:var(--green)}
+.cr-rec{display:flex;align-items:center;gap:8px;flex:1;padding:3px 0}
+.cr-rec-dot{width:9px;height:9px;border-radius:50%;background:#EF4444;animation:pulse 1s infinite}
+.cr-rec-time{font-size:13px;font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums;min-width:32px}
+.cr-rec-label{font-size:11px;color:var(--txt3);flex:1}
+.cr-rec-stop{width:36px;height:36px;border-radius:50%;border:none;background:#EF4444;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cr-img-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:pointer;animation:fadeUp .15s}
+.cr-img-overlay img{max-width:92vw;max-height:92vh;border-radius:8px;object-fit:contain}
 
 /* Order detail modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:flex-end;justify-content:center}
@@ -136,7 +217,7 @@ a{color:inherit;text-decoration:none}
 .modal-title{font-size:17px;font-weight:800}
 .modal-x{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt2);font-size:18px;cursor:pointer}
 .modal-body{padding:20px 22px}
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px}
 .mf{background:var(--bg);border-radius:10px;padding:11px 14px}
 .mf-l{font-size:10px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
 .mf-v{font-size:13px;font-weight:600;word-break:break-word}
@@ -171,12 +252,13 @@ a{color:inherit;text-decoration:none}
 .co-back{width:36px;height:36px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt2)}
 
 @media(max-width:900px){
-  .sidebar{display:none !important}
-  .chat-panel{display:none !important}
-  .main{margin-left:0 !important;margin-right:0 !important}
+  .sidebar{display:none !important;width:220px}
+  .chat-panel{width:100% !important;right:-100% !important}
+  .chat-panel.open{right:0 !important;display:flex !important}
+  .main{margin:0 !important;border-radius:0 !important;background:rgba(255,255,255,0.6) !important}
   .topbar-m{display:flex}
   .main-scroll{padding:16px}
-  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stats{gap:10px}
   .stat{padding:14px}
   .stat-val{font-size:20px}
   .filters{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:4px}
@@ -197,6 +279,54 @@ a{color:inherit;text-decoration:none}
   .modal-bg{align-items:center;padding:20px}
   .modal{border-radius:18px;max-height:80vh}
 }
+
+/* Profile Modal */
+.profile-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:center;justify-content:center;animation:fadeUp .2s}
+.profile-modal{background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,0.12);width:92%;max-width:400px;overflow:hidden;animation:fadeUp .25s}
+.profile-modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.profile-modal-head h3{font-size:17px;font-weight:800;margin:0}
+.profile-modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--txt2);font-size:18px}
+.profile-modal-body{padding:24px 22px}
+.profile-avatar-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.profile-avatar{width:90px;height:90px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;cursor:pointer;position:relative;overflow:hidden;transition:opacity .15s}
+.profile-avatar:hover{opacity:.85}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.profile-avatar:hover .profile-avatar-overlay{opacity:1}
+.profile-field{margin-bottom:16px}
+.profile-label{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.profile-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--txt);outline:none;transition:border .15s}
+.profile-input:focus{border-color:var(--green)}
+.profile-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--txt);outline:none;resize:none;min-height:70px;transition:border .15s}
+.profile-textarea:focus{border-color:var(--green)}
+.profile-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--txt);outline:none;appearance:auto;background:var(--card)}
+.profile-save{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
+.profile-save:hover{background:var(--green-dark)}
+.profile-save:disabled{opacity:.5;cursor:not-allowed}
+.profile-hint{font-size:11px;color:var(--txt3);text-align:center;margin-top:12px}
+.sb-profile-btn{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .12s;width:100%}
+.sb-profile-btn:hover{background:var(--bg)}
+.sb-profile-av{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;overflow:hidden;flex-shrink:0}
+.sb-profile-av img{width:100%;height:100%;object-fit:cover}
+.sb-profile-info{flex:1;min-width:0}
+.sb-profile-name{font-size:13px;font-weight:700}
+.sb-profile-status{font-size:10px;color:var(--txt3)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.opp-profile-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:flex;align-items:center;justify-content:center;animation:fadeUp .15s}
+.opp-profile{background:var(--card);border-radius:16px;width:90%;max-width:340px;overflow:hidden;animation:fadeUp .2s;text-align:center}
+.opp-profile-top{background:linear-gradient(135deg,var(--green),var(--green-dark));padding:30px 20px 20px;position:relative}
+.opp-profile-close{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+.opp-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 10px;overflow:hidden;border:3px solid rgba(255,255,255,.3)}
+.opp-avatar img{width:100%;height:100%;object-fit:cover}
+.opp-name{color:#fff;font-size:18px;font-weight:800;margin-bottom:2px}
+.opp-status-line{color:rgba(255,255,255,.8);font-size:12px}
+.opp-profile-body{padding:18px 20px}
+.opp-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);text-align:left}
+.opp-row:last-child{border-bottom:none}
+.opp-row-icon{color:var(--txt3);flex-shrink:0}
+.opp-row-label{font-size:11px;color:var(--txt3)}
+.opp-row-val{font-size:13px;color:var(--txt);font-weight:500}
 </style>
 </head>
 <body>
@@ -233,6 +363,11 @@ const SL={new:'New',working:'Working',review:'Review',revision:'Revision',comple
 const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision',completed:'b-completed',delivered:'b-delivered'};
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
+let currentView='orders',chatPanelOpen=false,mobileDrawerOpen=false;
+let adReplyTo=null,adEditing=null,adRecording=false,adRecSec=0,adRecTimer=null,adMediaRec=null,adRecChunks=[];
+let clientOnline=false,clientLastSeen=null,adRemoteTyping=false,adTypTimeout=null;
+let clientProfiles={};
+let adminProfile={display_name:'Dean Designers',avatar_url:'',bio:'',status:'available'};
 
 function waitSB(){return new Promise((r,j)=>{const s=Date.now();(function c(){window.supabase&&window.supabase.createClient?r():Date.now()-s>10000?j(new Error('Load failed')):setTimeout(c,100)})()})}
 
@@ -276,6 +411,7 @@ function startApp(){
   renderApp();
   loadOrders();
   loadConversations();
+  loadAdminProfile();
   sb.channel('admin-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
   sb.channel('admin-msgs-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},(payload)=>{
     if(payload.eventType==='INSERT'&&payload.new){
@@ -302,25 +438,199 @@ async function loadConversations(){
   const map={};
   all.forEach(m=>{if(!map[m.order_email])map[m.order_email]={email:m.order_email,last:m,unread:0,msgs:[]};map[m.order_email].msgs.push(m);if(m.sender_type==='client'&&!m.read)map[m.order_email].unread++});
   convs=Object.values(map).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
+  await loadClientProfiles();
   renderConvList();
+  // Update badge in sidebar
+  const totalUnread=convs.reduce((s,c)=>s+(c.unread||0),0);
+  document.querySelectorAll('.sb-ic').forEach(b=>{
+    const tip=b.querySelector('.sb-ic-tip');
+    if(tip&&tip.textContent==='Messages'){
+      const oldBadge=b.querySelector('.sb-ic-badge');if(oldBadge)oldBadge.remove();
+      if(totalUnread>0){const s=document.createElement('span');s.className='sb-ic-badge';s.textContent=totalUnread;b.insertBefore(s,tip)}
+    }
+  });
 }
 
 function renderApp(){
+  const totalUnread=convs.reduce((s,c)=>s+(c.unread||0),0);
+  // ── Icon Sidebar ──
+  const sidebarHTML=
+    '<aside class="sidebar">'+
+      '<div class="sb-logo"><div class="sb-logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="sb-logo-text">Dean <span style="color:#1DBF73">Designers</span></div></div>'+
+      '<div class="sb-icons">'+
+        // Orders
+        '<button class="sb-ic '+(currentView==='orders'?'active':'')+'" onclick="switchView(\'orders\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Orders<span class="sb-ic-tip">Orders</span></button>'+
+        // Chat (toggles panel)
+        '<button class="sb-ic '+(chatPanelOpen?'active':'')+'" onclick="toggleChatPanel()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages'+(totalUnread?'<span class="sb-ic-badge">'+totalUnread+'</span>':'')+'<span class="sb-ic-tip">Messages</span></button>'+
+        // Packages
+        '<button class="sb-ic '+(currentView==='packages'?'active':'')+'" onclick="switchView(\'packages\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Packages<span class="sb-ic-tip">Packages</span></button>'+
+        // Invite Customer
+        '<button class="sb-ic '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite<span class="sb-ic-tip">Invite Customer</span></button>'+
+        '<button class="sb-ic '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Articles<span class="sb-ic-tip">Articles</span></button>'+
+        '<div class="sb-divider"></div>'+
+        // Landing page
+        '<button class="sb-ic" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Website<span class="sb-ic-tip">Landing Page</span></button>'+
+      '</div>'+
+      // Profile + signout at bottom
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #1F2937">'+
+        '<button class="sb-ic" onclick="logout()" title="Sign Out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out<span class="sb-ic-tip">Sign Out</span></button>'+
+        '<div class="sb-profile-ic" id="sb-profile-area" onclick="openAdminProfileModal()" title="Edit Profile">DD</div>'+
+      '</div>'+
+    '</aside>';
+
+  // ── Mobile Drawer ──
+  const drawerHTML=
+    '<div class="mobile-drawer" id="m-drawer" onclick="if(event.target===this)toggleMobileDrawer()"><div class="mobile-drawer-content">'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 14px 18px;color:#fff"><div class="sb-logo" style="margin:0;width:34px;height:34px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div style="font-size:14px;font-weight:800">Dean <span style="color:var(--green)">Designers</span></div></div>'+
+      '<div class="md-item '+(currentView==='orders'?'active':'')+'" onclick="switchView(\'orders\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Orders</div>'+
+      '<div class="md-item" onclick="toggleChatPanel();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages'+(totalUnread?'<span style="margin-left:auto;background:#EF4444;color:#fff;padding:2px 7px;border-radius:9px;font-size:10px;font-weight:800">'+totalUnread+'</span>':'')+'</div>'+
+      '<div class="md-item '+(currentView==='packages'?'active':'')+'" onclick="switchView(\'packages\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Packages</div>'+
+      '<div class="md-item '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite Customer</div>'+
+      '<div class="md-item '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles</div>'+
+      '<div class="md-divider"></div>'+
+      '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
+      '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
+      '<div class="md-item" onclick="logout()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div>'+
+    '</div></div>';
+
   document.getElementById('root').innerHTML=
   '<div class="app">'+
-    // Sidebar (desktop only)
-    '<aside class="sidebar"><div class="sb-brand"><div class="sb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="sb-name">Dean <span>Designers</span></div></div><div class="sb-nav"><div class="sb-section">Workspace</div><div class="sb-item active" onclick=""><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg> Orders</div><div class="sb-item" onclick="openPkgEditor()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Packages</div><div class="sb-item" onclick="window.open(\'/\')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Landing Page</div><div class="sb-section">Account</div><div class="sb-item" onclick="logout()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</div></div><div class="sb-bottom"><div class="sb-status"><div class="sb-dot"></div><div class="sb-status-text">Online</div></div></div></aside>'+
-    // Main content
-    '<main class="main">'+
-      // Mobile topbar (INSIDE main)
-      '<div class="topbar-m"><div class="sb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="sb-name">Dean <span>Designers</span></div><div class="topbar-m-right"><button class="topbar-m-btn" onclick="openMobileChat()" id="m-chat-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button><button class="topbar-m-btn" onclick="logout()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></div></div>'+
-      '<div class="main-scroll"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px"><h1 style="font-size:22px;font-weight:800">Orders</h1><div style="display:flex;gap:8px;flex:1;max-width:280px"><input style="flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;font-family:inherit;background:var(--card)" placeholder="Search..." oninput="search=this.value;renderOrders()"/><button style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:600;background:var(--card);color:var(--txt2);white-space:nowrap" onclick="loadOrders()">Refresh</button></div></div><div id="stats-area"></div><div id="filters-area"></div><div id="orders-area"></div></div>'+
+    sidebarHTML+
+    '<main class="main'+(chatPanelOpen?' with-chat':'')+'" id="main-area">'+
+      '<div id="page-content"></div>'+
     '</main>'+
-    // Chat panel (desktop only)
-    '<div class="chat-panel"><div class="cp-header"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><h3>Messages</h3></div><div id="conv-list" class="conv-list"></div><div id="chat-room"></div></div>'+
+    // Chat panel
+    '<div class="cp-overlay" id="cp-overlay" onclick="toggleChatPanel()"></div>'+
+    '<div class="chat-panel'+(chatPanelOpen?' open':'')+'" id="chat-panel">'+
+      '<div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><h3 style="font-size:15px;font-weight:800;flex:1">Messages</h3><button onclick="toggleChatPanel()" style="background:var(--bg);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'+
+      '<div id="conv-list" class="conv-list"></div>'+
+      '<div id="chat-room"></div>'+
+    '</div>'+
   '</div>'+
-  '<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()"></div>'+
-  '<div class="chat-overlay" id="mobile-chat"><div class="co-header"><button class="co-back" onclick="closeMobileChat()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span style="font-size:15px;font-weight:800">Messages</span></div><div id="m-conv-list" class="conv-list" style="flex:1;overflow-y:auto"></div><div id="m-chat-room"></div></div>';
+  drawerHTML+
+  '<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()"></div>';
+
+  renderCurrentView();
+  renderConvList();
+}
+
+function switchView(v){
+  currentView=v;
+  renderApp();
+}
+
+function toggleChatPanel(){
+  chatPanelOpen=!chatPanelOpen;
+  const p=document.getElementById('chat-panel');
+  const ov=document.getElementById('cp-overlay');
+  const m=document.getElementById('main-area');
+  if(p)p.classList.toggle('open',chatPanelOpen);
+  if(ov)ov.classList.toggle('show',chatPanelOpen);
+  if(m)m.classList.toggle('with-chat',chatPanelOpen);
+  // Update sidebar icon highlight
+  document.querySelectorAll('.sb-ic').forEach(b=>{
+    if(b.querySelector('.sb-ic-tip')&&b.querySelector('.sb-ic-tip').textContent==='Messages'){
+      b.classList.toggle('active',chatPanelOpen);
+    }
+  });
+}
+
+function toggleMobileDrawer(){
+  mobileDrawerOpen=!mobileDrawerOpen;
+  const d=document.getElementById('m-drawer');
+  if(d)d.classList.toggle('open',mobileDrawerOpen);
+}
+
+function renderCurrentView(){
+  const el=document.getElementById('page-content');
+  if(!el)return;
+  // Mobile header with hamburger
+  const mobileBar='<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:30" class="m-only"><button class="hamburger" onclick="toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><div style="font-size:14px;font-weight:800">Dean <span style="color:var(--green)">Designers</span></div></div>';
+  let body='';
+  if(currentView==='orders'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Orders</h1><div class="page-actions"><div class="page-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search orders..." oninput="search=this.value;renderOrders()" value="'+esc(search||'')+'"/></div><button class="btn-ghost" onclick="loadOrders()">↻ Refresh</button></div></div><div id="stats-area"></div><div id="filters-area"></div><div id="orders-area"></div></div>';
+  } else if(currentView==='packages'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Packages</h1></div><div id="pkg-area"></div></div>';
+  } else if(currentView==='invite'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Invite Customer</h1></div><div id="invite-area"></div></div>';
+  } else if(currentView==='articles'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Articles</h1><div class="page-actions"><button class="btn-primary" onclick="openAIWriter()" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> AI Write</button><button class="btn-primary" onclick="openArticleEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Article</button></div></div><div id="articles-area"></div></div>';
+  }
+  el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
+  if(currentView==='orders'){renderStats();renderOrders()}
+  else if(currentView==='packages')renderPackagesView();
+  else if(currentView==='invite')renderInviteView();
+  else if(currentView==='articles')renderArticlesView();
+}
+
+// ── PACKAGES VIEW ──
+async function renderPackagesView(){
+  await loadPackages();
+  const el=document.getElementById('pkg-area');if(!el)return;
+  let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+  ['clothing','logo'].forEach(svc=>{
+    const items=pkgList.filter(p=>p.service===svc);
+    if(!items.length)return;
+    items.forEach(p=>{
+      h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:all .15s" onclick="selectPkg(\''+p.id+'\');openPkgEditor()" onmouseover="this.style.borderColor=\'var(--green)\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,0.06)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'">';
+      h+='<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'+esc(p.badge)+'</div>';
+      h+='<div style="font-size:13px;color:var(--txt2);margin-bottom:6px">'+(svc==='clothing'?'Clothing Design':'Logo Brand Design')+'</div>';
+      h+='<div style="font-size:28px;font-weight:800;color:var(--txt);margin-bottom:4px">$'+Number(p.base_price).toFixed(0)+'</div>';
+      h+='<div style="font-size:12px;color:var(--txt3);margin-bottom:10px">'+esc(p.name||'')+'</div>';
+      h+='<div style="font-size:11px;color:var(--txt3);padding-top:10px;border-top:1px solid var(--border-light)">'+esc(p.delivery||'')+' · '+esc(p.revisions||'')+'</div>';
+      h+='</div>';
+    });
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ── INVITE CUSTOMER VIEW ──
+function renderInviteView(){
+  const el=document.getElementById('invite-area');if(!el)return;
+  el.innerHTML='<div style="max-width:600px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px"><div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.6">Invite customers who paid offline (bank transfer, WhatsApp deal, etc.) to access the order tracker and chat with you. They\'ll receive an order link and can chat without making PayPal payment.</div>'+
+    '<div class="profile-field"><div class="profile-label">Customer Email *</div><input class="profile-input" id="iv-email" type="email" placeholder="customer@example.com"/></div>'+
+    '<div class="profile-field"><div class="profile-label">Brand / Project Name *</div><input class="profile-input" id="iv-brand" placeholder="ACME Clothing"/></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="profile-field"><div class="profile-label">Service *</div><select class="profile-select" id="iv-service"><option value="clothing">Clothing Design</option><option value="logo">Logo Brand Design</option></select></div><div class="profile-field"><div class="profile-label">Price (USD) *</div><input class="profile-input" id="iv-price" type="number" placeholder="150"/></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="profile-field"><div class="profile-label">Package Name</div><input class="profile-input" id="iv-pkg" placeholder="Standard"/></div><div class="profile-field"><div class="profile-label">Quantity / Concepts</div><input class="profile-input" id="iv-qty" type="number" value="1"/></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="profile-field"><div class="profile-label">Delivery (days)</div><input class="profile-input" id="iv-delivery" placeholder="3"/></div><div class="profile-field"><div class="profile-label">Revisions</div><input class="profile-input" id="iv-revisions" placeholder="2"/></div></div>'+
+    '<div class="profile-field"><div class="profile-label">WhatsApp (optional)</div><input class="profile-input" id="iv-whatsapp" placeholder="+62..."/></div>'+
+    '<div class="profile-field"><div class="profile-label">Initial Brief / Notes</div><textarea class="profile-textarea" id="iv-brief" placeholder="What is this order about?"></textarea></div>'+
+    '<button class="profile-save" id="iv-send" onclick="sendInvite()">Create Order & Generate Link</button>'+
+    '<div id="iv-result" style="margin-top:16px"></div></div>';
+}
+
+function copyInviteLink(btn){navigator.clipboard.writeText(window._inviteLink||'');btn.textContent='Copied!';setTimeout(()=>{btn.textContent='Copy Link'},2000)}
+function sendInviteWA(){const wa=window._inviteWhatsApp,link=window._inviteLink,brand=window._inviteBrand;if(!wa)return;const msg='Hi '+brand+', your order is ready. Track it here: '+link;window.open('https://wa.me/'+wa+'?text='+encodeURIComponent(msg),'_blank')}
+
+async function sendInvite(){
+  const email=(document.getElementById('iv-email').value||'').trim().toLowerCase();
+  const brand=(document.getElementById('iv-brand').value||'').trim();
+  const service=document.getElementById('iv-service').value;
+  const price=parseFloat(document.getElementById('iv-price').value)||0;
+  const pkg=(document.getElementById('iv-pkg').value||'').trim();
+  const qty=parseInt(document.getElementById('iv-qty').value)||1;
+  const delivery=(document.getElementById('iv-delivery').value||'').trim();
+  const revisions=(document.getElementById('iv-revisions').value||'').trim();
+  const whatsapp=(document.getElementById('iv-whatsapp').value||'').trim();
+  const brief=(document.getElementById('iv-brief').value||'').trim();
+  if(!email||!/\S+@\S+\.\S+/.test(email)){alert('Valid email required');return}
+  if(!brand){alert('Brand name required');return}
+  if(price<=0){alert('Price must be greater than 0');return}
+  const btn=document.getElementById('iv-send');btn.disabled=true;btn.textContent='Creating...';
+  const token=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  const payload={email,brand_name:brand,service,price,package_name:pkg||null,qty,delivery:delivery||null,revisions:revisions||null,whatsapp:whatsapp||null,brief:brief||null,status:'new',priority:'normal',is_invited:true,invite_token:token,invited_at:new Date().toISOString(),paid_via:'Offline / Invited'};
+  const{error,data}=await sb.from('orders').insert([payload]).select();
+  if(error){alert('Failed: '+error.message);btn.disabled=false;btn.textContent='Create Order & Generate Link';return}
+  const link=location.origin+'/order-tracker.html?invite='+token+'&email='+encodeURIComponent(email);
+  window._inviteLink=link;
+  window._inviteWhatsApp=whatsapp.replace(/\D/g,'');
+  window._inviteBrand=brand;
+  document.getElementById('iv-result').innerHTML='<div style="padding:16px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:12px"><div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">✓ Order Created Successfully</div><div style="font-size:11px;color:var(--txt2);margin-bottom:6px">Share this link with the customer:</div><div style="background:var(--card);padding:10px 12px;border-radius:8px;font-size:12px;color:var(--txt);word-break:break-all;margin-bottom:10px;border:1px solid var(--border)">'+esc(link)+'</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-primary" onclick="copyInviteLink(this)">Copy Link</button>'+(window._inviteWhatsApp?'<button class="btn-ghost" onclick="sendInviteWA()">Send via WhatsApp</button>':'')+'</div></div>';
+  // Reset form
+  ['iv-email','iv-brand','iv-price','iv-pkg','iv-delivery','iv-revisions','iv-whatsapp','iv-brief'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=id==='iv-qty'?'1':''});
+  btn.disabled=false;btn.textContent='Create Order & Generate Link';
+  loadOrders();
 }
 
 function renderStats(){
@@ -347,8 +657,8 @@ function renderOrders(){
 
 function openDetail(id){
   selId=id;const o=orders.find(x=>x.id===id);if(!o)return;
-  // Also open chat for this client
-  if(o.email){chatEmail=o.email;loadChatMsgs()}
+  // Also open chat for this client + auto-open chat panel
+  if(o.email){chatEmail=o.email;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs()}
   document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
   document.getElementById('modal').classList.add('open');
 }
@@ -361,107 +671,452 @@ async function saveOrder(id){
 }
 async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
 
-// Chat panel
-function renderConvList(){
-  const html=convs.length?convs.map(c=>'<div class="conv-item'+(chatEmail===c.email?' active':'')+'" onclick="selectConv(\''+esc(c.email)+'\')"><div class="conv-avatar">'+c.email.charAt(0).toUpperCase()+'</div><div class="conv-info"><div class="conv-name">'+esc(c.email)+'</div><div class="conv-last">'+esc(c.last.message).substring(0,40)+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="conv-time">'+fmtTime(c.last.created_at)+'</div>'+(c.unread?'<div class="conv-unread"></div>':'')+'</div></div>').join(''):'<div class="empty">No conversations yet</div>';
-  const el=document.getElementById('conv-list');if(el)el.innerHTML=html;
-  const mel=document.getElementById('m-conv-list');if(mel)mel.innerHTML=html.replace(/onclick="selectConv/g,'onclick="selectConvMobile');
+
+// ── Articles CMS ──
+let articlesList=[],editingArticle=null;
+async function loadArticles(){
+  var{data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
+  if(error)console.log('Articles load error:',error.message);
+  articlesList=data||[];
+  console.log('loadArticles result:',articlesList.length,'articles');
 }
-
-function selectConv(email){chatEmail=email;loadChatMsgs();renderConvList()}
-function selectConvMobile(email){chatEmail=email;loadChatMsgs('mobile');renderConvList()}
-
-async function loadChatMsgs(target){
-  if(!chatEmail)return;
-  const{data}=await sb.from('messages').select('*').eq('order_email',chatEmail).order('created_at',{ascending:true});
-  chatMsgs=data||[];
-  const unread=chatMsgs.filter(m=>m.sender_type==='client'&&!m.read).map(m=>m.id);
-  if(unread.length)sb.from('messages').update({read:true}).in('id',unread).then(()=>loadConversations());
-  renderChatRoom(target);
-}
-
-function renderChatRoom(target){
-  const ci=chatEmail?chatEmail.charAt(0).toUpperCase():'?';
-  let h='<div class="chat-room"><div class="cr-header"><button style="width:28px;height:28px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt2);border:none;cursor:pointer;flex-shrink:0" onclick="closeChatRoom('+(target==='mobile'?'true':'false')+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><div class="cr-avatar">'+ci+'</div><div class="cr-info"><div class="cr-name">'+esc(chatEmail||'')+'</div><div class="cr-sub">Client</div></div><div class="cr-dot"></div></div><div class="cr-msgs" id="cr-msgs'+(target==='mobile'?'-m':'')+'">';
-  if(!chatMsgs.length)h+='<div class="cr-empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p style="margin-top:10px">Start a conversation</p></div>';
-  else chatMsgs.forEach(m=>{
-    const isA=m.sender_type==='admin';
-    h+='<div class="msg '+(isA?'admin':'client')+'" id="amsg-'+m.id+'"><div class="msg-av">'+(isA?'DD':ci)+'</div><div class="msg-body"><div class="msg-name">'+(isA?'You':'Client')+' <span class="msg-time">'+fmtTime(m.created_at)+'</span></div><div style="display:flex;align-items:flex-start;gap:6px;'+(isA?'flex-direction:row-reverse':'')+'"><div class="msg-bubble">'+(m.image_url?'<img src="'+esc(m.image_url)+'" style="max-width:100%;border-radius:10px;margin-bottom:'+(m.message?'6px':'0')+';cursor:pointer" onclick="window.open(this.src)" />':'')+(m.message?esc(m.message):'')+'</div>'+(isA?'<button style="width:22px;height:22px;border-radius:50%;background:transparent;border:none;color:var(--txt3);font-size:13px;cursor:pointer;flex-shrink:0;margin-top:4px;opacity:0;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0" onclick="deleteAdminMsg(\''+m.id+'\','+(target==='mobile'?'true':'false')+')" title="Delete">×</button>':'')+'</div></div></div>';
+async function renderArticlesView(){
+  await loadArticles();
+  var el=document.getElementById('articles-area');if(!el){console.log('articles-area NOT FOUND');return}
+  console.log('Articles loaded:',articlesList.length);
+  if(!articlesList.length){el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--txt3)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p style="font-size:14px;font-weight:600;margin-bottom:4px">No articles yet</p><p style="font-size:12px">Click "+ New Article" to create your first article.</p></div>';return}
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+  articlesList.forEach(function(a){
+    var status=a.published?'<span style="background:var(--green-bg);color:var(--green);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700">Published</span>':'<span style="background:#FEF3C7;color:#D97706;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700">Draft</span>';
+    h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .15s" onmouseover="this.style.boxShadow=\'0 4px 14px rgba(0,0,0,0.06)\'" onmouseout="this.style.boxShadow=\'none\'">';
+    if(a.cover_image)h+='<div style="height:140px;background:url(\''+esc(a.cover_image)+'\') center/cover;border-bottom:1px solid var(--border)"></div>';
+    else h+='<div style="height:140px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt3);border-bottom:1px solid var(--border)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+    h+='<div style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+status+'<span style="font-size:10px;color:var(--txt3)">'+fmtDate(a.created_at)+'</span></div>';
+    h+='<h3 style="font-size:14px;font-weight:700;margin-bottom:6px;line-height:1.3">'+esc(a.title)+'</h3>';
+    if(a.excerpt)h+='<p style="font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:10px">'+esc(a.excerpt).substring(0,100)+'</p>';
+    if(a.tags&&a.tags.length)h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'+a.tags.map(function(t){return'<span style="background:var(--bg);padding:2px 7px;border-radius:4px;font-size:10px;color:var(--txt3)">'+esc(t)+'</span>'}).join('')+'</div>';
+    h+='<div style="display:flex;gap:6px"><button class="btn-ghost" style="flex:1;padding:7px" onclick="viewArticle(\''+a.id+'\')">View</button><button class="btn-ghost" style="flex:1;padding:7px" onclick="openArticleEditor(\''+a.id+'\')">Edit</button><button style="flex:0;padding:7px 12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;color:#DC2626;font-size:12px;font-weight:600;cursor:pointer" onclick="deleteArticle(\''+a.id+'\')">Delete</button></div>';
+    h+='</div></div>';
   });
-  h+='</div><div class="cr-input"><label style="width:40px;height:40px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt3);flex-shrink:0;transition:all .15s"><input type="file" accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps" style="display:none" onchange="sendAdminImage(\''+esc(chatEmail)+'\',this,'+(target==='mobile'?'true':'false')+')"/><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></label><input class="cr-inp" id="cr-inp'+(target==='mobile'?'-m':'')+'" placeholder="Type something here..." onkeydown="if(event.key===\'Enter\')sendAdminMsg(\''+esc(chatEmail)+'\','+(target==='mobile'?'true':'false')+')"/><button class="cr-send" onclick="sendAdminMsg(\''+esc(chatEmail)+'\','+(target==='mobile'?'true':'false')+')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>';
-  
-  const el=document.getElementById(target==='mobile'?'m-chat-room':'chat-room');
-  if(el){el.innerHTML=h;el.style.display='flex';el.style.flexDirection='column';el.style.flex='1';el.style.overflow='hidden'}
-  // Hide conv list when chat is open (desktop)
-  if(target!=='mobile'){const cl=document.getElementById('conv-list');if(cl)cl.style.display='none'}
-  if(target==='mobile'){const cl=document.getElementById('m-conv-list');if(cl)cl.style.display='none'}
-  setTimeout(()=>{const box=document.getElementById('cr-msgs'+(target==='mobile'?'-m':''));if(box)box.scrollTop=box.scrollHeight},50);
+  h+='</div>';
+  el.innerHTML=h;
+}
+function viewArticle(id){
+  var a=articlesList.find(function(x){return x.id===id});if(!a)return;
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)this.remove()"><div class="profile-modal" style="max-width:760px;max-height:90vh;overflow-y:auto"><div class="profile-modal-head"><h3>'+esc(a.title)+'</h3><button class="profile-modal-close" onclick="this.closest(\'.profile-modal-bg\').remove()">×</button></div><div style="padding:24px">';
+  if(a.cover_image)h+='<img src="'+esc(a.cover_image)+'" style="width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:16px"/>';
+  h+='<div style="font-size:11px;color:#94A3B8;margin-bottom:12px">'+(a.author_name||'Dean Designers')+' · '+fmtDate(a.created_at)+(a.published?' · <span style=color:var(--green)>Published</span>':' · <span style=color:#D97706>Draft</span>')+'</div>';
+  if(a.tags&&a.tags.length)h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+a.tags.map(function(t){return'<span style="background:rgba(29,191,115,0.1);color:#1DBF73;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600">'+esc(t)+'</span>'}).join('')+'</div>';
+  h+='<div style="font-size:14px;line-height:1.85;color:#334155">'+a.content+'</div>';
+  h+='<div style="display:flex;gap:8px;margin-top:20px"><button class="btn-primary" onclick="this.closest(\'.profile-modal-bg\').remove();openArticleEditor(\''+id+'\')">Edit Article</button><button class="btn-ghost" onclick="this.closest(\'.profile-modal-bg\').remove()">Close</button></div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
 }
 
-async function sendAdminMsg(email,isMobile){
-  if(!canSendMsg())return;
-  const inp=document.getElementById(isMobile?'cr-inp-m':'cr-inp');
-  if(!inp||!inp.value.trim())return;
-  const msg=inp.value.trim().substring(0,MAX_MSG_LEN);
-  inp.value='';
-  const order=orders.find(o=>o.email===email);
-  await sb.from('messages').insert([{order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false}]);
-  playSendSound();
-  loadChatMsgs(isMobile?'mobile':undefined);
-  loadConversations();
+function updatePreview(){
+  var t=document.getElementById('art-title');
+  var c=document.getElementById('art-content');
+  var tags=document.getElementById('art-tags');
+  var pt=document.getElementById('pv-title');
+  var pb=document.getElementById('pv-body');
+  var ptags=document.getElementById('pv-tags');
+  if(pt&&t)pt.textContent=t.value||'Article Title';
+  if(pb&&c)pb.innerHTML=c.innerHTML||'<span style=color:#ccc>Start writing...</span>';
+  if(ptags&&tags){var arr=(tags.value||'').split(',').map(function(x){return x.trim()}).filter(Boolean);ptags.innerHTML=arr.map(function(x){return'<span style="background:rgba(29,191,115,0.1);color:#1DBF73;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600">'+esc(x)+'</span>'}).join('')}
+}
+function updatePreviewCover(url){
+  var el=document.getElementById('pv-cover');
+  if(el)el.innerHTML=url?'<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;border-radius:10px"/>':'';
 }
 
-async function sendAdminImage(email,input,isMobile){
-  const file=input.files&&input.files[0];
-  if(!file||!sb)return;
-  if(file.size>MAX_FILE_SIZE){alert('File too large. Maximum 50MB.');input.value='';return}
-  
-  if(!canSendMsg())return;
-  const ext=file.name.split('.').pop()||'jpg';
-  const path='chat/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
-  const{error}=await sb.storage.from('uploads').upload(path,file);
-  if(error){alert('Upload failed: '+error.message);return}
-  const{data}=sb.storage.from('uploads').getPublicUrl(path);
+function generateSlug(title){return title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,60)}
+function ec(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('art-content').focus()}
+function ecPrompt(cmd){var v=prompt('Enter URL:');if(v)document.execCommand(cmd,false,v)}
+function ecColor(cmd,el){document.execCommand(cmd,false,el.value)}
+async function openArticleEditor(id){
+  editingArticle=null;
+  if(id){var found=articlesList.find(function(a){return a.id===id});if(found)editingArticle=found}
+  var a=editingArticle||{title:'',slug:'',content:'',excerpt:'',cover_image:'',tags:[],published:false};
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeArticleEditor()"><div class="profile-modal" style="max-width:95vw;width:1200px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column"><div class="profile-modal-head"><h3>'+(editingArticle?'Edit Article':'New Article')+'</h3><button class="profile-modal-close" onclick="closeArticleEditor()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
+  h+='<div class="profile-field"><div class="profile-label">Title *</div><input class="profile-input" id="art-title" oninput="updatePreview()" value="'+esc(a.title)+'" placeholder="Article title" oninput="document.getElementById(\'art-slug\').value=generateSlug(this.value)"/></div>';
+  h+='<div class="profile-field"><div class="profile-label">Slug</div><input class="profile-input" id="art-slug" value="'+esc(a.slug)+'" placeholder="article-url-slug"/></div>';
+  h+='<div class="profile-field"><div class="profile-label">Cover Image</div><div style="display:flex;gap:8px;align-items:center">';
+  if(a.cover_image)h+='<img src="'+esc(a.cover_image)+'" style="width:80px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"/>';
+  h+='<label class="btn-ghost" style="cursor:pointer"><input type="file" accept="image/*" style="display:none" onchange="uploadArticleCover(this)"/> Upload Image</label></div></div>';
+  h+='<div class="profile-field"><div class="profile-label">Excerpt (max 200 chars)</div><textarea class="profile-textarea" id="art-excerpt" oninput="updatePreview()" maxlength="200" placeholder="Short preview text...">'+esc(a.excerpt)+'</textarea></div>';
+  h+='<div class="profile-field"><div style="display:flex;align-items:center;justify-content:space-between"><div class="profile-label">Content *</div><button type="button" onclick="aiAutoGenerate()" style="padding:5px 12px;background:linear-gradient(135deg,#8B5CF6,#6366F1);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Auto-Generate</button></div>';
+  h+='<div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden"><div style="display:flex;gap:2px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center"><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'bold\')"><b>B</b></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'italic\')"><i>I</i></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'underline\')"><u>U</u></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'strikeThrough\')"><s>ab</s></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'subscript\')">x<sub>2</sub></button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'superscript\')">x<sup>2</sup></button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><select style="padding:3px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card)" onchange="ec(\'fontSize\',this.value)"><option value="">Size</option><option value="1">S</option><option value="3">M</option><option value="5">L</option><option value="7">XL</option></select><input type="color" value="#000000" style="width:24px;height:24px;border:none;cursor:pointer;border-radius:4px" title="Text Color" onchange="ecColor(\'foreColor\',this)"/><input type="color" value="#FFFF00" style="width:24px;height:24px;border:none;cursor:pointer;border-radius:4px" title="Highlight" onchange="ecColor(\'hiliteColor\',this)"/><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><select style="padding:3px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card)" onchange="ec(\'formatBlock\',this.value)"><option value="">Style</option><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="p">P</option></select><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyLeft\')">⫷</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyCenter\')">☰</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'justifyRight\')">⫸</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertUnorderedList\')">• ≡</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertOrderedList\')">1. ≡</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'indent\')">⇥</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'outdent\')">⇤</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ecPrompt(\'createLink\')">🔗</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'unlink\')">✂</button><label style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" style="cursor:pointer" title="Image">🖼<input type="file" accept="image/*" style="display:none" onchange="insertArticleImage(this)"/></label><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'insertHorizontalRule\')">—</button><div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'undo\')">↩</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'redo\')">↪</button><button style="padding:4px 7px;border:none;background:transparent;cursor:pointer;border-radius:4px;font-size:12px;color:var(--txt2)" onclick="ec(\'removeFormat\')">✕</button></div><div contenteditable="true" id="art-content" oninput="updatePreview()" style="min-height:200px;padding:14px;font-size:13px;line-height:1.7;outline:none;font-family:inherit;color:var(--txt)">'+( a.content||'')+'</div></div></div>';
+  h+='<div class="profile-field"><div class="profile-label">Tags (comma separated)</div><input class="profile-input" id="art-tags" oninput="updatePreview()" value="'+(a.tags||[]).join(', ')+'" placeholder="streetwear, design, tips"/></div>';
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="art-published" '+(a.published?'checked':'')+' style="width:18px;height:18px;accent-color:var(--green)"/> Published</label></div>';
+  h+='<div style="display:flex;gap:8px"><button class="profile-save" style="flex:1" onclick="saveArticle()">Save Article</button><button class="btn-ghost" style="flex:0;padding:13px 20px" onclick="closeArticleEditor()">Cancel</button></div>';
+  h+='</div>';
+  h+='<div style="flex:1;min-width:0;overflow-y:auto;padding:24px;background:#FAFBFC" id="art-preview-col">';
+  h+='<div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">LIVE PREVIEW</div>';
+  h+='<div id="art-preview" style="background:#fff;border-radius:12px;padding:24px;border:1px solid var(--border);min-height:300px">';
+  h+='<div id="pv-cover" style="margin-bottom:14px"></div>';
+  h+='<div id="pv-title" style="font-size:24px;font-weight:800;margin-bottom:8px;color:#111;line-height:1.3">'+(a.title||'Article Title')+'</div>';
+  h+='<div id="pv-meta" style="font-size:11px;color:#94A3B8;margin-bottom:16px">Dean Designers · '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div>';
+  h+='<div id="pv-tags" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px"></div>';
+  h+='<div id="pv-body" style="font-size:14px;line-height:1.8;color:#334155">'+(a.content||'<span style=color:#ccc>Start writing to see preview...</span>')+'</div>';
+  h+='</div></div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+function closeArticleEditor(){var m=document.querySelector('.profile-modal-bg');if(m)m.remove()}
+async function uploadArticleCover(input){
+  var file=input.files&&input.files[0];if(!file||!sb)return;
+  if(file.size>5*1024*1024){alert('Max 5MB');return}
+  var ext=file.name.split('.').pop()||'jpg';
+  var path='articles/cover_'+Date.now()+'.'+ext;
+  var{error}=await sb.storage.from('uploads').upload(path,file);
+  if(error){alert('Upload failed');return}
+  var{data}=sb.storage.from('uploads').getPublicUrl(path);
   if(!data||!data.publicUrl)return;
-  const order=orders.find(o=>o.email===email);
-  await sb.from('messages').insert([{order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:'',image_url:data.publicUrl,read:false}]);
-  playSendSound();
+  if(editingArticle)editingArticle.cover_image=data.publicUrl;
+  else window._tempCover=data.publicUrl;
+  closeArticleEditor();openArticleEditor(editingArticle?editingArticle.id:null);setTimeout(function(){updatePreviewCover(data.publicUrl)},100);
+}
+async function insertArticleImage(input){
+  var file=input.files&&input.files[0];if(!file||!sb)return;
+  var ext=file.name.split('.').pop()||'jpg';
+  var path='articles/img_'+Date.now()+'.'+ext;
+  var{error}=await sb.storage.from('uploads').upload(path,file);
+  if(error)return;
+  var{data}=sb.storage.from('uploads').getPublicUrl(path);
+  if(!data||!data.publicUrl)return;
+  document.execCommand('insertImage',false,data.publicUrl);
   input.value='';
-  loadChatMsgs(isMobile?'mobile':undefined);
-  loadConversations();
+}
+async function saveArticle(){
+  var title=(document.getElementById('art-title').value||'').trim();
+  var slug=(document.getElementById('art-slug').value||'').trim()||generateSlug(title);
+  var content=(document.getElementById('art-content').innerHTML||'').trim();
+  var excerpt=(document.getElementById('art-excerpt').value||'').trim();
+  var tags=(document.getElementById('art-tags').value||'').split(',').map(function(t){return t.trim()}).filter(Boolean);
+  var published=document.getElementById('art-published').checked;
+  var cover=editingArticle?editingArticle.cover_image:(window._tempCover||'');
+  if(!title){alert('Title required');return}
+  if(!content){alert('Content required');return}
+  var payload={title:title,slug:slug,content:content,excerpt:excerpt,cover_image:cover,tags:tags,published:published,author_name:'Dean Designers'};
+  if(editingArticle){
+    await sb.from('articles').update(payload).eq('id',editingArticle.id);
+  }else{
+    await sb.from('articles').insert([payload]);
+  }
+  window._tempCover=null;
+  closeArticleEditor();renderArticlesView();
+}
+async function deleteArticle(id){
+  if(!confirm('Delete this article?'))return;
+  await sb.from('articles').delete().eq('id',id);
+  renderArticlesView();
 }
 
-function openMobileChat(){document.getElementById('mobile-chat').classList.add('open');loadConversations()}
-function closeChatRoom(isMobile){
-  chatEmail=null;
-  if(isMobile){
-    const cr=document.getElementById('m-chat-room');if(cr)cr.innerHTML='';
-    const cl=document.getElementById('m-conv-list');if(cl)cl.style.display='';
-  }else{
-    const cr=document.getElementById('chat-room');if(cr)cr.innerHTML='';
-    const cl=document.getElementById('conv-list');if(cl)cl.style.display='';
-    renderConvList();
+
+// ── AI Article Writer (Claude) ──
+function openAIWriter(){
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAIWriter()"><div class="profile-modal" style="max-width:520px"><div class="profile-modal-head"><h3 style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Writer</h3><button class="profile-modal-close" onclick="closeAIWriter()">×</button></div><div class="profile-modal-body">';
+  h+='<div style="background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.1));border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:14px;margin-bottom:18px;font-size:12px;color:#6366F1;line-height:1.6"><strong>Powered by OpenAI GPT-4o</strong> — GPT-4o menulis artikel + DALL-E 3 generate gambar. Kualitas setara profesor dan jurnalis top.</div>';
+  h+='<div class="profile-field"><div class="profile-label">Topic / Prompt *</div><textarea class="profile-textarea" id="ai-topic" style="min-height:80px" placeholder="Example: How to start a streetwear brand from scratch in 2025 — include market research, design process, production tips, and marketing strategy"></textarea></div>';
+  h+='<div class="profile-field"><div class="profile-label">Article Style</div><select class="profile-select" id="ai-style"><option value="guide">Comprehensive Guide</option><option value="tutorial">Step-by-Step Tutorial</option><option value="listicle">Listicle (Top 10...)</option><option value="opinion">Expert Opinion</option><option value="case-study">Case Study</option></select></div>';
+  h+='<div class="profile-field"><div class="profile-label">Language</div><select class="profile-select" id="ai-lang"><option value="English">English</option><option value="Indonesian">Indonesian</option></select></div>';
+  h+='<button class="profile-save" id="ai-gen-btn" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)" onclick="generateAIArticle()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate Article</button>';
+  h+='<div id="ai-status" style="margin-top:12px;text-align:center;font-size:12px;color:var(--txt3)"></div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+function closeAIWriter(){var m=document.querySelector('.profile-modal-bg');if(m)m.remove()}
+async function generateAIArticle(){
+  var topic=(document.getElementById('ai-topic').value||'').trim();
+  if(!topic){alert('Enter a topic or prompt');return}
+  var style=document.getElementById('ai-style').value;
+  var lang=document.getElementById('ai-lang').value;
+  var btn=document.getElementById('ai-gen-btn');
+  var status=document.getElementById('ai-status');
+  btn.disabled=true;btn.textContent='Generating...';
+  status.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="width:16px;height:16px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>AI is writing your article — this may take 30-60 seconds...</div>';
+  try{
+    var res=await fetch('/api/ai-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:topic,style:style,language:lang})});
+    var data=await res.json();
+    if(data.error){status.innerHTML='<div style="color:#DC2626">Error: '+esc(data.error)+'</div>';btn.disabled=false;btn.textContent='Generate Article';return}
+    // Store image prompts for later generation
+    window._aiImagePrompts=data.image_prompts||[];
+    closeAIWriter();
+    editingArticle=null;window._tempCover=null;
+    var fakeArticle={title:data.title||topic,slug:data.slug||generateSlug(data.title||topic),content:data.content||'',excerpt:data.excerpt||'',cover_image:'',tags:data.tags||[],published:false};
+    editingArticle=fakeArticle;editingArticle.id=null;
+    openArticleEditor();
+    setTimeout(function(){
+      var t=document.getElementById('art-title');if(t)t.value=fakeArticle.title;
+      var s=document.getElementById('art-slug');if(s)s.value=fakeArticle.slug;
+      var e=document.getElementById('art-excerpt');if(e)e.value=fakeArticle.excerpt;
+      var ct=document.getElementById('art-content');if(ct)ct.innerHTML=fakeArticle.content;
+      var tg=document.getElementById('art-tags');if(tg)tg.value=(fakeArticle.tags||[]).join(', ');
+      updatePreview();
+      // Show image generation panel if prompts available
+      if(window._aiImagePrompts&&window._aiImagePrompts.length)showImageGenPanel();
+    },300);
+  }catch(err){
+    status.innerHTML='<div style="color:#DC2626">Network error: '+esc(err.message)+'</div>';
+    btn.disabled=false;btn.textContent='Generate Article';
   }
 }
 
-async function deleteAdminMsg(id,isMobile){
-  const msgEl=document.getElementById('amsg-'+id);
-  if(!msgEl)return;
-  const old=document.querySelector('.adel-popup');if(old)old.remove();
-  const popup=document.createElement('div');
-  popup.className='adel-popup';
-  popup.style.cssText='position:absolute;bottom:100%;right:0;z-index:10;padding-bottom:6px;animation:fadeUp .15s ease';
-  popup.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:200px"><p style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:10px">Delete this message?</p><div style="display:flex;gap:8px"><button style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;background:var(--bg);color:var(--txt2);border:1px solid var(--border);cursor:pointer;font-family:inherit" onclick="this.closest(\'.adel-popup\').remove()">Cancel</button><button style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:inherit" onclick="confirmAdminDelete(\''+id+'\','+isMobile+')">Delete</button></div></div>';
-  msgEl.style.position='relative';
-  msgEl.appendChild(popup);
+
+function showImageGenPanel(){
+  var prompts=window._aiImagePrompts||[];if(!prompts.length)return;
+  var panel=document.getElementById('art-editor-col');if(!panel)return;
+  var h='<div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(99,102,241,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:12px" id="ai-img-panel">';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style="font-size:13px;font-weight:700;color:#6366F1">AI Image Suggestions (DALL-E)</span><button onclick="genAllImages()" class="btn-primary" style="margin-left:auto;padding:6px 12px;font-size:11px;background:linear-gradient(135deg,#8B5CF6,#6366F1)">Generate All</button></div>';
+  prompts.forEach(function(p,i){
+    h+='<div style="display:flex;gap:10px;align-items:center;padding:10px;background:var(--card);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)" id="ai-img-row-'+i+'">';
+    h+='<div style="width:60px;height:60px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden" id="ai-img-thumb-'+i+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+    h+='<div style="flex:1;min-width:0"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:2px">'+(p.position==='cover'?'Cover Image':'Section Image')+'</div><div style="font-size:11px;color:var(--txt2);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+esc(p.prompt.substring(0,120))+'</div></div>';
+    h+='<button onclick="genSingleImage('+i+')" class="btn-ghost" style="padding:6px 10px;font-size:10px;flex-shrink:0" id="ai-img-btn-'+i+'">Generate</button>';
+    h+='</div>';
+  });
+  h+='</div>';
+  panel.insertAdjacentHTML('beforeend',h);
 }
-async function confirmAdminDelete(id,isMobile){
-  const popup=document.querySelector('.adel-popup');if(popup)popup.remove();
-  await sb.from('messages').delete().eq('id',id);
-  loadChatMsgs(isMobile?'mobile':undefined);
-  loadConversations();
+async function genSingleImage(idx){
+  var prompts=window._aiImagePrompts||[];if(!prompts[idx])return;
+  var btn=document.getElementById('ai-img-btn-'+idx);
+  var thumb=document.getElementById('ai-img-thumb-'+idx);
+  if(btn){btn.disabled=true;btn.textContent='Generating...'}
+  if(thumb)thumb.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>';
+  try{
+    var size=prompts[idx].position==='cover'?'1792x1024':'1024x1024';
+    var res=await fetch('/api/ai-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompts[idx].prompt,size:size})});
+    var data=await res.json();
+    if(data.error){alert('Image error: '+data.error);if(btn){btn.disabled=false;btn.textContent='Retry'}return}
+    // Upload to Supabase Storage
+    var imgRes=await fetch(data.url);var blob=await imgRes.blob();
+    var ext='png';var path='articles/ai_'+Date.now()+'_'+idx+'.'+ext;
+    var{error}=await sb.storage.from('uploads').upload(path,blob,{contentType:'image/png'});
+    if(error){alert('Upload failed');if(btn){btn.disabled=false;btn.textContent='Retry'}return}
+    var pubUrl=sb.storage.from('uploads').getPublicUrl(path);
+    var finalUrl=pubUrl.data.publicUrl;
+    // Show thumbnail
+    if(thumb)thumb.innerHTML='<img src="'+finalUrl+'" style="width:100%;height:100%;object-fit:cover"/>';
+    if(btn){btn.textContent='Insert';btn.disabled=false;btn.onclick=function(){insertAIImage(finalUrl,prompts[idx].position)}}
+    // Auto-set as cover if it's cover position
+    if(prompts[idx].position==='cover'){
+      if(editingArticle)editingArticle.cover_image=finalUrl;
+      else window._tempCover=finalUrl;
+      updatePreviewCover(finalUrl);
+    }
+  }catch(err){alert('Error: '+err.message);if(btn){btn.disabled=false;btn.textContent='Retry'}}
+}
+async function genAllImages(){
+  var prompts=window._aiImagePrompts||[];
+  for(var i=0;i<prompts.length;i++){await genSingleImage(i)}
+}
+function insertAIImage(url,position){
+  if(position==='cover'){
+    if(editingArticle)editingArticle.cover_image=url;
+    else window._tempCover=url;
+    updatePreviewCover(url);
+  }else{
+    var c=document.getElementById('art-content');
+    if(c){c.focus();document.execCommand('insertImage',false,url);updatePreview()}
+  }
 }
 
+
+async function aiAutoGenerate(){
+  var titleEl=document.getElementById('art-title');
+  var topic=titleEl?titleEl.value.trim():'';
+  if(!topic)topic='Professional clothing design service for streetwear brands — why createclothingdesign.com is the best platform in 2026';
+  var ct=document.getElementById('art-content');
+  if(ct)ct.innerHTML='<div style="text-align:center;padding:40px;color:#8B5CF6"><div style="width:24px;height:24px;border:2.5px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div><b>Step 1/2</b> — AI is writing your article...<br><small style="color:#94A3B8">30-60 seconds</small></div>';
+  updatePreview();
+  try{
+    var res=await fetch('/api/ai-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:topic,style:'guide',language:'English'})});
+    var data=await res.json();
+    if(data.error){ct.innerHTML='<p style="color:red">Error: '+data.error+'</p>';return}
+    if(titleEl&&data.title)titleEl.value=data.title;
+    var slugEl=document.getElementById('art-slug');if(slugEl&&data.slug)slugEl.value=data.slug;
+    var exEl=document.getElementById('art-excerpt');if(exEl&&data.excerpt)exEl.value=data.excerpt;
+    var tagEl=document.getElementById('art-tags');if(tagEl&&data.tags)tagEl.value=data.tags.join(', ');
+    if(ct&&data.content)ct.innerHTML=data.content;
+    updatePreview();
+    // Step 2: Auto-generate ALL images
+    window._aiImagePrompts=data.image_prompts||[];
+    if(window._aiImagePrompts.length){
+      showImageGenPanel();
+      if(ct){var status=document.createElement('div');status.id='ai-img-status';status.style.cssText='text-align:center;padding:12px;color:#8B5CF6;font-size:12px;font-weight:600';status.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div><b>Step 2/2</b> — Generating '+window._aiImagePrompts.length+' images with DALL-E...';var panel=document.getElementById('ai-img-panel');if(panel)panel.insertBefore(status,panel.firstChild.nextSibling)}
+      for(var i=0;i<window._aiImagePrompts.length;i++){
+        await genSingleImage(i);
+        var s=document.getElementById('ai-img-status');
+        if(s)s.innerHTML='<div style="width:20px;height:20px;border:2px solid #8B5CF6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></div>Generated '+(i+1)+'/'+window._aiImagePrompts.length+' images...';
+      }
+      var s=document.getElementById('ai-img-status');
+      if(s)s.innerHTML='<span style="color:var(--green)">✓ All '+window._aiImagePrompts.length+' images generated!</span>';
+    }
+  }catch(err){if(ct)ct.innerHTML='<p style="color:red">Network error: '+err.message+'</p>'}
+}
+
+// ── Client Profile Popup ──
+function showClientProfile(){
+  if(!chatEmail)return;
+  var p=clientProfiles[chatEmail]||{};
+  var av=p.avatar_url||'';
+  var name=p.display_name||chatEmail;
+  var init=(name||'?').charAt(0).toUpperCase();
+  var statusTxt=clientOnline?'Online':clientLastSeen?'Last seen '+adRelTime(clientLastSeen):'Offline';
+  var h='<div class="opp-profile-bg" onclick="if(event.target===this)this.remove()"><div class="opp-profile"><div class="opp-profile-top"><button class="opp-profile-close" onclick="this.closest(\'.opp-profile-bg\').remove()">×</button><div class="opp-avatar">'+(av?'<img src="'+av+'" alt=""/>':init)+'</div><div class="opp-name">'+esc(name)+'</div><div class="opp-status-line">'+statusTxt+'</div></div><div class="opp-profile-body">';
+  if(p.bio)h+='<div class="opp-row"><div class="opp-row-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div><div class="opp-row-label">About</div><div class="opp-row-val">'+esc(p.bio)+'</div></div></div>';
+  h+='<div class="opp-row"><div class="opp-row-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div><div class="opp-row-label">Status</div><div class="opp-row-val">'+statusTxt+'</div></div></div>';
+  h+='<div class="opp-row"><div class="opp-row-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div><div><div class="opp-row-label">Email</div><div class="opp-row-val">'+esc(chatEmail)+'</div></div></div>';
+  h+='<div class="opp-row"><div class="opp-row-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="opp-row-label">Role</div><div class="opp-row-val">Customer</div></div></div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+
+// Chat panel
+async function loadClientProfiles(){
+  if(!sb)return;
+  var emails=convs.map(c=>c.email);
+  if(!emails.length)return;
+  var{data}=await sb.from('user_profiles').select('*').in('email',emails);
+  if(data)data.forEach(p=>{clientProfiles[p.email]=p});
+}
+function renderConvList(){
+  const html=convs.length?convs.map(c=>{var cp=clientProfiles[c.email]||{};var cname=cp.display_name||c.email;var cav=cp.avatar_url;var cinitial=(cname||c.email).charAt(0).toUpperCase();return '<div class="conv-item'+(chatEmail===c.email?' active':'')+'" onclick="selectConv(\''+esc(c.email)+'\')"><div class="conv-avatar">'+(cav?'<img src="'+cav+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':cinitial)+'</div><div class="conv-info"><div class="conv-name">'+esc(cname)+'</div><div class="conv-last">'+esc(c.last.message||'[attachment]').substring(0,40)+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="conv-time">'+fmtTime(c.last.created_at)+'</div>'+(c.unread?'<div class="conv-unread"></div>':'')+'</div></div>'}).join(''):'<div class="empty">No conversations yet</div>';
+  const el=document.getElementById('conv-list');if(el)el.innerHTML=html;
+  const mel=document.getElementById('m-conv-list');if(mel)mel.innerHTML=html.replace(/onclick="selectConv/g,'onclick="selectConvMobile');
+}
+function selectConv(email){chatEmail=email;adReplyTo=null;adEditing=null;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs();renderConvList()}
+function selectConvMobile(email){chatEmail=email;adReplyTo=null;adEditing=null;loadChatMsgs('mobile');renderConvList()}
+async function loadChatMsgs(target){
+  if(!chatEmail)return;
+  var _sfx=target==='mobile'?'-m':'';
+  var _oldInp=document.getElementById('cr-inp'+_sfx);
+  var _savedTxt=_oldInp?_oldInp.value:'';
+  const{data}=await sb.from('messages').select('*').eq('order_email',chatEmail).order('created_at',{ascending:true});
+  chatMsgs=data||[];
+  const unread=chatMsgs.filter(m=>m.sender_type==='client'&&!m.read).map(m=>m.id);
+  if(unread.length)sb.from('messages').update({read:true,delivered:true}).in('id',unread).then(()=>loadConversations());
+  loadClientPresence();adSubscribeTyping();renderChatRoom(target);
+  // Restore saved input text
+  var _newInp=document.getElementById('cr-inp'+_sfx);
+  if(_newInp&&_savedTxt){_newInp.value=_savedTxt;adAutoGrow(_newInp)}
+  sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:true,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{});
+}
+function loadClientPresence(){
+  if(!chatEmail)return;
+  sb.from('user_presence').select('*').eq('email',chatEmail).limit(1).then(({data})=>{
+    if(data&&data[0]){clientOnline=data[0].is_online;clientLastSeen=data[0].last_seen}else{clientOnline=false;clientLastSeen=null}
+    var s=document.getElementById('cr-client-status');if(s)s.textContent=clientOnline?'Online':clientLastSeen?'Last seen '+adRelTime(clientLastSeen):'Client';
+    var d=document.getElementById('cr-client-dot');if(d)d.className='cr-dot'+(clientOnline?' online':'');
+  });
+}
+function adRelTime(iso){var d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return'just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago'}
+function adSubscribeTyping(){try{sb.channel('typ-'+chatEmail).on('broadcast',{event:'typing'},(p)=>{if(p&&p.payload&&p.payload.sender==='client'){adRemoteTyping=true;adShowTyping();clearTimeout(adTypTimeout);adTypTimeout=setTimeout(()=>{adRemoteTyping=false;adHideTyping()},3000)}}).subscribe()}catch(e){}}
+function adBroadcastTyping(){if(!chatEmail)return;try{sb.channel('typ-'+chatEmail).send({type:'broadcast',event:'typing',payload:{sender:'admin'}})}catch(e){}}
+function adShowTyping(){var t=document.getElementById('ad-typing');if(!t){var box=document.getElementById('cr-msgs')||document.getElementById('cr-msgs-m');if(!box)return;t=document.createElement('div');t.id='ad-typing';t.className='msg client';t.innerHTML='<div class="msg-bubble" style="padding:8px 12px"><div class="msg-typing"><span></span><span></span><span></span></div></div>';box.appendChild(t);box.scrollTop=box.scrollHeight}}
+function adHideTyping(){var t=document.getElementById('ad-typing');if(t)t.remove()}
+function adFindMsg(id){return chatMsgs.find(function(m){return m.id===id})}
+function adSvgReceipt(msg){if(msg.sender_type!=='admin')return'';var read=msg.read,del=msg.delivered||read;var c=read?'#53BDEB':'rgba(255,255,255,0.45)';if(!del)return'<svg class="msg-receipt" width="14" height="9" viewBox="0 0 16 11" fill="none"><path d="M11 .5L5 7 2.4 4.7 1 6.2l4 3.7L12.5 2z" fill="'+c+'"/></svg>';return'<svg class="msg-receipt" width="18" height="9" viewBox="0 0 20 11" fill="none"><path d="M14 .5L8 7l-.7-.7-1.4 1.5 2.1 2L15.5 2z" fill="'+c+'"/><path d="M10 .5L4 7 1.4 4.7 0 6.2l4 3.7L11.5 2z" fill="'+c+'"/></svg>'}
+function renderChatRoom(target){
+  var cp=clientProfiles[chatEmail]||{};var cname=cp.display_name||chatEmail||'?';var cav=cp.avatar_url;var ci=cav?'<img src="'+cav+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':'';if(!ci)ci=(cname||'?').charAt(0).toUpperCase();
+  var isMob=target==='mobile';var sfx=isMob?'-m':'';
+  var statusTxt=clientOnline?'Online':clientLastSeen?'Last seen '+adRelTime(clientLastSeen):'Client';
+  var EDIT_WIN=5*60*1000;
+  var h='<div class="chat-room"><div class="cr-header"><button style="width:28px;height:28px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--txt2);border:none;cursor:pointer;flex-shrink:0" onclick="closeChatRoom('+isMob+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><div class="cr-avatar">'+ci+'<div class="cr-dot'+(clientOnline?' online':'')+'" id="cr-client-dot"></div></div><div class="cr-info"><div class="cr-name">'+esc(cname||'')+'</div><div class="cr-sub" id="cr-client-status">'+statusTxt+'</div></div></div>';
+  h+='<div class="cr-msgs" id="cr-msgs'+sfx+'">';
+  if(!chatMsgs.length)h+='<div class="cr-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Start a conversation</p></div>';
+  else chatMsgs.forEach(function(m){
+    var isA=m.sender_type==='admin',cls=isA?'admin':'client';
+    var now=Date.now(),created=new Date(m.created_at).getTime(),canEdit=isA&&(now-created)<EDIT_WIN;
+    var ref=m.reply_to?adFindMsg(m.reply_to):null;
+    h+='<div class="msg '+cls+'" id="amsg-'+m.id+'">';
+    if(ref){h+='<div class="msg-reply"><div class="msg-reply-bar"></div><div class="msg-reply-body"><span class="msg-reply-name">'+(ref.sender_type==='admin'?'You':'Client')+'</span><span class="msg-reply-text">'+(ref.voice_url?'Voice message':esc(ref.message||'').substring(0,50))+'</span></div></div>'}
+    h+='<div class="msg-bubble">';
+    if(m.image_url)h+='<img class="msg-img" src="'+esc(m.image_url)+'" alt="" loading="lazy" onclick="adImgOverlay(this.src)"/>';
+    if(m.voice_url)h+='<div class="msg-voice"><button class="msg-voice-btn" onclick="adPlayVoice(this,\''+esc(m.voice_url)+'\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button><div class="msg-voice-track"><div class="msg-voice-fill" style="width:0%"></div></div><span class="msg-voice-dur">0:00</span></div>';
+    if(m.message)h+=esc(m.message);
+    h+='<div class="msg-meta">';if(m.edited_at)h+='<span class="msg-edited">edited</span>';
+    h+='<span class="msg-time">'+fmtTime(m.created_at)+'</span>'+adSvgReceipt(m)+'</div></div>';
+    h+='<div class="msg-acts"><button class="msg-act" onclick="adSetReply(\''+m.id+'\','+isMob+')" title="Reply"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg></button>';
+    if(canEdit)h+='<button class="msg-act" onclick="adStartEdit(\''+m.id+'\','+isMob+')" title="Edit"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+    if(isA)h+='<button class="msg-act" onclick="adDeleteMsg(\''+m.id+'\','+isMob+')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+    h+='</div></div>';
+  });
+  h+='</div><div id="cr-action-bar'+sfx+'"></div>';
+  h+='<div class="cr-input" id="cr-bar'+sfx+'"><label class="cr-att" title="Attach"><input type="file" accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps" style="display:none" onchange="sendAdminImage(\''+esc(chatEmail)+'\',this,'+isMob+')"/><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></label>';
+  h+='<textarea class="cr-inp" id="cr-inp'+sfx+'" placeholder="Type a message..." rows="1" oninput="adAutoGrow(this);adBroadcastTyping()"></textarea>';
+  h+='<button class="cr-mic" onclick="adToggleRec('+isMob+')" title="Voice note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>';
+  h+='<button class="cr-send" onclick="sendAdminMsg(\''+esc(chatEmail)+'\','+isMob+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>';
+  var el=document.getElementById(isMob?'m-chat-room':'chat-room');
+  if(el){el.innerHTML=h;el.style.display='flex';el.style.flexDirection='column';el.style.flex='1';el.style.overflow='hidden'}
+  if(!isMob){var cl=document.getElementById('conv-list');if(cl)cl.style.display='none'}
+  if(isMob){var cl=document.getElementById('m-conv-list');if(cl)cl.style.display='none'}
+  setTimeout(function(){var box=document.getElementById('cr-msgs'+sfx);if(box)box.scrollTop=box.scrollHeight},50);
+  adUpdateActionBar(isMob);
+}
+function adAutoGrow(ta){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,90)+'px'}
+function adSetReply(id,isMob){adReplyTo=adFindMsg(id)||null;adEditing=null;adUpdateActionBar(isMob);var ci=document.getElementById('cr-inp'+(isMob?'-m':''));if(ci)ci.focus()}
+function adStartEdit(id,isMob){var m=adFindMsg(id);if(!m)return;adEditing=m;adReplyTo=null;var ci=document.getElementById('cr-inp'+(isMob?'-m':''));if(ci){ci.value=m.message;ci.focus();adAutoGrow(ci)}adUpdateActionBar(isMob)}
+function adCancelAction(isMob){adReplyTo=null;adEditing=null;adUpdateActionBar(isMob)}
+function adUpdateActionBar(isMob){
+  var sfx=isMob?'-m':'';var bar=document.getElementById('cr-action-bar'+sfx);if(!bar)return;
+  if(!adReplyTo&&!adEditing){bar.innerHTML='';return}
+  var m=adEditing||adReplyTo;var label=adEditing?'Editing':'Reply to '+(m.sender_type==='admin'?'yourself':'Client');
+  var preview=m.voice_url?'Voice message':esc(m.message||'').substring(0,40);
+  bar.innerHTML='<div class="cr-action-bar"><span class="cr-action-bar-label">'+label+'</span><span class="cr-action-bar-text">'+preview+'</span><button class="cr-action-bar-close" onclick="adCancelAction('+isMob+')">×</button></div>';
+}
+async function sendAdminMsg(email,isMobile){
+  if(!canSendMsg())return;
+  var sfx=isMobile?'-m':'';var inp=document.getElementById('cr-inp'+sfx);
+  if(!inp||!inp.value.trim())return;
+  var msg=inp.value.trim().substring(0,MAX_MSG_LEN);
+  if(adEditing){await sb.from('messages').update({message:msg,edited_at:new Date().toISOString()}).eq('id',adEditing.id);adEditing=null;inp.value='';inp.style.height='auto';loadChatMsgs(isMobile?'mobile':undefined);return}
+  var order=orders.find(function(o){return o.email===email});
+  var payload={order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:msg,read:false,delivered:false};
+  if(adReplyTo)payload.reply_to=adReplyTo.id;
+  inp.value='';inp.style.height='auto';adReplyTo=null;
+  await sb.from('messages').insert([payload]);playSendSound();
+  loadChatMsgs(isMobile?'mobile':undefined);loadConversations();
+}
+async function sendAdminImage(email,input,isMobile){
+  var file=input.files&&input.files[0];if(!file||!sb)return;
+  if(file.size>MAX_FILE_SIZE){alert('File too large. Maximum 50MB.');input.value='';return}
+  if(!canSendMsg())return;
+  var ext=file.name.split('.').pop()||'jpg',path='chat/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+  var r=await sb.storage.from('uploads').upload(path,file);if(r.error){alert('Upload failed');return}
+  var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;
+  var order=orders.find(function(o){return o.email===email});
+  var payload={order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:file.type.startsWith('image/')?'':file.name,image_url:d.data.publicUrl,read:false,delivered:false};
+  if(adReplyTo)payload.reply_to=adReplyTo.id;
+  adReplyTo=null;input.value='';
+  await sb.from('messages').insert([payload]);playSendSound();
+  loadChatMsgs(isMobile?'mobile':undefined);loadConversations();
+}
+function adToggleRec(isMob){if(adRecording){adStopRec()}else{adStartRec(isMob)}}
+async function adStartRec(isMob){
+  try{var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  var mime=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/mp4';
+  adMediaRec=new MediaRecorder(stream,{mimeType:mime});adRecChunks=[];
+  adMediaRec.ondataavailable=function(e){if(e.data.size>0)adRecChunks.push(e.data)};
+  adMediaRec.onstop=async function(){stream.getTracks().forEach(function(t){t.stop()});var blob=new Blob(adRecChunks,{type:adMediaRec.mimeType});if(blob.size>500)await adUploadVN(blob,mime.includes('webm')?'webm':'mp4');adRecording=false;renderChatRoom(isMob?'mobile':undefined)};
+  adMediaRec.start();adRecording=true;adRecSec=0;
+  adRecTimer=setInterval(function(){adRecSec++;adRenderRecBar(isMob)},1000);adRenderRecBar(isMob);
+  }catch(e){alert('Microphone access denied.')}
+}
+function adStopRec(){if(adMediaRec&&adMediaRec.state==='recording')adMediaRec.stop();if(adRecTimer)clearInterval(adRecTimer)}
+function adRenderRecBar(isMob){var sfx=isMob?'-m':'';var bar=document.getElementById('cr-bar'+sfx);if(!bar||!adRecording)return;bar.innerHTML='<div class="cr-rec"><div class="cr-rec-dot"></div><span class="cr-rec-time">'+Math.floor(adRecSec/60)+':'+String(adRecSec%60).padStart(2,'0')+'</span><span class="cr-rec-label">Recording...</span><button class="cr-rec-stop" onclick="adStopRec()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button></div>'}
+async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await sb.from('messages').insert([{order_email:chatEmail,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:'',voice_url:d.data.publicUrl,read:false,delivered:false}]);playSendSound();loadChatMsgs();loadConversations()}
+var adCurAudio=null;
+function adPlayVoice(btn,url){if(adCurAudio){adCurAudio.pause();adCurAudio=null}var a=new Audio(url);adCurAudio=a;var w=btn.closest('.msg-voice'),f=w.querySelector('.msg-voice-fill'),dur=w.querySelector('.msg-voice-dur');var pi='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;a.addEventListener('loadedmetadata',function(){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')});a.addEventListener('timeupdate',function(){if(a.duration)f.style.width=(a.currentTime/a.duration*100)+'%'});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';adCurAudio=null});a.play();btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
+async function adDeleteMsg(id,isMob){if(!confirm('Delete this message?'))return;await sb.from('messages').delete().eq('id',id);loadChatMsgs(isMob?'mobile':undefined);loadConversations()}
+function adImgOverlay(src){var ov=document.createElement('div');ov.className='cr-img-overlay';ov.onclick=function(){ov.remove()};var img=document.createElement('img');img.src=src;img.alt='Preview';ov.appendChild(img);document.body.appendChild(ov)}
+function openMobileChat(){document.getElementById('mobile-chat').classList.add('open');loadConversations()}
+function closeChatRoom(isMobile){
+  chatEmail=null;adReplyTo=null;adEditing=null;
+  if(isMobile){var cr=document.getElementById('m-chat-room');if(cr)cr.innerHTML='';var cl=document.getElementById('m-conv-list');if(cl)cl.style.display=''}
+  else{var cr=document.getElementById('chat-room');if(cr)cr.innerHTML='';var cl=document.getElementById('conv-list');if(cl)cl.style.display='';renderConvList()}
+}
 // Sound effects
 let adminLastMsgCount=0;
 function playSendSound(){
@@ -557,8 +1212,65 @@ function closeMobileChat(){document.getElementById('mobile-chat').classList.remo
 function logout(){sessionStorage.removeItem(SK);location.reload()}
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
 function fmtTime(d){if(!d)return'';const dt=new Date(d),now=new Date(),diff=now-dt;if(diff<60000)return'now';if(diff<3600000)return Math.floor(diff/60000)+'m';if(diff<86400000)return Math.floor(diff/3600000)+'h';return dt.toLocaleDateString([],{month:'short',day:'numeric'})}
+function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+
+
+// ── Admin Profile System ──
+async function loadAdminProfile(){
+  if(!sb)return;
+  var{data}=await sb.from('user_profiles').select('*').eq('email','admin@deandesigners.com').limit(1);
+  if(data&&data[0])adminProfile=data[0];
+  updateSidebarProfile();
+}
+function updateSidebarProfile(){
+  var el=document.getElementById('sb-profile-area');if(!el)return;
+  var av=adminProfile.avatar_url;
+  var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
+  el.innerHTML=av?'<img src="'+av+'" alt=""/>':initials;
+}
+async function openAdminProfileModal(){
+  // Always reload from DB
+  if(sb){var{data}=await sb.from('user_profiles').select('*').eq('email','admin@deandesigners.com').limit(1);if(data&&data[0])adminProfile=data[0]}
+  updateSidebarProfile();
+  var av=adminProfile.avatar_url;
+  var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAdminProfileModal()"><div class="profile-modal"><div class="profile-modal-head"><h3>Edit Profile</h3><button class="profile-modal-close" onclick="closeAdminProfileModal()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
+  h+='<div class="profile-avatar-wrap"><label class="profile-avatar" title="Change photo"><input type="file" accept="image/*" style="display:none" onchange="uploadAdminAvatar(this)"/>'+(av?'<img src="'+av+'" alt=""/>':initials)+'<div class="profile-avatar-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></label></div>';
+  h+='<div class="profile-field"><div class="profile-label">Display Name</div><input class="profile-input" id="apf-name" value="'+esc(adminProfile.display_name||'')+'" placeholder="Dean Designers" maxlength="50"/></div>';
+  h+='<div class="profile-field"><div class="profile-label">Bio</div><textarea class="profile-textarea" id="apf-bio" placeholder="Describe your studio..." maxlength="200">'+esc(adminProfile.bio||'')+'</textarea></div>';
+  h+='<div class="profile-field"><div class="profile-label">Status</div><select class="profile-select" id="apf-status"><option value="available"'+(adminProfile.status==='available'?' selected':'')+'>Available</option><option value="busy"'+(adminProfile.status==='busy'?' selected':'')+'>Busy</option><option value="away"'+(adminProfile.status==='away'?' selected':'')+'>Away</option></select></div>';
+  h+='<button class="profile-save" id="apf-save" onclick="saveAdminProfile()">Save Profile</button>';
+  h+='<div class="profile-hint">Editing: admin@deandesigners.com</div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+function closeAdminProfileModal(){var m=document.querySelector('.profile-modal-bg');if(m)m.remove()}
+async function saveAdminProfile(){
+  var name=(document.getElementById('apf-name').value||'').trim()||'Dean Designers';
+  var bio=(document.getElementById('apf-bio').value||'').trim();
+  var status=document.getElementById('apf-status').value||'available';
+  var btn=document.getElementById('apf-save');if(btn){btn.disabled=true;btn.textContent='Saving...'}
+  await sb.from('user_profiles').upsert({email:'admin@deandesigners.com',display_name:name,bio:bio,status:status,avatar_url:adminProfile.avatar_url||'',user_type:'admin'},{onConflict:'email'});
+  adminProfile.display_name=name;adminProfile.bio=bio;adminProfile.status=status;
+  updateSidebarProfile();closeAdminProfileModal();loadClientProfiles().then(()=>renderConvList());
+}
+async function uploadAdminAvatar(input){
+  var file=input.files&&input.files[0];if(!file||!sb)return;
+  if(file.size>5*1024*1024){alert('Image too large. Max 5MB.');return}
+  var ext=file.name.split('.').pop()||'jpg';
+  var path='avatars/admin_'+Date.now()+'.'+ext;
+  var{error}=await sb.storage.from('uploads').upload(path,file);
+  if(error){alert('Upload failed');return}
+  var{data}=sb.storage.from('uploads').getPublicUrl(path);
+  if(!data||!data.publicUrl)return;
+  adminProfile.avatar_url=data.publicUrl;
+  await sb.from('user_profiles').upsert({email:'admin@deandesigners.com',avatar_url:data.publicUrl,display_name:adminProfile.display_name||'Dean Designers',bio:adminProfile.bio||'',status:adminProfile.status||'available',user_type:'admin'},{onConflict:'email'});
+  closeAdminProfileModal();openAdminProfileModal();updateSidebarProfile();
+}
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+window.addEventListener('beforeunload',function(){if(sb)sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:false,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{})});
+document.addEventListener('visibilitychange',function(){if(sb)sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:!document.hidden,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{})});
 </script>
 </body>
 </html>
