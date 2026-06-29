@@ -692,7 +692,15 @@ function appendChatBubble(m){
   div.id='msg-'+m.id;
   var bubble='<div class="cm-bubble">';
   if(m.image_url)bubble+='<img class="cm-img" src="'+esc(m.image_url)+'" alt="Attachment" loading="lazy" onclick="openImgOverlay(this.src)"/>';
-  if(m.voice_url)bubble+='<div class="cm-voice" style="font-size:12px;color:#94A3B8">&#127908; Voice message</div>';
+  if(m.voice_url){
+    var vid='vn_'+m.id.replace(/[^a-z0-9]/gi,'');
+    bubble+='<div style="display:flex;align-items:center;gap:10px;padding:6px 0;min-width:180px">'+
+      '<button id="'+vid+'_btn" onclick="playVN(\''+vid+'\',\''+m.voice_url+'\')" style="width:36px;height:36px;border-radius:50%;background:#1DBF73;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">'+
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button>'+
+      '<div style="flex:1"><div id="'+vid+'_track" style="height:3px;background:rgba(0,0,0,0.15);border-radius:2px;cursor:pointer">'+
+      '<div id="'+vid+'_fill" style="width:0%;height:100%;background:#1DBF73;border-radius:2px"></div></div>'+
+      '<span id="'+vid+'_dur" style="font-size:10px;color:#667781;margin-top:2px;display:block">0:00</span></div></div>';
+  }
   if(m.message)bubble+=esc(m.message);
   bubble+='<div class="cm-meta"><span class="cm-time">'+fmtTime(m.created_at)+'</span>'+svgReceipt(m)+'</div></div>';
   if(m._sending)bubble='<div class="cm-bubble" style="opacity:0.7">'+esc(m.message||'')+'<div class="cm-meta"><span class="cm-time">sending...</span></div></div>';
@@ -820,18 +828,102 @@ async function sendChatImage(input){
 }
 function toggleRec(){if(isRecording){stopRec()}else{startRec()}}
 async function startRec(){
-  try{var stream=await navigator.mediaDevices.getUserMedia({audio:true});
-  var mime=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/mp4';
-  mediaRec=new MediaRecorder(stream,{mimeType:mime});recChunks=[];
-  mediaRec.ondataavailable=function(e){if(e.data.size>0)recChunks.push(e.data)};
-  mediaRec.onstop=async function(){stream.getTracks().forEach(function(t){t.stop()});var blob=new Blob(recChunks,{type:mediaRec.mimeType});if(blob.size>500)await uploadVN(blob,mime.includes('webm')?'webm':'mp4');isRecording=false;renderChat()};
-  mediaRec.start();isRecording=true;recordSec=0;
-  recordTimer=setInterval(function(){recordSec++;renderRecBar()},1000);renderRecBar();
-  }catch(e){alert('Microphone access denied.')}
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    var mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/mp4';
+    mediaRec=new MediaRecorder(stream,{mimeType:mime});recChunks=[];
+    mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)recChunks.push(e.data)};
+    mediaRec.onstop=async function(){
+      stream.getTracks().forEach(function(t){t.stop()});
+      var blob=new Blob(recChunks,{type:mime});
+      isRecording=false;
+      // Restore normal input bar
+      var bar=document.getElementById('chat-bar-area');
+      if(bar)bar.innerHTML='';
+      if(blob.size>500){
+        await uploadVN(blob,mime.includes('webm')?'webm':'mp4');
+      }
+    };
+    mediaRec.start(100);// collect every 100ms
+    isRecording=true;recordSec=0;
+    recordTimer=setInterval(function(){recordSec++;renderRecBar();},1000);
+    renderRecBar();
+    // Change mic button to red
+    var btn=document.getElementById('mic-btn');
+    if(btn){btn.style.color='#FF3B30';btn.style.background='rgba(255,59,48,0.1)';btn.style.borderRadius='50%';}
+  }catch(e){
+    alert('Microphone access denied. Please allow microphone permission and try again.');
+  }
 }
-function stopRec(){if(mediaRec&&mediaRec.state==='recording')mediaRec.stop();if(recordTimer)clearInterval(recordTimer)}
-function renderRecBar(){var bar=document.getElementById('chat-bar-area');if(!bar||!isRecording)return;bar.innerHTML='<div class="chat-rec"><div class="chat-rec-dot"></div><span class="chat-rec-time">'+Math.floor(recordSec/60)+':'+String(recordSec%60).padStart(2,'0')+'</span><span class="chat-rec-label">Recording...</span><button class="chat-rec-stop" onclick="stopRec()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button></div>'}
-async function uploadVN(blob,ext){if(!sb)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;await sb.from('messages').insert([{order_email:email,order_id:selOrder?.id||null,sender_email:email,sender_type:'client',message:'',voice_url:d.data.publicUrl,read:false,delivered:false}]);playSendSound();await loadChat()}
+function stopRec(){
+  if(mediaRec&&mediaRec.state==='recording')mediaRec.stop();
+  if(recordTimer){clearInterval(recordTimer);recordTimer=null;}
+  var btn=document.getElementById('mic-btn');
+  if(btn){btn.style.color='';btn.style.background='';btn.style.borderRadius='';}
+}
+function renderRecBar(){
+  var bar=document.getElementById('chat-bar-area');
+  if(!bar)return;
+  bar.innerHTML='<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-radius:24px;flex:1">'+
+    '<div style="width:10px;height:10px;background:#FF3B30;border-radius:50%;animation:pulse .8s infinite;flex-shrink:0"></div>'+
+    '<span style="font-size:13px;font-weight:600;color:#FF3B30">'+Math.floor(recordSec/60)+':'+String(recordSec%60).padStart(2,'0')+'</span>'+
+    '<span style="font-size:12px;color:#94A3B8;flex:1">Recording...</span>'+
+    '<button onclick="stopRec()" style="padding:6px 14px;background:#FF3B30;color:#fff;border:none;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer">Stop & Send</button>'+
+    '</div>';
+}
+async function uploadVN(blob,ext){
+  if(!sb)return;
+  var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+  var r=await sb.storage.from('uploads').upload(path,blob);
+  if(r.error){alert('Failed to upload voice note: '+r.error.message);return;}
+  var d=sb.storage.from('uploads').getPublicUrl(path);
+  if(!d||!d.data||!d.data.publicUrl)return;
+  var voiceUrl=d.data.publicUrl;
+  // Optimistic: append immediately
+  var tempId='temp_vn_'+Date.now();
+  var optimistic={id:tempId,order_email:email,order_id:selOrder?selOrder.id:null,sender_email:email,sender_type:'client',message:'',voice_url:voiceUrl,read:false,delivered:false,created_at:new Date().toISOString()};
+  msgs.push(optimistic);
+  appendChatBubble(optimistic);
+  playSendSound();
+  setTimeout(function(){var cb=document.getElementById('chat-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
+  // Insert to DB
+  try{
+    var{data}=await sb.from('messages').insert([{order_email:email,order_id:selOrder?selOrder.id:null,sender_email:email,sender_type:'client',message:'',voice_url:voiceUrl,read:false,delivered:false}]).select();
+    var idx=msgs.findIndex(function(m){return m.id===tempId});
+    if(idx>-1&&data&&data[0]){
+      msgs[idx]=data[0];
+      var el=document.getElementById('msg-'+tempId);
+      if(el)el.id='msg-'+data[0].id;
+    }
+  }catch(e){console.error('VN insert failed',e);}
+}
+
+var _vnAudios={};
+function playVN(vid,url){
+  // Pause any playing
+  Object.keys(_vnAudios).forEach(function(k){if(k!==vid&&_vnAudios[k]){_vnAudios[k].pause();}});
+  if(!_vnAudios[vid]){_vnAudios[vid]=new Audio(url);}
+  var a=_vnAudios[vid];
+  var btn=document.getElementById(vid+'_btn');
+  var fill=document.getElementById(vid+'_fill');
+  var dur=document.getElementById(vid+'_dur');
+  var pauseIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+  var playIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>';
+  if(a.paused){
+    a.play();
+    if(btn)btn.innerHTML=pauseIcon;
+    a.ontimeupdate=function(){
+      if(a.duration&&fill)fill.style.width=(a.currentTime/a.duration*100)+'%';
+      if(dur){var m=Math.floor(a.currentTime/60),s=Math.floor(a.currentTime%60);dur.textContent=m+':'+String(s).padStart(2,'0');}
+    };
+    a.onloadedmetadata=function(){if(dur){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0');}};
+    a.onended=function(){if(btn)btn.innerHTML=playIcon;if(fill)fill.style.width='0%';};
+  }else{
+    a.pause();
+    if(btn)btn.innerHTML=playIcon;
+  }
+}
+
 var curAudio=null;
 function playVoice(btn,url){if(curAudio){curAudio.pause();curAudio=null}var a=new Audio(url);curAudio=a;var w=btn.closest('.cm-voice'),f=w.querySelector('.cm-voice-fill'),dur=w.querySelector('.cm-voice-dur');var pi='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;a.addEventListener('loadedmetadata',function(){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')});a.addEventListener('timeupdate',function(){if(a.duration)f.style.width=(a.currentTime/a.duration*100)+'%'});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';curAudio=null});a.play();btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
 async function deleteMsg(id){if(!confirm('Delete this message?'))return;await sb.from('messages').delete().eq('id',id);msgs=msgs.filter(function(m){return m.id!==id});renderChat()}
