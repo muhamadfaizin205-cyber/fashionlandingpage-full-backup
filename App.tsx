@@ -1734,10 +1734,45 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (error) console.error("Articles fetch error:", error);
-        if (data) setArticles(data);
+        if (data) {
+          setArticles(data);
+          // If URL has a slug (e.g. /articles/my-article-slug), open that article directly
+          const parts = window.location.pathname.split("/").filter(Boolean);
+          if (parts[0] === "articles" && parts[1]) {
+            const match = data.find((a: any) => a.slug === parts[1]);
+            if (match) setSelected(match);
+          }
+        }
         setLoading(false);
       });
   }, []);
+
+  const openArticle = (a: any) => {
+    setSelected(a);
+    const slug = a.slug || a.id;
+    window.history.pushState({}, "", `/articles/${slug}`);
+    window.scrollTo(0,0);
+  };
+
+  const closeArticle = () => {
+    setSelected(null);
+    window.history.pushState({}, "", "/articles");
+    window.scrollTo(0,0);
+  };
+
+  useEffect(() => {
+    const onPop = () => {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      if (parts[0] === "articles" && parts[1]) {
+        const match = articles.find((a: any) => a.slug === parts[1]);
+        setSelected(match || null);
+      } else {
+        setSelected(null);
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [articles]);
 
   const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 10);
 
@@ -1753,7 +1788,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
       <div style={{background:"#F8FAFC",minHeight:"100vh"}}>
         {/* Article Header */}
         <div style={{background:"#fff",borderBottom:"1px solid #E2E8F0",padding:"16px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12}}>
-          <button onClick={() => { setSelected(null); window.scrollTo(0,0); }}
+          <button onClick={closeArticle}
             style={{display:"inline-flex",alignItems:"center",gap:6,background:"none",border:"1px solid #E2E8F0",color:"#64748B",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 14px",borderRadius:10,transition:"all .15s"}}
             onMouseOver={(e) => (e.currentTarget as HTMLElement).style.borderColor="#1DBF73"}
             onMouseOut={(e) => (e.currentTarget as HTMLElement).style.borderColor="#E2E8F0"}>
@@ -1870,7 +1905,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <>
             {/* Featured Article (first one) */}
             {filtered.length > 0 && !search && !activeTag && (
-              <div onClick={() => { setSelected(filtered[0]); window.scrollTo(0,0); }}
+              <div onClick={() => openArticle(filtered[0])}
                 style={{background:"#fff",borderRadius:20,overflow:"hidden",border:"1px solid #E2E8F0",cursor:"pointer",marginBottom:24,display:"grid",gridTemplateColumns:"1fr 1fr",boxShadow:"0 2px 12px rgba(0,0,0,0.04)",transition:"all .2s"}}
                 onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.boxShadow="0 8px 32px rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.transform="translateY(-2px)"; }}
                 onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.boxShadow="0 2px 12px rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.transform=""; }}>
@@ -1892,7 +1927,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
             {/* Article Grid */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
               {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
-                <div key={a.id} onClick={() => { setSelected(a); window.scrollTo(0,0); }}
+                <div key={a.id} onClick={() => openArticle(a)}
                   style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid #E2E8F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}
                   onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.transform="translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.borderColor="#1DBF73"; }}
                   onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.transform=""; (e.currentTarget as HTMLElement).style.boxShadow="0 1px 4px rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.borderColor="#E2E8F0"; }}>
@@ -2035,7 +2070,33 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home"|"articles">("home");
+  const [currentPage, setCurrentPage] = useState<"home"|"articles">(() => {
+    // Read initial page from URL so refresh stays on the same page
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.replace(/\/$/, "");
+      if (path === "/articles" || window.location.hash === "#articles") return "articles";
+    }
+    return "home";
+  });
+
+  // Keep the URL in sync with the current page (without full reload)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const targetPath = currentPage === "articles" ? "/articles" : "/";
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ page: currentPage }, "", targetPath);
+    }
+  }, [currentPage]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const onPopState = () => {
+      const path = window.location.pathname.replace(/\/$/, "");
+      setCurrentPage(path === "/articles" ? "articles" : "home");
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // Large pool — randomize each session so customers never see same names
   const proofPool = React.useMemo(() => {
