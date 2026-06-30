@@ -9,8 +9,8 @@ const PAYPAL_CLIENT_ID =
   (import.meta.env.VITE_PAYPAL_CLIENT_ID as string) ?? "test";
 
 // ─── Supabase ─────────────────────────────────────────────
-const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) ?? "";
-const SUPABASE_KEY = (import.meta.env.VITE_SUPABASE_KEY as string) ?? "";
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || "https://zqawpdspxdcmofnmrbku.supabase.co";
+const SUPABASE_KEY = (import.meta.env.VITE_SUPABASE_KEY as string) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTE0MTYsImV4cCI6MjA5NzI2NzQxNn0.vRPaxLCPNPbNnHpsAClr_gr_pCpcbvBbDdAcEGhCT_E";
 export const supabase = SUPABASE_URL && SUPABASE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
@@ -187,7 +187,7 @@ function useDbPackages() {
   const [clothingPkgs, setClothingPkgs] = useState<Package[]>(PACKAGES);
   const [logoPkgs, setLogoPkgs] = useState<Package[]>(LOGO_PACKAGES);
 
-  useEffect(() => {
+  const loadPackages = () => {
     if (!supabase) return;
     supabase
       .from("packages")
@@ -212,6 +212,19 @@ function useDbPackages() {
         if (clothing.length > 0) setClothingPkgs(clothing);
         if (logo.length > 0) setLogoPkgs(logo);
       });
+  };
+
+  useEffect(() => {
+    loadPackages();
+    if (!supabase) return;
+    // Realtime: re-fetch instantly whenever packages table changes (price update from admin)
+    const channel = supabase
+      .channel("packages-realtime-" + Date.now())
+      .on("postgres_changes", { event: "*", schema: "public", table: "packages" }, () => {
+        loadPackages();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   return { clothingPkgs, logoPkgs };
@@ -1143,9 +1156,14 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
               style={{ display: "none" }}
               onChange={async (e) => {
                 const files = Array.from(e.target.files || []);
-                if (!files.length || !supabase) return;
+                if (!files.length) return;
+                if (!supabase) {
+                  alert("Upload service is not available right now. Please try again later.");
+                  return;
+                }
                 setUploading(true);
                 const newUrls: string[] = [];
+                let failCount = 0;
                 for (const file of files.slice(0, 5 - briefImages.length)) {
                   const ext = file.name.split('.').pop() || 'jpg';
                   const path = `brief/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
@@ -1153,9 +1171,13 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
                   if (!error) {
                     const { data } = supabase.storage.from('uploads').getPublicUrl(path);
                     if (data?.publicUrl) newUrls.push(data.publicUrl);
+                  } else {
+                    failCount++;
+                    console.error("Brief image upload error:", error);
                   }
                 }
-                onImagesChange([...briefImages, ...newUrls]);
+                if (newUrls.length) onImagesChange([...briefImages, ...newUrls]);
+                if (failCount > 0) alert(`${failCount} image(s) failed to upload. Please try again.`);
                 setUploading(false);
                 e.target.value = '';
               }}
