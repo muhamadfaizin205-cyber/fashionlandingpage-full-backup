@@ -814,7 +814,7 @@ async function runMarketingManager(force){
       return;
     }
     mmPicks=data.picks||[];
-    renderMarketingPicks(data.manager_message||(mmPicks[0]&&mmPicks[0].manager_message)||'');
+    await renderMarketingPicks(data.manager_message||(mmPicks[0]&&mmPicks[0].manager_message)||'');
   }catch(err){
     if(el)el.innerHTML='<div style="text-align:center;padding:60px 20px;color:#DC2626">Error: '+esc(err.message)+'</div>';
   }
@@ -822,8 +822,48 @@ async function runMarketingManager(force){
   if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Force New Picks';}
 }
 
-function renderMarketingPicks(managerMsg){
+var mmHotelCache={}; // id -> {name, address_raw} resolved from live Supabase data
+
+async function resolveMarketingHotelDetails(){
+  // Gather all hotel IDs across today's picks
+  var allIds=[];
+  mmPicks.forEach(function(p){(p.hotel_ids||[]).forEach(function(id){if(allIds.indexOf(id)===-1)allIds.push(id)})});
+  if(!allIds.length)return;
+  // First, use anything already cached from the HOTEL tab (curHotels) — instant, no network call
+  if(typeof curHotels!=='undefined'&&curHotels.length){
+    curHotels.forEach(function(h){mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||''}});
+  }
+  // Fetch any IDs still missing directly from Supabase (covers cases where HOTEL tab hasn't loaded yet)
+  var missing=allIds.filter(function(id){return !mmHotelCache[id]});
+  if(missing.length&&sb){
+    var{data}=await sb.from('hotels').select('id,name,address_raw').in('id',missing);
+    if(data)data.forEach(function(h){mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||''}});
+  }
+}
+
+var mmRealtimeSubscribed=false;
+function subscribeMarketingRealtime(){
+  if(mmRealtimeSubscribed||!sb)return;
+  mmRealtimeSubscribed=true;
+  sb.channel('mm-hotels-realtime-'+Date.now()).on('postgres_changes',{event:'UPDATE',schema:'public',table:'hotels'},function(payload){
+    if(!payload.new)return;
+    // Live-refresh address/name the instant it changes (e.g. while Enrich All Addresses runs)
+    if(mmHotelCache[payload.new.id]){
+      mmHotelCache[payload.new.id]={name:payload.new.name,address_raw:payload.new.address_raw||''};
+      if(document.getElementById('marketing-area'))renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+    }
+  }).subscribe();
+}
+
+function isAddressShort(addr){
+  if(!addr)return true;
+  return !/\bjl\.?\b/i.test(addr) && addr.split(',').length<4;
+}
+
+async function renderMarketingPicks(managerMsg){
   var el=document.getElementById('marketing-area');if(!el)return;
+  await resolveMarketingHotelDetails();
+  subscribeMarketingRealtime();
   var todayLabel=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   var h='';
@@ -836,18 +876,26 @@ function renderMarketingPicks(managerMsg){
 
   // Stats row
   var totalPromoted=mmPicks.filter(function(p){return p.promoted}).length;
-  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">';
+  var hasShortAddr=Object.values(mmHotelCache).some(function(h){return isAddressShort(h.address_raw)});
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:'+(hasShortAddr?'10px':'20px')+'">';
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#DC2626">20</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Total Target Hari Ini</div></div>';
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#1DBF73">'+(totalPromoted*5)+'</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Sudah Dipromosikan</div></div>';
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#F59E0B">'+((4-totalPromoted)*5)+'</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Belum Dikerjakan</div></div>';
   h+='</div>';
 
+  if(hasShortAddr){
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:12px 16px;margin-bottom:20px">';
+    h+='<span style="font-size:12px;color:#D97706;font-weight:600">Beberapa hotel pilihan hari ini alamatnya masih pendek.</span>';
+    h+='<button onclick="switchView(\'hotel\')" style="padding:6px 14px;background:#F59E0B;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer">Lengkapi di tab HOTEL</button>';
+    h+='</div>';
+  }
+
   // Shift cards
-  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">';
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">';
   SHIFT_ORDER.forEach(function(shiftKey){
     var pick=mmPicks.find(function(p){return p.shift===shiftKey});
     var meta=SHIFT_META[shiftKey];
-    var names=pick?(pick.hotel_names||[]):[];
+    var ids=pick?(pick.hotel_ids||[]):[];
     var isDone=pick&&pick.promoted;
     h+='<div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;'+(isDone?'opacity:0.6':'')+'">';
     h+='<div style="padding:14px 18px;background:'+meta.color+'12;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
@@ -855,18 +903,29 @@ function renderMarketingPicks(managerMsg){
     h+='<span style="font-size:11px;color:var(--txt3);font-weight:600">'+meta.time+'</span>';
     h+='</div>';
     h+='<div style="padding:14px 18px">';
-    if(!names.length){
+    if(!ids.length){
       h+='<div style="font-size:12px;color:var(--txt3);text-align:center;padding:20px 0">Belum ada pilihan.</div>';
     }else{
-      names.forEach(function(n,i){
-        h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'+(i<names.length-1?'border-bottom:1px solid var(--border)':'')+'">';
-        h+='<div style="width:22px;height:22px;background:'+meta.color+'15;color:'+meta.color+';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">'+(i+1)+'</div>';
-        h+='<span style="font-size:12.5px;color:var(--txt);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+esc(n)+'</span>';
+      ids.forEach(function(id,i){
+        var info=mmHotelCache[id]||{name:(pick.hotel_names&&pick.hotel_names[i])||'(hotel tidak ditemukan)',address_raw:''};
+        var addrShort=isAddressShort(info.address_raw);
+        h+='<div style="padding:9px 0;'+(i<ids.length-1?'border-bottom:1px solid var(--border)':'')+'">';
+        h+='<div style="display:flex;align-items:flex-start;gap:10px">';
+        h+='<div style="width:22px;height:22px;background:'+meta.color+'15;color:'+meta.color+';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px">'+(i+1)+'</div>';
+        h+='<div style="flex:1;min-width:0">';
+        h+='<div style="font-size:12.5px;color:var(--txt);font-weight:600">'+esc(info.name)+'</div>';
+        if(info.address_raw){
+          h+='<div style="font-size:11px;color:'+(addrShort?'#D97706':'var(--txt3)')+';margin-top:2px;line-height:1.5">'+esc(info.address_raw)+'</div>';
+        }else{
+          h+='<div style="font-size:11px;color:#D97706;margin-top:2px">Alamat belum ada</div>';
+        }
         h+='</div>';
+        h+='<button onclick="copyMarketingHotelInfo(this,\''+id+'\')" title="Copy nama + alamat" style="width:24px;height:24px;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+        h+='</div></div>';
       });
     }
     h+='</div>';
-    if(pick&&names.length){
+    if(pick&&ids.length){
       h+='<div style="padding:0 18px 16px">';
       if(isDone){
         h+='<div style="text-align:center;padding:9px;background:#F0FDF4;border-radius:8px;color:#16A34A;font-size:12px;font-weight:700">Sudah dikerjakan</div>';
@@ -886,7 +945,18 @@ async function markShiftPromoted(pickId){
   await sb.from('marketing_picks').update({promoted:true}).eq('id',pickId);
   var idx=mmPicks.findIndex(function(p){return p.id===pickId});
   if(idx>-1)mmPicks[idx].promoted=true;
-  renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+  await renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+}
+
+function copyMarketingHotelInfo(btn,hotelId){
+  var info=mmHotelCache[hotelId];
+  if(!info)return;
+  var text=info.name+(info.address_raw?('\n\ud83d\udccd'+info.address_raw):'');
+  navigator.clipboard.writeText(text).then(function(){
+    var orig=btn.innerHTML;
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1DBF73" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(function(){btn.innerHTML=orig},1200);
+  });
 }
 
 // ── PromoGen (HOTEL) ──
