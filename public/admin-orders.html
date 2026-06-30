@@ -739,6 +739,138 @@ async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb
 
 
 
+// ── Articles CMS ──
+var curArticles=[];
+var editingArticleId=null;
+
+async function renderArticlesView(){
+  var el=document.getElementById('articles-area');
+  if(!el)return;
+  el.innerHTML='<div class="loading"><div class="spinner"></div> Loading articles...</div>';
+  if(!sb)return;
+  var{data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
+  if(error){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--txt3)">Error loading articles: '+esc(error.message)+'</div>';return;}
+  curArticles=data||[];
+  if(!curArticles.length){
+    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--txt3)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5" style="margin:0 auto 14px;display:block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>No articles yet. Click "New Article" or "AI Write" to create one.</div>';
+    return;
+  }
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">';
+  curArticles.forEach(function(a){
+    var statusColor=a.published?'#1DBF73':'#94A3B8';
+    var statusLabel=a.published?'Published':'Draft';
+    h+='<div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
+    if(a.cover_image){h+='<div style="height:140px;background:url('+esc(a.cover_image)+') center/cover"></div>';}
+    else{h+='<div style="height:140px;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>';}
+    h+='<div style="padding:14px 16px">';
+    h+='<div style="display:flex;align-items:center;justify-content:between;gap:8px;margin-bottom:8px"><span style="background:'+statusColor+'20;color:'+statusColor+';padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700">'+statusLabel+'</span>';
+    if(a.author_name==='Dean Designers AI'){h+='<span style="background:#8B5CF620;color:#8B5CF6;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px">AI</span>';}
+    h+='</div>';
+    h+='<h3 style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+esc(a.title)+'</h3>';
+    h+='<div style="font-size:11px;color:var(--txt3);margin-bottom:12px">'+fmtDate(a.created_at)+'</div>';
+    h+='<div style="display:flex;gap:6px">';
+    h+='<button onclick="viewArticleDetail(\''+a.id+'\')" style="flex:1;padding:7px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:11px;font-weight:700;color:var(--txt2);cursor:pointer">View</button>';
+    h+='<button onclick="openArticleEditor(\''+a.id+'\')" style="flex:1;padding:7px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:11px;font-weight:700;color:var(--txt2);cursor:pointer">Edit</button>';
+    h+='<button onclick="deleteArticleConfirm(\''+a.id+'\')" style="padding:7px 10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;font-size:11px;font-weight:700;color:#DC2626;cursor:pointer">Delete</button>';
+    h+='</div></div></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function viewArticleDetail(id){
+  var a=curArticles.find(function(x){return x.id===id});if(!a)return;
+  document.getElementById('modal').innerHTML='<div class="modal" style="max-width:680px"><div class="modal-head"><div class="modal-title">'+esc(a.title)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body">'+(a.cover_image?'<img src="'+esc(a.cover_image)+'" style="width:100%;height:240px;object-fit:cover;border-radius:12px;margin-bottom:16px"/>':'')+'<div style="font-size:11px;color:var(--txt3);margin-bottom:16px">'+fmtDate(a.created_at)+' · '+esc(a.author_name||'Dean Designers')+'</div><div style="font-size:14px;line-height:1.8;color:var(--txt2)">'+a.content+'</div></div></div>';
+  document.getElementById('modal').classList.add('open');
+}
+
+async function deleteArticleConfirm(id){
+  if(!confirm('Delete this article permanently?'))return;
+  await sb.from('articles').delete().eq('id',id);
+  renderArticlesView();
+}
+
+function openArticleEditor(id){
+  editingArticleId=id||null;
+  var a=id?curArticles.find(function(x){return x.id===id}):null;
+  var h='<div class="modal" style="max-width:760px;max-height:90vh"><div class="modal-head"><div class="modal-title">'+(id?'Edit Article':'New Article')+'</div><div class="modal-x" onclick="closeModal()">×</div></div>';
+  h+='<div class="modal-body" style="max-height:70vh;overflow-y:auto">';
+  h+='<div style="display:grid;gap:14px">';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Title</label><input id="art-title" class="profile-input" value="'+(a?esc(a.title):'')+'" placeholder="Article title"/></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Excerpt</label><textarea id="art-excerpt" class="profile-textarea" style="min-height:60px">'+(a?esc(a.excerpt||''):'')+'</textarea></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Cover Image URL</label><input id="art-cover" class="profile-input" value="'+(a?esc(a.cover_image||''):'')+'" placeholder="https://..."/></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Tags (comma separated)</label><input id="art-tags" class="profile-input" value="'+(a&&a.tags?esc(a.tags.join(', ')):'')+'" placeholder="tag1, tag2, tag3"/></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Content (HTML)</label><textarea id="art-content" class="profile-textarea" style="min-height:240px;font-family:monospace;font-size:12px">'+(a?esc(a.content||''):'')+'</textarea></div>';
+  h+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--txt2)"><input type="checkbox" id="art-published" '+(a&&a.published?'checked':'')+'/> Published (visible on website)</label>';
+  h+='</div></div>';
+  h+='<div class="modal-foot"><button class="mbtn mbtn-g" onclick="saveArticleForm()">Save Article</button></div></div>';
+  document.getElementById('modal').innerHTML=h;
+  document.getElementById('modal').classList.add('open');
+}
+
+async function saveArticleForm(){
+  var title=document.getElementById('art-title').value.trim();
+  if(!title){alert('Title is required');return}
+  var tagsStr=document.getElementById('art-tags').value.trim();
+  var payload={
+    title:title,
+    excerpt:document.getElementById('art-excerpt').value.trim(),
+    cover_image:document.getElementById('art-cover').value.trim(),
+    content:document.getElementById('art-content').value,
+    tags:tagsStr?tagsStr.split(',').map(function(t){return t.trim()}).filter(Boolean):[],
+    published:document.getElementById('art-published').checked,
+    author_name:'Dean Designers',
+    slug:title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').substring(0,80)
+  };
+  if(editingArticleId){
+    await sb.from('articles').update(payload).eq('id',editingArticleId);
+  }else{
+    await sb.from('articles').insert([payload]);
+  }
+  closeModal();
+  renderArticlesView();
+}
+
+function openAIWriter(){
+  var h='<div class="modal" style="max-width:520px"><div class="modal-head"><div class="modal-title">AI Write Article</div><div class="modal-x" onclick="closeModal()">×</div></div>';
+  h+='<div class="modal-body"><div style="display:grid;gap:14px">';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Topic</label><textarea id="ai-topic" class="profile-textarea" style="min-height:70px" placeholder="e.g. Why streetwear logo design matters for brand identity"></textarea></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Style</label><select id="ai-style" class="profile-input"><option value="guide">Comprehensive Guide</option><option value="tutorial">Tutorial</option><option value="listicle">Listicle</option><option value="opinion">Expert Opinion</option><option value="case-study">Case Study</option></select></div>';
+  h+='<div id="ai-write-status" style="font-size:12px;color:var(--txt3)"></div>';
+  h+='</div></div>';
+  h+='<div class="modal-foot"><button class="mbtn mbtn-g" id="ai-write-btn" onclick="runAIWrite()">Generate Article</button></div></div>';
+  document.getElementById('modal').innerHTML=h;
+  document.getElementById('modal').classList.add('open');
+}
+
+async function runAIWrite(){
+  var topic=document.getElementById('ai-topic').value.trim();
+  if(!topic){alert('Please enter a topic');return}
+  var btn=document.getElementById('ai-write-btn');
+  var status=document.getElementById('ai-write-status');
+  btn.disabled=true;btn.textContent='Generating...';
+  status.textContent='Connecting to AI...';
+  try{
+    var res=await fetch('/api/auto-article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({custom_topic:topic})});
+    var contentType=res.headers.get('content-type')||'';
+    if(!contentType.includes('application/json')){
+      status.textContent='Error: API not found. Make sure auto-article.js is in api/ folder.';
+      btn.disabled=false;btn.textContent='Generate Article';return;
+    }
+    var data=await res.json();
+    if(data.success){
+      status.textContent='Article published: '+data.articles[0].title;
+      setTimeout(function(){closeModal();renderArticlesView();},1200);
+    }else{
+      status.textContent='Error: '+(data.error||'Unknown error');
+      btn.disabled=false;btn.textContent='Generate Article';
+    }
+  }catch(err){
+    status.textContent='Network error: '+err.message;
+    btn.disabled=false;btn.textContent='Generate Article';
+  }
+}
+
 // ── AI Agent Dashboard ──
 var aiAgentRunning=false;
 var aiAgentLogs=[];
