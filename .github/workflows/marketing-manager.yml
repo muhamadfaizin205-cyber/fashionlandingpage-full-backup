@@ -1,0 +1,20 @@
+name: Daily Marketing Manager Picks
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 07:00 WIB setiap hari (00:00 UTC) — picks siap saat owner mulai kerja
+  workflow_dispatch:
+
+jobs:
+  generate-picks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Marketing Manager
+        run: |
+          echo "Calling marketing manager to pick today's 20 hotels..."
+          curl -s -X GET \
+            "https://fashionlandingpage-full-backup.vercel.app/api/marketing-manager" \
+            -H "Content-Type: application/json" \
+            --max-time 60
+          echo ""
+          echo "Done!"
