@@ -556,6 +556,7 @@ function renderBrief(){
   if(!sb)return;
   sb.from('briefs').select('*').eq('order_email',email).order('created_at',{ascending:false}).limit(1).then(function(res){
     var brief=res.data&&res.data[0]?res.data[0]:null;
+    _curBriefImages=(brief&&brief.reference_images)?brief.reference_images.slice():[];
     var status=brief?brief.status:'draft';
     var statusColor=status==='approved'?'#1DBF73':status==='submitted'?'#3B82F6':status==='revision'?'#F59E0B':'#94A3B8';
     var statusLabel=status==='approved'?'✅ Approved':status==='submitted'?'📤 Submitted':status==='revision'?'⚠️ Revision Requested':'📝 Draft';
@@ -589,6 +590,31 @@ function renderBrief(){
     h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Additional Notes</label>';
     h+='<textarea id="bf-notes" class="profile-textarea" placeholder="Any other details..." '+disabled+'>'+esc(brief?brief.notes:'')+'</textarea></div>';
     h+='</div></div>';
+
+    // Reference Images Upload Section
+    var briefImgs=_curBriefImages;
+    h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px">';
+    h+='<label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-bottom:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Reference Images <span style="color:var(--txt3);font-weight:400;text-transform:none">(optional)</span></label>';
+    h+='<p style="font-size:12px;color:var(--txt3);margin-bottom:12px">Upload mood boards, inspiration, or reference images for your designer.</p>';
+    if(briefImgs.length>0){
+      h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:12px">';
+      briefImgs.forEach(function(url,idx){
+        h+='<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1">';
+        h+='<img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="showImgOverlay(this.src)"/>';
+        if(status!=='approved')h+='<button onclick="removeBriefImage('+idx+')" style="position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;font-size:13px;line-height:1;cursor:pointer">×</button>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    if(status!=='approved'&&briefImgs.length<5){
+      h+='<label style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1.5px dashed var(--border);border-radius:12px;cursor:pointer;color:var(--txt3);font-size:13px;font-weight:600" id="bf-img-upload-label">';
+      h+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
+      h+='Upload Images ('+briefImgs.length+'/5)';
+      h+='<input type="file" accept="image/*" multiple style="display:none" onchange="uploadBriefImages(this)"/>';
+      h+='</label>';
+    }
+    h+='</div>';
+
     // Action buttons
     if(status!=='approved'){
       h+='<div style="display:flex;gap:10px">';
@@ -601,6 +627,55 @@ function renderBrief(){
     h+='</div>';
     el.innerHTML=h;
   });
+}
+
+var _curBriefImages=[];
+
+async function uploadBriefImages(input){
+  var files=Array.from(input.files||[]);
+  if(!files.length||!sb)return;
+  var label=document.getElementById('bf-img-upload-label');
+  var origHtml=label?label.innerHTML:'';
+  if(label)label.innerHTML='<div class="ai-spinner"></div> Uploading...';
+  var remaining=5-_curBriefImages.length;
+  for(var i=0;i<Math.min(files.length,remaining);i++){
+    var file=files[i];
+    var ext=(file.name.split('.').pop()||'jpg');
+    var path='brief/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+    try{
+      var r=await sb.storage.from('uploads').upload(path,file);
+      if(!r.error){
+        var d=sb.storage.from('uploads').getPublicUrl(path);
+        if(d&&d.data&&d.data.publicUrl)_curBriefImages.push(d.data.publicUrl);
+      }
+    }catch(e){console.error('Brief image upload failed',e);}
+  }
+  // Persist to DB immediately so images aren't lost
+  await sb.from('briefs').upsert([{
+    order_email:email,
+    order_id:selOrder?selOrder.id:null,
+    reference_images:_curBriefImages,
+    updated_at:new Date().toISOString()
+  }],{onConflict:'order_email'}).then(function(){}, function(){
+    // Fallback: select+update/insert manually if no unique constraint
+    sb.from('briefs').select('id').eq('order_email',email).limit(1).then(function(res){
+      if(res.data&&res.data[0]){
+        sb.from('briefs').update({reference_images:_curBriefImages}).eq('id',res.data[0].id);
+      }else{
+        sb.from('briefs').insert([{order_email:email,order_id:selOrder?selOrder.id:null,reference_images:_curBriefImages}]);
+      }
+    });
+  });
+  renderBrief();
+}
+
+async function removeBriefImage(idx){
+  _curBriefImages.splice(idx,1);
+  var{data}=await sb.from('briefs').select('id').eq('order_email',email).limit(1);
+  if(data&&data[0]){
+    await sb.from('briefs').update({reference_images:_curBriefImages}).eq('id',data[0].id);
+  }
+  renderBrief();
 }
 
 async function saveBrief(status){
@@ -618,6 +693,7 @@ async function saveBrief(status){
     color_references:(document.getElementById('bf-colors')||{}).value||'',
     target_audience:(document.getElementById('bf-audience')||{}).value||'',
     notes:(document.getElementById('bf-notes')||{}).value||'',
+    reference_images:_curBriefImages,
     status:status,
     updated_at:new Date().toISOString()
   };
