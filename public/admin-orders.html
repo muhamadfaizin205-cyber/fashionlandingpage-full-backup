@@ -777,36 +777,38 @@ function hotelFinalPrice(h){
 function hotelDynamicTitle(h){
   var name=h.name||'';
   var lower=name.toLowerCase();
-  var idx=lower.indexOf('near');
-  if(idx>-1){
-    var extracted=name.substring(idx+4).trim().replace(/^[-:,\s]+/,'');
-    if(extracted)return 'Penginapan Murah Dekat '+extracted;
-  }
-  // Fallback: try to use city/region from address_raw, else just the name
   var region=h.address_raw?h.address_raw.split(',').pop().trim():'';
-  return 'Penginapan Murah di '+(region||name);
+  var idx=lower.indexOf('near');
+  var nameForTitle=name;
+  if(idx>-1){
+    nameForTitle=name.substring(0,idx)+'dekat'+name.substring(idx+4);
+  }
+  return 'Penginapan Murah dan Aman di '+(region||'-')+' ('+nameForTitle+')';
 }
 function fmtIDR(n){
   if(n==null||isNaN(n))return '-';
-  return 'Rp'+Number(n).toLocaleString('id-ID');
+  return Number(n).toLocaleString('id-ID');
 }
-// 4.3 Template Structure — exact format from PRD
+// 4.3 Template Structure — matches the exact promo format/spacing used for marketplace listings
 function hotelTemplate(h){
   var title=hotelDynamicTitle(h);
   var price=hotelFinalPrice(h);
   var priceStr=price!=null?fmtIDR(price):'(harga belum diisi)';
   return title+'\n'+
-    (h.name||'')+'\n'+
     'Hotel murah, aman, dan nyaman\n'+
+    '\n'+
     'Harga mulai dari '+priceStr+'/kamar/malam\n'+
-    'Minimal 18 tahun ber-KTP \u2705\n'+
+    'Minimal 18 tahun ber-KTP \u2705 \n'+
     'Bisa bayar cash di hotel \u2705\n'+
     'Bisa untuk pasutri dan keluarga \u2705\n'+
     'Bisa untuk rombongan \u2705\n'+
+    '\n'+
     'Fasilitas: resepsionis, alat mandi gratis, toilet di dalam kamar, AC, TV, dan wifi\n'+
+    '\n'+
     '\ud83d\udccd'+(h.address_raw||'')+'\n'+
-    'Booking sekarang\n'+
-    'screenshot dan kirim ke WA 0831-3153-3097!\n'+
+    '\n'+
+    'Booking sekarang, screenshot dan kirim ke WA 0831-3153-3097! \n'+
+    '\n'+
     'Atau booking via aplikasi RedDoorz ada HARGA SPESIAL DIPOTONG 25% pake kode promo RDAFFASIKPROMO. Kode promo bisa dipake berulang kali!';
 }
 
@@ -849,12 +851,20 @@ async function renderHotelView(){
   h+='<div style="background:#18181B;border-radius:14px;padding:20px;position:sticky;top:0">';
   h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   h+='<div style="font-size:11px;font-weight:700;color:#A1A1AA;text-transform:uppercase;letter-spacing:.5px">Live Preview</div>';
-  if(selHotel)h+='<button onclick="copyHotelPromo()" style="padding:5px 12px;background:#6366F1;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>';
   h+='</div>';
   if(!selHotel){
     h+='<div style="padding:40px 20px;text-align:center;color:#71717A;font-size:13px">Select a property to preview the promo text.</div>';
   }else{
-    h+='<pre id="hotel-preview-text" style="background:#27272A;border-radius:10px;padding:16px;color:#E4E4E7;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;max-height:480px;overflow-y:auto">'+esc(hotelTemplate(selHotel))+'</pre>';
+    // Title block (for marketplace title field)
+    h+='<div style="margin-bottom:14px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Title (for marketplace)</span>';
+    h+='<button onclick="copyHotelTitle()" style="padding:4px 10px;background:#27272A;border:1px solid #3F3F46;color:#A1A1AA;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
+    h+='<pre id="hotel-title-text" style="background:#27272A;border-radius:10px;padding:12px 14px;color:#E4E4E7;font-size:13px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0">'+esc(hotelDynamicTitle(selHotel))+'</pre>';
+    h+='</div>';
+    // Description block
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Description</span>';
+    h+='<button onclick="copyHotelPromo()" style="padding:4px 10px;background:#6366F1;color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
+    h+='<pre id="hotel-preview-text" style="background:#27272A;border-radius:10px;padding:16px;color:#E4E4E7;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;max-height:420px;overflow-y:auto">'+esc(hotelTemplate(selHotel))+'</pre>';
   }
   h+='</div>';
 
@@ -865,6 +875,15 @@ async function renderHotelView(){
 function selectHotel(id){
   selectedHotelId=id;
   renderHotelView();
+}
+
+function copyHotelTitle(){
+  var pre=document.getElementById('hotel-title-text');
+  if(!pre)return;
+  navigator.clipboard.writeText(pre.textContent).then(function(){
+    var btn=event.target.closest('button');
+    if(btn){var orig=btn.innerHTML;btn.innerHTML='Copied!';setTimeout(function(){btn.innerHTML=orig},1500);}
+  });
 }
 
 function copyHotelPromo(){
