@@ -2378,10 +2378,6 @@ export default function App() {
 
             {/* Minimal content */}
             <div className="hero-content">
-              <div className="hero-badge">
-                <div className="hero-dot" />
-                Streetwear &amp; Brand Design
-              </div>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
