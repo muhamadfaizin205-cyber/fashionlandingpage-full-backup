@@ -81,6 +81,7 @@ HTML FORMAT ONLY:
 - Use <p> for paragraphs
 - Use <strong> for emphasis on key terms (not overuse)
 - Use <ul><li> only when genuinely listing 3+ comparable items
+- Also provide image_search_term: 2-4 simple, visual, photographable English words describing what a stock photo for this article should show. Think like a photographer, not an SEO writer. Good examples: "streetwear clothing rack", "fashion designer sketching", "hoodie flat lay photography", "tailor sewing fabric", "graphic designer laptop workspace". Bad examples (too abstract): "brand identity", "ROI", "digital marketing strategy".
 
 RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
 {
@@ -88,7 +89,8 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
   "excerpt": "Meta description 150-160 chars with keyword and value prop",
   "content": "<h2>Section Title with Keyword</h2><p>Opening hook...</p>...",
   "tags": ["primary-keyword", "secondary-keyword-1", "secondary-keyword-2", "lsi-keyword-1", "lsi-keyword-2"],
-  "slug": "short-keyword-rich-slug"
+  "slug": "short-keyword-rich-slug",
+  "image_search_term": "simple visual photo keywords"
 }`;
 
   const aiRes = await fetch('https://api.aivene.com/v1/chat/completions', {
@@ -119,13 +121,43 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
   }
 }
 
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '';
+
 async function findCoverImage(keywords, articleId) {
-  // source.unsplash.com is permanently deprecated (returns error page, not images)
-  // Use Picsum Photos instead — stable, no API key, deterministic per article
-  const seed = (keywords + (articleId || Date.now()))
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .substring(0, 40) || ('article' + Date.now());
+  const cleanQuery = keywords.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+
+  // Try Pexels first — real relevant photos matching the topic
+  if (PEXELS_API_KEY) {
+    try {
+      const res = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(cleanQuery)}&per_page=5&orientation=landscape`,
+        { headers: { Authorization: PEXELS_API_KEY } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.photos && data.photos.length > 0) {
+          // Pick a photo based on articleId hash so re-runs are consistent-ish but varied across articles
+          const idx = Math.abs(hashCode(articleId || cleanQuery)) % data.photos.length;
+          return data.photos[idx].src.large2x || data.photos[idx].src.large;
+        }
+      }
+    } catch (e) {
+      console.error('Pexels search failed:', e.message);
+    }
+  }
+
+  // Fallback: Picsum with seed (not topic-relevant, but always works)
+  const seed = (keywords + (articleId || Date.now())).replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) || ('article' + Date.now());
   return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1200/630`;
+}
+
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
 }
 
 async function saveArticle(article, coverUrl) {
@@ -157,7 +189,7 @@ async function saveArticle(article, coverUrl) {
 async function processOneTopic(topic) {
   const article = await generateArticle(topic);
   // Use article title as deterministic seed so the same article always gets the same image
-  const imageKeywords = (article.tags || []).slice(0,3).join(' ') || topic;
+  const imageKeywords = article.image_search_term || (article.tags || []).slice(0,2).join(' ') || topic;
   const coverUrl = await findCoverImage(imageKeywords, article.title);
   const saved = await saveArticle(article, coverUrl);
   return { topic, title: article.title, id: saved?.[0]?.id, has_image: !!coverUrl };
