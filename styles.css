@@ -2213,8 +2213,8 @@ textarea.brief-ta:focus {
    ════════════════════════════════ */
 .sp-toast {
   position: fixed;
-  bottom: 24px;
-  left: 24px;
+  top: 84px;
+  right: 20px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -2223,14 +2223,14 @@ textarea.brief-ta:focus {
   align-items: center;
   gap: 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  z-index: 300;
-  transform: translateY(120%);
+  z-index: 250;
+  transform: translateX(120%);
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-  max-width: 320px;
+  max-width: 300px;
 }
 .sp-toast.sp-show {
-  transform: translateY(0);
+  transform: translateX(0);
   opacity: 1;
 }
 .sp-dot {
@@ -2263,11 +2263,13 @@ textarea.brief-ta:focus {
 }
 @media (max-width: 600px) {
   .sp-toast {
+    top: auto;
+    bottom: 20px;
     left: 12px;
     right: 12px;
-    bottom: 84px;
     max-width: none;
   }
+
 }
 
 /* ════════════════════════════════
