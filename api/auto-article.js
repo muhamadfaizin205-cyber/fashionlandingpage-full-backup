@@ -91,7 +91,7 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
   "slug": "short-keyword-rich-slug"
 }`;
 
-  const res = await fetch('https://api.aivene.com/v1/chat/completions', {
+  const aiRes = await fetch('https://api.aivene.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AIVENE_KEY}` },
     body: JSON.stringify({
@@ -102,36 +102,30 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
       response_format: { type: 'json_object' }
     })
   });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
+  // Check content type before parsing
+  const contentType = aiRes.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const rawText = await aiRes.text();
+    throw new Error('Aivene API returned non-JSON: ' + rawText.substring(0, 200));
+  }
+  const data = await aiRes.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
   const text = data.choices?.[0]?.message?.content || '';
-  return JSON.parse(text.replace(/```json|```/g,'').trim());
+  if (!text) throw new Error('Empty response from AI');
+  try {
+    return JSON.parse(text.replace(/```json|```/g,'').trim());
+  } catch(e) {
+    throw new Error('AI response is not valid JSON: ' + text.substring(0,200));
+  }
 }
 
-async function findCoverImage(keywords) {
-  // Use Unsplash Source API — free, no API key needed
-  // Build search query from keywords
-  const query = keywords
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .split(' ')
-    .filter(w => w.length > 3)
-    .slice(0, 3)
-    .join(',');
-  
-  // Unsplash Source gives direct image URL — no API key needed
-  const url = `https://source.unsplash.com/1200x630/?${encodeURIComponent(query)}`;
-  
-  try {
-    // Follow redirect to get actual image URL
-    const res = await fetch(url, { redirect: 'follow' });
-    if (res.ok && res.url && res.url.includes('images.unsplash.com')) {
-      return res.url;
-    }
-    // Fallback: use direct URL (will redirect on client)
-    return url;
-  } catch (e) {
-    return url; // Return URL anyway, will work in browser
-  }
+async function findCoverImage(keywords, articleId) {
+  // source.unsplash.com is permanently deprecated (returns error page, not images)
+  // Use Picsum Photos instead — stable, no API key, deterministic per article
+  const seed = (keywords + (articleId || Date.now()))
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .substring(0, 40) || ('article' + Date.now());
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1200/630`;
 }
 
 async function saveArticle(article, coverUrl) {
@@ -162,9 +156,9 @@ async function saveArticle(article, coverUrl) {
 
 async function processOneTopic(topic) {
   const article = await generateArticle(topic);
-  // Find relevant image from Unsplash based on article tags/title
+  // Use article title as deterministic seed so the same article always gets the same image
   const imageKeywords = (article.tags || []).slice(0,3).join(' ') || topic;
-  const coverUrl = await findCoverImage(imageKeywords);
+  const coverUrl = await findCoverImage(imageKeywords, article.title);
   const saved = await saveArticle(article, coverUrl);
   return { topic, title: article.title, id: saved?.[0]?.id, has_image: !!coverUrl };
 }
