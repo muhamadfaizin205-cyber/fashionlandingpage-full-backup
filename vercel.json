@@ -4,5 +4,9 @@
       "path": "/api/auto-article",
       "schedule": "0 9 * * *"
     }
+  ],
+  "rewrites": [
+    { "source": "/articles", "destination": "/index.html" },
+    { "source": "/articles/:slug", "destination": "/index.html" }
   ]
 }
