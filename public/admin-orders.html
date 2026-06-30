@@ -904,7 +904,7 @@ async function enrichAllAddresses(){
     alert('All addresses already look complete!');
     return;
   }
-  if(!confirm('This will look up full addresses for '+targets.length+' properties. It runs in the background at ~1 request/second (about '+Math.ceil(targets.length/60)+' minutes). Continue?'))return;
+  if(!confirm('This will look up full addresses for '+targets.length+' properties using LocationIQ (about '+Math.ceil(targets.length/110)+' minutes). Continue?'))return;
 
   enrichRunning=true;
   enrichStop=false;
@@ -928,9 +928,9 @@ async function enrichAllAddresses(){
     var ho=targets[i];
     try{
       var query=encodeURIComponent(ho.name+', Indonesia');
-      var res=await fetch('https://nominatim.openstreetmap.org/search?q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id',{headers:{'Accept-Language':'id'}});
+      var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
       var data=await res.json();
-      if(data&&data.length>0){
+      if(data&&data.length>0&&data[0].display_name){
         var fullAddr=data[0].display_name;
         await sb.from('hotels').update({address_raw:fullAddr,updated_at:new Date().toISOString()}).eq('id',ho.id);
         var idx=curHotels.findIndex(function(x){return x.id===ho.id});
@@ -944,8 +944,8 @@ async function enrichAllAddresses(){
     }
     done++;
     renderProgress();
-    // Respect Nominatim rate limit: max 1 request/second
-    await new Promise(function(r){setTimeout(r,1100)});
+    // LocationIQ free tier: max 2 requests/second
+    await new Promise(function(r){setTimeout(r,550)});
   }
 
   enrichRunning=false;
@@ -993,11 +993,9 @@ async function findHotelAddress(){
   try{
     // Free, no API key — OpenStreetMap Nominatim geocoding
     var query=encodeURIComponent(name+', Indonesia');
-    var res=await fetch('https://nominatim.openstreetmap.org/search?q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id',{
-      headers:{'Accept-Language':'id'}
-    });
+    var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
     var data=await res.json();
-    if(data&&data.length>0){
+    if(data&&data.length>0&&data[0].display_name){
       var place=data[0];
       var addr=place.display_name;
       document.getElementById('ho-address').value=addr;
