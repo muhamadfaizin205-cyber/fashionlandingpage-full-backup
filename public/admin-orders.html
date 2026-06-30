@@ -607,7 +607,7 @@ function renderCurrentView(){
   } else if(currentView==='ai-agent'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Agent</h1></div><div id="ai-agent-area"></div></div>';
   } else if(currentView==='hotel'){
-    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>PromoGen</h1><div class="page-actions"><button class="btn-primary" onclick="openHotelEditor()" style="background:#6366F1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Hotel</button></div></div><div id="hotel-area"></div></div>';
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>PromoGen</h1><div class="page-actions"><button class="btn-primary" onclick="enrichAllAddresses()" id="enrich-all-btn" style="background:#fff;color:#4F46E5;border:1px solid #C7D2FE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Enrich All Addresses</button><button class="btn-primary" onclick="openHotelEditor()" style="background:#6366F1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Hotel</button></div></div><div id="hotel-enrich-status"></div><div id="hotel-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -883,6 +883,80 @@ async function deleteHotelConfirm(id){
   renderHotelView();
 }
 
+var enrichRunning=false;
+var enrichStop=false;
+
+function isAddressIncomplete(addr){
+  if(!addr)return true;
+  // Heuristic: a full street address usually has "Jl." or 4+ comma-separated parts (street, district, city, province...)
+  var commaParts=addr.split(',').length;
+  var hasJl=/\bjl\.?\b/i.test(addr);
+  return !hasJl && commaParts<4;
+}
+
+async function enrichAllAddresses(){
+  if(enrichRunning){
+    enrichStop=true;
+    return;
+  }
+  var targets=curHotels.filter(function(h){return isAddressIncomplete(h.address_raw)});
+  if(!targets.length){
+    alert('All addresses already look complete!');
+    return;
+  }
+  if(!confirm('This will look up full addresses for '+targets.length+' properties. It runs in the background at ~1 request/second (about '+Math.ceil(targets.length/60)+' minutes). Continue?'))return;
+
+  enrichRunning=true;
+  enrichStop=false;
+  var btn=document.getElementById('enrich-all-btn');
+  if(btn){btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg> Stop Enriching';btn.style.background='#FEF2F2';btn.style.color='#DC2626';btn.style.borderColor='#FECACA';}
+
+  var statusEl=document.getElementById('hotel-enrich-status');
+  var done=0,found=0,failed=0;
+
+  function renderProgress(){
+    if(!statusEl)return;
+    var pct=Math.round(done/targets.length*100);
+    statusEl.innerHTML='<div style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:12px;padding:14px 16px;margin-bottom:14px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#4F46E5;margin-bottom:8px"><span>Enriching addresses... '+done+' / '+targets.length+'</span><span>'+found+' found, '+failed+' failed</span></div>'+
+      '<div style="height:6px;background:#E0E7FF;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#6366F1;transition:width .3s"></div></div></div>';
+  }
+  renderProgress();
+
+  for(var i=0;i<targets.length;i++){
+    if(enrichStop)break;
+    var ho=targets[i];
+    try{
+      var query=encodeURIComponent(ho.name+', Indonesia');
+      var res=await fetch('https://nominatim.openstreetmap.org/search?q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id',{headers:{'Accept-Language':'id'}});
+      var data=await res.json();
+      if(data&&data.length>0){
+        var fullAddr=data[0].display_name;
+        await sb.from('hotels').update({address_raw:fullAddr,updated_at:new Date().toISOString()}).eq('id',ho.id);
+        var idx=curHotels.findIndex(function(x){return x.id===ho.id});
+        if(idx>-1)curHotels[idx].address_raw=fullAddr;
+        found++;
+      }else{
+        failed++;
+      }
+    }catch(e){
+      failed++;
+    }
+    done++;
+    renderProgress();
+    // Respect Nominatim rate limit: max 1 request/second
+    await new Promise(function(r){setTimeout(r,1100)});
+  }
+
+  enrichRunning=false;
+  if(btn){btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Enrich All Addresses';btn.style.background='#fff';btn.style.color='#4F46E5';btn.style.borderColor='#C7D2FE';}
+  if(statusEl){
+    statusEl.innerHTML='<div style="background:'+(enrichStop?'#FEF3C7':'#F0FDF4')+';border:1px solid '+(enrichStop?'#FDE68A':'#BBF7D0')+';border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:13px;font-weight:600;color:'+(enrichStop?'#D97706':'#16A34A')+'">'+
+      (enrichStop?'Stopped. ':'Done! ')+found+' addresses found, '+failed+' not found, out of '+done+' processed.</div>';
+  }
+  renderHotelView();
+}
+
 function openHotelEditor(id){
   editingHotelId=id||null;
   var ho=id?curHotels.find(function(x){return x.id===id}):null;
@@ -894,12 +968,51 @@ function openHotelEditor(id){
   h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Superior</label><input id="ho-superior" type="number" class="profile-input" value="'+(ho&&ho.price_superior!=null?ho.price_superior:'')+'" placeholder="0"/></div>';
   h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Double</label><input id="ho-double" type="number" class="profile-input" value="'+(ho&&ho.price_double!=null?ho.price_double:'')+'" placeholder="0"/></div>';
   h+='</div>';
-  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Address</label><textarea id="ho-address" class="profile-textarea" style="min-height:70px">'+(ho?esc(ho.address_raw||''):'')+'</textarea></div>';
+  h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Address</label><div style="display:flex;gap:8px"><textarea id="ho-address" class="profile-textarea" style="min-height:70px;flex:1">'+(ho?esc(ho.address_raw||''):'')+'</textarea></div>';
+  h+='<button type="button" onclick="findHotelAddress()" id="ho-find-addr-btn" style="margin-top:8px;width:100%;padding:9px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;color:#4F46E5;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find Full Address (auto)</button>';
+  h+='<div id="ho-find-status" style="font-size:11px;color:var(--txt3);margin-top:6px"></div>';
+  h+='</div>';
   h+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--txt2)"><input type="checkbox" id="ho-active" '+(!ho||ho.is_active?'checked':'')+'/> Active</label>';
   h+='</div></div>';
   h+='<div class="modal-foot"><button class="mbtn mbtn-g" onclick="saveHotelForm()">Save Property</button></div></div>';
   document.getElementById('modal').innerHTML=h;
   document.getElementById('modal').classList.add('open');
+}
+
+async function findHotelAddress(){
+  var nameInp=document.getElementById('ho-name');
+  var statusEl=document.getElementById('ho-find-status');
+  var btn=document.getElementById('ho-find-addr-btn');
+  var name=nameInp?nameInp.value.trim():'';
+  if(!name){alert('Enter the property name first.');return}
+  btn.disabled=true;
+  var origHtml=btn.innerHTML;
+  btn.innerHTML='<div class="ai-spinner" style="width:13px;height:13px;border-width:2px"></div>Searching...';
+  statusEl.textContent='';
+  statusEl.style.color='var(--txt3)';
+  try{
+    // Free, no API key — OpenStreetMap Nominatim geocoding
+    var query=encodeURIComponent(name+', Indonesia');
+    var res=await fetch('https://nominatim.openstreetmap.org/search?q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id',{
+      headers:{'Accept-Language':'id'}
+    });
+    var data=await res.json();
+    if(data&&data.length>0){
+      var place=data[0];
+      var addr=place.display_name;
+      document.getElementById('ho-address').value=addr;
+      statusEl.textContent='Address found and filled in.';
+      statusEl.style.color='var(--green)';
+    }else{
+      statusEl.textContent='No address found. Try editing the name or enter manually.';
+      statusEl.style.color='#F59E0B';
+    }
+  }catch(e){
+    statusEl.textContent='Search failed: '+e.message;
+    statusEl.style.color='#DC2626';
+  }
+  btn.disabled=false;
+  btn.innerHTML=origHtml;
 }
 
 async function saveHotelForm(){
