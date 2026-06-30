@@ -381,7 +381,7 @@ let replyToMsg=null,editingMsg=null,isRecording=false,recordSec=0,recordTimer=nu
 let adminOnline=false,adminLastSeen=null,remoteTyping=false,typingTimeout=null;
 let adminProfileData={display_name:'Dean Designers',avatar_url:'',bio:'',status:'available'};
 let myProfile={display_name:'',avatar_url:'',bio:''};
-let currentNav='overview',drawerOpen=false;
+let currentNav=(function(){try{return localStorage.getItem('dd_tracker_tab')||'overview'}catch(e){return 'overview'}})(),drawerOpen=false;
 
 // Security: rate limiting, session timeout, input validation
 let lastMsgTime=0;
@@ -436,8 +436,9 @@ async function loadOrders(){
   if(error){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>'+error.message+'</p></div>';return}
   orders=data||[];
   if(!orders.length){document.getElementById('root').innerHTML='<div style="text-align:center;padding:80px 20px;animation:fadeUp .3s"><div style="width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><h3 style="font-size:18px;font-weight:800;margin-bottom:6px">You don\'t have any active orders</h3><p style="font-size:14px;color:var(--txt2);max-width:360px;margin:0 auto 24px;line-height:1.6">Once you place an order on our website, it will appear here with real-time status tracking and direct chat with your designer.</p><a href="/" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--green);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s">Browse Services & Order Now <span style="font-size:18px">→</span></a></div>';return}
-  selOrder=orders[0];curTab='overview';
+  selOrder=orders[0];curTab=currentNav;
   renderDashboard();loadMyProfile();
+  if(curTab==='chat'){loadChat();}
   // Realtime subscriptions
   try{
     sb.channel('rt-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
@@ -1104,6 +1105,7 @@ function renderSidebar(){
 }
 function switchNav(v){
   currentNav=v;
+  try{localStorage.setItem('dd_tracker_tab',v)}catch(e){}
   if(v==='chat'){curTab='chat';loadChat()}
   else if(v==='brief'){curTab='brief';renderDashboard()}
   else{curTab='overview';renderDashboard()}
