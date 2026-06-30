@@ -1351,11 +1351,16 @@ async function enrichAllAddresses(){
     if(enrichStop)break;
     var ho=targets[i];
     try{
-      var query=encodeURIComponent(ho.name+', Indonesia');
-      var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
-      var data=await res.json();
-      if(data&&data.length>0&&data[0].display_name){
-        var fullAddr=data[0].display_name;
+      var fullAddr=await geocodeQuery(ho.name+', Indonesia');
+      if(isShortResult(fullAddr)){
+        var stripped=stripBrandKeywords(ho.name);
+        if(stripped&&stripped.length>2){
+          var alt=await geocodeQuery(stripped+', Indonesia');
+          if(alt&&!isShortResult(alt))fullAddr=alt;
+          else if(alt&&!fullAddr)fullAddr=alt;
+        }
+      }
+      if(fullAddr){
         await sb.from('hotels').update({address_raw:fullAddr,updated_at:new Date().toISOString()}).eq('id',ho.id);
         var idx=curHotels.findIndex(function(x){return x.id===ho.id});
         if(idx>-1)curHotels[idx].address_raw=fullAddr;
@@ -1376,8 +1381,9 @@ async function enrichAllAddresses(){
     }
     done++;
     renderProgress();
-    // LocationIQ free tier: max 2 requests/second
-    await new Promise(function(r){setTimeout(r,550)});
+    // LocationIQ free tier: max 2 requests/second. Two lookups per hotel when fallback triggers,
+    // so pace slightly slower to stay safely within rate limits.
+    await new Promise(function(r){setTimeout(r,650)});
   }
 
   enrichRunning=false;
@@ -1411,6 +1417,32 @@ function openHotelEditor(id){
   document.getElementById('modal').classList.add('open');
 }
 
+async function geocodeQuery(q){
+  var query=encodeURIComponent(q);
+  var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
+  var data=await res.json();
+  return (data&&data.length>0&&data[0].display_name)?data[0].display_name:null;
+}
+
+function isShortResult(addr){
+  if(!addr)return true;
+  return !/\bjl\.?\b/i.test(addr) && addr.split(',').length<4;
+}
+
+function stripBrandKeywords(name){
+  // Remove reseller/brand noise so the geocoder focuses on the actual location, not the listing title
+  return name
+    .replace(/\bredd?oorz\b/gi,'')
+    .replace(/\bsyariah\b/gi,'')
+    .replace(/\bplus\b/gi,'')
+    .replace(/\burbanview\b/gi,'')
+    .replace(/\boyo\b/gi,'')
+    .replace(/\bnear\b/gi,'')
+    .replace(/^[\s@\-:,]+/,'')
+    .replace(/\s{2,}/g,' ')
+    .trim();
+}
+
 async function findHotelAddress(){
   var nameInp=document.getElementById('ho-name');
   var statusEl=document.getElementById('ho-find-status');
@@ -1423,18 +1455,31 @@ async function findHotelAddress(){
   statusEl.textContent='';
   statusEl.style.color='var(--txt3)';
   try{
-    // Free, no API key — OpenStreetMap Nominatim geocoding
-    var query=encodeURIComponent(name+', Indonesia');
-    var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
-    var data=await res.json();
-    if(data&&data.length>0&&data[0].display_name){
-      var place=data[0];
-      var addr=place.display_name;
+    // Attempt 1: full property name as-is (best case: hotel exists as a named POI in OSM)
+    var addr=await geocodeQuery(name+', Indonesia');
+
+    // Attempt 2: if result is missing or too short (just province/country level),
+    // strip brand/reseller keywords so the geocoder searches the actual place name only
+    if(isShortResult(addr)){
+      var stripped=stripBrandKeywords(name);
+      if(stripped&&stripped.length>2){
+        var addr2=await geocodeQuery(stripped+', Indonesia');
+        if(addr2&&!isShortResult(addr2))addr=addr2;
+        else if(addr2&&!addr)addr=addr2;
+      }
+    }
+
+    if(addr){
       document.getElementById('ho-address').value=addr;
-      statusEl.textContent='Address found and filled in.';
-      statusEl.style.color='var(--green)';
+      if(isShortResult(addr)){
+        statusEl.textContent='Alamat ditemukan tapi masih kurang detail (hotel mungkin belum terdaftar lengkap di peta). Bisa diedit manual.';
+        statusEl.style.color='#F59E0B';
+      }else{
+        statusEl.textContent='Alamat lengkap ditemukan dan diisi otomatis.';
+        statusEl.style.color='var(--green)';
+      }
     }else{
-      statusEl.textContent='No address found. Try editing the name or enter manually.';
+      statusEl.textContent='Alamat tidak ditemukan. Coba edit nama atau isi manual.';
       statusEl.style.color='#F59E0B';
     }
   }catch(e){
