@@ -175,13 +175,12 @@ function extractCity(hotel) {
 }
 
 async function pickHotelsWithGroq(hotels, dateStr, dayName, eventContext) {
-  // Sample a manageable pool (random 300) to keep prompt size reasonable while still giving variety
+  // Keep the pool small to stay well under Groq's free-tier TPM limit (12000 tokens/min).
+  // UUIDs are long (36 chars) and were the main token cost — map to short numeric indexes instead.
   const shuffled = [...hotels].sort(() => Math.random() - 0.5);
-  const pool = shuffled.slice(0, 300).map((h) => ({
-    id: h.id,
-    name: h.name,
-    city: extractCity(h),
-  }));
+  const poolSize = 80;
+  const poolHotels = shuffled.slice(0, poolSize);
+  const pool = poolHotels.map((h, i) => `${i}|${h.name}|${extractCity(h)}`).join('\n');
 
   const prompt = `You are a ruthless, no-nonsense Marketing Manager for a hotel promotion business in Indonesia. Your boss runs an online hotel reseller business and depends on you to pick which hotels get promoted each day. You take this seriously and you do NOT tolerate excuses or laziness.
 
@@ -191,21 +190,21 @@ CURRENT EVENTS / CONTEXT TO CONSIDER:
 ${eventContext}
 
 YOUR TASK:
-From the hotel pool below, select EXACTLY 20 hotels total, split into 4 shifts of 5 hotels each: pagi (morning), siang (midday), sore (afternoon), malam (evening). Each hotel must be DIFFERENT — no repeats across shifts. Prioritize variety in cities so the business reaches different markets throughout the day. If there are relevant events/seasons/trends mentioned above, factor that into city selection (e.g. promote beach cities before holidays, business district hotels on weekdays, etc).
+From the hotel pool below (format: index|name|city), select EXACTLY 20 hotels total, split into 4 shifts of 5 hotels each: pagi (morning), siang (midday), sore (afternoon), malam (evening). Each hotel must be DIFFERENT — no repeats across shifts. Prioritize variety in cities so the business reaches different markets throughout the day. If there are relevant events/seasons/trends mentioned above, factor that into city selection.
 
-HOTEL POOL (id, name, city):
-${JSON.stringify(pool)}
+HOTEL POOL:
+${pool}
 
 Also write a short, blunt, commanding message to your boss explaining your picks for today — in Indonesian, in a strict/demanding tone (galak), like a tough manager giving orders, not a polite assistant. Reference the day/event context briefly. Keep it under 100 words. Do not use the word "Hai" or be friendly — be direct and demanding, like you're scolding a junior team member to get to work.
 
-RESPOND ONLY IN VALID JSON, no markdown:
+RESPOND ONLY IN VALID JSON, no markdown. Use the INDEX NUMBERS from the pool (not names) in the shifts arrays:
 {
   "manager_message": "Pesan tegas dari manager...",
   "shifts": {
-    "pagi": ["hotel_id_1","hotel_id_2","hotel_id_3","hotel_id_4","hotel_id_5"],
-    "siang": ["hotel_id_6", ...],
-    "sore": [...],
-    "malam": [...]
+    "pagi": [0,5,12,20,33],
+    "siang": [1,7,15,22,40],
+    "sore": [2,8,16,25,50],
+    "malam": [3,9,17,30,60]
   }
 }`;
 
@@ -213,9 +212,9 @@ RESPOND ONLY IN VALID JSON, no markdown:
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_KEY}` },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2500,
+      max_tokens: 1200,
       temperature: 0.8,
       response_format: { type: 'json_object' },
     }),
@@ -223,7 +222,17 @@ RESPOND ONLY IN VALID JSON, no markdown:
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
   const text = data.choices?.[0]?.message?.content || '';
-  return JSON.parse(text.replace(/```json|```/g, '').trim());
+  const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+
+  // Convert index-based shifts back to real hotel IDs
+  const shiftsWithIds = {};
+  for (const key of Object.keys(parsed.shifts || {})) {
+    shiftsWithIds[key] = (parsed.shifts[key] || [])
+      .map((idx) => poolHotels[idx])
+      .filter(Boolean)
+      .map((h) => h.id);
+  }
+  return { manager_message: parsed.manager_message, shifts: shiftsWithIds };
 }
 
 export default async function handler(req, res) {
