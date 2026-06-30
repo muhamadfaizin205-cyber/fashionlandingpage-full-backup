@@ -391,7 +391,7 @@ const SL={new:'New',working:'Working',review:'Review',revision:'Revision',comple
 const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision',completed:'b-completed',delivered:'b-delivered'};
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
-let currentView='orders',chatPanelOpen=false,mobileDrawerOpen=false;
+let currentView=(function(){try{return localStorage.getItem('dd_admin_view')||'orders'}catch(e){return 'orders'}})(),chatPanelOpen=false,mobileDrawerOpen=false;
 let adReplyTo=null,adEditing=null,adRecording=false,adRecSec=0,adRecTimer=null,adMediaRec=null,adRecChunks=[];
 let clientOnline=false,clientLastSeen=null,adRemoteTyping=false,adTypTimeout=null;
 let clientProfiles={};
@@ -564,6 +564,7 @@ function renderApp(){
 
 function switchView(v){
   currentView=v;
+  try{localStorage.setItem('dd_admin_view',v)}catch(e){}
   renderApp();
 }
 
