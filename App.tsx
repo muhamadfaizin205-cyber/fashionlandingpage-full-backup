@@ -1636,7 +1636,14 @@ function Step6({
               description={description}
               emailData={emailData}
               orderData={orderData}
-              onSuccess={() => setPaymentDone(true)}
+              onSuccess={() => {
+                setPaymentDone(true);
+                try {
+                  sessionStorage.removeItem("dd_checkout_step");
+                  sessionStorage.removeItem("dd_checkout_pkg");
+                  sessionStorage.removeItem("dd_checkout_wizard");
+                } catch {}
+              }}
             />
           </PayPalScriptProvider>
         </div>
@@ -2148,21 +2155,57 @@ export default function App() {
     const interval = setInterval(show, 14000);
     return () => { clearTimeout(timer); clearInterval(interval); };
   }, [proofPool]);
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number>(() => {
+    if (typeof window === "undefined") return 1;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_step");
+      return saved ? Number(saved) : 1;
+    } catch { return 1; }
+  });
   const [direction, setDirection] = useState<Direction>("forward");
   const [animKey, setAnimKey] = useState<number>(0);
   const [toast, setToast] = useState<string | null>(null);
-  const [selectedPkg, setSelectedPkg] = useState<Package | null>(null);
-  const [wizardState, setWizardState] = useState<WizardState>({
-    service: null,
-    brandName: "",
-    email: "",
-    whatsapp: "",
-    instagram: "",
-    qty: 1,
-    brief: "",
-    briefImages: [],
+  const [selectedPkg, setSelectedPkg] = useState<Package | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_pkg");
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
   });
+  const [wizardState, setWizardState] = useState<WizardState>(() => {
+    const fallback: WizardState = {
+      service: null,
+      brandName: "",
+      email: "",
+      whatsapp: "",
+      instagram: "",
+      qty: 1,
+      brief: "",
+      briefImages: [],
+    };
+    if (typeof window === "undefined") return fallback;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_wizard");
+      return saved ? { ...fallback, ...JSON.parse(saved) } : fallback;
+    } catch { return fallback; }
+  });
+
+  // Persist checkout progress so a refresh resumes exactly where the customer left off
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.setItem("dd_checkout_step", String(step)); } catch {}
+  }, [step]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (selectedPkg) sessionStorage.setItem("dd_checkout_pkg", JSON.stringify(selectedPkg));
+      else sessionStorage.removeItem("dd_checkout_pkg");
+    } catch {}
+  }, [selectedPkg]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.setItem("dd_checkout_wizard", JSON.stringify(wizardState)); } catch {}
+  }, [wizardState]);
 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = (msg: string) => {
