@@ -1,0 +1,19 @@
+name: Hourly Marketing Roast Check
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour, on the hour
+  workflow_dispatch:
+
+jobs:
+  check-and-roast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check progress and roast if behind
+        run: |
+          curl -s -X GET \
+            "https://fashionlandingpage-full-backup.vercel.app/api/marketing-roast" \
+            -H "Content-Type: application/json" \
+            --max-time 60
+          echo ""
+          echo "Done!"
