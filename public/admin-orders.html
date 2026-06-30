@@ -1193,6 +1193,8 @@ async function renderHotelView(){
     h+='<button onclick="copyHotelTitle()" style="padding:4px 10px;background:#27272A;border:1px solid #3F3F46;color:#A1A1AA;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
     h+='<pre id="hotel-title-text" style="background:#27272A;border-radius:10px;padding:12px 14px;color:#E4E4E7;font-size:13px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0">'+esc(hotelDynamicTitle(selHotel))+'</pre>';
     h+='</div>';
+    // Location detail block
+    h+=renderHotelLocationBlock(selHotel);
     // Description block
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Description</span>';
     h+='<button onclick="copyHotelPromo()" style="padding:4px 10px;background:#6366F1;color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
@@ -1274,12 +1276,41 @@ function renderHotelViewLocal(){
     h+='<button onclick="copyHotelTitle()" style="padding:4px 10px;background:#27272A;border:1px solid #3F3F46;color:#A1A1AA;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
     h+='<pre id="hotel-title-text" style="background:#27272A;border-radius:10px;padding:12px 14px;color:#E4E4E7;font-size:13px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0">'+esc(hotelDynamicTitle(selHotel))+'</pre>';
     h+='</div>';
+    h+=renderHotelLocationBlock(selHotel);
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Description</span>';
     h+='<button onclick="copyHotelPromo()" style="padding:4px 10px;background:#6366F1;color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
     h+='<pre id="hotel-preview-text" style="background:#27272A;border-radius:10px;padding:16px;color:#E4E4E7;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;max-height:420px;overflow-y:auto">'+esc(hotelTemplate(selHotel))+'</pre>';
   }
   h+='</div></div>';
   el.innerHTML=h;
+}
+
+function renderHotelLocationBlock(ho){
+  var addr=ho.address_raw||'';
+  var hasAddr=!!addr;
+  var isShort=isShortResult(addr);
+  var hasCoords=ho.lat!=null&&ho.lon!=null;
+  var statusColor=!hasAddr?'#94A3B8':isShort?'#F59E0B':'#1DBF73';
+  var statusLabel=!hasAddr?'Belum ada alamat':isShort?'Alamat kurang detail':'Alamat lengkap';
+  var statusIcon=!hasAddr?'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>':isShort?'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>':'<polyline points="20 6 9 17 4 12"/>';
+
+  var h='<div id="hotel-location-block" style="margin-bottom:14px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Lokasi Detail</span>';
+  h+='<span style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:'+statusColor+'"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+statusIcon+'</svg>'+statusLabel+'</span></div>';
+  h+='<div style="background:#27272A;border-radius:10px;padding:14px">';
+  if(hasAddr){
+    h+='<div style="font-size:12.5px;color:#E4E4E7;line-height:1.7;margin-bottom:'+(hasCoords?'10px':'0')+'">'+esc(addr)+'</div>';
+    if(hasCoords){
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #3F3F46">';
+      h+='<span style="font-size:10px;color:#71717A;font-family:monospace">'+ho.lat.toFixed(6)+', '+ho.lon.toFixed(6)+'</span>';
+      h+='<a href="https://www.google.com/maps?q='+ho.lat+','+ho.lon+'" target="_blank" style="display:flex;align-items:center;gap:5px;padding:5px 11px;background:#4285F4;color:#fff;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Buka di Maps</a>';
+      h+='</div>';
+    }
+  }else{
+    h+='<div style="font-size:12px;color:#71717A;text-align:center;padding:8px 0">Alamat belum tersedia. Klik tombol "Find Full Address" di menu Edit untuk mencari otomatis.</div>';
+  }
+  h+='</div></div>';
+  return h;
 }
 
 function copyHotelTitle(){
@@ -1351,27 +1382,29 @@ async function enrichAllAddresses(){
     if(enrichStop)break;
     var ho=targets[i];
     try{
-      var fullAddr=await geocodeQuery(ho.name+', Indonesia');
-      if(isShortResult(fullAddr)){
+      var result=await geocodeQuery(ho.name+', Indonesia');
+      if(isShortResult(result&&result.address)){
         var stripped=stripBrandKeywords(ho.name);
         if(stripped&&stripped.length>2){
           var alt=await geocodeQuery(stripped+', Indonesia');
-          if(alt&&!isShortResult(alt))fullAddr=alt;
-          else if(alt&&!fullAddr)fullAddr=alt;
+          if(alt&&!isShortResult(alt.address))result=alt;
+          else if(alt&&!result)result=alt;
         }
       }
-      if(fullAddr){
-        await sb.from('hotels').update({address_raw:fullAddr,updated_at:new Date().toISOString()}).eq('id',ho.id);
+      if(result&&result.address){
+        await sb.from('hotels').update({address_raw:result.address,lat:result.lat,lon:result.lon,updated_at:new Date().toISOString()}).eq('id',ho.id);
         var idx=curHotels.findIndex(function(x){return x.id===ho.id});
-        if(idx>-1)curHotels[idx].address_raw=fullAddr;
+        if(idx>-1){curHotels[idx].address_raw=result.address;curHotels[idx].lat=result.lat;curHotels[idx].lon=result.lon;}
         found++;
         // Live update: if this hotel is currently selected, refresh the preview panel immediately
         if(ho.id===selectedHotelId){
           var titleEl=document.getElementById('hotel-title-text');
           var descEl=document.getElementById('hotel-preview-text');
+          var locEl=document.getElementById('hotel-location-block');
           var freshHotel=curHotels[idx];
           if(titleEl)titleEl.textContent=hotelDynamicTitle(freshHotel);
           if(descEl)descEl.textContent=hotelTemplate(freshHotel);
+          if(locEl)locEl.outerHTML=renderHotelLocationBlock(freshHotel);
         }
       }else{
         failed++;
@@ -1409,6 +1442,8 @@ function openHotelEditor(id){
   h+='<div><label style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:6px">Address</label><div style="display:flex;gap:8px"><textarea id="ho-address" class="profile-textarea" style="min-height:70px;flex:1">'+(ho?esc(ho.address_raw||''):'')+'</textarea></div>';
   h+='<button type="button" onclick="findHotelAddress()" id="ho-find-addr-btn" style="margin-top:8px;width:100%;padding:9px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;color:#4F46E5;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find Full Address (auto)</button>';
   h+='<div id="ho-find-status" style="font-size:11px;color:var(--txt3);margin-top:6px"></div>';
+  h+='<input type="hidden" id="ho-lat" value="'+(ho&&ho.lat!=null?ho.lat:'')+'"/>';
+  h+='<input type="hidden" id="ho-lon" value="'+(ho&&ho.lon!=null?ho.lon:'')+'"/>';
   h+='</div>';
   h+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--txt2)"><input type="checkbox" id="ho-active" '+(!ho||ho.is_active?'checked':'')+'/> Active</label>';
   h+='</div></div>';
@@ -1421,7 +1456,10 @@ async function geocodeQuery(q){
   var query=encodeURIComponent(q);
   var res=await fetch('https://us1.locationiq.com/v1/search?key=pk.4b35d11f7be54b3103d4ce2cda5bc512&q='+query+'&format=json&addressdetails=1&limit=1&countrycodes=id&normalizeaddress=1');
   var data=await res.json();
-  return (data&&data.length>0&&data[0].display_name)?data[0].display_name:null;
+  if(data&&data.length>0&&data[0].display_name){
+    return {address:data[0].display_name,lat:data[0].lat?parseFloat(data[0].lat):null,lon:data[0].lon?parseFloat(data[0].lon):null};
+  }
+  return null;
 }
 
 function isShortResult(addr){
@@ -1456,22 +1494,26 @@ async function findHotelAddress(){
   statusEl.style.color='var(--txt3)';
   try{
     // Attempt 1: full property name as-is (best case: hotel exists as a named POI in OSM)
-    var addr=await geocodeQuery(name+', Indonesia');
+    var result=await geocodeQuery(name+', Indonesia');
 
     // Attempt 2: if result is missing or too short (just province/country level),
     // strip brand/reseller keywords so the geocoder searches the actual place name only
-    if(isShortResult(addr)){
+    if(isShortResult(result&&result.address)){
       var stripped=stripBrandKeywords(name);
       if(stripped&&stripped.length>2){
-        var addr2=await geocodeQuery(stripped+', Indonesia');
-        if(addr2&&!isShortResult(addr2))addr=addr2;
-        else if(addr2&&!addr)addr=addr2;
+        var result2=await geocodeQuery(stripped+', Indonesia');
+        if(result2&&!isShortResult(result2.address))result=result2;
+        else if(result2&&!result)result=result2;
       }
     }
 
-    if(addr){
-      document.getElementById('ho-address').value=addr;
-      if(isShortResult(addr)){
+    if(result&&result.address){
+      document.getElementById('ho-address').value=result.address;
+      var latInp=document.getElementById('ho-lat');
+      var lonInp=document.getElementById('ho-lon');
+      if(latInp)latInp.value=result.lat||'';
+      if(lonInp)lonInp.value=result.lon||'';
+      if(isShortResult(result.address)){
         statusEl.textContent='Alamat ditemukan tapi masih kurang detail (hotel mungkin belum terdaftar lengkap di peta). Bisa diedit manual.';
         statusEl.style.color='#F59E0B';
       }else{
@@ -1494,12 +1536,16 @@ async function saveHotelForm(){
   var name=document.getElementById('ho-name').value.trim();
   if(!name){alert('Name is required');return}
   var parseNum=function(v){v=v.trim();return v===''?null:Number(v)};
+  var latEl=document.getElementById('ho-lat');
+  var lonEl=document.getElementById('ho-lon');
   var payload={
     name:name,
     price_reddoorz:parseNum(document.getElementById('ho-reddoorz').value),
     price_superior:parseNum(document.getElementById('ho-superior').value),
     price_double:parseNum(document.getElementById('ho-double').value),
     address_raw:document.getElementById('ho-address').value.trim(),
+    lat:latEl?parseNum(latEl.value):null,
+    lon:lonEl?parseNum(lonEl.value):null,
     is_active:document.getElementById('ho-active').checked,
     updated_at:new Date().toISOString()
   };
