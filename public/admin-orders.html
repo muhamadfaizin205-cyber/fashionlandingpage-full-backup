@@ -724,8 +724,9 @@ function openDetail(id){
   selId=id;const o=orders.find(x=>x.id===id);if(!o)return;
   // Also open chat for this client + auto-open chat panel
   if(o.email){chatEmail=o.email;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs()}
-  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
+  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
   document.getElementById('modal').classList.add('open');
+  if(o.email)renderBriefAdmin(o.email).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');selId=null;renderOrders()}
@@ -913,7 +914,21 @@ async function runAIAgent(){
   addAgentLog('Connecting to Aivene GPT-4o API...','info');
   addAgentLog('Selecting 2 topics from SEO pool...','info');
   try{
+    addAgentLog('Calling /api/auto-article...','info');
     var res=await fetch('/api/auto-article',{method:'GET'});
+    var contentType=res.headers.get('content-type')||'';
+    if(!contentType.includes('application/json')){
+      var rawText=await res.text();
+      if(rawText.includes('<!DOCTYPE')){
+        addAgentLog('Error: API endpoint /api/auto-article not found (404). Make sure auto-article.js is uploaded to api/ folder in GitHub.','error');
+      }else{
+        addAgentLog('Error: Unexpected response from API: '+rawText.substring(0,150),'error');
+      }
+      aiAgentRunning=false;
+      var btn=document.getElementById('agent-run-btn');
+      if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21"/></svg>Run Now (2 Articles)';}
+      return;
+    }
     var data=await res.json();
     if(data.success){
       addAgentLog('Agent completed successfully','success');
@@ -926,6 +941,7 @@ async function runAIAgent(){
       setTimeout(function(){loadAgentStats();},1000);
     }else{
       addAgentLog('Error: '+(data.error||'Unknown error'),'error');
+      addAgentLog('Check: Is auto-article.js uploaded to api/ folder?','warn');
     }
   }catch(err){
     addAgentLog('Network error: '+err.message,'error');
@@ -944,6 +960,11 @@ async function runCustomTopic(){
   addAgentLog('Sending to GPT-4o...','info');
   try{
     var res=await fetch('/api/auto-article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({custom_topic:topic})});
+    var contentType=res.headers.get('content-type')||'';
+    if(!contentType.includes('application/json')){
+      addAgentLog('Error: API not found. Upload auto-article.js to api/ folder in GitHub.','error');
+      aiAgentRunning=false;return;
+    }
     var data=await res.json();
     if(data.success){
       addAgentLog('Custom article published: '+data.articles[0].title,'success');
@@ -957,6 +978,57 @@ async function runCustomTopic(){
     addAgentLog('Network error: '+err.message,'error');
   }
   aiAgentRunning=false;
+}
+
+// ── Admin Brief View ──
+async function renderBriefAdmin(email){
+  var{data}=await sb.from('briefs').select('*').eq('order_email',email).order('created_at',{ascending:false}).limit(1);
+  var brief=data&&data[0]?data[0]:null;
+  var status=brief?brief.status:'none';
+  var statusColor=status==='approved'?'#1DBF73':status==='submitted'?'#3B82F6':status==='revision'?'#F59E0B':'#94A3B8';
+  var statusLabel=status==='approved'?'Approved':status==='submitted'?'Submitted by Client':status==='revision'?'Revision Requested':'Not submitted yet';
+  var h='<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:14px">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+  h+='<h3 style="font-size:15px;font-weight:800">Design Brief</h3>';
+  h+='<span style="padding:5px 12px;background:'+statusColor+'20;color:'+statusColor+';border-radius:20px;font-size:11px;font-weight:700">'+statusLabel+'</span></div>';
+  if(!brief||status==='none'){h+='<p style="font-size:13px;color:var(--txt3);text-align:center;padding:20px">Client has not submitted a brief yet.</p>';}
+  else{
+    var fields=[['Brand',brief.brand_name],['Service',brief.service_type],['Description',brief.description],['Colors',brief.color_references],['Audience',brief.target_audience],['Notes',brief.notes]];
+    fields.forEach(function(f){if(f[1]){h+='<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:3px">'+f[0]+'</div><div style="font-size:13px;color:var(--txt);background:var(--bg);padding:8px 12px;border-radius:8px;line-height:1.5">'+esc(f[1])+'</div></div>'}});
+    // Reference images
+    var refImgs=brief.reference_images||[];
+    if(refImgs.length>0){
+      h+='<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">Reference Images</div>';
+      h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      refImgs.forEach(function(url){
+        h+='<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>';
+      });
+      h+='</div></div>';
+    }
+    if(status==='submitted'){
+      h+='<div style="margin-top:14px"><div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;margin-bottom:6px">Feedback for client (optional)</div>';
+      h+='<textarea id="brief-fb" class="profile-textarea" style="min-height:70px" placeholder="Write feedback or revision notes...">'+esc(brief.admin_feedback||'')+'</textarea>';
+      h+='<div style="display:flex;gap:8px;margin-top:10px">';
+      h+='<button class="btn-primary" style="flex:1" onclick="approveBrief(&quot;'+brief.id+'&quot;)">Approve Brief</button>';
+      h+='<button style="flex:1;padding:10px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;color:#D97706;font-size:12px;font-weight:700;cursor:pointer" onclick="requestBriefRevision(&quot;'+brief.id+'&quot;)">Request Revision</button>';
+      h+='</div></div>';
+    }
+  }
+  h+='</div>';
+  return h;
+}
+async function approveBrief(id){
+  var fb=(document.getElementById('brief-fb')||{}).value||'';
+  await sb.from('briefs').update({status:'approved',admin_feedback:fb,updated_at:new Date().toISOString()}).eq('id',id);
+  alert('Brief approved!');
+  if(chatEmail)renderBriefAdmin(chatEmail).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
+}
+async function requestBriefRevision(id){
+  var fb=(document.getElementById('brief-fb')||{}).value||'';
+  if(!fb){alert('Please write feedback for the client first.');return}
+  await sb.from('briefs').update({status:'revision',admin_feedback:fb,updated_at:new Date().toISOString()}).eq('id',id);
+  alert('Revision requested!');
+  if(chatEmail)renderBriefAdmin(chatEmail).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
 }
 
 // ── Client Profile Popup ──
