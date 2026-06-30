@@ -758,6 +758,46 @@ async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb
 
 // ── PromoGen (HOTEL) ──
 var curHotels=[];
+var hotelRealtimeSubscribed=false;
+
+function subscribeHotelRealtime(){
+  if(hotelRealtimeSubscribed||!sb)return;
+  hotelRealtimeSubscribed=true;
+  sb.channel('hotels-realtime-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'hotels'},function(payload){
+    if(payload.eventType==='UPDATE'&&payload.new){
+      var idx=curHotels.findIndex(function(x){return x.id===payload.new.id});
+      if(idx>-1){
+        curHotels[idx]=payload.new;
+        // If currently viewing this hotel, refresh preview live
+        if(payload.new.id===selectedHotelId){
+          var titleEl=document.getElementById('hotel-title-text');
+          var descEl=document.getElementById('hotel-preview-text');
+          if(titleEl)titleEl.textContent=hotelDynamicTitle(payload.new);
+          if(descEl)descEl.textContent=hotelTemplate(payload.new);
+        }
+        // Update price shown in list item without full re-render
+        var listEl=document.getElementById('hotel-list-scroll');
+        if(listEl&&document.getElementById('hotel-search-inp')&&!document.getElementById('hotel-search-inp').value){
+          listEl.innerHTML=renderHotelListItems(curHotels);
+        }
+      }
+    }else if(payload.eventType==='INSERT'&&payload.new){
+      if(!curHotels.find(function(x){return x.id===payload.new.id})){
+        curHotels.unshift(payload.new);
+        var listEl2=document.getElementById('hotel-list-scroll');
+        var countEl=document.getElementById('hotel-count-label');
+        if(listEl2)listEl2.innerHTML=renderHotelListItems(curHotels);
+        if(countEl)countEl.textContent='Properties ('+curHotels.length+')';
+      }
+    }else if(payload.eventType==='DELETE'&&payload.old){
+      curHotels=curHotels.filter(function(x){return x.id!==payload.old.id});
+      var listEl3=document.getElementById('hotel-list-scroll');
+      var countEl2=document.getElementById('hotel-count-label');
+      if(listEl3)listEl3.innerHTML=renderHotelListItems(curHotels);
+      if(countEl2)countEl2.textContent='Properties ('+curHotels.length+')';
+    }
+  }).subscribe();
+}
 var editingHotelId=null;
 var selectedHotelId=null;
 
@@ -819,31 +859,21 @@ async function renderHotelView(){
   var{data,error}=await sb.from('hotels').select('*').order('created_at',{ascending:false});
   if(error){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--txt3)">Error: '+esc(error.message)+'</div>';return;}
   curHotels=data||[];
+  subscribeHotelRealtime();
   if(!selectedHotelId&&curHotels.length)selectedHotelId=curHotels[0].id;
 
   var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">';
 
-  // ── Left: Hotel list/table ──
+  // ── Left: Search + Hotel list/table ──
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden">';
-  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:800;color:var(--txt)">Properties ('+curHotels.length+')</div>';
-  if(!curHotels.length){
-    h+='<div style="padding:40px 20px;text-align:center;color:var(--txt3);font-size:13px">No hotels yet. Click "Add Hotel" to get started.</div>';
-  }else{
-    h+='<div style="max-height:520px;overflow-y:auto">';
-    curHotels.forEach(function(ho){
-      var isSel=ho.id===selectedHotelId;
-      var price=hotelFinalPrice(ho);
-      h+='<div onclick="selectHotel(\''+ho.id+'\')" style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(isSel?'rgba(99,102,241,0.06)':'transparent')+';border-left:3px solid '+(isSel?'#6366F1':'transparent')+'">';
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">';
-      h+='<div style="min-width:0"><div style="font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(ho.name)+'</div>';
-      h+='<div style="font-size:11px;color:var(--txt3);margin-top:2px">'+(price!=null?fmtIDR(price)+'/malam':'Harga belum diisi')+(ho.is_active?'':' · Inactive')+'</div></div>';
-      h+='<div style="display:flex;gap:4px;flex-shrink:0">';
-      h+='<button onclick="event.stopPropagation();openHotelEditor(\''+ho.id+'\')" style="width:26px;height:26px;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-      h+='<button onclick="event.stopPropagation();deleteHotelConfirm(\''+ho.id+'\')" style="width:26px;height:26px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
-      h+='</div></div></div>';
-    });
-    h+='</div>';
-  }
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border)">';
+  h+='<div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:10px" id="hotel-count-label">Properties ('+curHotels.length+')</div>';
+  h+='<div style="position:relative"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" style="position:absolute;left:11px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+  h+='<input id="hotel-search-inp" type="text" placeholder="Search by hotel name or city..." oninput="filterHotelList(this.value)" style="width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;outline:none;box-sizing:border-box;font-family:inherit"/></div>';
+  h+='</div>';
+  h+='<div id="hotel-list-scroll" style="max-height:480px;overflow-y:auto">';
+  h+=renderHotelListItems(curHotels);
+  h+='</div>';
   h+='</div>';
 
   // ── Right: Live Preview ──
@@ -872,9 +902,82 @@ async function renderHotelView(){
   el.innerHTML=h;
 }
 
+function renderHotelListItems(list){
+  if(!list.length){
+    return '<div style="padding:40px 20px;text-align:center;color:var(--txt3);font-size:13px">No properties found.</div>';
+  }
+  var h='';
+  list.forEach(function(ho){
+    var isSel=ho.id===selectedHotelId;
+    var price=hotelFinalPrice(ho);
+    h+='<div onclick="selectHotel(\''+ho.id+'\')" style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:'+(isSel?'rgba(99,102,241,0.06)':'transparent')+';border-left:3px solid '+(isSel?'#6366F1':'transparent')+'">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">';
+    h+='<div style="min-width:0"><div style="font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(ho.name)+'</div>';
+    h+='<div style="font-size:11px;color:var(--txt3);margin-top:2px">'+(price!=null?fmtIDR(price)+'/malam':'Harga belum diisi')+(ho.is_active?'':' · Inactive')+'</div></div>';
+    h+='<div style="display:flex;gap:4px;flex-shrink:0">';
+    h+='<button onclick="event.stopPropagation();openHotelEditor(\''+ho.id+'\')" style="width:26px;height:26px;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Edit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+    h+='<button onclick="event.stopPropagation();deleteHotelConfirm(\''+ho.id+'\')" style="width:26px;height:26px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Delete"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+    h+='</div></div></div>';
+  });
+  return h;
+}
+
+var hotelSearchDebounce=null;
+function filterHotelList(query){
+  clearTimeout(hotelSearchDebounce);
+  hotelSearchDebounce=setTimeout(function(){
+    var q=query.trim().toLowerCase();
+    var filtered=!q?curHotels:curHotels.filter(function(ho){
+      return (ho.name||'').toLowerCase().indexOf(q)>-1 || (ho.address_raw||'').toLowerCase().indexOf(q)>-1;
+    });
+    var listEl=document.getElementById('hotel-list-scroll');
+    var countEl=document.getElementById('hotel-count-label');
+    if(listEl)listEl.innerHTML=renderHotelListItems(filtered);
+    if(countEl)countEl.textContent=q?('Properties (' +filtered.length+' of '+curHotels.length+')'):('Properties ('+curHotels.length+')');
+  },150);
+}
+
 function selectHotel(id){
   selectedHotelId=id;
-  renderHotelView();
+  // Avoid full re-render (which would refetch from Supabase and reset search/scroll).
+  // Just update the preview panel and list highlighting in place.
+  var searchInp=document.getElementById('hotel-search-inp');
+  var searchVal=searchInp?searchInp.value:'';
+  renderHotelViewLocal();
+  var inp2=document.getElementById('hotel-search-inp');
+  if(inp2&&searchVal){inp2.value=searchVal;filterHotelList(searchVal);}
+}
+
+// Re-render using already-loaded curHotels, no Supabase refetch
+function renderHotelViewLocal(){
+  var el=document.getElementById('hotel-area');if(!el)return;
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden">';
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border)">';
+  h+='<div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:10px" id="hotel-count-label">Properties ('+curHotels.length+')</div>';
+  h+='<div style="position:relative"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" style="position:absolute;left:11px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+  h+='<input id="hotel-search-inp" type="text" placeholder="Search by hotel name or city..." oninput="filterHotelList(this.value)" style="width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;outline:none;box-sizing:border-box;font-family:inherit"/></div>';
+  h+='</div>';
+  h+='<div id="hotel-list-scroll" style="max-height:480px;overflow-y:auto">';
+  h+=renderHotelListItems(curHotels);
+  h+='</div></div>';
+  var selHotel=curHotels.find(function(x){return x.id===selectedHotelId});
+  h+='<div style="background:#18181B;border-radius:14px;padding:20px;position:sticky;top:0">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#A1A1AA;text-transform:uppercase;letter-spacing:.5px">Live Preview</div></div>';
+  if(!selHotel){
+    h+='<div style="padding:40px 20px;text-align:center;color:#71717A;font-size:13px">Select a property to preview the promo text.</div>';
+  }else{
+    h+='<div style="margin-bottom:14px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Title (for marketplace)</span>';
+    h+='<button onclick="copyHotelTitle()" style="padding:4px 10px;background:#27272A;border:1px solid #3F3F46;color:#A1A1AA;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
+    h+='<pre id="hotel-title-text" style="background:#27272A;border-radius:10px;padding:12px 14px;color:#E4E4E7;font-size:13px;font-weight:600;line-height:1.5;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0">'+esc(hotelDynamicTitle(selHotel))+'</pre>';
+    h+='</div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:#71717A;text-transform:uppercase;letter-spacing:.5px">Description</span>';
+    h+='<button onclick="copyHotelPromo()" style="padding:4px 10px;background:#6366F1;color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>';
+    h+='<pre id="hotel-preview-text" style="background:#27272A;border-radius:10px;padding:16px;color:#E4E4E7;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;max-height:420px;overflow-y:auto">'+esc(hotelTemplate(selHotel))+'</pre>';
+  }
+  h+='</div></div>';
+  el.innerHTML=h;
 }
 
 function copyHotelTitle(){
@@ -955,6 +1058,14 @@ async function enrichAllAddresses(){
         var idx=curHotels.findIndex(function(x){return x.id===ho.id});
         if(idx>-1)curHotels[idx].address_raw=fullAddr;
         found++;
+        // Live update: if this hotel is currently selected, refresh the preview panel immediately
+        if(ho.id===selectedHotelId){
+          var titleEl=document.getElementById('hotel-title-text');
+          var descEl=document.getElementById('hotel-preview-text');
+          var freshHotel=curHotels[idx];
+          if(titleEl)titleEl.textContent=hotelDynamicTitle(freshHotel);
+          if(descEl)descEl.textContent=hotelTemplate(freshHotel);
+        }
       }else{
         failed++;
       }
