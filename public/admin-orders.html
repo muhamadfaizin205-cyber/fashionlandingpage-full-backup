@@ -856,8 +856,20 @@ async function renderHotelView(){
   var el=document.getElementById('hotel-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading hotels...</div>';
   if(!sb)return;
-  var{data,error}=await sb.from('hotels').select('*').order('created_at',{ascending:false});
-  if(error){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--txt3)">Error: '+esc(error.message)+'</div>';return;}
+  // Supabase/PostgREST caps each request at 1000 rows by default.
+  // Paginate through all pages so every hotel (even beyond 1000) gets loaded.
+  var allData=[];
+  var pageSize=1000;
+  var pageFrom=0;
+  while(true){
+    var{data:pageData,error:pageError}=await sb.from('hotels').select('*').order('created_at',{ascending:false}).range(pageFrom,pageFrom+pageSize-1);
+    if(pageError){el.innerHTML='<div style="text-align:center;padding:60px;color:var(--txt3)">Error: '+esc(pageError.message)+'</div>';return;}
+    if(!pageData||!pageData.length)break;
+    allData=allData.concat(pageData);
+    if(pageData.length<pageSize)break;
+    pageFrom+=pageSize;
+  }
+  var data=allData,error=null;
   curHotels=data||[];
   subscribeHotelRealtime();
   if(!selectedHotelId&&curHotels.length)selectedHotelId=curHotels[0].id;
