@@ -121,7 +121,7 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
   }
 }
 
-const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '';
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '3z1g8HJ4g4nQJ8vEwAIRFMJEhX1CqMtp1Refz8iiJ8myGMJSolzq7AVn';
 
 async function findCoverImage(keywords, articleId) {
   const cleanQuery = keywords.replace(/[^a-zA-Z0-9\s]/g, '').trim();
