@@ -55,6 +55,8 @@ interface WizardState {
 
 // ─── Constants ────────────────────────────────────────────
 const GROQ_API_KEY = "isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN";
+// Dedicated Groq key for the brief generator — fast inference (5-8s) via Groq's LPU hardware
+const BRIEF_GROQ_KEY = "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";
 
 // ─── Clothing Design Packages ─────────────────────────────
 const PACKAGES: Package[] = [
@@ -978,15 +980,15 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
 
     try {
       const res = await fetch(
-        "https://api.aivene.com/v1/chat/completions",
+        "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${GROQ_API_KEY}`,
+            Authorization: `Bearer ${BRIEF_GROQ_KEY}`,
           },
           body: JSON.stringify({
-            model: "gpt-4o",
+            model: "llama-3.1-8b-instant",
             messages: [{ role: "user", content: prompt }],
             max_tokens: 2000,
             temperature: 0.7,
