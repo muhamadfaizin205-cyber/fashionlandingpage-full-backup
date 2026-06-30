@@ -608,6 +608,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Agent</h1></div><div id="ai-agent-area"></div></div>';
   } else if(currentView==='hotel'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>PromoGen</h1><div class="page-actions"><button class="btn-primary" onclick="enrichAllAddresses()" id="enrich-all-btn" style="background:#fff;color:#4F46E5;border:1px solid #C7D2FE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Enrich All Addresses</button><button class="btn-primary" onclick="openHotelEditor()" style="background:#6366F1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Hotel</button></div></div><div id="hotel-enrich-status"></div><div id="hotel-area"></div></div>';
+  } else if(currentView==='marketing'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>Marketing Manager</h1><div class="page-actions"><button class="btn-primary" onclick="runMarketingManager(true)" id="mm-regen-btn" style="background:#fff;color:#DC2626;border:1px solid #FECACA"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Force New Picks</button></div></div><div id="marketing-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -616,6 +618,7 @@ function renderCurrentView(){
   else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='hotel')renderHotelView();
+  else if(currentView==='marketing')renderMarketingView();
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
   if(sbIcons&&!document.getElementById('agent-nav-btn')){
@@ -642,6 +645,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('hotel-nav-btn')){
     document.getElementById('hotel-nav-btn').className='sb-ic'+(currentView==='hotel'?' active':'');
+  }
+  // Inject Marketing Manager nav button
+  if(sbIcons&&!document.getElementById('marketing-nav-btn')){
+    var mmBtn=document.createElement('button');
+    mmBtn.id='marketing-nav-btn';
+    mmBtn.className='sb-ic';
+    mmBtn.title='Marketing Manager';
+    mmBtn.onclick=function(){switchView('marketing')};
+    mmBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>Manager<span class="sb-ic-tip">Marketing Manager</span>';
+    sbIcons.appendChild(mmBtn);
+  }
+  if(document.getElementById('marketing-nav-btn')){
+    document.getElementById('marketing-nav-btn').className='sb-ic'+(currentView==='marketing'?' active':'');
   }
 }
 
@@ -755,6 +771,123 @@ async function saveOrder(id){
 async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
 
 
+
+// ── Marketing Manager ──
+var mmPicks=[];
+var mmRunning=false;
+var SHIFT_ORDER=['pagi','siang','sore','malam'];
+var SHIFT_META={
+  pagi:{label:'Pagi',time:'06:00 - 10:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>',color:'#F59E0B'},
+  siang:{label:'Siang',time:'11:00 - 14:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="6"/></svg>',color:'#FB923C'},
+  sore:{label:'Sore',time:'15:00 - 18:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/></svg>',color:'#E11D48'},
+  malam:{label:'Malam',time:'19:00 - 22:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',color:'#4338CA'}
+};
+
+async function renderMarketingView(){
+  var el=document.getElementById('marketing-area');if(!el)return;
+  el.innerHTML='<div class="loading"><div class="spinner"></div> Memanggil manager...</div>';
+  await runMarketingManager(false);
+}
+
+async function runMarketingManager(force){
+  if(mmRunning)return;
+  mmRunning=true;
+  var el=document.getElementById('marketing-area');
+  var btn=document.getElementById('mm-regen-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<div class="ai-spinner" style="width:13px;height:13px;border-width:2px"></div> Manager sedang mikir...';}
+  if(el)el.innerHTML='<div class="loading"><div class="spinner"></div> '+(force?'Manager lagi mikir ulang, sabar...':'Memanggil manager...')+'</div>';
+  try{
+    var url='/api/marketing-manager'+(force?'?force=1':'');
+    var res=await fetch(url,{method:force?'POST':'GET',headers:{'Content-Type':'application/json'},body:force?JSON.stringify({}):undefined});
+    var contentType=res.headers.get('content-type')||'';
+    if(!contentType.includes('application/json')){
+      if(el)el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--txt3)">API tidak ditemukan. Pastikan marketing-manager.js sudah di-upload ke folder api/ di GitHub.</div>';
+      mmRunning=false;
+      if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Force New Picks';}
+      return;
+    }
+    var data=await res.json();
+    if(!data.success){
+      if(el)el.innerHTML='<div style="text-align:center;padding:60px 20px;color:#DC2626">Manager error: '+esc(data.error||'unknown')+'</div>';
+      mmRunning=false;
+      if(btn){btn.disabled=false;btn.innerHTML='Force New Picks';}
+      return;
+    }
+    mmPicks=data.picks||[];
+    renderMarketingPicks(data.manager_message||(mmPicks[0]&&mmPicks[0].manager_message)||'');
+  }catch(err){
+    if(el)el.innerHTML='<div style="text-align:center;padding:60px 20px;color:#DC2626">Error: '+esc(err.message)+'</div>';
+  }
+  mmRunning=false;
+  if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Force New Picks';}
+}
+
+function renderMarketingPicks(managerMsg){
+  var el=document.getElementById('marketing-area');if(!el)return;
+  var todayLabel=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  var h='';
+  // Manager message — speech bubble with attitude
+  h+='<div style="background:linear-gradient(135deg,#1F2937,#111827);border-radius:16px;padding:22px 24px;margin-bottom:20px;position:relative;border-left:5px solid #DC2626">';
+  h+='<div style="display:flex;align-items:flex-start;gap:14px">';
+  h+='<div style="width:42px;height:42px;background:#DC2626;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 4px rgba(220,38,38,0.2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg></div>';
+  h+='<div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;font-weight:800;color:#fff">Marketing Manager</span><span style="font-size:10px;color:#9CA3AF">'+esc(todayLabel)+'</span></div>';
+  h+='<div style="font-size:14px;line-height:1.7;color:#F3F4F6;font-weight:500">'+esc(managerMsg||'Belum ada arahan hari ini.')+'</div></div></div></div>';
+
+  // Stats row
+  var totalPromoted=mmPicks.filter(function(p){return p.promoted}).length;
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#DC2626">20</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Total Target Hari Ini</div></div>';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#1DBF73">'+(totalPromoted*5)+'</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Sudah Dipromosikan</div></div>';
+  h+='<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;color:#F59E0B">'+((4-totalPromoted)*5)+'</div><div style="font-size:11px;color:var(--txt3);font-weight:600">Belum Dikerjakan</div></div>';
+  h+='</div>';
+
+  // Shift cards
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">';
+  SHIFT_ORDER.forEach(function(shiftKey){
+    var pick=mmPicks.find(function(p){return p.shift===shiftKey});
+    var meta=SHIFT_META[shiftKey];
+    var names=pick?(pick.hotel_names||[]):[];
+    var isDone=pick&&pick.promoted;
+    h+='<div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;'+(isDone?'opacity:0.6':'')+'">';
+    h+='<div style="padding:14px 18px;background:'+meta.color+'12;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
+    h+='<div style="display:flex;align-items:center;gap:8px;color:'+meta.color+'">'+meta.icon+'<span style="font-size:14px;font-weight:800">'+meta.label+'</span></div>';
+    h+='<span style="font-size:11px;color:var(--txt3);font-weight:600">'+meta.time+'</span>';
+    h+='</div>';
+    h+='<div style="padding:14px 18px">';
+    if(!names.length){
+      h+='<div style="font-size:12px;color:var(--txt3);text-align:center;padding:20px 0">Belum ada pilihan.</div>';
+    }else{
+      names.forEach(function(n,i){
+        h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'+(i<names.length-1?'border-bottom:1px solid var(--border)':'')+'">';
+        h+='<div style="width:22px;height:22px;background:'+meta.color+'15;color:'+meta.color+';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">'+(i+1)+'</div>';
+        h+='<span style="font-size:12.5px;color:var(--txt);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+esc(n)+'</span>';
+        h+='</div>';
+      });
+    }
+    h+='</div>';
+    if(pick&&names.length){
+      h+='<div style="padding:0 18px 16px">';
+      if(isDone){
+        h+='<div style="text-align:center;padding:9px;background:#F0FDF4;border-radius:8px;color:#16A34A;font-size:12px;font-weight:700">Sudah dikerjakan</div>';
+      }else{
+        h+='<button onclick="markShiftPromoted(\''+pick.id+'\')" style="width:100%;padding:9px;background:'+meta.color+';color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Tandai Sudah Dipromosikan</button>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+
+  el.innerHTML=h;
+}
+
+async function markShiftPromoted(pickId){
+  await sb.from('marketing_picks').update({promoted:true}).eq('id',pickId);
+  var idx=mmPicks.findIndex(function(p){return p.id===pickId});
+  if(idx>-1)mmPicks[idx].promoted=true;
+  renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+}
 
 // ── PromoGen (HOTEL) ──
 var curHotels=[];
