@@ -255,7 +255,9 @@ export default async function handler(req, res) {
 
     const result = await pickHotelsWithGroq(hotels, dateStr, dayName, eventContext);
 
-    // Build rows to insert: one row per shift with hotel details resolved
+    // Build rows to insert: one row per shift, storing only hotel IDs.
+    // Names/addresses are intentionally NOT snapshotted here so the admin dashboard
+    // always reads the live, up-to-date hotel record (e.g. after address enrichment).
     const rows = [];
     for (const shift of SHIFTS) {
       const ids = result.shifts?.[shift.key] || [];
@@ -268,7 +270,7 @@ export default async function handler(req, res) {
         shift: shift.key,
         shift_label: shift.label,
         hotel_ids: hotelDetails.map((h) => h.id),
-        hotel_names: hotelDetails.map((h) => h.name),
+        hotel_names: hotelDetails.map((h) => h.name), // kept for quick display fallback only
         manager_message: result.manager_message || '',
         promoted: false,
       });
