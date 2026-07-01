@@ -537,6 +537,8 @@ function renderApp(){
       '<div class="md-item '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite Customer</div>'+
       '<div class="md-item '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles</div>'+
         '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
+      '<div class="md-item '+(currentView==='hotel'?'active':'')+'" onclick="switchView(\'hotel\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>HOTEL</div>'+
+      '<div class="md-item '+(currentView==='marketing'?'active':'')+'" onclick="switchView(\'marketing\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg><span style="color:#DC2626;font-weight:700">Manager</span></div>'+
       '<div class="md-divider"></div>'+
       '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -776,6 +778,58 @@ async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb
 
 // ── Marketing Manager ──
 var mmPicks=[];
+var mmSkipped=[];
+
+function mmCopy(btn,text){
+  navigator.clipboard.writeText(text).then(function(){
+    var orig=btn.textContent;
+    btn.textContent='Copied!';
+    btn.style.background='#1DBF73';
+    btn.style.color='#fff';
+    btn.style.borderColor='#1DBF73';
+    setTimeout(function(){btn.textContent=orig;btn.style.background='';btn.style.color='';btn.style.borderColor='';},1400);
+  });
+}
+
+async function skipManagerHotel(hotelId, pickId, slotIndex){
+  // Mark hotel as skipped visually immediately
+  mmSkipped.push(hotelId);
+  var el=document.getElementById('mm-hotel-'+hotelId);
+  if(el){el.style.opacity='0.35';el.style.pointerEvents='none';}
+
+  // Find the pick and the current hotel_ids
+  var pick=mmPicks.find(function(p){return p.id===pickId});
+  if(!pick)return;
+
+  // Get a replacement from the full curHotels pool (from HOTEL tab cache)
+  // Exclude all currently assigned ids + skipped ids
+  var allAssigned=[];
+  mmPicks.forEach(function(p){(p.hotel_ids||[]).forEach(function(id){allAssigned.push(id)});});
+  var candidates=(typeof curHotels!=='undefined'&&curHotels.length?curHotels:[]).filter(function(h){
+    return allAssigned.indexOf(h.id)===-1 && mmSkipped.indexOf(h.id)===-1;
+  });
+
+  if(!candidates.length){
+    alert('Tidak ada hotel pengganti tersedia. Coba Force New Picks.');
+    return;
+  }
+
+  // Pick a random replacement
+  var replacement=candidates[Math.floor(Math.random()*candidates.length)];
+  var newIds=[].concat(pick.hotel_ids||[]);
+  newIds[slotIndex]=replacement.id;
+
+  // Update in DB
+  await sb.from('marketing_picks').update({hotel_ids:newIds}).eq('id',pickId);
+
+  // Update local cache
+  var pidx=mmPicks.findIndex(function(p){return p.id===pickId});
+  if(pidx>-1)mmPicks[pidx].hotel_ids=newIds;
+  mmHotelCache[replacement.id]={name:replacement.name,address_raw:replacement.address_raw||'',price_reddoorz:replacement.price_reddoorz,price_superior:replacement.price_superior,price_double:replacement.price_double};
+
+  // Re-render picks
+  await renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+}
 var mmRoasts=[];
 var mmRoastRealtimeSubscribed=false;
 var mmActiveRoastToast=null;
@@ -994,20 +1048,29 @@ async function renderMarketingPicks(managerMsg){
       h+='<div style="font-size:12px;color:var(--txt3);text-align:center;padding:20px 0">Belum ada pilihan.</div>';
     }else{
       ids.forEach(function(id,i){
-        var info=mmHotelCache[id]||{name:(pick.hotel_names&&pick.hotel_names[i])||'(hotel tidak ditemukan)',address_raw:''};
+        var info=mmHotelCache[id]||{name:(pick.hotel_names&&pick.hotel_names[i])||'(hotel tidak ditemukan)',address_raw:'',price_reddoorz:null,price_superior:null,price_double:null};
         var addrShort=isAddressShort(info.address_raw);
-        h+='<div style="padding:9px 0;'+(i<ids.length-1?'border-bottom:1px solid var(--border)':'')+'">';
+        var fakeHotel={id:id,name:info.name,address_raw:info.address_raw,price_reddoorz:info.price_reddoorz,price_superior:info.price_superior,price_double:info.price_double};
+        var titleText=info.name;
+        var mTitle=hotelDynamicTitle(fakeHotel);
+        var descText=hotelTemplate(fakeHotel);
+        var isSkipped=(mmSkipped||[]).indexOf(id)>-1;
+        h+='<div id="mm-hotel-'+id+'" style="padding:12px 0;'+(i<ids.length-1?'border-bottom:1px solid var(--border)':'')+(isSkipped?';opacity:0.35;pointer-events:none':'')+'">';
         h+='<div style="display:flex;align-items:flex-start;gap:10px">';
-        h+='<div style="width:22px;height:22px;background:'+meta.color+'15;color:'+meta.color+';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px">'+(i+1)+'</div>';
+        h+='<div style="width:22px;height:22px;background:'+meta.color+'15;color:'+meta.color+';border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px">'+(i+1)+'</div>';
         h+='<div style="flex:1;min-width:0">';
-        h+='<div style="font-size:12.5px;color:var(--txt);font-weight:600">'+esc(info.name)+'</div>';
+        h+='<div style="font-size:13px;color:var(--txt);font-weight:700;margin-bottom:3px">'+esc(info.name)+'</div>';
         if(info.address_raw){
-          h+='<div style="font-size:11px;color:'+(addrShort?'#D97706':'var(--txt3)')+';margin-top:2px;line-height:1.5">'+esc(info.address_raw)+'</div>';
+          h+='<div style="font-size:10.5px;color:'+(addrShort?'#D97706':'var(--txt3)')+';margin-bottom:8px;line-height:1.5">'+esc(info.address_raw)+'</div>';
         }else{
-          h+='<div style="font-size:11px;color:#D97706;margin-top:2px">Alamat belum ada</div>';
+          h+='<div style="font-size:10.5px;color:#D97706;margin-bottom:8px">Alamat belum ada</div>';
         }
-        h+='</div>';
-        h+='<button onclick="copyMarketingHotelInfo(this,\''+id+'\')" title="Copy nama + alamat" style="width:24px;height:24px;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+        h+='<div style="display:flex;flex-direction:column;gap:4px">';
+        h+='<div style="display:flex;align-items:center;gap:6px;background:#F8FAFC;border:1px solid var(--border);border-radius:7px;padding:6px 9px"><span style="font-size:9px;font-weight:800;color:var(--txt3);text-transform:uppercase;flex:1;letter-spacing:.4px">Nama Hotel</span><button onclick="mmCopy(this,decodeURIComponent(\''+encodeURIComponent(titleText)+'\'))" style="padding:3px 8px;background:#fff;border:1px solid var(--border);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;color:var(--txt2)">Copy</button></div>';
+        h+='<div style="display:flex;align-items:center;gap:6px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:7px;padding:6px 9px"><span style="font-size:9px;font-weight:800;color:#4F46E5;text-transform:uppercase;flex:1;letter-spacing:.4px">Judul</span><button onclick="mmCopy(this,decodeURIComponent(\''+encodeURIComponent(mTitle)+'\'))" style="padding:3px 8px;background:#6366F1;border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;color:#fff">Copy</button></div>';
+        h+='<div style="display:flex;align-items:center;gap:6px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:7px;padding:6px 9px"><span style="font-size:9px;font-weight:800;color:#16A34A;text-transform:uppercase;flex:1;letter-spacing:.4px">Deskripsi</span><button onclick="mmCopy(this,decodeURIComponent(\''+encodeURIComponent(descText)+'\'))" style="padding:3px 8px;background:#22C55E;border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;color:#fff">Copy</button></div>';
+        h+='</div></div>';
+        h+='<button onclick="skipManagerHotel(\''+id+'\',\''+pick.id+'\','+i+')" title="Skip, ganti hotel lain" style="width:28px;height:28px;background:#FEF2F2;border:1px solid #FECACA;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
         h+='</div></div>';
       });
     }
