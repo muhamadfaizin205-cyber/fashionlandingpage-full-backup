@@ -392,6 +392,50 @@ const SL={new:'New',working:'Working',review:'Review',revision:'Revision',comple
 const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision',completed:'b-completed',delivered:'b-delivered'};
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
+
+// ── Web Push for Admin ──
+var VAPID_PUBLIC_KEY='BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZJN5wDOeDGgAMEEqrMHxDkJvSTE';
+
+function urlB64ToUint8ArrayAdmin(base64String){
+  var padding='='.repeat((4-base64String.length%4)%4);
+  var base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  var rawData=window.atob(base64);
+  var out=new Uint8Array(rawData.length);
+  for(var i=0;i<rawData.length;++i)out[i]=rawData.charCodeAt(i);
+  return out;
+}
+
+async function registerAdminPush(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+  try{
+    var reg=await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    var permission=await Notification.requestPermission();
+    if(permission!=='granted')return;
+    var existing=await reg.pushManager.getSubscription();
+    var sub=existing||await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlB64ToUint8ArrayAdmin(VAPID_PUBLIC_KEY)
+    });
+    if(sb){
+      await sb.from('push_subscriptions').upsert({
+        order_email:null,
+        is_admin:true,
+        subscription:JSON.parse(JSON.stringify(sub))
+      },{onConflict:'is_admin'});
+      console.log('Admin push notifications registered');
+    }
+  }catch(e){
+    console.warn('Admin push registration failed:',e.message);
+  }
+}
+
+function showAdminNotification(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  if(document.hidden){
+    new Notification(title,{body:body,icon:'/favicon.png',tag:'admin-chat-'+Date.now()});
+  }
+}
 let currentView=(function(){try{return localStorage.getItem('dd_admin_view')||'orders'}catch(e){return 'orders'}})(),chatPanelOpen=false,mobileDrawerOpen=false;
 let adReplyTo=null,adEditing=null,adRecording=false,adRecSec=0,adRecTimer=null,adMediaRec=null,adRecChunks=[];
 let clientOnline=false,clientLastSeen=null,adRemoteTyping=false,adTypTimeout=null;
@@ -450,7 +494,11 @@ function startApp(){
       // Skip our own sent messages (already added optimistically)
       if(m.sender_type==='admin') { loadConversations(); return; }
       // New client message — append without full reload
-      if(m.sender_type==='client') playReceiveSound();
+      if(m.sender_type==='client'){
+        playReceiveSound();
+        var notifBody=m.voice_url?'🎤 Sent a voice message':m.image_url?'🖼️ Sent an image':(m.message||'New message');
+        showAdminNotification('New message from client — '+m.order_email,notifBody);
+      }
       loadConversations();
       if(chatEmail&&m.order_email===chatEmail){
         chatMsgs.push(m);
@@ -500,6 +548,7 @@ async function loadConversations(){
 
 function renderApp(){
   subscribeRoastRealtime();
+  registerAdminPush();
   const totalUnread=convs.reduce((s,c)=>s+(c.unread||0),0);
   // ── Icon Sidebar ──
   const sidebarHTML=
