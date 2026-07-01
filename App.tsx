@@ -1849,7 +1849,9 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           {/* Cover image */}
           {selected.cover_image && (
             <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
-              <img src={selected.cover_image} alt={selected.title} style={{width:"100%",height:"auto",maxHeight:440,objectFit:"cover",display:"block"}} />
+              <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden"}}>
+                <img src={selected.cover_image} alt={selected.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
+              </div>
             </div>
           )}
 
@@ -1926,7 +1928,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
             {[1,2,3,4,5,6].map(i => (
               <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
-                <div style={{height:200,background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
+                <div style={{aspectRatio:"16/9",background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
                 <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
               </div>
             ))}
@@ -1945,7 +1947,12 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                 style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
                 onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
                 onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
-                <div style={{minHeight:300,background:filtered[0].cover_image?`url(${filtered[0].cover_image}) center/cover`:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                <div style={{position:"relative",aspectRatio:"3/2",overflow:"hidden"}}>
+                  {filtered[0].cover_image
+                    ? <img src={filtered[0].cover_image} alt={filtered[0].title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />
+                    : <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                  }
+                </div>
                 <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
                     <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
@@ -1975,14 +1982,17 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                   style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
                   onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
                   onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
-                  {/* Thumbnail */}
-                  {a.cover_image ? (
-                    <div style={{height:188,background:`url(${a.cover_image}) center/cover`,flexShrink:0}} />
-                  ) : (
-                    <div style={{height:188,background:"#F9FAFB",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                  )}
+                  {/* Thumbnail — aspect-ratio 16:9, never crops unexpectedly */}
+                  <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden",flexShrink:0}}>
+                    {a.cover_image
+                      ? <img src={a.cover_image} alt={a.title} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s"}}
+                          onMouseOver={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="scale(1.04)";}}
+                          onMouseOut={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="";}} />
+                      : <div style={{position:"absolute",inset:0,background:"#F3F4F6",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                    }
+                  </div>
                   <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
                     {/* Tags — single row, scroll not wrap */}
                     {a.tags?.length > 0 && (
