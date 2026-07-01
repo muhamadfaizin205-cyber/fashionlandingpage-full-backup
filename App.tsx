@@ -6,7 +6,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // ─── PayPal Client ID ─────────────────────────────────────
 const PAYPAL_CLIENT_ID =
-  (import.meta.env.VITE_PAYPAL_CLIENT_ID as string) ?? "test";
+  (import.meta.env.VITE_PAYPAL_CLIENT_ID as string) ||
+  "AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena";
 
 // ─── Supabase ─────────────────────────────────────────────
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || "https://zqawpdspxdcmofnmrbku.supabase.co";
@@ -1413,7 +1414,8 @@ function PayPalCheckout({
         </div>
       ) : (
         <PayPalButtons
-          style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 48 }}
+          style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
+          fundingSource={undefined}
           createOrder={(_data, actions) =>
             actions.order.create({
               intent: "CAPTURE",
@@ -1453,8 +1455,11 @@ function PayPalCheckout({
               }, 0);
             });
           }}
-          onError={() => setErrMsg("Payment failed. Please try again or use a different method.")}
-          onCancel={() => setErrMsg("Payment cancelled. You can try again when ready.")}
+          onError={(err) => {
+            console.error("PayPal error:", err);
+            setErrMsg("Payment failed. Please check your card details or try logging in to PayPal directly. If the problem persists, contact us on WhatsApp: +62 831-3153-3097");
+          }}
+          onCancel={() => setErrMsg("Payment cancelled. Click the PayPal or Debit/Credit Card button above to try again.")}
         />
       )}
       {errMsg && <p className="stripe-error-msg">⚠️ {errMsg}</p>}
@@ -1630,7 +1635,8 @@ function Step6({
             clientId: PAYPAL_CLIENT_ID,
             currency: "USD",
             locale: "en_US",
-            disableFunding: "paylater",
+            components: "buttons",
+            disableFunding: "paylater,venmo,sepa",
             enableFunding: "card",
           }}>
             <PayPalCheckout
