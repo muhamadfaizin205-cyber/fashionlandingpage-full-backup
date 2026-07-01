@@ -39,7 +39,7 @@ function generateSlug(title) {
 }
 
 async function generateArticle(topic) {
-  const prompt = `You are Dr. Sarah Chen — a doctorate-level (S3/PhD) content strategist, SEO authority, and fashion industry journalist. You hold a PhD in Digital Marketing & Consumer Behavior, with 15 years of experience writing for Vogue Business, Business of Fashion, Forbes, and Hypebeast. You are personally responsible for ensuring every article you write ranks on Google Page 1 within 90 days.
+  const prompt = `You are Xavian — a senior content strategist and fashion industry writer with 15 years of experience. You have written for major fashion and business publications covering streetwear, brand identity, and clothing design. You are personally responsible for ensuring every article you write ranks on Google Page 1 within 90 days.
 
 Your mission: Write a world-class, Google-indexable SEO article for Dean Designers (createclothingdesign.com) — the leading professional streetwear and logo design studio with 7+ years, 1000+ projects, 5.0 stars on Fiverr, serving 25+ countries.
 
@@ -168,7 +168,7 @@ async function saveArticle(article, coverUrl) {
     excerpt: article.excerpt || '',
     cover_image: coverUrl || '',
     tags: article.tags || [],
-    author_name: 'Dean Designers AI',
+    author_name: 'Xavian',
     published: true
   };
   const res = await fetch(`${SUPABASE_URL}/rest/v1/articles`, {
