@@ -1751,7 +1751,6 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
         if (error) console.error("Articles fetch error:", error);
         if (data) {
           setArticles(data);
-          // If URL has a slug (e.g. /articles/my-article-slug), open that article directly
           const parts = window.location.pathname.split("/").filter(Boolean);
           if (parts[0] === "articles" && parts[1]) {
             const match = data.find((a: any) => a.slug === parts[1]);
@@ -1789,184 +1788,216 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
     return () => window.removeEventListener("popstate", onPop);
   }, [articles]);
 
-  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 10);
-
+  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 12);
   const filtered = articles.filter((a) => {
     const matchSearch = !search || a.title?.toLowerCase().includes(search.toLowerCase()) || a.excerpt?.toLowerCase().includes(search.toLowerCase());
     const matchTag = !activeTag || (a.tags || []).includes(activeTag);
     return matchSearch && matchTag;
   });
 
-  // Article detail view
+  const BackButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button onClick={onClick} style={{display:"inline-flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #E2E8F0",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 16px",borderRadius:8,transition:"all .15s",fontFamily:"inherit"}}
+      onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#1DBF73";(e.currentTarget as HTMLElement).style.color="#1DBF73";}}
+      onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#E2E8F0";(e.currentTarget as HTMLElement).style.color="#374151";}}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      {label}
+    </button>
+  );
+
+  // ── ARTICLE DETAIL VIEW ──
   if (selected) {
+    const readTime = selected.content ? Math.max(1, Math.ceil(selected.content.replace(/<[^>]*>/g,"").split(/\s+/).length / 200)) : 3;
     return (
-      <div style={{background:"#F8FAFC",minHeight:"100vh"}}>
-        {/* Article Header */}
-        <div style={{background:"#fff",borderBottom:"1px solid #E2E8F0",padding:"16px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12}}>
-          <button onClick={closeArticle}
-            style={{display:"inline-flex",alignItems:"center",gap:6,background:"none",border:"1px solid #E2E8F0",color:"#64748B",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 14px",borderRadius:10,transition:"all .15s"}}
-            onMouseOver={(e) => (e.currentTarget as HTMLElement).style.borderColor="#1DBF73"}
-            onMouseOut={(e) => (e.currentTarget as HTMLElement).style.borderColor="#E2E8F0"}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            Back to Articles
-          </button>
-          <span style={{fontSize:13,color:"#94A3B8"}}>Design Insights</span>
+      <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+        {/* Sticky top bar */}
+        <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <BackButton onClick={closeArticle} label="All Articles" />
+            <span style={{color:"#D1D5DB",fontSize:14}}>›</span>
+            <span style={{fontSize:13,color:"#6B7280",maxWidth:300,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected.title}</span>
+          </div>
+          <BackButton onClick={onBack} label="Home" />
         </div>
 
-        {/* Article Content */}
-        <div style={{maxWidth:780,margin:"0 auto",padding:"40px 24px 80px"}}>
-          {/* Tags */}
+        <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
+          {/* Tags row — single line, clean pills */}
           {selected.tags?.length > 0 && (
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
+            <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
               {selected.tags.map((t: string, i: number) => (
-                <span key={i} style={{background:"rgba(29,191,115,0.1)",color:"#1DBF73",padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:700,letterSpacing:".3px",textTransform:"uppercase"}}>{t}</span>
+                <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#374151",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:600,letterSpacing:".4px",textTransform:"uppercase",whiteSpace:"nowrap"}}>{t}</span>
               ))}
             </div>
           )}
 
           {/* Title */}
-          <h1 style={{fontSize:"clamp(24px,4vw,36px)",fontWeight:900,lineHeight:1.2,letterSpacing:"-0.5px",color:"#0F172A",marginBottom:16}}>{selected.title}</h1>
+          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",marginBottom:18,margin:"0 0 18px"}}>{selected.title}</h1>
 
-          {/* Meta */}
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:28,paddingBottom:20,borderBottom:"1px solid #E2E8F0"}}>
-            <div style={{width:36,height:36,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {/* Meta row */}
+          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Dean Designers"}</span>
             </div>
-            <div>
-              <div style={{fontSize:13,fontWeight:700,color:"#1a1a2e"}}>{selected.author_name || "Dean Designers"}</div>
-              <div style={{fontSize:11,color:"#94A3B8"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
-            </div>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{readTime} min read</span>
           </div>
 
-          {/* Cover Image */}
+          {/* Cover image */}
           {selected.cover_image && (
-            <div style={{borderRadius:16,overflow:"hidden",marginBottom:28,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
-              <img src={selected.cover_image} alt={selected.title} style={{width:"100%",height:"auto",maxHeight:420,objectFit:"cover",display:"block"}} />
+            <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
+              <img src={selected.cover_image} alt={selected.title} style={{width:"100%",height:"auto",maxHeight:440,objectFit:"cover",display:"block"}} />
             </div>
           )}
 
-          {/* Content */}
-          <div style={{fontSize:16,lineHeight:1.9,color:"#334155",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
+          {/* Article body */}
+          <div className="article-body" style={{fontSize:16.5,lineHeight:1.85,color:"#374151",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
+
+          {/* Tags at bottom */}
+          {selected.tags?.length > 0 && (
+            <div style={{marginTop:40,paddingTop:24,borderTop:"1px solid #F0F0F0"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {selected.tags.map((t: string, i: number) => (
+                  <button key={i} onClick={() => { closeArticle(); setActiveTag(t); }} style={{background:"#F3F4F6",color:"#374151",padding:"5px 12px",borderRadius:4,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",fontFamily:"inherit"}}>{t}</button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Footer CTA */}
-          <div style={{marginTop:48,padding:28,background:"linear-gradient(135deg,#F0FDF4,#DCFCE7)",borderRadius:16,border:"1px solid rgba(29,191,115,0.2)",textAlign:"center"}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>Ready to build your brand?</div>
-            <h3 style={{fontSize:20,fontWeight:800,color:"#0F172A",marginBottom:8}}>Get professional clothing design from Dean Designers</h3>
-            <p style={{fontSize:13,color:"#64748B",marginBottom:16}}>5.0★ · 1000+ projects · 25+ countries · 7+ years experience</p>
-            <button onClick={onBack} style={{background:"linear-gradient(135deg,#1DBF73,#17B169)",color:"#fff",border:"none",padding:"12px 28px",borderRadius:12,fontSize:14,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 14px rgba(29,191,115,0.3)"}}>
+          <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
+            <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
+            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 1,000+ projects · 25+ countries · 7+ years</p>
+            <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
               Start Your Order →
             </button>
+          </div>
+
+          {/* Bottom back button */}
+          <div style={{marginTop:40,display:"flex",gap:12}}>
+            <BackButton onClick={closeArticle} label="← Back to Articles" />
+            <BackButton onClick={onBack} label="Go to Homepage" />
           </div>
         </div>
       </div>
     );
   }
 
+  // ── ARTICLES LIST VIEW ──
   return (
-    <div style={{background:"#F8FAFC",minHeight:"100vh"}}>
-      {/* Header */}
-      <div style={{background:"#fff",borderBottom:"1px solid #E2E8F0",padding:"16px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-        <button onClick={onBack} style={{display:"inline-flex",alignItems:"center",gap:6,background:"none",border:"1px solid #E2E8F0",color:"#64748B",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 14px",borderRadius:10}}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Home
-        </button>
-        {/* Search */}
-        <div style={{position:"relative",flex:"1",maxWidth:320}}>
-          <svg style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#94A3B8"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:36,paddingRight:12,paddingTop:9,paddingBottom:9,border:"1.5px solid #E2E8F0",borderRadius:10,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const}} />
+    <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+      {/* Sticky header */}
+      <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+        <BackButton onClick={onBack} label="Home" />
+        <div style={{flex:1,maxWidth:360,position:"relative"}}>
+          <svg style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,border:"1.5px solid #E5E7EB",borderRadius:8,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const,background:"#F9FAFB",color:"#111827"}} />
         </div>
-        <div style={{fontSize:12,color:"#94A3B8",fontWeight:600}}>{filtered.length} articles</div>
+        <span style={{fontSize:12,color:"#9CA3AF",fontWeight:500,marginLeft:"auto"}}>{filtered.length} article{filtered.length !== 1 ? "s" : ""}</span>
       </div>
 
-      <div style={{maxWidth:1100,margin:"0 auto",padding:"32px 20px 60px"}}>
-        {/* Hero Title */}
-        <div style={{textAlign:"center",marginBottom:32}}>
-          <span style={{display:"inline-block",padding:"6px 16px",background:"rgba(29,191,115,0.1)",color:"#1DBF73",borderRadius:20,fontSize:11,fontWeight:700,letterSpacing:1.5,marginBottom:12,textTransform:"uppercase"}}>Design Blog</span>
-          <h1 style={{fontSize:"clamp(28px,5vw,42px)",fontWeight:900,letterSpacing:"-1px",color:"#0F172A",marginBottom:10}}>Articles & Design Insights</h1>
-          <p style={{fontSize:15,color:"#64748B",maxWidth:520,margin:"0 auto"}}>Expert guides, industry trends, and behind-the-scenes from our streetwear design studio</p>
+      <div style={{maxWidth:1120,margin:"0 auto",padding:"40px 20px 80px"}}>
+        {/* Page header */}
+        <div style={{marginBottom:36}}>
+          <div style={{display:"inline-block",background:"#F0FDF4",color:"#16A34A",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:12}}>Design Blog</div>
+          <h1 style={{fontSize:"clamp(26px,4vw,38px)",fontWeight:800,letterSpacing:"-0.5px",color:"#111827",marginBottom:8,lineHeight:1.1}}>Articles & Insights</h1>
+          <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
         </div>
 
-        {/* Tag Filter */}
+        {/* Tag filter — single horizontal scroll row, no wrapping chaos */}
         {allTags.length > 0 && (
-          <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",marginBottom:28}}>
-            <button onClick={() => setActiveTag("")} style={{padding:"6px 14px",borderRadius:20,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E2E8F0",background:!activeTag?"rgba(29,191,115,0.08)":"#fff",color:!activeTag?"#1DBF73":"#64748B",fontSize:12,fontWeight:600,cursor:"pointer"}}>All</button>
-            {allTags.map((t, i) => (
-              <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{padding:"6px 14px",borderRadius:20,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E2E8F0",background:activeTag===t?"rgba(29,191,115,0.08)":"#fff",color:activeTag===t?"#1DBF73":"#64748B",fontSize:12,fontWeight:600,cursor:"pointer"}}>{t}</button>
-            ))}
+          <div style={{marginBottom:32}}>
+            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none",WebkitOverflowScrolling:"touch" as any}}>
+              <button onClick={() => setActiveTag("")} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E5E7EB",background:!activeTag?"#F0FDF4":"#fff",color:!activeTag?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>All</button>
+              {allTags.map((t, i) => (
+                <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E5E7EB",background:activeTag===t?"#F0FDF4":"#fff",color:activeTag===t?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",whiteSpace:"nowrap"}}>{t}</button>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Loading */}
+        {/* States */}
         {loading ? (
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid #E2E8F0"}}>
-                <div style={{height:200,background:"linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
-                <div style={{padding:16}}>
-                  <div style={{height:12,background:"#F1F5F9",borderRadius:6,marginBottom:8,width:"60%"}} />
-                  <div style={{height:18,background:"#F1F5F9",borderRadius:6,marginBottom:8}} />
-                  <div style={{height:14,background:"#F1F5F9",borderRadius:6,width:"80%"}} />
-                </div>
+              <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
+                <div style={{height:200,background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
+                <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
               </div>
             ))}
           </div>
         ) : !filtered.length ? (
-          <div style={{textAlign:"center",padding:"60px 20px"}}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{margin:"0 auto 16px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p style={{fontSize:15,color:"#94A3B8",fontWeight:600}}>No articles found</p>
-            <p style={{fontSize:13,color:"#CBD5E1"}}>Try a different search or tag</p>
+          <div style={{textAlign:"center",padding:"80px 20px"}}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5" style={{margin:"0 auto 14px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p style={{fontSize:15,color:"#9CA3AF",fontWeight:600,margin:"0 0 4px"}}>No articles found</p>
+            <p style={{fontSize:13,color:"#D1D5DB",margin:0}}>Try a different search or tag</p>
           </div>
         ) : (
           <>
-            {/* Featured Article (first one) */}
+            {/* Featured article */}
             {filtered.length > 0 && !search && !activeTag && (
               <div onClick={() => openArticle(filtered[0])}
-                style={{background:"#fff",borderRadius:20,overflow:"hidden",border:"1px solid #E2E8F0",cursor:"pointer",marginBottom:24,display:"grid",gridTemplateColumns:"1fr 1fr",boxShadow:"0 2px 12px rgba(0,0,0,0.04)",transition:"all .2s"}}
-                onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.boxShadow="0 8px 32px rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.transform="translateY(-2px)"; }}
-                onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.boxShadow="0 2px 12px rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.transform=""; }}>
-                <div style={{height:"100%",minHeight:280,background:filtered[0].cover_image?`url(${filtered[0].cover_image}) center/cover`:"linear-gradient(135deg,#1DBF73,#0EA5E9)"}} />
+                style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
+                onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
+                onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
+                <div style={{minHeight:300,background:filtered[0].cover_image?`url(${filtered[0].cover_image}) center/cover`:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
                 <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                    <span style={{background:"rgba(29,191,115,0.1)",color:"#1DBF73",padding:"4px 10px",borderRadius:20,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>Featured</span>
-                    <span style={{fontSize:11,color:"#94A3B8"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                    <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
+                    <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
                   </div>
-                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.3,color:"#0F172A",marginBottom:10}}>{filtered[0].title}</h2>
-                  {filtered[0].excerpt && <p style={{fontSize:13,color:"#64748B",lineHeight:1.6,marginBottom:16}}>{filtered[0].excerpt}</p>}
+                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",marginBottom:10,margin:"0 0 10px"}}>{filtered[0].title}</h2>
+                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,marginBottom:18,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
+                  {/* Tags in featured — clean row */}
+                  {filtered[0].tags?.length > 0 && (
+                    <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
+                      {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
+                        <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"3px 8px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px"}}>{t}</span>
+                      ))}
+                    </div>
+                  )}
                   <div style={{display:"flex",alignItems:"center",gap:6,color:"#1DBF73",fontSize:13,fontWeight:700}}>
-                    Read article <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    Read article <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Article Grid */}
+            {/* Article grid */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
               {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
                 <div key={a.id} onClick={() => openArticle(a)}
-                  style={{background:"#fff",borderRadius:16,overflow:"hidden",border:"1px solid #E2E8F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.transform="translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)"; (e.currentTarget as HTMLElement).style.borderColor="#1DBF73"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.transform=""; (e.currentTarget as HTMLElement).style.boxShadow="0 1px 4px rgba(0,0,0,0.04)"; (e.currentTarget as HTMLElement).style.borderColor="#E2E8F0"; }}>
+                  style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
+                  onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
+                  onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
                   {/* Thumbnail */}
                   {a.cover_image ? (
-                    <div style={{height:190,background:`url(${a.cover_image}) center/cover`,position:"relative"}}>
-                      <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.2))"}} />
-                    </div>
+                    <div style={{height:188,background:`url(${a.cover_image}) center/cover`,flexShrink:0}} />
                   ) : (
-                    <div style={{height:190,background:"linear-gradient(135deg,#F1F5F9,#E2E8F0)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div style={{height:188,background:"#F9FAFB",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
                   )}
-                  <div style={{padding:"16px 18px 20px"}}>
-                    <div style={{fontSize:11,color:"#94A3B8",marginBottom:8,fontWeight:500}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</div>
-                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#0F172A",marginBottom:8}}>{a.title}</h3>
-                    {a.excerpt && <p style={{fontSize:12,color:"#64748B",lineHeight:1.6,marginBottom:12}}>{a.excerpt.substring(0,110)}{a.excerpt.length > 110 ? "..." : ""}</p>}
+                  <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
+                    {/* Tags — single row, scroll not wrap */}
                     {a.tags?.length > 0 && (
-                      <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                        {a.tags.slice(0,2).map((t: string, i: number) => (
-                          <span key={i} style={{background:"#F1F5F9",color:"#64748B",padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:600}}>{t}</span>
+                      <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
+                        {a.tags.slice(0,3).map((t: string, i: number) => (
+                          <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",whiteSpace:"nowrap"}}>{t}</span>
                         ))}
                       </div>
                     )}
+                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",marginBottom:8,margin:"0 0 8px",flex:1}}>{a.title}</h3>
+                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,marginBottom:12,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto"}}>
+                      <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                      <span style={{fontSize:11,color:"#1DBF73",fontWeight:600}}>Read →</span>
+                    </div>
                   </div>
                 </div>
               ))}
