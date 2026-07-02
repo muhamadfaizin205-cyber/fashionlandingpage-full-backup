@@ -1431,9 +1431,14 @@ function PayPalCheckout({
                 if (result.orderId) {
                   try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
                 }
+                // A1: Save access code for redirect to tracker
+                if (result.accessCode) {
+                  try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
+                }
                 onSuccess();
-                // Send email notification (fire and forget)
-                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
+                // Send email with access code included
+                const emailWithCode = { ...emailData, access_code: result.accessCode || "Check your dashboard" };
+                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
                   .then(() => console.log("Email sent"))
                   .catch((e: unknown) => console.error("Email failed:", e));
               } else {
@@ -1510,7 +1515,8 @@ function Step6({
   useEffect(() => {
     if (paymentDone) {
       const timer = setTimeout(() => {
-        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
+        const _ac = sessionStorage.getItem("dd_access_code") || "";
+        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(_ac)}&new=1`;
       }, 2500);
       return () => clearTimeout(timer);
     }
@@ -1532,7 +1538,7 @@ function Step6({
           </div>
 
           <a
-            href={`/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`}
+            href={`/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(sessionStorage.getItem("dd_access_code")||"")}&new=1`}
             className="btn-track-order btn-track-primary"
           >
             <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
