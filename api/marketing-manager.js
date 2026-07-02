@@ -244,11 +244,11 @@ export default async function handler(req, res) {
     const dateStr = today.toISOString().split('T')[0];
     const dayName = today.toLocaleDateString('id-ID', { weekday: 'long' });
 
-    // If GET and picks already exist for today, return them (don't regenerate)
-    if (req.method === 'GET' && !req.query?.force) {
+    // Only use cached picks for plain GET without force flag
+    const isForced = req.method === 'POST' || req.query?.force === '1';
+    if (!isForced) {
       const existing = await getTodayPicks();
       if (existing && existing.length > 0) {
-        // Extract manager_message from first pick (same across all shifts)
         const managerMessage = existing[0]?.manager_message || '';
         return res.status(200).json({ success: true, date: dateStr, fromCache: true, manager_message: managerMessage, picks: existing });
       }
