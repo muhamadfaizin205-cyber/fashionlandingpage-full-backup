@@ -548,6 +548,7 @@ async function loadConversations(){
 
 function renderApp(){
   subscribeRoastRealtime();
+  subscribePicksRealtime();
   registerAdminPush();
   const totalUnread=convs.reduce((s,c)=>s+(c.unread||0),0);
   // ── Icon Sidebar ──
@@ -966,6 +967,7 @@ async function renderMarketingView(){
   var el=document.getElementById('marketing-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Memanggil manager...</div>';
   subscribeRoastRealtime();
+  subscribePicksRealtime();
   await loadTodayRoasts();
   await runMarketingManager(false);
 }
@@ -1023,6 +1025,43 @@ async function resolveMarketingHotelDetails(){
 }
 
 var mmRealtimeSubscribed=false;
+var mmPicksRealtimeSubscribed=false;
+
+function subscribePicksRealtime(){
+  if(mmPicksRealtimeSubscribed||!sb)return;
+  mmPicksRealtimeSubscribed=true;
+  var today=new Date().toISOString().split('T')[0];
+  sb.channel('mm-picks-realtime-'+Date.now())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'marketing_picks'},function(payload){
+      if(!payload.new)return;
+      // Only react to today's picks
+      if(payload.new.pick_date!==today)return;
+      // New pick arrived — add to mmPicks if not already there
+      if(!mmPicks.find(function(p){return p.id===payload.new.id})){
+        mmPicks.push(payload.new);
+      }
+      // If this is the last shift (malam = 4th), re-render the full manager view
+      if(mmPicks.length>=4&&document.getElementById('marketing-area')){
+        var msg=payload.new.manager_message||mmPicks[0].manager_message||'';
+        renderMarketingPicks(msg);
+      }else if(document.getElementById('marketing-area')&&mmPicks.length===1){
+        // First pick arrived — re-render to show something immediately
+        renderMarketingPicks(payload.new.manager_message||'');
+      }
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'marketing_picks'},function(payload){
+      if(!payload.new)return;
+      var idx=mmPicks.findIndex(function(p){return p.id===payload.new.id});
+      if(idx>-1){
+        mmPicks[idx]=payload.new;
+        if(document.getElementById('marketing-area')){
+          renderMarketingPicks(mmPicks[0]&&mmPicks[0].manager_message);
+        }
+      }
+    })
+    .subscribe();
+}
+
 function subscribeMarketingRealtime(){
   if(mmRealtimeSubscribed||!sb)return;
   mmRealtimeSubscribed=true;
