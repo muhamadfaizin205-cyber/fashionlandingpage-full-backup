@@ -65,12 +65,16 @@ export default async function handler(req, res) {
           // SECURITY (P2 fix): strip any client-supplied price — only PayPal's captured amount is trusted
           const { price: _clientPrice, ...safeOrderData } = clientOrderData;
 
+          // A1 FIX: Generate 6-char access code for secure order tracker login
+          const accessCode = require('crypto').randomBytes(3).toString('hex').toUpperCase(); // e.g. "A3F2B1"
+
           const orderRow = {
             ...safeOrderData,
             price: capturedAmount, // ONLY from PayPal — never from client
             paid_via: 'paypal',
             paypal_order_id: orderID,
             paypal_transaction_id: paypalTransactionId,
+            access_code: accessCode,
             status: 'new',
             created_at: new Date().toISOString(),
           };
@@ -95,6 +99,7 @@ export default async function handler(req, res) {
             capturedAmount,
             orderId: savedId,
             transactionId: paypalTransactionId,
+            accessCode, // A1: send to client for email & success screen
           });
         } catch (dbErr) {
           console.error('[PayPal] DB save failed:', dbErr.message);
