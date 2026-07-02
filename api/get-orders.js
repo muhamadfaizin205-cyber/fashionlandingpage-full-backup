@@ -33,22 +33,34 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, orders: data });
     }
 
-    // ── CUSTOMER MODE: return orders by email only ──
+    // ── CUSTOMER MODE: return orders by email + access code ──
     const email = req.query.email || req.body?.email;
+    const code = req.query.code || req.body?.code;
+
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email required' });
     }
 
-    // Sanitize email for Supabase query
     const safeEmail = email.trim().toLowerCase();
 
-    // Check if email exists first (for login validation)
+    // Check if email exists (for login step 1)
     if (req.query.check === '1') {
       const check = await sbFetch(`orders?email=ilike.${encodeURIComponent(safeEmail)}&select=id&limit=1`);
       return res.status(200).json({ exists: check && check.length > 0 });
     }
 
-    // Return orders for this email only
+    // Access code required for viewing orders (A1 fix)
+    if (!code || typeof code !== 'string' || code.length < 4) {
+      return res.status(401).json({ error: 'Access code required' });
+    }
+
+    // Verify code matches any order with this email
+    const verify = await sbFetch(`orders?email=ilike.${encodeURIComponent(safeEmail)}&access_code=eq.${encodeURIComponent(code.toUpperCase())}&select=id&limit=1`);
+    if (!verify || verify.length === 0) {
+      return res.status(403).json({ error: 'Invalid access code' });
+    }
+
+    // Code verified — return all orders for this email
     const orders = await sbFetch(`orders?email=ilike.${encodeURIComponent(safeEmail)}&select=*&order=created_at.desc`);
     return res.status(200).json({ success: true, orders: orders || [] });
 
