@@ -528,17 +528,7 @@ function calcPrice(pkg: Package, state: WizardState): { raw: number; final: numb
 }
 
 function WaIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width="15"
-      height="15"
-      style={{ flexShrink: 0 }}
-    >
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-    </svg>
-  );
+  return <i className="ri-whatsapp-fill" style={{fontSize:15,flexShrink:0}} />;
 }
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -681,9 +671,7 @@ function Step1({
         >
           <CardSlideshow images={CLOTHING_SLIDES} />
           <div className="svc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="28" height="28">
-              <path d="M6.5 2L2 6.5l3 1.5V20a1 1 0 001 1h12a1 1 0 001-1V8l3-1.5L17.5 2h-3.25a2.25 2.25 0 01-4.5 0H6.5z" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <i className="ri-t-shirt-2-line" style={{fontSize:28}} />
           </div>
           <div className="svc-body">
             <div className="service-name">Clothing Design</div>
@@ -699,9 +687,7 @@ function Step1({
         >
           <CardSlideshow images={LOGO_SLIDES} />
           <div className="svc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="28" height="28">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <i className="ri-stack-line" style={{fontSize:28}} />
           </div>
           <div className="svc-body">
             <div className="service-name">Logo Brand Design</div>
@@ -783,7 +769,7 @@ function Step2({
         <div className="contact-fields">
           <div className="contact-field-group">
             <label className="contact-field-label">
-              <svg viewBox="0 0 24 24" fill="#25D366" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              <i className="ri-whatsapp-fill" style={{fontSize:14,color:"#25D366"}} />
               WhatsApp
             </label>
             <input
@@ -797,7 +783,7 @@ function Step2({
           </div>
           <div className="contact-field-group">
             <label className="contact-field-label">
-              <svg viewBox="0 0 24 24" fill="#E4405F" width="14" height="14"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+              <i className="ri-instagram-fill" style={{fontSize:14,color:"#E4405F"}} />
               Instagram
             </label>
             <input
@@ -1132,7 +1118,7 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
       {/* ── Reference Images Upload ── */}
       <div className="ref-upload-section">
         <label className="ref-upload-label">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <i className="ri-image-line" style={{fontSize:16}} />
           Attach Reference Images <span className="ref-optional">(optional)</span>
         </label>
         <p className="ref-hint">Upload design references, mood boards, or inspiration images to help your designer understand your vision.</p>
@@ -1189,7 +1175,7 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
               <><span className="ai-spinner" /> Uploading...</>
             ) : (
               <>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <i className="ri-upload-2-line" style={{fontSize:18}} />
                 Upload Images ({briefImages.length}/5)
               </>
             )}
@@ -1338,9 +1324,7 @@ function PayPalGuide() {
   return (
     <div className="pp-guide">
       <button className="pp-guide-toggle" onClick={() => setOpen(!open)}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>
+        <i className="ri-question-line" style={{fontSize:16}} />
         <span>New to PayPal? Learn how to pay</span>
         <span className={`pp-guide-arrow ${open ? "open" : ""}`}>›</span>
       </button>
@@ -1551,9 +1535,7 @@ function Step6({
             href={`/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`}
             className="btn-track-order btn-track-primary"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
+            <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
             Continue to Order Dashboard
           </a>
         </div>
@@ -1627,9 +1609,7 @@ function Step6({
         {/* ── PayPal Payment Section ── */}
         <div className="stripe-section">
           <div className="stripe-section-header">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" />
-            </svg>
+            <i className="ri-bank-card-line" style={{fontSize:18}} />
             <span>Secure Payment</span>
             <div className="stripe-badges">
               <span className="pay-logo pay-pp"><span>Pay</span><span>Pal</span></span>
@@ -1674,14 +1654,14 @@ function Step6({
         <div className="hiw-card">
           <div className="hiw-header">
             <div className="hiw-icon-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <i className="ri-information-line" style={{fontSize:16}} />
             </div>
             <span className="hiw-title">What happens after payment?</span>
           </div>
           <div className="hiw-steps">
             <div className="hiw-step">
               <div className="hiw-num">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <i className="ri-chat-3-line" style={{fontSize:16}} />
               </div>
               <div className="hiw-text">
                 <strong>Send your brief &amp; we're instantly notified</strong>
@@ -1691,7 +1671,7 @@ function Step6({
             <div className="hiw-connector" />
             <div className="hiw-step">
               <div className="hiw-num">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <i className="ri-edit-line" style={{fontSize:16}} />
               </div>
               <div className="hiw-text">
                 <strong>Designer starts working</strong>
@@ -1701,7 +1681,7 @@ function Step6({
             <div className="hiw-connector" />
             <div className="hiw-step">
               <div className="hiw-num">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <i className="ri-eye-line" style={{fontSize:16}} />
               </div>
               <div className="hiw-text">
                 <strong>Review &amp; revisions</strong>
@@ -1711,7 +1691,7 @@ function Step6({
             <div className="hiw-connector" />
             <div className="hiw-step">
               <div className="hiw-num hiw-num-final">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <i className="ri-checkbox-circle-line" style={{fontSize:16}} />
               </div>
               <div className="hiw-text">
                 <strong>Files delivered</strong>
@@ -1720,7 +1700,7 @@ function Step6({
             </div>
           </div>
           <div className="hiw-guarantee">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <i className="ri-lock-line" style={{fontSize:14}} />
             Secure payment · 100% money-back guarantee if not delivered
           </div>
         </div>
@@ -1808,7 +1788,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
     <button onClick={onClick} style={{display:"inline-flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #E2E8F0",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 16px",borderRadius:8,transition:"all .15s",fontFamily:"inherit"}}
       onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#1DBF73";(e.currentTarget as HTMLElement).style.color="#1DBF73";}}
       onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#E2E8F0";(e.currentTarget as HTMLElement).style.color="#374151";}}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <i className="ri-arrow-left-line" style={{fontSize:14}} />
       {label}
     </button>
   );
@@ -1845,7 +1825,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <i className="ri-user-line" style={{fontSize:14,color:"#fff"}} />
               </div>
               <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Dean Designers"}</span>
             </div>
@@ -1906,7 +1886,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
       <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
         <BackButton onClick={onBack} label="Home" />
         <div style={{flex:1,maxWidth:360,position:"relative"}}>
-          <svg style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <i className="ri-search-line" style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",fontSize:14,color:"#9CA3AF"}} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,border:"1.5px solid #E5E7EB",borderRadius:8,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const,background:"#F9FAFB",color:"#111827"}} />
         </div>
         <span style={{fontSize:12,color:"#9CA3AF",fontWeight:500,marginLeft:"auto"}}>{filtered.length} article{filtered.length !== 1 ? "s" : ""}</span>
@@ -1944,7 +1924,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           </div>
         ) : !filtered.length ? (
           <div style={{textAlign:"center",padding:"80px 20px"}}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5" style={{margin:"0 auto 14px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <i className="ri-file-text-line" style={{fontSize:40,color:"#D1D5DB",margin:"0 auto 14px",display:"block"}} />
             <p style={{fontSize:15,color:"#9CA3AF",fontWeight:600,margin:"0 0 4px"}}>No articles found</p>
             <p style={{fontSize:13,color:"#D1D5DB",margin:0}}>Try a different search or tag</p>
           </div>
@@ -1978,7 +1958,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                     </div>
                   )}
                   <div style={{display:"flex",alignItems:"center",gap:6,color:"#1DBF73",fontSize:13,fontWeight:700}}>
-                    Read article <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    Read article <i className="ri-arrow-right-line" style={{fontSize:13}} />
                   </div>
                 </div>
               </div>
@@ -1998,7 +1978,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                           onMouseOver={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="scale(1.04)";}}
                           onMouseOut={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="";}} />
                       : <div style={{position:"absolute",inset:0,background:"#F3F4F6",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <i className="ri-image-line" style={{fontSize:32,color:"#D1D5DB"}} />
                         </div>
                     }
                   </div>
@@ -2097,9 +2077,7 @@ function FAQSection() {
               <button className="faq-q" onClick={() => setOpenIdx(openIdx === idx ? null : idx)}>
                 <span>{faq.q}</span>
                 <span className="faq-toggle">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
+                  <i className="ri-arrow-down-s-line" style={{fontSize:20}} />
                 </span>
               </button>
               <div className="faq-a">
@@ -2110,7 +2088,7 @@ function FAQSection() {
         </div>
         <div className="faq-cta">
           <div className="faq-cta-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <i className="ri-shield-check-line" style={{fontSize:22}} />
           </div>
           <div>
             <strong>Ready to bring your brand to life?</strong>
@@ -2360,16 +2338,13 @@ export default function App() {
       <nav className="navbar">
         <div className="nav-wrap">
           <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <i className="ri-menu-line" style={{fontSize:20}} />
           </button>
           <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
             DEAN DESIGNERS
           </a>
           <a href="/order-tracker.html" className="nav-profile" title="My Orders">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+            <i className="ri-user-line" style={{fontSize:18}} />
           </a>
         </div>
       </nav>
@@ -2380,30 +2355,30 @@ export default function App() {
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
               <div className="drawer-logo">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <i className="ri-flashlight-fill" style={{fontSize:16,color:"#fff"}} />
               </div>
               <span className="drawer-brand">Dean <span style={{color:"#1DBF73"}}>Designers</span></span>
               <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
             </div>
             <div className="drawer-items">
               <a className="drawer-item" href="#home" onClick={() => { setCurrentPage("home"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home
+                <i className="ri-home-4-line" style={{fontSize:18}} />Home
               </a>
               <a className="drawer-item" href="#wizard" onClick={() => setDrawerOpen(false)}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Services
+                <i className="ri-box-3-line" style={{fontSize:18}} />Services
               </a>
               <a className="drawer-item" href="#about" onClick={() => setDrawerOpen(false)}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Portfolio
+                <i className="ri-user-line" style={{fontSize:18}} />Portfolio
               </a>
               <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles
+                <i className="ri-article-line" style={{fontSize:18}} />Articles
               </a>
               <div className="drawer-divider" />
               <a className="drawer-item" href="/order-tracker.html">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>My Orders
+                <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
               </a>
               <a className="drawer-item" href="#home" onClick={() => setDrawerOpen(false)}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+                <i className="ri-logout-box-r-line" style={{fontSize:18}} />Sign Out
               </a>
             </div>
           </div>
@@ -2444,12 +2419,8 @@ export default function App() {
 
             {/* Scroll hint */}
             <div className="hero-scroll-hint">
-              <svg className="scroll-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 10l5 5 5-5"/>
-              </svg>
-              <svg className="scroll-arrow scroll-arrow-2" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 10l5 5 5-5"/>
-              </svg>
+              <i className="ri-arrow-down-s-line scroll-arrow" style={{fontSize:24,color:"rgba(255,255,255,0.6)"}} />
+              <i className="ri-arrow-down-s-line scroll-arrow scroll-arrow-2" style={{fontSize:24,color:"rgba(255,255,255,0.3)"}} />
             </div>
           </section>
 
@@ -2471,7 +2442,7 @@ export default function App() {
             <div className="trust-bar-inner">
               <div className="tb-item">
                 <div className="tb-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <i className="ri-checkbox-circle-line" style={{fontSize:18}} />
                 </div>
                 <div className="tb-text">
                   <strong>2,000+</strong>
@@ -2481,7 +2452,7 @@ export default function App() {
               <div className="tb-divider" />
               <div className="tb-item">
                 <div className="tb-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <i className="ri-shield-check-line" style={{fontSize:18}} />
                 </div>
                 <div className="tb-text">
                   <strong>100%</strong>
@@ -2491,7 +2462,7 @@ export default function App() {
               <div className="tb-divider" />
               <div className="tb-item">
                 <div className="tb-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <i className="ri-time-line" style={{fontSize:18}} />
                 </div>
                 <div className="tb-text">
                   <strong>&lt;24h</strong>
@@ -2648,28 +2619,28 @@ export default function App() {
             <div className="guarantee-grid">
               <div className="g-card">
                 <div className="g-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <i className="ri-shield-check-line" style={{fontSize:22}} />
                 </div>
                 <strong>100% Money-Back Guarantee</strong>
                 <p>Not satisfied? Get a full refund — no questions asked. Your investment is protected.</p>
               </div>
               <div className="g-card">
                 <div className="g-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <i className="ri-lock-line" style={{fontSize:22}} />
                 </div>
                 <strong>Secure PayPal Payment</strong>
                 <p>Encrypted checkout via PayPal. Pay with card, PayPal balance, or bank — buyer protection included.</p>
               </div>
               <div className="g-card">
                 <div className="g-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <i className="ri-checkbox-circle-line" style={{fontSize:22}} />
                 </div>
                 <strong>Production-Ready Files</strong>
                 <p>Every design comes with source files, high-res exports, and commercial license. Print-shop ready.</p>
               </div>
               <div className="g-card">
                 <div className="g-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <i className="ri-time-line" style={{fontSize:22}} />
                 </div>
                 <strong>24-Hour Kickoff</strong>
                 <p>Your designer starts within 24 hours and keeps you updated at every stage until delivery.</p>
