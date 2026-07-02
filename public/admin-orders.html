@@ -237,6 +237,15 @@ a{color:inherit;text-decoration:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes roastSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes copyPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+/* Copy button base transition */
+button[onclick*="mmCopy"]{transition:all .15s cubic-bezier(.4,0,.2,1) !important;cursor:pointer}
+button[onclick*="mmCopy"]:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button[onclick*="mmCopy"]:active{transform:scale(0.94)}
+button[onclick*="copyHotelTitle"]{transition:all .15s !important;cursor:pointer}
+button[onclick*="copyHotelTitle"]:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button[onclick*="copyHotelPromo"]{transition:all .15s !important;cursor:pointer}
+button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:translateY(-1px)}
 
 /* Mobile topbar */
 .topbar-m{display:none;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border);align-items:center;gap:8px;position:sticky;top:0;z-index:40}
@@ -831,13 +840,47 @@ var mmPicks=[];
 var mmSkipped=[];
 
 function mmCopy(btn,text){
+  // Ripple effect
+  btn.style.transform='scale(0.94)';
+  setTimeout(function(){btn.style.transform='';},120);
+
   navigator.clipboard.writeText(text).then(function(){
-    var orig=btn.textContent;
-    btn.textContent='Copied!';
+    var origHTML=btn.innerHTML;
+    var origBg=btn.style.background;
+    var origBorder=btn.style.borderColor||'';
+    var origColor=btn.style.color;
+
+    // Success state — green checkmark + Copied!
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
     btn.style.background='#1DBF73';
     btn.style.color='#fff';
-    btn.style.borderColor='#1DBF73';
-    setTimeout(function(){btn.textContent=orig;btn.style.background='';btn.style.color='';btn.style.borderColor='';},1400);
+    btn.style.border='none';
+    btn.style.boxShadow='0 2px 8px rgba(29,191,115,0.4)';
+    btn.style.transform='scale(1.05)';
+    btn.disabled=true;
+    btn.style.transition='all .15s';
+
+    setTimeout(function(){
+      btn.style.transform='scale(1)';
+    },120);
+
+    setTimeout(function(){
+      btn.innerHTML=origHTML;
+      btn.style.background=origBg;
+      btn.style.color=origColor;
+      btn.style.borderColor=origBorder;
+      btn.style.boxShadow='';
+      btn.style.border='';
+      btn.disabled=false;
+    },2000);
+
+  }).catch(function(){
+    // Fallback error state
+    var origHTML=btn.innerHTML;
+    btn.innerHTML='✗ Failed';
+    btn.style.background='#DC2626';
+    btn.style.color='#fff';
+    setTimeout(function(){btn.innerHTML=origHTML;btn.style.background='';btn.style.color='';},1500);
   });
 }
 
