@@ -163,9 +163,29 @@ function hashCode(str) {
 }
 
 async function saveArticle(article, coverUrl) {
+  let slug = article.slug || generateSlug(article.title);
+
+  // Check if slug already exists, append suffix if needed
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const checkSlug = attempt === 0 ? slug : `${slug}-${attempt + 1}`;
+    const checkRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?slug=eq.${encodeURIComponent(checkSlug)}&select=id&limit=1`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    const existing = await checkRes.json();
+    if (!existing || existing.length === 0) {
+      slug = checkSlug;
+      break;
+    }
+    if (attempt === 9) {
+      // Last resort: append timestamp
+      slug = `${slug}-${Date.now().toString(36)}`;
+    }
+  }
+
   const payload = {
     title: article.title,
-    slug: article.slug || generateSlug(article.title),
+    slug,
     content: article.content,
     excerpt: article.excerpt || '',
     cover_image: coverUrl || '',
