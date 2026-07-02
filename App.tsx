@@ -1736,6 +1736,16 @@ function Step6({
 
 // ─── Articles Section (Blog) ──────────────────────────────
 // ─── Articles Full Page ───────────────────────────────────
+// ─── Articles Page helpers (must be OUTSIDE component to avoid React crash) ──
+function BackBtn({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button onClick={onClick} className="dd-btn-ghost" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:".82rem",padding:"7px 14px"}}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      {label}
+    </button>
+  );
+}
+
 // ─── Articles Page (Gemini Design × Dean Designers) ────────────────────────
 function ArticlesFullPage({ onBack }: { onBack: () => void }) {
   const [articles, setArticles] = React.useState<any[]>([]);
@@ -1796,12 +1806,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
 
   const readTime = (a: any) => Math.max(1, Math.ceil((a.content || "").replace(/<[^>]*>/g,"").split(/\s+/).length / 200));
 
-  const BackBtn = ({ onClick, label }: { onClick: () => void; label: string }) => (
-    <button onClick={onClick} className="dd-btn-ghost" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:".82rem",padding:"7px 14px"}}>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      {label}
-    </button>
-  );
+  // BackBtn is defined outside this component (above) to avoid React crash
 
   // ── ARTICLE DETAIL ──────────────────────────────────
   if (selected) {
