@@ -124,7 +124,9 @@ RESPOND ONLY IN VALID JSON (no backticks, no markdown before or after):
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '3z1g8HJ4g4nQJ8vEwAIRFMJEhX1CqMtp1Refz8iiJ8myGMJSolzq7AVn';
 
 async function findCoverImage(keywords, articleId) {
-  const cleanQuery = keywords.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+  // Ensure keywords is always a string
+  const kw = Array.isArray(keywords) ? keywords.join(' ') : String(keywords || '');
+  const cleanQuery = kw.replace(/[^a-zA-Z0-9\s]/g, '').trim() || 'fashion streetwear design';
 
   // Try Pexels first — real relevant photos matching the topic
   if (PEXELS_API_KEY) {
@@ -147,7 +149,7 @@ async function findCoverImage(keywords, articleId) {
   }
 
   // Fallback: Picsum with seed (not topic-relevant, but always works)
-  const seed = (keywords + (articleId || Date.now())).replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) || ('article' + Date.now());
+  const seed = (kw + (articleId || Date.now())).replace(/[^a-zA-Z0-9]/g, '').substring(0, 40) || ('article' + Date.now());
   return `https://picsum.photos/seed/${encodeURIComponent(seed)}/1200/630`;
 }
 
@@ -189,7 +191,8 @@ async function saveArticle(article, coverUrl) {
 async function processOneTopic(topic) {
   const article = await generateArticle(topic);
   // Use article title as deterministic seed so the same article always gets the same image
-  const imageKeywords = article.image_search_term || (article.tags || []).slice(0,2).join(' ') || topic;
+  const rawKeywords = article.image_search_term || (Array.isArray(article.tags) ? article.tags.slice(0,2).join(' ') : '') || topic;
+  const imageKeywords = Array.isArray(rawKeywords) ? rawKeywords.join(' ') : String(rawKeywords || topic);
   const coverUrl = await findCoverImage(imageKeywords, article.title);
   const saved = await saveArticle(article, coverUrl);
   return { topic, title: article.title, id: saved?.[0]?.id, has_image: !!coverUrl };
