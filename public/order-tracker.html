@@ -469,16 +469,23 @@ async function doLogin(){
   if(!v){er.textContent='Please enter your email';er.style.display='block';return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){er.textContent='Invalid email format';er.style.display='block';return}
   er.style.display='none';b.disabled=true;b.textContent='Checking...';
-  const{data,error}=await sb.from('orders').select('id').ilike('email',v).limit(1);
-  if(error||!data||!data.length){addLoginFail();er.textContent='No orders found for this email.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
+  try{
+    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(v)+'&check=1');
+    var result=await resp.json();
+    if(!result.exists){addLoginFail();er.textContent='No orders found for this email.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
+  }catch(e){er.textContent='Connection error. Try again.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
   clearLoginFails();email=v;try{localStorage.setItem(SK,v);localStorage.setItem('dd_cust_time',String(Date.now()))}catch{};loadOrders();
 }
 
 async function loadOrders(){
   document.getElementById('root').innerHTML='<div class="loading"><div class="spinner"></div> Loading your orders...</div>';
   renderSidebar();
-  const{data,error}=await sb.from('orders').select('*').ilike('email',email).order('created_at',{ascending:false});
-  if(error){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>'+error.message+'</p></div>';return}
+  try{
+    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(email));
+    var result=await resp.json();
+    if(!result.success){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>'+(result.error||'Failed to load')+'</p></div>';return}
+    var data=result.orders;
+  }catch(e){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>Connection failed</p></div>';return}
   orders=data||[];
   if(!orders.length){document.getElementById('root').innerHTML='<div style="text-align:center;padding:80px 20px;animation:fadeUp .3s"><div style="width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><h3 style="font-size:18px;font-weight:800;margin-bottom:6px">You don\'t have any active orders</h3><p style="font-size:14px;color:var(--txt2);max-width:360px;margin:0 auto 24px;line-height:1.6">Once you place an order on our website, it will appear here with real-time status tracking and direct chat with your designer.</p><a href="/" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--green);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s">Browse Services & Order Now <span style="font-size:18px">→</span></a></div>';return}
   selOrder=orders[0];curTab=currentNav;
