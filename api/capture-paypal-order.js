@@ -62,9 +62,12 @@ export default async function handler(req, res) {
       // 5. Save order to Supabase with VERIFIED amount from PayPal
       if (clientOrderData && capturedAmount > 0) {
         try {
+          // SECURITY (P2 fix): strip any client-supplied price — only PayPal's captured amount is trusted
+          const { price: _clientPrice, ...safeOrderData } = clientOrderData;
+
           const orderRow = {
-            ...clientOrderData,
-            price: capturedAmount, // USE PAYPAL'S AMOUNT, not client's
+            ...safeOrderData,
+            price: capturedAmount, // ONLY from PayPal — never from client
             paid_via: 'paypal',
             paypal_order_id: orderID,
             paypal_transaction_id: paypalTransactionId,
