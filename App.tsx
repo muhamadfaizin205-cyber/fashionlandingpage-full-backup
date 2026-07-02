@@ -613,6 +613,107 @@ function ProgressBar({ step }: { step: number }) {
   );
 }
 
+// ─── Contextual Step Guide (appears on each wizard step) ──
+const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; tips: string[] }> = {
+  1: {
+    icon: "ri-palette-line", title: "Choose Service", color: "#1DBF73",
+    tips: [
+      "Clothing Design — t-shirts, hoodies, jerseys, streetwear, all apparel",
+      "Logo Brand Design — logos, icons, full brand identity",
+    ],
+  },
+  2: {
+    icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
+    tips: [
+      "Email — your access code will be sent here after payment",
+      "WhatsApp — designer contacts you here if needed",
+      "Instagram — helps designer understand your brand style",
+    ],
+  },
+  3: {
+    icon: "ri-apps-line", title: "Concepts", color: "#F59E0B",
+    tips: [
+      "1 concept = 1 unique design variation to choose from",
+      "More concepts = more options. We recommend 2–3",
+    ],
+  },
+  4: {
+    icon: "ri-edit-line", title: "Design Brief", color: "#3B82F6",
+    tips: [
+      "Describe your style: streetwear, vintage, minimal, sporty, etc.",
+      "Mention colors, text, and any must-haves",
+      "Upload reference images for best results",
+    ],
+  },
+  5: {
+    icon: "ri-box-3-line", title: "Package", color: "#EC4899",
+    tips: [
+      "Basic — simple design, limited revisions",
+      "Standard — detailed design + mockup, more revisions",
+      "Premium — full package, unlimited revisions, priority",
+    ],
+  },
+  6: {
+    icon: "ri-bank-card-line", title: "Payment", color: "#14B8A6",
+    tips: [
+      "Pay with PayPal or debit/credit card (Visa, Mastercard)",
+      "After payment you'll receive an email with your Access Code",
+      "Use email + code to track order, chat with designer, download files",
+    ],
+  },
+};
+
+function StepGuide({ stepNum }: { stepNum: number }) {
+  const [open, setOpen] = useState(false);
+  const guide = STEP_GUIDES[stepNum];
+  if (!guide) return null;
+
+  return (
+    <div style={{marginBottom:16}}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width:"100%",
+          display:"flex",
+          alignItems:"center",
+          gap:10,
+          padding:"10px 14px",
+          background: open ? `${guide.color}10` : "#F9FAFB",
+          border: `1px solid ${open ? guide.color + "30" : "#E5E7EB"}`,
+          borderRadius: open ? "10px 10px 0 0" : 10,
+          cursor:"pointer",
+          fontFamily:"inherit",
+          transition:"all .2s",
+        }}
+      >
+        <i className={guide.icon} style={{fontSize:15,color:guide.color,flexShrink:0}} />
+        <span style={{fontSize:12.5,fontWeight:600,color:"#374151",flex:1,textAlign:"left"}}>
+          Step {stepNum}: {guide.title}
+        </span>
+        <span style={{fontSize:11,color:guide.color,fontWeight:600}}>{open ? "Hide" : "Guide"}</span>
+        <i className={open ? "ri-arrow-up-s-line" : "ri-arrow-down-s-line"} style={{fontSize:16,color:guide.color}} />
+      </button>
+      {open && (
+        <div style={{
+          padding:"14px 16px",
+          background:"#fff",
+          border:`1px solid ${guide.color}20`,
+          borderTop:"none",
+          borderRadius:"0 0 10px 10px",
+          animation:"fadeUp .2s",
+        }}>
+          {guide.tips.map((tip, i) => (
+            <div key={i} style={{display:"flex",gap:8,marginBottom: i < guide.tips.length - 1 ? 10 : 0,alignItems:"flex-start"}}>
+              <i className="ri-checkbox-circle-fill" style={{fontSize:13,color:guide.color,flexShrink:0,marginTop:2}} />
+              <span style={{fontSize:12.5,color:"#4B5563",lineHeight:1.6}}>{tip}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Step 1 ────────────────────────────────────────────────
 // Rotating background slideshow for service cards (changes every 2s)
 const CLOTHING_SLIDES = [
@@ -657,6 +758,7 @@ function Step1({
 }) {
   return (
     <div className="step-panel">
+      <StepGuide stepNum={1} />
       <div className="step-header">
         <div className="step-number">STEP 1 / 6</div>
         <h2 className="step-question">
@@ -726,6 +828,7 @@ function Step2({
 }) {
   return (
     <div className="step-panel">
+      <StepGuide stepNum={2} />
       <div className="step-header">
         <div className="step-number">STEP 2 / 6</div>
         <h2 className="step-question">
@@ -848,6 +951,7 @@ function Step3({
 
   return (
     <div className="step-panel">
+      <StepGuide stepNum={3} />
       <div className="step-header">
         <div className="step-number">STEP 3 / 6</div>
         <h2 className="step-question">
@@ -1011,6 +1115,7 @@ Write at least 400 words. Be specific, opinionated, and actionable. Every senten
 
   return (
     <div className="step-panel">
+      <StepGuide stepNum={4} />
       <div className="step-header">
         <div className="step-number">STEP 4 / 6</div>
         <h2 className="step-question">
@@ -1215,6 +1320,7 @@ function Step5({
 
   return (
     <div className="step-panel">
+      <StepGuide stepNum={5} />
       <div className="step-header">
         <div className="step-number">STEP 5 / 6</div>
         <h2 className="step-question">
@@ -1552,6 +1658,7 @@ function Step6({
 
   return (
     <div className="step-panel">
+      <StepGuide stepNum={6} />
       <div className="step-header">
         <div className="step-number">STEP 6 / 6</div>
         <h2 className="step-question">Confirm &amp; <span>Pay</span></h2>
@@ -2799,9 +2906,6 @@ export default function App() {
           </div>
         </section>
       )}
-
-      {/* ── Order Guide (visible on step 1) ── */}
-      {step === 1 && <OrderGuide />}
 
       {/* ── FAQ Section (visible on step 1) ── */}
       {step === 1 && <FAQSection />}
