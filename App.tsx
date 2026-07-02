@@ -1516,7 +1516,7 @@ function Step6({
     package_badge: pkg.badge,
     delivery:      pkg.delivery,
     revisions:     pkg.revisions,
-    price:         finalPrice,
+    // price is NOT included — server sets it from PayPal captured amount (P2 fix)
     status:        "new",
     paid_via:      "paypal",
     priority:      "normal",
