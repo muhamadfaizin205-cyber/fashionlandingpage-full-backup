@@ -61,12 +61,11 @@ body {
 .nav-wrap {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 20px;
   height: 56px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
 }
 .nav-logo {
   text-decoration: none;
@@ -76,9 +75,8 @@ body {
   font-weight: 800;
   letter-spacing: -0.3px;
   white-space: nowrap;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  text-align: center;
+  justify-self: center;
   transition: color 0.2s;
   cursor: pointer;
 }
@@ -1573,7 +1571,7 @@ textarea.brief-ta:focus {
   .rv-card { width: 280px; }
 }
 @media (max-width: 600px) {
-  .nav-wrap { justify-content: center; padding: 0 20px; }
+  .nav-wrap { padding: 0 16px; }
   .nav-links { display:none !important; display: none; }
   .service-grid { grid-template-columns: 1fr; }
   .hero { min-height: 440px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
