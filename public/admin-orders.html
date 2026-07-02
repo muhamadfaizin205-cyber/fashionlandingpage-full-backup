@@ -2501,6 +2501,7 @@ function renderPkgForm(){
 
 async function savePkg(){
   if(!editPkg)return;
+  var btn=event&&event.target;if(btn){btn.disabled=true;btn.textContent='Saving...';}
   const updates={
     name:document.getElementById('pe-name').value,
     base_price:parseFloat(document.getElementById('pe-price').value)||0,
@@ -2509,10 +2510,13 @@ async function savePkg(){
     delivery:document.getElementById('pe-delivery').value,
     revisions:document.getElementById('pe-revisions').value,
     features:document.getElementById('pe-features').value.split('\n').filter(f=>f.trim()),
+    updated_at:new Date().toISOString(),
   };
   const{error}=await sb.from('packages').update(updates).eq('id',editPkg.id);
+  if(btn){btn.disabled=false;btn.textContent='Save Changes';}
   if(error){alert('Save failed: '+error.message);return}
-  alert('Package saved! Changes will reflect on the landing page.');
+  // Show success feedback
+  if(btn){btn.textContent='✓ Saved!';btn.style.background='var(--green)';btn.style.color='#fff';setTimeout(function(){btn.textContent='Save Changes';btn.style.background='';btn.style.color='';},2000);}
   editPkg={...editPkg,...updates};
   loadPackages().then(()=>renderPkgEditor());
 }
