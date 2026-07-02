@@ -2510,7 +2510,6 @@ async function savePkg(){
     delivery:document.getElementById('pe-delivery').value,
     revisions:document.getElementById('pe-revisions').value,
     features:document.getElementById('pe-features').value.split('\n').filter(f=>f.trim()),
-    updated_at:new Date().toISOString(),
   };
   const{error}=await sb.from('packages').update(updates).eq('id',editPkg.id);
   if(btn){btn.disabled=false;btn.textContent='Save Changes';}
