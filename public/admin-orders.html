@@ -1008,19 +1008,35 @@ async function runMarketingManager(force){
 var mmHotelCache={}; // id -> {name, address_raw} resolved from live Supabase data
 
 async function resolveMarketingHotelDetails(){
-  // Gather all hotel IDs across today's picks
   var allIds=[];
-  mmPicks.forEach(function(p){(p.hotel_ids||[]).forEach(function(id){if(allIds.indexOf(id)===-1)allIds.push(id)})});
+  mmPicks.forEach(function(p){(p.hotel_ids||[]).forEach(function(id){if(id&&allIds.indexOf(id)===-1)allIds.push(id)})});
   if(!allIds.length)return;
-  // First, use anything already cached from the HOTEL tab (curHotels) — instant, no network call
+
+  // Use curHotels cache if available
   if(typeof curHotels!=='undefined'&&curHotels.length){
-    curHotels.forEach(function(h){mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||''}});
+    curHotels.forEach(function(h){
+      mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||'',price_reddoorz:h.price_reddoorz,price_superior:h.price_superior,price_double:h.price_double};
+    });
   }
-  // Fetch any IDs still missing directly from Supabase (covers cases where HOTEL tab hasn't loaded yet)
+
+  // Fetch missing IDs directly from Supabase
   var missing=allIds.filter(function(id){return !mmHotelCache[id]});
-  if(missing.length&&sb){
-    var{data}=await sb.from('hotels').select('id,name,address_raw').in('id',missing);
-    if(data)data.forEach(function(h){mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||''}});
+  if(!missing.length||!sb)return;
+
+  // Fetch in batches of 50 to avoid URL length limits
+  var batchSize=50;
+  for(var i=0;i<missing.length;i+=batchSize){
+    var batch=missing.slice(i,i+batchSize);
+    try{
+      var{data,error}=await sb.from('hotels')
+        .select('id,name,address_raw,price_reddoorz,price_superior,price_double')
+        .in('id',batch);
+      if(data){
+        data.forEach(function(h){
+          mmHotelCache[h.id]={name:h.name,address_raw:h.address_raw||'',price_reddoorz:h.price_reddoorz,price_superior:h.price_superior,price_double:h.price_double};
+        });
+      }
+    }catch(e){console.error('Failed to fetch hotel batch:',e);}
   }
 }
 
@@ -1124,7 +1140,9 @@ async function renderMarketingPicks(managerMsg){
   SHIFT_ORDER.forEach(function(shiftKey){
     var pick=mmPicks.find(function(p){return p.shift===shiftKey});
     var meta=SHIFT_META[shiftKey];
-    var ids=pick?(pick.hotel_ids||[]):[];
+    // hotel_ids can come as array or JSON string depending on Supabase client version
+    var rawIds=pick?(pick.hotel_ids||[]):[];
+    var ids=Array.isArray(rawIds)?rawIds:(typeof rawIds==='string'?JSON.parse(rawIds||'[]'):[]);
     var isDone=pick&&pick.promoted;
     h+='<div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;'+(isDone?'opacity:0.6':'')+'">';
     h+='<div style="padding:14px 18px;background:'+meta.color+'12;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
