@@ -771,11 +771,15 @@ async function loadChat(){
   const el=document.getElementById('tab-content');
   if(!el)return renderDashboard();
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading chat...</div>';
-  const{data}=await sb.from('messages').select('*').eq('order_email',email).order('created_at',{ascending:true});
+  try{
+    var resp=await fetch('/api/messages?email='+encodeURIComponent(email),{headers:{'x-user-email':email}});
+    var result=await resp.json();
+    var data=result.messages||[];
+  }catch(e){data=[];}
   msgs=data||[];
   checkNewMessages(msgs);
   const unread=(msgs).filter(m=>m.sender_type==='admin'&&!m.read).map(m=>m.id);
-  if(unread.length)sb.from('messages').update({read:true,delivered:true}).in('id',unread).then(()=>{});
+  if(unread.length)fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':email},body:JSON.stringify({ids:unread})}).catch(()=>{});
   await loadAdminProfileForChat();loadPresence();subscribeTyping();renderChat();
   var _newInp=document.getElementById('chat-input');
   if(_newInp&&_savedTxt){_newInp.value=_savedTxt}
@@ -903,7 +907,7 @@ async function sendMsg(){
   inp.value='';inp.style.height='auto';btn.disabled=true;
   if(editingMsg){
     var eId=editingMsg.id;editingMsg=null;updateActionBar();
-    await sb.from('messages').update({message:msg,edited_at:new Date().toISOString()}).eq('id',eId);
+    await fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':email},body:JSON.stringify({id:eId,updates:{message:msg,edited_at:new Date().toISOString()}})});
     btn.disabled=false;
     // Update in local array
     var idx=msgs.findIndex(function(m){return m.id===eId});
@@ -922,7 +926,9 @@ async function sendMsg(){
   setTimeout(function(){var cb=document.getElementById('chat-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
   // Send to server in background
   try{
-    var{data}=await sb.from('messages').insert([{order_email:optimistic.order_email,order_id:optimistic.order_id,sender_email:optimistic.sender_email,sender_type:'client',message:msg,read:false,delivered:false,reply_to:optimistic.reply_to||null}]).select();
+    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},body:JSON.stringify({order_email:optimistic.order_email,order_id:optimistic.order_id,sender_email:optimistic.sender_email,message:msg,reply_to:optimistic.reply_to||null})});
+    var result=await resp.json();
+    var data=result.message?[result.message]:null;
     // Replace temp with real
     var idx2=msgs.findIndex(function(m){return m.id===tempId});
     if(idx2>-1&&data&&data[0]){
@@ -954,7 +960,7 @@ async function sendChatImage(input){
   var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;
   var payload={order_email:email,order_id:selOrder?.id||null,sender_email:email,sender_type:'client',message:file.type.startsWith('image/')?'':file.name,image_url:d.data.publicUrl,read:false,delivered:false};
   if(replyToMsg)payload.reply_to=replyToMsg.id;
-  await sb.from('messages').insert([payload]);playSendSound();replyToMsg=null;input.value='';await loadChat();
+  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},body:JSON.stringify(payload)});playSendSound();replyToMsg=null;input.value='';await loadChat();
 }
 function toggleRec(){if(isRecording){stopRec()}else{startRec()}}
 async function startRec(){
@@ -1018,7 +1024,8 @@ async function uploadVN(blob,ext){
   setTimeout(function(){var cb=document.getElementById('chat-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
   // Insert to DB
   try{
-    var{data}=await sb.from('messages').insert([{order_email:email,order_id:selOrder?selOrder.id:null,sender_email:email,sender_type:'client',message:'',voice_url:voiceUrl,read:false,delivered:false}]).select();
+    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},body:JSON.stringify({order_email:email,order_id:selOrder?selOrder.id:null,sender_email:email,message:'',voice_url:voiceUrl})});
+    var result=await resp.json();var data=result.message?[result.message]:null;
     var idx=msgs.findIndex(function(m){return m.id===tempId});
     if(idx>-1&&data&&data[0]){
       msgs[idx]=data[0];
@@ -1056,7 +1063,7 @@ function playVN(vid,url){
 
 var curAudio=null;
 function playVoice(btn,url){if(curAudio){curAudio.pause();curAudio=null}var a=new Audio(url);curAudio=a;var w=btn.closest('.cm-voice'),f=w.querySelector('.cm-voice-fill'),dur=w.querySelector('.cm-voice-dur');var pi='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;a.addEventListener('loadedmetadata',function(){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')});a.addEventListener('timeupdate',function(){if(a.duration)f.style.width=(a.currentTime/a.duration*100)+'%'});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';curAudio=null});a.play();btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
-async function deleteMsg(id){if(!confirm('Delete this message?'))return;await sb.from('messages').delete().eq('id',id);msgs=msgs.filter(function(m){return m.id!==id});renderChat()}
+async function deleteMsg(id){if(!confirm('Delete this message?'))return;await fetch('/api/messages?id='+id,{method:'DELETE',headers:{'x-user-email':email}});msgs=msgs.filter(function(m){return m.id!==id});renderChat()}
 function openImgOverlay(src){var ov=document.createElement('div');ov.className='chat-img-overlay';ov.onclick=function(){ov.remove()};var img=document.createElement('img');img.src=src;img.alt='Preview';ov.appendChild(img);document.body.appendChild(ov)}
 // Sound effects
 let lastMsgCount=0;
