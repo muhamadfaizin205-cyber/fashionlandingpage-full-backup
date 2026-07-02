@@ -1,404 +1,2669 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+import React, { useState, useRef, useEffect } from "react";
+import "./styles.css";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import emailjs from "@emailjs/browser";
+import { createClient } from "@supabase/supabase-js";
 
-    <!-- ══════ Favicon / Identitas Situs ══════ -->
-    <link rel="icon" href="favicon.png" type="image/png">
-    <link rel="shortcut icon" href="favicon.png" type="image/png">
+// ─── PayPal Client ID ─────────────────────────────────────
+const PAYPAL_CLIENT_ID =
+  (import.meta.env.VITE_PAYPAL_CLIENT_ID as string) ||
+  "AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena";
 
-    <!-- ══════ Performance: preconnect & preload ══════ -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="preconnect" href="https://i.pravatar.cc" />
-    <link rel="preconnect" href="https://flagcdn.com" />
-    <link rel="dns-prefetch" href="https://i.pravatar.cc" />
-    <link rel="dns-prefetch" href="https://flagcdn.com" />
+// ─── Supabase ─────────────────────────────────────────────
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || "https://zqawpdspxdcmofnmrbku.supabase.co";
+const SUPABASE_KEY = (import.meta.env.VITE_SUPABASE_KEY as string) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTE0MTYsImV4cCI6MjA5NzI2NzQxNn0.vRPaxLCPNPbNnHpsAClr_gr_pCpcbvBbDdAcEGhCT_E";
+export const supabase = SUPABASE_URL && SUPABASE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
 
-    <!-- ══════ SEO Meta Tags ══════ -->
-    <title>Dean Designers — Professional Streetwear & Logo Design Studio | Custom Clothing Graphics</title>
-    <meta name="description" content="Dean's Studio offers professional custom streetwear clothing design, apparel graphics, and logo brand identity. 5.0★ rated on Fiverr with 52+ reviews, 7+ years experience. T-shirts, hoodies, jackets, full brand packages. Order from $50." />
-    <meta name="keywords" content="streetwear design, clothing design, custom t-shirt design, logo design, brand identity, apparel graphics, hoodie design, merch design, freelance graphic designer, Fiverr designer, Dean Studio, custom clothing brand, streetwear graphic artist, clothing brand designer, logo designer for clothing, brand identity design, urban fashion design, graphic tee design, print ready design" />
-    <meta name="author" content="Dean's Studio" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <link rel="canonical" href="https://createclothingdesign.com" />
+// ─── EmailJS Config ───────────────────────────────────────
+const EJS_SERVICE  = "service_t2y06pc";
+const EJS_TEMPLATE = "template_hy10m0m";
+const EJS_KEY      = "nIJZRnASm1Krp8phX";
 
-    <!-- Prerender hint for Google -->
-    <meta name="fragment" content="!" />
+// ─── Types ────────────────────────────────────────────────
+interface FeatureMeta {
+  label: string;
+  included: boolean;
+}
 
-    <!-- ══════ Open Graph ══════ -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Dean Designers — Professional Streetwear & Logo Design Studio" />
-    <meta property="og:description" content="Custom streetwear graphics, clothing brand design, and professional logo design. 5.0★ rated on Fiverr with 52+ reviews. From $50/concept." />
-    <meta property="og:url" content="https://createclothingdesign.com" />
-    <meta property="og:site_name" content="Dean Designers" />
-    <meta property="og:image" content="https://createclothingdesign.com/og-image.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="en_US" />
+interface Package {
+  id: string;
+  badge: string;
+  name: string;
+  basePrice: number;
+  desc: string;
+  features: string[];
+  featuresMeta?: FeatureMeta[];
+  delivery: string;
+  revisions: string;
+  featured: boolean;
+}
 
-    <!-- ══════ Twitter Card ══════ -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Dean Designers — Streetwear & Logo Design" />
-    <meta name="twitter:description" content="Custom streetwear clothing design & logo design. 5.0★ on Fiverr. From $50/concept." />
-    <meta name="twitter:image" content="https://createclothingdesign.com/og-image.jpg" />
+type Direction = "forward" | "back";
+type AiPhase = "idle" | "asking" | "loading" | "done" | "error";
 
-    <!-- ══════ Structured Data — Business + Services + Reviews + FAQ ══════ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "ProfessionalService",
-          "@id": "https://createclothingdesign.com/#business",
-          "name": "Dean's Studio — Dean Designers",
-          "alternateName": ["Dean Designers", "Dean Studio", "Deans Studio Fiverr"],
-          "description": "Professional graphic design studio specializing in custom streetwear clothing design, apparel graphics, brand identity, and logo design. Over 7 years of experience serving global clients with production-ready designs for t-shirts, hoodies, jackets, and full brand systems.",
-          "url": "https://createclothingdesign.com",
-          "sameAs": [
-            "https://www.fiverr.com/muhamadfaizi836",
-            "https://www.fiverr.com/muhamadfaizi836?public_mode=true"
-          ],
-          "image": "https://createclothingdesign.com/og-image.jpg",
-          "priceRange": "$50 - $600",
-          "paymentAccepted": "PayPal",
-          "currenciesAccepted": "USD",
-          "knowsAbout": [
-            "Streetwear Design",
-            "Clothing Brand Design",
-            "T-Shirt Graphics",
-            "Hoodie Design",
-            "Logo Design",
-            "Brand Identity",
-            "Apparel Graphics",
-            "Print Ready Design",
-            "Merch Design",
-            "Urban Fashion Design"
-          ],
-          "areaServed": {
-            "@type": "Place",
-            "name": "Worldwide"
-          },
-          "founder": {
-            "@type": "Person",
-            "name": "Dean",
-            "jobTitle": "Graphic Designer & Creative Director",
-            "description": "Streetwear and clothing brand designer with 7+ years of experience. Level 2 seller on Fiverr with a perfect 5.0 star rating across 52+ reviews. Specializes in custom t-shirt graphics, hoodie designs, logo brand identity, and full apparel collection systems.",
-            "knowsAbout": ["Streetwear Design", "Logo Design", "Brand Identity", "Clothing Graphics", "Typography", "Print Design"],
-            "sameAs": ["https://www.fiverr.com/muhamadfaizi836"]
-          },
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "5.0",
-            "bestRating": "5",
-            "worstRating": "1",
-            "ratingCount": "52",
-            "reviewCount": "52"
-          },
-          "review": [
-            {
-              "@type": "Review",
-              "author": {"@type": "Person", "name": "Marcus T."},
-              "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-              "reviewBody": "Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready."
-            },
-            {
-              "@type": "Review",
-              "author": {"@type": "Person", "name": "Sophie L."},
-              "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-              "reviewBody": "Very professional communication. The logo concepts exceeded all expectations."
-            },
-            {
-              "@type": "Review",
-              "author": {"@type": "Person", "name": "Kenji A."},
-              "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-              "reviewBody": "Ordered a full brand identity package. Files were organized, print-ready, and delivered ahead of schedule."
-            },
-            {
-              "@type": "Review",
-              "author": {"@type": "Person", "name": "Carlos M."},
-              "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-              "reviewBody": "Dean delivered my clothing label design 2 days early. The quality was incredible."
-            },
-            {
-              "@type": "Review",
-              "author": {"@type": "Person", "name": "Rachel K."},
-              "reviewRating": {"@type": "Rating", "ratingValue": "5"},
-              "reviewBody": "Consistency and creativity on another level. First was a logo, now a full apparel collection."
+interface WizardState {
+  service: "clothing" | "logo" | null;
+  brandName: string;
+  email: string;
+  whatsapp: string;
+  instagram: string;
+  qty: number;
+  brief: string;
+  briefImages: string[];
+}
+
+// ─── Constants ────────────────────────────────────────────
+const GROQ_API_KEY = "isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN";
+// Dedicated Groq key for the brief generator — fast inference (5-8s) via Groq's LPU hardware
+const BRIEF_GROQ_KEY = "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";
+
+// ─── Clothing Design Packages ─────────────────────────────
+const PACKAGES: Package[] = [
+  {
+    id: "basic",
+    badge: "BASIC",
+    name: "Best for test drop single apparel",
+    basePrice: 50,
+    desc: "Best for testing one merch or apparel graphic before a bigger drop.",
+    features: [
+      "Include source file",
+      "Printable resolution file",
+      "Front Design Only",
+    ],
+    delivery: "3-day delivery",
+    revisions: "2 Revisions",
+    featured: false,
+  },
+  {
+    id: "standard",
+    badge: "STANDARD",
+    name: "Most popular brand starter",
+    basePrice: 75,
+    desc: "Best value for artist merch, front & back apparel, and brand drops.",
+    features: [
+      "Include source file",
+      "Printable resolution file",
+      "Front & back design",
+      "Include mockup realistic",
+      "Add enhanced detailing",
+      "Commercial use",
+    ],
+    delivery: "3-day delivery",
+    revisions: "8 Revisions",
+    featured: true,
+  },
+  {
+    id: "premium",
+    badge: "PREMIUM",
+    name: "Full brand-ready apparel system",
+    basePrice: 120,
+    desc: "Complete apparel drop system with matching graphics and mockup direction.",
+    features: [
+      "Include source file",
+      "Printable resolution file",
+      "Front & back design",
+      "Include mockup realistic",
+      "Add enhanced detailing",
+      "Commercial use",
+      "Techpack included",
+    ],
+    delivery: "5-day delivery",
+    revisions: "UNLIMITED Revisions",
+    featured: false,
+  },
+];
+
+// ─── Logo Brand Design Packages (per-concept pricing) ────
+const LOGO_PACKAGES: Package[] = [
+  {
+    id: "basic",
+    badge: "BASIC",
+    name: "Quick-Start Logo (Guided & Safe)",
+    basePrice: 80,
+    desc: "Clean, readable logo concept based on your brief. Safe for testing your brand.",
+    features: ["Logo transparency", "Vector file", "Printable file"],
+    featuresMeta: [
+      { label: "Logo transparency", included: true },
+      { label: "Vector file", included: true },
+      { label: "Printable file", included: true },
+      { label: "Include 3D mockup", included: false },
+      { label: "Include source file", included: false },
+      { label: "Include social media kit", included: false },
+    ],
+    delivery: "5-day delivery",
+    revisions: "2 Revisions",
+    featured: false,
+  },
+  {
+    id: "standard",
+    badge: "STANDARD",
+    name: "Popular-Ready for Brand Owner",
+    basePrice: 150,
+    desc: "Refined logo concepts with color and black versions, ready for real branding use.",
+    features: ["Logo transparency", "Vector file", "Printable file", "Include 3D mockup", "Include source file"],
+    featuresMeta: [
+      { label: "Logo transparency", included: true },
+      { label: "Vector file", included: true },
+      { label: "Printable file", included: true },
+      { label: "Include 3D mockup", included: true },
+      { label: "Include source file", included: true },
+      { label: "Include social media kit", included: false },
+    ],
+    delivery: "7-day delivery",
+    revisions: "3 Revisions",
+    featured: true,
+  },
+  {
+    id: "premium",
+    badge: "PREMIUM",
+    name: "Ultimate Pack: Long Term Branding",
+    basePrice: 200,
+    desc: "Logo versions (main, alt, icon) with full files for long-term branding needs.",
+    features: ["Logo transparency", "Vector file", "Printable file", "Include 3D mockup", "Include source file", "Include social media kit"],
+    featuresMeta: [
+      { label: "Logo transparency", included: true },
+      { label: "Vector file", included: true },
+      { label: "Printable file", included: true },
+      { label: "Include 3D mockup", included: true },
+      { label: "Include source file", included: true },
+      { label: "Include social media kit", included: true },
+    ],
+    delivery: "7-day delivery",
+    revisions: "3 Revisions",
+    featured: false,
+  },
+];
+
+const FEATURES = [
+  "CLOTHING DESIGN",
+  "BRAND IDENTITY",
+  "SOURCE FILES",
+  "FAST DELIVERY",
+];
+const WA_NUMBER = "6282221994691";
+const TOTAL_STEPS = 6;
+
+// ─── Dynamic Package Loading (DB → fallback hardcoded) ───
+function useDbPackages() {
+  const [clothingPkgs, setClothingPkgs] = useState<Package[]>(PACKAGES);
+  const [logoPkgs, setLogoPkgs] = useState<Package[]>(LOGO_PACKAGES);
+
+  const loadPackages = () => {
+    if (!supabase) return;
+    supabase
+      .from("packages")
+      .select("*")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        if (error || !data || data.length === 0) return; // keep hardcoded
+        const mapPkg = (row: any): Package => ({
+          id: row.id,
+          badge: row.badge,
+          name: row.name,
+          basePrice: Number(row.base_price),
+          desc: row.description || "",
+          features: row.features || [],
+          delivery: row.delivery || "",
+          revisions: row.revisions || "",
+          featured: row.featured || false,
+        });
+        const clothing = data.filter((r: any) => r.service === "clothing").map(mapPkg);
+        const logo = data.filter((r: any) => r.service === "logo").map(mapPkg);
+        if (clothing.length > 0) setClothingPkgs(clothing);
+        if (logo.length > 0) setLogoPkgs(logo);
+      });
+  };
+
+  useEffect(() => {
+    loadPackages();
+    if (!supabase) return;
+    // Realtime: re-fetch instantly whenever packages table changes (price update from admin)
+    const channel = supabase
+      .channel("packages-realtime-" + Date.now())
+      .on("postgres_changes", { event: "*", schema: "public", table: "packages" }, () => {
+        loadPackages();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { clothingPkgs, logoPkgs };
+}
+
+// ─── Background Music ─────────────────────────────────────
+// Hidden YouTube player. Browsers block autoplay-with-sound, so we
+// autoplay MUTED (allowed) and unmute on the first user interaction
+// (click / scroll / key / touch anywhere). Loops forever.
+const BG_MUSIC_VIDEO_ID = "YhUqxWR4mnE";
+const BG_MUSIC_VOLUME = 35; // 0–100
+
+function useBackgroundMusic(videoId: string, volume: number) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let player: any = null;
+    let unmuted = false;
+    let destroyed = false;
+    let retryTimer: any = null;
+    const evts = ["click", "pointerdown", "keydown", "touchstart", "scroll", "wheel", "mousemove"];
+
+    const playerDiv = document.createElement("div");
+    container.innerHTML = "";
+    container.appendChild(playerDiv);
+
+    // Attempt to unmute & play with sound on any user gesture
+    const tryUnmute = () => {
+      if (unmuted || destroyed || !player) return;
+      try {
+        const state = player.getPlayerState?.();
+        // If not playing, try to play first
+        if (state !== 1) player.playVideo();
+        player.unMute();
+        player.setVolume(volume);
+        // Verify it actually unmuted after a tick
+        setTimeout(() => {
+          try {
+            if (!player.isMuted?.()) {
+              unmuted = true;
+              evts.forEach((e) => window.removeEventListener(e, tryUnmute));
             }
-          ],
-          "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "Design Services",
-            "itemListElement": [
-              {
-                "@type": "OfferCatalog",
-                "name": "Streetwear & Clothing Design",
-                "itemListElement": [
-                  {
-                    "@type": "Offer",
-                    "name": "Basic Clothing Design",
-                    "description": "Single apparel graphic design with source file and print-ready resolution. Front design only.",
-                    "price": "50.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "50.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  },
-                  {
-                    "@type": "Offer",
-                    "name": "Standard Clothing Design",
-                    "description": "Front and back apparel design with source files, mockup realistic, enhanced detailing, and commercial use license.",
-                    "price": "75.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "75.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  },
-                  {
-                    "@type": "Offer",
-                    "name": "Premium Clothing Design",
-                    "description": "Complete brand-ready apparel system with techpack, unlimited revisions, front and back design, commercial use.",
-                    "price": "120.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "120.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  }
-                ]
-              },
-              {
-                "@type": "OfferCatalog",
-                "name": "Logo & Brand Identity Design",
-                "itemListElement": [
-                  {
-                    "@type": "Offer",
-                    "name": "Basic Logo Design",
-                    "description": "Logo with transparency, vector file, and printable file. Volume discounts available.",
-                    "price": "80.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "80.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  },
-                  {
-                    "@type": "Offer",
-                    "name": "Standard Logo Design",
-                    "description": "Refined logo with 3D mockup, source file, vector, and printable files. Volume discounts available.",
-                    "price": "150.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "150.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  },
-                  {
-                    "@type": "Offer",
-                    "name": "Premium Logo Design",
-                    "description": "Complete logo system with social media kit, 3D mockups, all source files, and full brand identity package.",
-                    "price": "200.00",
-                    "priceCurrency": "USD",
-                    "priceSpecification": {"@type": "UnitPriceSpecification", "price": "200.00", "priceCurrency": "USD", "unitText": "per concept"}
-                  }
-                ]
-              }
-            ]
+          } catch {}
+        }, 100);
+      } catch {}
+    };
+
+    // Periodically retry playing if the player stalls (some browsers pause hidden tabs)
+    const startRetry = () => {
+      retryTimer = setInterval(() => {
+        if (destroyed || !player) return;
+        try {
+          const state = player.getPlayerState?.();
+          // -1 = unstarted, 0 = ended, 2 = paused, 5 = cued
+          if (state === -1 || state === 0 || state === 2 || state === 5) {
+            player.playVideo();
           }
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://createclothingdesign.com/#website",
-          "url": "https://createclothingdesign.com",
-          "name": "Dean Designers",
-          "description": "Professional streetwear clothing design and logo design studio. Active since 2018, serving clients from 25+ countries.",
-          "publisher": {"@id": "https://createclothingdesign.com/#business"},
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://createclothingdesign.com/?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-          }
-        },
-        {
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "What design services does Dean's Studio offer?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Dean's Studio specializes in two main services: (1) Custom Streetwear and Clothing Design — including t-shirt graphics, hoodie designs, jacket graphics, full apparel collection systems, and print-ready files for production; and (2) Logo and Brand Identity Design — including logo concepts, brand mark systems, social media kits, 3D mockups, and complete visual identity packages. All designs come with source files and commercial use license."
+        } catch {}
+      }, 3000);
+    };
+
+    const initPlayer = () => {
+      if (destroyed) return;
+      const YT = (window as any).YT;
+      if (!YT?.Player) return;
+
+      try {
+        player = new YT.Player(playerDiv, {
+          videoId,
+          width: 200,
+          height: 200,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            loop: 1,
+            playlist: videoId,
+            playsinline: 1,
+            disablekb: 1,
+            modestbranding: 1,
+            rel: 0,
+            fs: 0,
+            origin: window.location.origin,
+          },
+          events: {
+            onReady: (e: any) => {
+              if (destroyed) return;
+              e.target.playVideo();
+              startRetry();
+              // Listen for ANY user gesture to unmute
+              evts.forEach((ev) =>
+                window.addEventListener(ev, tryUnmute, { passive: true })
+              );
+            },
+            onStateChange: (e: any) => {
+              if (destroyed) return;
+              // Loop: replay when ended
+              if (e.data === YT.PlayerState.ENDED) {
+                e.target.playVideo();
+              }
+              // If playing and not yet unmuted, try on next gesture
+              if (e.data === YT.PlayerState.PLAYING && !unmuted) {
+                tryUnmute();
               }
             },
-            {
-              "@type": "Question",
-              "name": "How much does custom streetwear clothing design cost?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Clothing design pricing starts at $50 per concept for the Basic package (front design, source file, print-ready), $75 per concept for the Standard package (front and back, mockup realistic, commercial use), or $120 per concept for the Premium package (complete system with techpack and unlimited revisions). Pricing scales with the number of concepts you order."
-              }
+            onError: () => {
+              // Retry init after error
+              if (!destroyed) setTimeout(initPlayer, 5000);
             },
-            {
-              "@type": "Question",
-              "name": "How much does logo design cost at Dean's Studio?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Logo design starts at $80 per concept (Basic with vector and printable files), $150 per concept (Standard with 3D mockup and source files), or $200 per concept (Premium with full social media kit). Volume discounts are available: $10 off per concept plus an additional 5% discount when ordering 2 or more concepts."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What is Dean's Studio rating on Fiverr?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Dean's Studio (username: muhamadfaizi836) has a perfect 5.0 star rating with 52+ reviews on Fiverr. Dean is a Level 2 seller with over 7 years of professional design experience, serving clients from the United States, United Kingdom, Japan, Germany, Brazil, Australia, and 20+ other countries worldwide."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How do I place an order with Dean Designers?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "You can order directly through our website by following the 6-step wizard: (1) Choose your service (Clothing Design or Logo Design), (2) Enter your brand name, (3) Select the number of design concepts, (4) Write or AI-generate a detailed design brief, (5) Choose a package tier (Basic, Standard, or Premium), and (6) Confirm and submit your order via WhatsApp. Payment is processed through PayPal."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What file formats are included in Dean's design packages?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Depending on the package, deliverables can include: source files (AI, PSD, or CDR), vector files (SVG, EPS), print-ready files (high-resolution PNG, PDF, TIFF), 3D mockup presentations, and social media kits. All premium packages include full source files with organized layers, color separations, and commercial use license."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Does Dean Designers accept international clients?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes, Dean's Studio serves clients worldwide. With over 7 years on Fiverr, Dean has worked with brands from the United States, United Kingdom, Japan, Germany, Brazil, Australia, South Korea, France, Canada, and many more countries. All communication is in English, and payment is accepted via PayPal in USD."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How long does it take to receive my design?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Delivery times vary by package: Basic packages are delivered within 3-5 days, Standard packages within 3-7 days, and Premium packages within 5-7 days. Rush delivery may be available upon request. Dean is known for frequently delivering ahead of schedule."
-              }
-            }
-          ]
-        }
-      ]
+          },
+        });
+      } catch {}
+    };
+
+    if ((window as any).YT?.Player) {
+      initPlayer();
+    } else {
+      const prev = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => {
+        if (typeof prev === "function") prev();
+        initPlayer();
+      };
+      if (!document.getElementById("yt-api-script")) {
+        const s = document.createElement("script");
+        s.id = "yt-api-script";
+        s.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(s);
+      }
     }
-    </script>
 
-    <!-- ══════ Google Analytics ══════ -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-248PY7EFMS"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-248PY7EFMS');
-    </script>
+    return () => {
+      destroyed = true;
+      if (retryTimer) clearInterval(retryTimer);
+      evts.forEach((e) => window.removeEventListener(e, tryUnmute));
+      try { player?.destroy?.(); } catch {}
+    };
+  }, [videoId, volume]);
 
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/main.tsx"></script>
+  return containerRef;
+}
 
-    <!-- ══════════════════════════════════════════════════════
-         NOSCRIPT FALLBACK — Konten statis untuk Google & AI bots.
-         Karena React SPA render via JavaScript, bots yang tidak
-         menjalankan JS tetap bisa membaca konten di bawah ini.
-         Pengunjung biasa TIDAK melihat ini (browser mereka punya JS).
-         ══════════════════════════════════════════════════════ -->
-    <noscript>
-      <div style="max-width:800px;margin:0 auto;padding:40px 20px;font-family:sans-serif;color:#333;line-height:1.7">
+// ─── Testimonials — auto-scrolling carousel ─────────────────
+interface Review {
+  text: string;
+  name: string;
+  cc: string;      // ISO 3166 lowercase for flag image
+  avatar: number;  // 1-70 for pravatar.cc
+  minsAgo: number;
+  stars: number;   // 4 or 5 — mix for realism
+}
 
-        <h1>Dean Designers — Professional Streetwear & Logo Design Studio</h1>
-        <p>CreateClothingDesign.com is the official website of <strong>Dean Designers</strong>, an active professional graphic design studio specializing in custom streetwear clothing design and logo brand identity. Founded by Dean (Fiverr: muhamadfaizi836), this studio has been serving global clients since 2018 with production-ready apparel graphics and brand systems.</p>
-        <p><strong>5.0★ rated on Fiverr</strong> · 52+ reviews · 7+ years experience · Level 2 Seller · Clients from 25+ countries</p>
+const REVIEWS: Review[] = [
+  { text: "Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready. We launched the next week.", name: "Marcus Thompson", cc: "us", avatar: 11, minsAgo: 3, stars: 5 },
+  { text: "Very professional communication. The logo concepts exceeded all expectations. He understood exactly what our clothing line needed.", name: "Sophie Laurent", cc: "gb", avatar: 32, minsAgo: 17, stars: 5 },
+  { text: "Ordered a full brand identity package. Files were organized, print-ready, and delivered ahead of schedule. Rare quality.", name: "Kenji Arakawa", cc: "jp", avatar: 52, minsAgo: 42, stars: 5 },
+  { text: "This was my third order with Dean and he never disappoints. The hoodie graphic was exactly what I envisioned for my brand.", name: "Tyler Jenkins", cc: "us", avatar: 14, minsAgo: 68, stars: 4 },
+  { text: "Fast turnaround, great eye for streetwear trends. The mockups helped me visualize everything before printing. 10/10.", name: "Anya Petrova", cc: "de", avatar: 26, minsAgo: 95, stars: 5 },
+  { text: "Dean created three logo options and all were fantastic. I had trouble choosing because every concept was so strong.", name: "James O\'Brien", cc: "ie", avatar: 53, minsAgo: 140, stars: 5 },
+  { text: "Excellent designer for anyone starting a clothing brand. He thinks about how the design works on actual garments, not just on screen.", name: "Priya Sharma", cc: "in", avatar: 28, minsAgo: 180, stars: 5 },
+  { text: "Got my full brand package \u2014 logo, tag design, and three tee graphics. Everything was cohesive and on-brand. Very impressed.", name: "Liam Walker", cc: "au", avatar: 55, minsAgo: 210, stars: 4 },
+  { text: "The attention to detail in the vector files was outstanding. Every curve, every line was intentional. Professional-grade output.", name: "Fatima Al-Rashid", cc: "ae", avatar: 29, minsAgo: 360, stars: 5 },
+  { text: "I\'ve tried many designers on Fiverr. Dean is the only one who truly understands streetwear culture and translates it into design.", name: "Darius Monroe", cc: "us", avatar: 15, minsAgo: 420, stars: 5 },
+  { text: "Ordered a single concept to test and was so impressed I immediately upgraded to the premium package. Worth every penny.", name: "Emma Johansson", cc: "se", avatar: 31, minsAgo: 480, stars: 5 },
+  { text: "Dean delivered my clothing label design 2 days early. The quality was incredible. Print shop said the files were perfect.", name: "Carlos Mendez", cc: "mx", avatar: 56, minsAgo: 600, stars: 4 },
+  { text: "Second time working with Dean. First was a logo, now a full apparel collection. Consistency and creativity on another level.", name: "Rachel Kim", cc: "kr", avatar: 33, minsAgo: 840, stars: 5 },
+  { text: "The AI brief feature was surprisingly useful. Dean took that concept and elevated it beyond what I imagined. So talented.", name: "Oliver Hart", cc: "gb", avatar: 57, minsAgo: 960, stars: 5 },
+  { text: "Our brand needed a refresh and Dean delivered a complete new direction. Modern, bold, and perfectly suited for Gen Z audience.", name: "Isabella Costa", cc: "br", avatar: 34, minsAgo: 1200, stars: 5 },
+  { text: "Responsive, creative, and super easy to work with. The revision process was smooth and he nailed it by round two.", name: "Nathan Williams", cc: "ca", avatar: 16, minsAgo: 1440, stars: 4 },
+  { text: "The streetwear graphic Dean made for us went viral on our Instagram. Over 50k likes. The design speaks for itself.", name: "Zara Ahmed", cc: "pk", avatar: 36, minsAgo: 1600, stars: 5 },
+  { text: "I\'ve been selling merch for 5 years and this is the best designer I\'ve ever worked with. Clean lines, bold concepts, fast delivery.", name: "Brandon Lee", cc: "sg", avatar: 58, minsAgo: 1800, stars: 5 },
+  { text: "Dean understood our Japanese streetwear aesthetic immediately. The typography choices were perfect for our Harajuku-inspired brand.", name: "Yuki Tanaka", cc: "jp", avatar: 59, minsAgo: 2100, stars: 5 },
+  { text: "Got matching designs for hoodie front and back. The color separation files were production-ready. Saved us so much time.", name: "Michael Brown", cc: "us", avatar: 17, minsAgo: 2400, stars: 5 },
+]
 
-        <h2>About Dean Designers</h2>
-        <p>Dean Designers is a professional design studio that creates custom streetwear graphics, clothing brand identities, and logo systems for fashion entrepreneurs worldwide. With over 7 years of hands-on experience and more than 1,000 completed projects, we specialize in turning brand visions into production-ready designs that stand out in the competitive streetwear market.</p>
-        <p>Our founder brings deep expertise in urban fashion aesthetics, typography, and print production. Every design is crafted with attention to detail — organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery. We work with independent clothing brands, streetwear startups, music artists, sports teams, and established fashion labels across the United States, United Kingdom, Japan, Germany, Australia, and 20+ other countries.</p>
-        <p>What sets us apart: We combine artistic creativity with production knowledge. Every file we deliver is not just visually striking — it is technically ready for manufacturing. Our AI-powered design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes.</p>
 
-        <h2>Our Services</h2>
+const ROW_A = REVIEWS.filter((_, i) => i % 2 === 0);
+const ROW_B = REVIEWS.filter((_, i) => i % 2 === 1);
 
-        <h3>Clothing & Streetwear Design</h3>
-        <p>Custom streetwear graphics for t-shirts, hoodies, jackets, and full apparel collections. Every design is production-ready with source files and commercial use license included.</p>
-        <ul>
-          <li><strong>Basic ($50/concept)</strong> — Single apparel graphic, source file, print-ready resolution, front design</li>
-          <li><strong>Standard ($75/concept)</strong> — Front and back design, source file, mockup realistic, enhanced detailing, commercial use. <em>Recommended.</em></li>
-          <li><strong>Premium ($120/concept)</strong> — Complete brand-ready apparel system with techpack, unlimited revisions, all deliverables</li>
-        </ul>
+function relativeTime(minsAgo: number): string {
+  if (minsAgo < 60) return minsAgo + " minutes ago";
+  const hours = Math.floor(minsAgo / 60);
+  if (hours < 24) return hours + " hours ago";
+  const days = Math.floor(hours / 24);
+  return days + " days ago";
+}
 
-        <h3>Logo & Brand Identity Design</h3>
-        <p>Professional logo design with vector files, 3D mockups, and complete brand identity systems. Volume discounts: $10 off per concept + 5% off for 2+ concepts.</p>
-        <ul>
-          <li><strong>Basic ($80/concept)</strong> — Logo transparency, vector file, printable file</li>
-          <li><strong>Standard ($150/concept)</strong> — Plus 3D mockup and source file. <em>Recommended.</em></li>
-          <li><strong>Premium ($200/concept)</strong> — Full system with social media kit, all source files, complete brand identity</li>
-        </ul>
-
-        <h2>Why Choose Dean's Studio?</h2>
-        <ul>
-          <li>7+ years of professional streetwear and brand design experience</li>
-          <li>Perfect 5.0 star rating with 52+ reviews on Fiverr</li>
-          <li>Level 2 verified seller on Fiverr (username: muhamadfaizi836)</li>
-          <li>Clients from 25+ countries worldwide including US, UK, Japan, Germany, Brazil, Australia</li>
-          <li>Production-ready files with organized layers and color separations</li>
-          <li>Fast delivery — frequently ahead of schedule</li>
-          <li>AI-powered design brief generator for a detailed, professional starting point</li>
-        </ul>
-
-        <h2>Client Reviews</h2>
-        <p>Trusted by brands worldwide. Real feedback from Fiverr clients:</p>
-        <blockquote>"Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready." — Marcus T., United States ★★★★★</blockquote>
-        <blockquote>"Very professional communication. The logo concepts exceeded all expectations." — Sophie L., United Kingdom ★★★★★</blockquote>
-        <blockquote>"Ordered a full brand identity package. Files were organized, print-ready, and delivered ahead of schedule." — Kenji A., Japan ★★★★★</blockquote>
-        <blockquote>"The streetwear graphic Dean made for us went viral on Instagram. Over 50k likes." — Zara A., Pakistan ★★★★★</blockquote>
-        <blockquote>"Best investment for our brand this year. Dean's designs elevated our entire product line." — Aisha M., Nigeria ★★★★★</blockquote>
-
-        <h2>How to Order</h2>
-        <ol>
-          <li>Choose your service: Clothing Design or Logo Brand Design</li>
-          <li>Enter your brand name</li>
-          <li>Select the number of design concepts you need</li>
-          <li>Write a design brief or use our AI brief generator</li>
-          <li>Choose your package: Basic, Standard, or Premium</li>
-          <li>Confirm your order and connect via WhatsApp</li>
-        </ol>
-        <p>Payment is accepted via PayPal (muhamadfaizin205@gmail.com).</p>
-
-        <h2>Frequently Asked Questions</h2>
-
-        <h3>What design services does Dean's Studio offer?</h3>
-        <p>Custom streetwear and clothing design (t-shirts, hoodies, jackets, full collections) and professional logo and brand identity design. All packages include source files and commercial use license.</p>
-
-        <h3>How much does streetwear clothing design cost?</h3>
-        <p>Starting at $50/concept (Basic), $75/concept (Standard with front and back), or $120/concept (Premium with techpack and unlimited revisions).</p>
-
-        <h3>How much does logo design cost?</h3>
-        <p>Starting at $80/concept (Basic), $150/concept (Standard with 3D mockup), or $200/concept (Premium with social media kit). Volume discounts available for 2+ concepts.</p>
-
-        <h3>What is Dean's rating on Fiverr?</h3>
-        <p>5.0 stars with 52+ reviews. Level 2 seller with 7+ years experience.</p>
-
-        <h3>What file formats are included?</h3>
-        <p>Source files (AI, PSD), vector files (SVG, EPS), print-ready files (PNG, PDF, TIFF), 3D mockups, and social media kits depending on package.</p>
-
-        <h3>Do you accept international clients?</h3>
-        <p>Yes, Dean serves clients worldwide from 25+ countries. Communication in English, payment via PayPal in USD.</p>
-
-        <h3>How long until I receive my design?</h3>
-        <p>Basic: 3-5 days. Standard: 3-7 days. Premium: 5-7 days. Frequently delivered ahead of schedule.</p>
-
-        <p>Visit <a href="https://www.fiverr.com/muhamadfaizi836">Dean's Studio on Fiverr</a> for more reviews and portfolio.</p>
-
-        <h2>Articles & Design Insights</h2>
-        <p>Stay updated with the latest streetwear design trends, brand-building tips, and industry insights from Dean Designers. Our articles cover topics from color theory for streetwear to building a clothing brand from scratch.</p>
-
-        <h2>Contact & Order</h2>
-        <p>Ready to start your project? Visit <a href="https://createclothingdesign.com">CreateClothingDesign.com</a> to place an order using our 6-step design wizard. Payment via PayPal. Direct communication available via WhatsApp.</p>
-        <p>For existing orders, track your progress at <a href="https://createclothingdesign.com/order-tracker.html">Order Tracker</a> — includes real-time status updates, chat with your designer, and file delivery.</p>
-
-        <footer style="margin-top:40px;padding-top:20px;border-top:1px solid #ddd;font-size:13px;color:#666">
-          <p>© 2018–2026 Dean Designers. Professional Streetwear & Logo Design Studio. All rights reserved.</p>
-          <p>createclothingdesign.com — Active since 2018. 1,000+ projects completed. Clients from 25+ countries worldwide.</p>
-        </footer>
+function ReviewCard({ r }: { r: Review }) {
+  return (
+    <div className="rv-card">
+      <div className="rv-stars">
+        <span className="rv-star-filled">{"★".repeat(r.stars)}</span>
+        {r.stars < 5 && <span className="rv-star-empty">{"☆".repeat(5 - r.stars)}</span>}
       </div>
-    </noscript>
-  </body>
-</html>
+      <p className="rv-text">{r.text}</p>
+      <div className="rv-footer">
+        <img
+          className="rv-avatar"
+          src={`https://i.pravatar.cc/80?img=${r.avatar}`}
+          alt={r.name}
+          loading="lazy"
+          decoding="async"
+          width="36"
+          height="36"
+        />
+        <div className="rv-info">
+          <span className="rv-name">
+            <img
+              className="rv-flag"
+              src={`https://flagcdn.com/w40/${r.cc}.png`}
+              alt={r.cc}
+              loading="lazy"
+              decoding="async"
+              width="16"
+              height="12"
+            />
+            {r.name}
+          </span>
+          <span className="rv-meta">{relativeTime(r.minsAgo)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Mount children only when scrolled near viewport (defers heavy images)
+function LazyMount({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || show) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShow(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [show]);
+  return <div ref={ref} style={{ minHeight: show ? undefined : minHeight }}>{show ? children : null}</div>;
+}
+
+function Testimonials() {
+  return (
+    <section className="testimonials s2">
+      <div className="testimonials-head">
+        <div className="testimonials-eyebrow">Client Reviews</div>
+        <h2 className="testimonials-title">
+          Trusted by <span>Brands Worldwide</span>
+        </h2>
+        <p className="testimonials-sub">
+          Real feedback from clients on Fiverr. 7+ years, 1,000+ happy brands.
+        </p>
+      </div>
+      <LazyMount minHeight={420}>
+        {/* Row A → scrolls left */}
+        <div className="rv-marquee rv-left">
+          <div className="rv-track">
+            {[...ROW_A, ...ROW_A].map((r, i) => (
+              <ReviewCard key={`a${i}`} r={r} />
+            ))}
+          </div>
+        </div>
+        {/* Row B → scrolls right */}
+        <div className="rv-marquee rv-right">
+          <div className="rv-track">
+            {[...ROW_B, ...ROW_B].map((r, i) => (
+              <ReviewCard key={`b${i}`} r={r} />
+            ))}
+          </div>
+        </div>
+      </LazyMount>
+    </section>
+  );
+}
+
+// ─── WhatsApp Icon ─────────────────────────────────────────
+
+// Shared pricing helper: logo gets $10/concept off + 5% for 2+ concepts
+function calcPrice(pkg: Package, state: WizardState): { raw: number; final: number; discount: number; pct: number } {
+  const raw = pkg.basePrice * state.qty;
+  const isLogo = state.service === "logo";
+  if (!isLogo) return { raw, final: raw, discount: 0, pct: 0 };
+  const flatOff = 10 * state.qty;
+  const volumeOff = state.qty >= 2 ? Math.round(raw * 0.05) : 0;
+  const totalDiscount = flatOff + volumeOff;
+  const canDiscount = totalDiscount < raw;
+  const discount = canDiscount ? totalDiscount : 0;
+  const pct = canDiscount ? Math.round((discount / raw) * 100) : 0;
+  return { raw, final: raw - discount, discount, pct };
+}
+
+function WaIcon() {
+  return <i className="ri-whatsapp-fill" style={{fontSize:15,flexShrink:0}} />;
+}
+
+// ─── Helpers ──────────────────────────────────────────────
+function buildWAMessage(
+  pkg: Package,
+  state: WizardState,
+  finalPrice: number,
+  discount: number
+): string {
+  const svcLabel =
+    state.service === "clothing" ? "Clothing Design" : "Logo Brand Design";
+  const briefText = state.brief.trim() || "(Brief not filled)";
+  const rawTotal = pkg.basePrice * state.qty;
+  const priceLine = discount > 0
+    ? `💰 Total Price: US$${rawTotal} − $${discount} discount = US$${finalPrice}`
+    : `💰 Total Price: US$${pkg.basePrice} × ${state.qty} concept(s) = US$${finalPrice}`;
+  const contactLines = [
+    state.whatsapp ? `📱 WhatsApp: ${state.whatsapp}` : "",
+    state.instagram ? `📷 Instagram: ${state.instagram}` : "",
+  ].filter(Boolean).join("\n");
+  return [
+    "Hello DEAN DESIGNERS! 👋",
+    "",
+    "I'd like to place a design order:",
+    "",
+    `🎨 Service: ${svcLabel}`,
+    `🏷️ Brand Name: ${state.brandName}`,
+    `📧 Email: ${state.email}`,
+    contactLines,
+    `📦 Package: ${pkg.badge} — ${pkg.name}`,
+    `💡 Concepts: ${state.qty} Concept(s)`,
+    `⏱️ Delivery: ${pkg.delivery}`,
+    `🔄 Revisions: ${pkg.revisions}`,
+    priceLine,
+    "",
+    "📝 Design Brief:",
+    briefText,
+    "",
+    "─────────────────────",
+    "💳 PAYMENT INFO",
+    "─────────────────────",
+    "✅ Payment completed via PayPal",
+    `Amount paid: US$${finalPrice}`,
+    "",
+    "Please confirm, thank you!",
+  ].join("\n");
+}
+
+function openWA(pkg: Package, state: WizardState): void {
+  const { final: finalPrice, discount } = calcPrice(pkg, state);
+  const msg = buildWAMessage(pkg, state, finalPrice, discount);
+  window.open(
+    `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,
+    "_blank"
+  );
+}
+
+// ─── Progress Bar ──────────────────────────────────────────
+function ProgressBar({ step }: { step: number }) {
+  return (
+    <div className="progress-bar">
+      {Array.from({ length: TOTAL_STEPS }, (_, i) => {
+        const n = i + 1;
+        const isDone = n < step;
+        const isActive = n === step;
+        const cls = isDone ? "done" : isActive ? "active" : "pending";
+        return (
+          <React.Fragment key={n}>
+            {i > 0 && (
+              <div className="progress-track">
+                <div
+                  className="progress-track-fill"
+                  style={{ width: n <= step ? "100%" : "0%" }}
+                />
+              </div>
+            )}
+            <div className={`progress-dot ${cls}`}>{isDone ? "✓" : n}</div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Step 1 ────────────────────────────────────────────────
+// Rotating background slideshow for service cards (changes every 2s)
+const CLOTHING_SLIDES = [
+  "/clothing%20slide%201.jpg",
+  "/clothing%20slide%202.png",
+  "/clothing%20slide%203.png",
+];
+const LOGO_SLIDES = [
+  "/logo%20slide%201.png",
+  "/logo%20slide%202.png",
+];
+
+function CardSlideshow({ images }: { images: string[] }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    if (images.length < 2) return;
+    const t = setInterval(() => {
+      setIdx((i) => (i + 1) % images.length);
+    }, 2000);
+    return () => clearInterval(t);
+  }, [images.length]);
+  return (
+    <div className="svc-slides" aria-hidden="true">
+      {images.map((src, i) => (
+        <div
+          key={src}
+          className={`svc-slide ${i === idx ? "active" : ""}`}
+          style={{ backgroundImage: `url("${src}")` }}
+        />
+      ))}
+      <div className="svc-slide-overlay" />
+    </div>
+  );
+}
+
+function Step1({
+  service,
+  onSelect,
+}: {
+  service: WizardState["service"];
+  onSelect: (s: "clothing" | "logo") => void;
+}) {
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 1 / 6</div>
+        <h2 className="step-question">
+          Choose Your <span>Service</span>
+        </h2>
+        <p className="step-hint">Select one to get started</p>
+      </div>
+      <div className="service-grid">
+        <div
+          className={`service-card has-bg ${service === "clothing" ? "active" : ""}`}
+          onClick={() => onSelect("clothing")}
+        >
+          <CardSlideshow images={CLOTHING_SLIDES} />
+          <div className="svc-icon">
+            <i className="ri-t-shirt-2-line" style={{fontSize:28}} />
+          </div>
+          <div className="svc-body">
+            <div className="service-name">Clothing Design</div>
+            <div className="service-sub">
+              T-shirts, jackets, hoodies &amp; apparel design
+            </div>
+          </div>
+          <div className="svc-arrow">{service === "clothing" ? "✓" : "→"}</div>
+        </div>
+        <div
+          className={`service-card has-bg ${service === "logo" ? "active" : ""}`}
+          onClick={() => onSelect("logo")}
+        >
+          <CardSlideshow images={LOGO_SLIDES} />
+          <div className="svc-icon">
+            <i className="ri-stack-line" style={{fontSize:28}} />
+          </div>
+          <div className="svc-body">
+            <div className="service-name">Logo Brand Design</div>
+            <div className="service-sub">Professional brand visual identity</div>
+          </div>
+          <div className="svc-arrow">{service === "logo" ? "✓" : "→"}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 2 ────────────────────────────────────────────────
+function Step2({
+  brandName,
+  email,
+  whatsapp,
+  instagram,
+  onChangeBrand,
+  onChangeEmail,
+  onChangeWA,
+  onChangeIG,
+  onNext,
+  onBack,
+}: {
+  brandName: string;
+  email: string;
+  whatsapp: string;
+  instagram: string;
+  onChangeBrand: (v: string) => void;
+  onChangeEmail: (v: string) => void;
+  onChangeWA: (v: string) => void;
+  onChangeIG: (v: string) => void;
+  onNext: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 2 / 6</div>
+        <h2 className="step-question">
+          Tell Us About <span>You</span>
+        </h2>
+        <p className="step-hint">We'll use this info to deliver your order.</p>
+      </div>
+
+      {/* Brand Name + Email: side by side on desktop */}
+      <div className="step2-form-grid">
+        <div>
+          <label className="field-label">Brand Name</label>
+          <input
+            className="step-input"
+            type="text"
+            placeholder="e.g. KINARA, VORTEX, ASPHALT..."
+            value={brandName}
+            onChange={(e) => onChangeBrand(e.target.value)}
+            maxLength={60}
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="field-label">Email (for file delivery)</label>
+          <input
+            className="step-input"
+            type="email"
+            placeholder="e.g. hello@yourbrand.com"
+            value={email}
+            onChange={(e) => onChangeEmail(e.target.value)}
+            maxLength={100}
+          />
+        </div>
+      </div>
+
+      {/* Contact Section */}
+      <div className="contact-section">
+        <span className="contact-section-label">Contact Information</span>
+        <p className="contact-tip">💡 We recommend filling in both to ensure smooth communication with your designer.</p>
+
+        <div className="contact-fields">
+          <div className="contact-field-group">
+            <label className="contact-field-label">
+              <i className="ri-whatsapp-fill" style={{fontSize:14,color:"#25D366"}} />
+              WhatsApp
+            </label>
+            <input
+              className="step-input"
+              type="text"
+              placeholder="e.g. +1 234 567 8900"
+              value={whatsapp}
+              onChange={(e) => onChangeWA(e.target.value)}
+              maxLength={30}
+            />
+          </div>
+          <div className="contact-field-group">
+            <label className="contact-field-label">
+              <i className="ri-instagram-fill" style={{fontSize:14,color:"#E4405F"}} />
+              Instagram
+            </label>
+            <input
+              className="step-input"
+              type="text"
+              placeholder="e.g. @yourbrand"
+              value={instagram}
+              onChange={(e) => onChangeIG(e.target.value)}
+              maxLength={40}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="step-nav">
+        <button className="btn-back" onClick={onBack}>← Back</button>
+        <button className="btn-next" onClick={onNext}>Continue →</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3 ────────────────────────────────────────────────
+function Step3({
+  qty,
+  onChange,
+  onNext,
+  onBack,
+}: {
+  qty: number;
+  onChange: (q: number) => void;
+  onNext: () => void;
+  onBack: () => void;
+}) {
+  const [inputVal, setInputVal] = useState<string>(String(qty));
+  const clamp = (n: number) => Math.min(10, Math.max(1, n));
+
+  const dec = () => {
+    const next = clamp(qty - 1);
+    onChange(next);
+    setInputVal(String(next));
+  };
+  const inc = () => {
+    const next = clamp(qty + 1);
+    onChange(next);
+    setInputVal(String(next));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    setInputVal(raw);
+    const n = parseInt(raw, 10);
+    if (!isNaN(n)) onChange(clamp(n));
+  };
+
+  const handleBlur = () => {
+    const n = parseInt(inputVal, 10);
+    const clamped = isNaN(n) ? 1 : clamp(n);
+    onChange(clamped);
+    setInputVal(String(clamped));
+  };
+
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 3 / 6</div>
+        <h2 className="step-question">
+          How Many <span>Concepts</span> Do You Want?
+        </h2>
+        <p className="step-hint">
+          Type a number or use the + / − buttons (max. 10)
+        </p>
+      </div>
+      <div className="qty-counter-wrap">
+        <button className="qty-btn" onClick={dec} disabled={qty <= 1}>
+          −
+        </button>
+        <div className="qty-display">
+          <input
+            className="qty-input"
+            type="number"
+            min={1}
+            max={10}
+            value={inputVal}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+          />
+          <span className="qty-label">Design Concepts</span>
+        </div>
+        <button className="qty-btn" onClick={inc} disabled={qty >= 10}>
+          +
+        </button>
+      </div>
+      <div className="step-nav">
+        <button className="btn-back" onClick={onBack}>
+          ← Back
+        </button>
+        <button className="btn-next" onClick={onNext}>
+          Continue →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 4 ────────────────────────────────────────────────
+function Step4({
+  brief,
+  onChange,
+  onNext,
+  onBack,
+  wizardService,
+  wizardBrand,
+  briefImages,
+  onImagesChange,
+}: {
+  brief: string;
+  onChange: (v: string) => void;
+  onNext: () => void;
+  onBack: () => void;
+  wizardService: "clothing" | "logo" | null;
+  wizardBrand: string;
+  briefImages: string[];
+  onImagesChange: (imgs: string[]) => void;
+}) {
+  const [mode, setMode] = useState<"manual" | "ai">("manual");
+  const [phase, setPhase] = useState<AiPhase>("idle");
+  const [uploading, setUploading] = useState(false);
+  const [answers, setAnswers] = useState({
+    concept: "",
+    colors: "",
+    references: "",
+  });
+  const [aiError, setAiError] = useState("");
+
+  const svcLabel =
+    wizardService === "clothing" ? "Clothing Design" : "Logo Brand Design";
+
+  const handleGenerate = async () => {
+    setPhase("loading");
+    setAiError("");
+    const userContext = [
+      `Brand name: ${wizardBrand || "not specified"}`,
+      `Service type: ${svcLabel}`,
+      `Design concept/theme: ${answers.concept || "-"}`,
+      `Color references: ${answers.colors || "-"}`,
+      `Brand/design references: ${answers.references || "-"}`,
+    ].join("\n");
+    const prompt = `You are an elite creative director writing a comprehensive design brief for a top-tier graphic designer. Based on the client's input below, produce a highly detailed, professional, and production-ready brief.
+
+CLIENT INPUT:
+${userContext}
+
+CRITICAL FORMATTING RULES:
+- Write in plain natural human language. NO asterisks (*), NO markdown, NO bold formatting, NO bullet symbols.
+- Use section headers like "PROJECT OVERVIEW", "DESIGN DIRECTION" etc. on their own line followed by a colon.
+- Write in flowing paragraphs, like a professional document — not a list.
+- Do NOT use dashes as bullet points. Write full sentences.
+
+STRUCTURE:
+
+PROJECT OVERVIEW:
+Summarize the project scope, brand identity, and target audience in 2-3 natural sentences.
+
+DESIGN DIRECTION:
+Describe the visual style, mood, and aesthetic in detail. Reference specific design movements, visual metaphors, or cultural influences. Be specific about typography feel, layout approach, and overall visual weight.
+
+COLOR PALETTE:
+Define the primary and secondary color direction. Expand on complementary tones, contrast strategy, and how colors should evoke the brand mood.
+
+REFERENCES AND INSPIRATION:
+Expand on the client's references. Describe what elements to draw from each reference. If no references given, suggest relevant visual references from the streetwear and brand design world.
+
+TECHNICAL REQUIREMENTS:
+Describe expected deliverables, file formats, resolution requirements, and any print-specific or digital-specific notes in full sentences.
+
+DOS AND DONTS:
+Write 3-4 specific guidelines to direct the designer, in full sentence form. No bullet points.
+
+Write at least 400 words. Be specific, opinionated, and actionable. Every sentence should give the designer clear direction. Do not use placeholder language.`;
+
+    try {
+      const res = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${BRIEF_GROQ_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 2000,
+            temperature: 0.7,
+          }),
+        }
+      );
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content ?? "";
+      if (!text) {
+        const errMsg = data?.error?.message ?? "Empty response from AI";
+        throw new Error(errMsg);
+      }
+      onChange(text.trim());
+      setPhase("done");
+    } catch (err: any) {
+      setAiError(err?.message ?? "Failed to connect to AI.");
+      setPhase("error");
+    }
+  };
+
+  const switchToManual = () => {
+    setMode("manual");
+    setPhase("idle");
+  };
+  const switchToAi = () => {
+    setMode("ai");
+    if (phase === "idle" || phase === "error") setPhase("asking");
+  };
+  const handleRedo = () => {
+    setPhase("asking");
+    onChange("");
+  };
+
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 4 / 6</div>
+        <h2 className="step-question">
+          Describe Your Vision <span>for the Designer</span>
+        </h2>
+      </div>
+
+      <div className="brief-mode-tabs">
+        <button
+          className={`brief-tab ${mode === "manual" ? "active-tab" : ""}`}
+          onClick={switchToManual}
+        >
+          ✏️ Write Your Brief
+        </button>
+        <button
+          className={`brief-tab ${mode === "ai" ? "active-tab" : ""}`}
+          onClick={switchToAi}
+        >
+          ✨ AI-Assisted Brief
+        </button>
+      </div>
+
+      {mode === "ai" && (
+        <div className="ai-panel">
+          {phase === "asking" || phase === "loading" ? (
+            <>
+              <div className="ai-field">
+                <label className="ai-label">Your design concept or theme</label>
+                <input
+                  className="step-input"
+                  placeholder="e.g. minimalist bold, modern streetwear..."
+                  value={answers.concept}
+                  onChange={(e) =>
+                    setAnswers((p) => ({ ...p, concept: e.target.value }))
+                  }
+                  disabled={phase === "loading"}
+                />
+              </div>
+              <div className="ai-field">
+                <label className="ai-label">Color references</label>
+                <input
+                  className="step-input"
+                  placeholder="e.g. black & cream, navy & gold..."
+                  value={answers.colors}
+                  onChange={(e) =>
+                    setAnswers((p) => ({ ...p, colors: e.target.value }))
+                  }
+                  disabled={phase === "loading"}
+                />
+              </div>
+              <div className="ai-field">
+                <label className="ai-label">
+                  Brand / design references you like
+                </label>
+                <input
+                  className="step-input"
+                  placeholder="e.g. Supreme, Off-White, Palace..."
+                  value={answers.references}
+                  onChange={(e) =>
+                    setAnswers((p) => ({ ...p, references: e.target.value }))
+                  }
+                  disabled={phase === "loading"}
+                />
+              </div>
+              <button
+                className="btn-ai-generate"
+                onClick={handleGenerate}
+                disabled={phase === "loading"}
+              >
+                {phase === "loading" ? (
+                  <>
+                    <span className="ai-spinner" /> Generating brief...
+                  </>
+                ) : (
+                  <>✨ Generate Brief Now</>
+                )}
+              </button>
+            </>
+          ) : phase === "done" ? (
+            <div className="ai-success-note">
+              Brief successfully generated! You can edit it below.
+              <button className="ai-redo" onClick={handleRedo}>
+                ↩ Regenerate
+              </button>
+            </div>
+          ) : phase === "error" ? (
+            <div className="ai-error-note">{aiError}</div>
+          ) : null}
+        </div>
+      )}
+
+      {(mode === "manual" || phase === "done" || phase === "error") && (
+        <>
+          <textarea
+            className="brief-ta"
+            placeholder={`e.g. "KINARA" is a local streetwear brand targeting young adults aged 18-25. Bold minimalist concept with modern cultural touches...`}
+            value={brief}
+            onChange={(e) => onChange(e.target.value)}
+            maxLength={10000}
+          />
+          <div className="brief-count">{brief.length} / 10,000 characters</div>
+        </>
+      )}
+
+      {/* ── Reference Images Upload ── */}
+      <div className="ref-upload-section">
+        <label className="ref-upload-label">
+          <i className="ri-image-line" style={{fontSize:16}} />
+          Attach Reference Images <span className="ref-optional">(optional)</span>
+        </label>
+        <p className="ref-hint">Upload design references, mood boards, or inspiration images to help your designer understand your vision.</p>
+        
+        {briefImages.length > 0 && (
+          <div className="ref-preview-grid">
+            {briefImages.map((url, idx) => (
+              <div key={idx} className="ref-preview-item">
+                <img src={url} alt={`Reference ${idx + 1}`} />
+                <button className="ref-remove" onClick={() => {
+                  onImagesChange(briefImages.filter((_, i) => i !== idx));
+                }}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {briefImages.length < 5 && (
+          <label className="ref-upload-btn">
+            <input
+              type="file"
+              accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps"
+              multiple
+              style={{ display: "none" }}
+              onChange={async (e) => {
+                const files = Array.from(e.target.files || []);
+                if (!files.length) return;
+                if (!supabase) {
+                  alert("Upload service is not available right now. Please try again later.");
+                  return;
+                }
+                setUploading(true);
+                const newUrls: string[] = [];
+                let failCount = 0;
+                for (const file of files.slice(0, 5 - briefImages.length)) {
+                  const ext = file.name.split('.').pop() || 'jpg';
+                  const path = `brief/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+                  const { error } = await supabase.storage.from('uploads').upload(path, file);
+                  if (!error) {
+                    const { data } = supabase.storage.from('uploads').getPublicUrl(path);
+                    if (data?.publicUrl) newUrls.push(data.publicUrl);
+                  } else {
+                    failCount++;
+                    console.error("Brief image upload error:", error);
+                  }
+                }
+                if (newUrls.length) onImagesChange([...briefImages, ...newUrls]);
+                if (failCount > 0) alert(`${failCount} image(s) failed to upload. Please try again.`);
+                setUploading(false);
+                e.target.value = '';
+              }}
+            />
+            {uploading ? (
+              <><span className="ai-spinner" /> Uploading...</>
+            ) : (
+              <>
+                <i className="ri-upload-2-line" style={{fontSize:18}} />
+                Upload Images ({briefImages.length}/5)
+              </>
+            )}
+          </label>
+        )}
+      </div>
+
+      <div className="step-nav">
+        <button className="btn-back" onClick={onBack}>
+          ← Back
+        </button>
+        <button className="btn-next" onClick={onNext}>
+          View Pricing →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 5: Choose Package ────────────────────────────────
+function Step5({
+  state,
+  onBack,
+  onSelectPkg,
+  clothingPkgs,
+  logoPkgs,
+}: {
+  state: WizardState;
+  onBack: () => void;
+  onSelectPkg: (pkg: Package) => void;
+  clothingPkgs: Package[];
+  logoPkgs: Package[];
+}) {
+  const isLogo = state.service === "logo";
+  const svcLabel = isLogo ? "Logo Brand Design" : "Clothing Design";
+  const activePkgs = isLogo ? logoPkgs : clothingPkgs;
+
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 5 / 6</div>
+        <h2 className="step-question">
+          Choose Your <span>Package</span>
+        </h2>
+        <p className="step-hint">Tap a package to continue to order confirmation.</p>
+      </div>
+
+      <div className="summary-box">
+        <div className="summary-item">
+          <div className="summary-lbl">Service</div>
+          <div className="summary-val">{svcLabel}</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-lbl">Brand Name</div>
+          <div className="summary-val">{state.brandName}</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-lbl">Concepts</div>
+          <div className="summary-val">{state.qty} Concept(s)</div>
+        </div>
+      </div>
+
+      <p className="pkg-note">
+        All packages below reflect your custom selection of <strong>{state.qty} concept(s)</strong>.
+        Pricing is calculated per concept.
+      </p>
+
+      <div className="pkg-grid">
+        {activePkgs.map((pkg) => {
+          const { raw: rawTotal, final: finalPrice, discount, pct } = calcPrice(pkg, state);
+          const discountLabel = pct > 0 ? `${pct}% OFF` : "";
+
+          // Build feature list: prepend dynamic concept count for logo (checklist)
+          const dynamicMeta = isLogo && pkg.featuresMeta
+            ? [
+                { label: `${state.qty} concept(s) included`, included: true },
+                ...pkg.featuresMeta,
+              ]
+            : pkg.featuresMeta;
+
+          // For clothing: prepend concept count to plain features
+          const dynamicFeatures = !isLogo
+            ? [`${state.qty} initial concept(s)`, ...pkg.features]
+            : pkg.features;
+
+          return (
+            <div key={pkg.id} className="pkg-card">
+              <div className="pkg-badge-row">
+                <div className="pkg-badge">{pkg.badge}</div>
+                {pkg.featured && <div className="pkg-recommended">Recommended</div>}
+                {discount > 0 && <div className="pkg-discount-badge">{discountLabel}</div>}
+              </div>
+              {discount > 0 ? (
+                <>
+                  <div className="pkg-base-price">
+                    <span className="pkg-original-price">US${rawTotal}</span>{" "}
+                    US${pkg.basePrice} × {state.qty} − ${discount} off
+                  </div>
+                  <div className="pkg-price">US${finalPrice}</div>
+                </>
+              ) : (
+                <>
+                  <div className="pkg-base-price">
+                    US${pkg.basePrice} × {state.qty} concept(s)
+                  </div>
+                  <div className="pkg-price">US${finalPrice}</div>
+                </>
+              )}
+              <div className="pkg-name">{pkg.name}</div>
+              <p className="pkg-desc">{pkg.desc}</p>
+              <div className="pkg-meta">
+                <span className="pkg-meta-item"><span className="ic">●</span> {pkg.delivery}</span>
+                <span className="pkg-meta-item"><span className="ic">●</span> {pkg.revisions}</span>
+              </div>
+              <div className="pkg-divider" />
+              <ul className="feat-list">
+                {dynamicMeta
+                  ? dynamicMeta.map((f, i) => (
+                      <li key={i} className={f.included ? "feat-included" : "feat-excluded"}>
+                        <span className="feat-check">{f.included ? "✓" : "✗"}</span>
+                        {f.label}
+                      </li>
+                    ))
+                  : dynamicFeatures.map((f, i) => <li key={i}>{f}</li>)}
+              </ul>
+              <button className="btn-order" onClick={() => onSelectPkg(pkg)}>
+                Choose This Package →
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="step-nav">
+        <button className="btn-back" onClick={onBack}>
+          ← Edit Brief
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── PayPal Guide (collapsible, for first-time users) ──────
+function PayPalGuide() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="pp-guide">
+      <button className="pp-guide-toggle" onClick={() => setOpen(!open)}>
+        <i className="ri-question-line" style={{fontSize:16}} />
+        <span>New to PayPal? Learn how to pay</span>
+        <span className={`pp-guide-arrow ${open ? "open" : ""}`}>›</span>
+      </button>
+      {open && (
+        <div className="pp-guide-content">
+          <div className="pp-guide-section">
+            <div className="pp-guide-label">From iPhone / Android</div>
+            <ol className="pp-steps">
+              <li>Download the <strong>PayPal</strong> app from App Store or Play Store.</li>
+              <li>Create an account or log in with your email.</li>
+              <li>Link your bank account, debit card, or credit card.</li>
+              <li>Tap <strong>Send</strong>, then enter <strong>muhamadfaizin205@gmail.com</strong> as recipient.</li>
+              <li>Enter the total amount in <strong>USD</strong> and confirm payment.</li>
+            </ol>
+          </div>
+          <div className="pp-guide-divider" />
+          <div className="pp-guide-section">
+            <div className="pp-guide-label">From Web Browser</div>
+            <ol className="pp-steps">
+              <li>Go to <strong>paypal.com</strong> and sign in or create a free account.</li>
+              <li>Click <strong>Send &amp; Request</strong> at the top menu.</li>
+              <li>Enter <strong>muhamadfaizin205@gmail.com</strong> as recipient.</li>
+              <li>Enter the amount in <strong>USD</strong> and add your brand name as a note.</li>
+              <li>Choose <strong>Sending to a friend</strong> to avoid extra fees, then confirm.</li>
+            </ol>
+          </div>
+          <div className="pp-guide-tip">
+            After payment, send the receipt screenshot via WhatsApp so we can start working immediately.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── PayPal Checkout Buttons (SERVER-SIDE price — P1 fix) ──
+function PayPalCheckout({
+  finalPrice,
+  description,
+  emailData,
+  orderData,
+  onSuccess,
+  packageId,
+  service,
+  qty,
+}: {
+  finalPrice: number;
+  description: string;
+  emailData: Record<string, string | number>;
+  orderData: Record<string, unknown>;
+  onSuccess: () => void;
+  packageId: string;
+  service: string;
+  qty: number;
+}) {
+  const [errMsg, setErrMsg] = useState("");
+  const [sending, setSending] = useState(false);
+
+  return (
+    <div className="paypal-checkout">
+      {sending ? (
+        <div className="stripe-loading">
+          <span className="stripe-spinner" />
+          <span>Confirming payment…</span>
+        </div>
+      ) : (
+        <PayPalButtons
+          style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
+          fundingSource={undefined}
+          createOrder={async () => {
+            // SERVER-SIDE order creation — price is looked up from DB on server
+            // Client CANNOT manipulate the amount
+            try {
+              const resp = await fetch("/api/create-paypal-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ packageId, service, qty, description }),
+              });
+              const data = await resp.json();
+              if (!resp.ok || !data.id) {
+                throw new Error(data.error || "Failed to create order");
+              }
+              console.log(`PayPal order created server-side: $${data.serverPrice}`);
+              return data.id;
+            } catch (e: any) {
+              setErrMsg(`Order creation failed: ${e.message}. Try again or contact us on WhatsApp.`);
+              throw e;
+            }
+          }}
+          onApprove={async (data) => {
+            setSending(true);
+            try {
+              // SERVER-SIDE capture — verifies amount and saves to DB
+              const resp = await fetch("/api/capture-paypal-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderID: data.orderID,
+                  orderData: orderData,
+                }),
+              });
+              const result = await resp.json();
+              if (result.status === "COMPLETED") {
+                if (result.orderId) {
+                  try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+                }
+                onSuccess();
+                // Send email notification (fire and forget)
+                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
+                  .then(() => console.log("Email sent"))
+                  .catch((e: unknown) => console.error("Email failed:", e));
+              } else {
+                setErrMsg("Payment was not completed. Status: " + (result.status || "unknown"));
+              }
+            } catch (e: any) {
+              setErrMsg("Capture failed: " + e.message);
+            } finally {
+              setSending(false);
+            }
+          }}
+          onError={(err) => {
+            console.error("PayPal error:", err);
+            setErrMsg("Payment failed. Please check your card details or try logging in to PayPal directly. If the problem persists, contact us on WhatsApp: +62 831-3153-3097");
+          }}
+          onCancel={() => setErrMsg("Payment cancelled. Click the PayPal or Debit/Credit Card button above to try again.")}
+        />
+      )}
+      {errMsg && <p className="stripe-error-msg">⚠️ {errMsg}</p>}
+    </div>
+  );
+}
+
+// ─── Step 6: Order Confirmation + PayPal Payment ───────────
+function Step6({
+  state,
+  pkg,
+  onBack,
+}: {
+  state: WizardState;
+  pkg: Package;
+  onBack: () => void;
+}) {
+  const svcLabel = state.service === "clothing" ? "Clothing Design" : "Logo Brand Design";
+  const { final: finalPrice, discount, pct: discPct } = calcPrice(pkg, state);
+  const [paymentDone, setPaymentDone] = useState(false);
+  const description = `Dean Designers — ${svcLabel} (${pkg.name}, ${state.qty} concept(s))`;
+
+  const emailData = {
+    service:      svcLabel,
+    brand_name:   state.brandName,
+    email:        state.email,
+    contact:      [state.whatsapp ? `WhatsApp: ${state.whatsapp}` : "", state.instagram ? `IG: ${state.instagram}` : ""].filter(Boolean).join(" | "),
+    package_name: pkg.name,
+    concepts:     `${state.qty} Concept(s)`,
+    delivery:     pkg.delivery,
+    revisions:    pkg.revisions,
+    price:        finalPrice,
+    brief:        state.brief.trim() || "(Brief not filled)",
+    order_date:   new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+  };
+
+  const orderData = {
+    service:       svcLabel,
+    brand_name:    state.brandName,
+    email:         state.email,
+    whatsapp:      state.whatsapp,
+    instagram:     state.instagram,
+    qty:           state.qty,
+    brief:         state.brief.trim(),
+    brief_images:  state.briefImages || [],
+    package_id:    pkg.id,
+    package_name:  pkg.name,
+    package_badge: pkg.badge,
+    delivery:      pkg.delivery,
+    revisions:     pkg.revisions,
+    // price is NOT included — server sets it from PayPal captured amount (P2 fix)
+    status:        "new",
+    paid_via:      "paypal",
+    priority:      "normal",
+  };
+
+  // ── Success screen — auto-redirect to order tracker ─────
+  useEffect(() => {
+    if (paymentDone) {
+      const timer = setTimeout(() => {
+        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [paymentDone, state.email]);
+
+  if (paymentDone) {
+    return (
+      <div className="step-panel">
+        <div className="payment-success-box">
+          <div className="success-check">✓</div>
+          <h2 className="success-title">Payment Confirmed!</h2>
+          <p className="success-sub">
+            US${finalPrice} received — your order is secured.
+          </p>
+
+          <div className="redirect-notice">
+            <div className="redirect-spinner"></div>
+            <p>Redirecting to your order dashboard...</p>
+          </div>
+
+          <a
+            href={`/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`}
+            className="btn-track-order btn-track-primary"
+          >
+            <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
+            Continue to Order Dashboard
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="step-panel">
+      <div className="step-header">
+        <div className="step-number">STEP 6 / 6</div>
+        <h2 className="step-question">Confirm &amp; <span>Pay</span></h2>
+        <p className="step-hint">Review your order and complete payment to get started.</p>
+      </div>
+
+      <div className="confirm-box">
+        {/* Package header */}
+        <div className="confirm-pkg-header">
+          <div className="confirm-pkg-left">
+            <div className="pkg-badge" style={{ marginBottom: 0 }}>{pkg.badge}</div>
+            <div className="confirm-pkg-name">{pkg.name}</div>
+          </div>
+          <div className="confirm-pkg-right">
+            <div className="confirm-price-note">
+              US${pkg.basePrice} × {state.qty} concept(s)
+              {discount > 0 && ` − $${discount} (${discPct}% off)`}
+            </div>
+            <div className="confirm-price-total">US${finalPrice}</div>
+          </div>
+        </div>
+
+        <div className="confirm-divider" />
+
+        {/* Detail rows */}
+        <div className="confirm-rows">
+          <div className="confirm-row">
+            <span className="confirm-lbl"><span className="ic">●</span> Service</span>
+            <span className="confirm-val">{svcLabel}</span>
+          </div>
+          <div className="confirm-row">
+            <span className="confirm-lbl"><span className="ic">●</span> Brand Name</span>
+            <span className="confirm-val">{state.brandName}</span>
+          </div>
+          <div className="confirm-row">
+            <span className="confirm-lbl"><span className="ic">●</span> Concepts</span>
+            <span className="confirm-val">{state.qty} Concept(s)</span>
+          </div>
+          <div className="confirm-row">
+            <span className="confirm-lbl"><span className="ic">●</span> Estimated Delivery</span>
+            <span className="confirm-val">{pkg.delivery}</span>
+          </div>
+          <div className="confirm-row">
+            <span className="confirm-lbl"><span className="ic">●</span> Revisions</span>
+            <span className="confirm-val">{pkg.revisions}</span>
+          </div>
+        </div>
+
+        <div className="confirm-divider" />
+
+        {/* Brief preview */}
+        <div className="confirm-brief-wrap">
+          <div className="confirm-brief-label">Design Brief</div>
+          <div className="confirm-brief-text">
+            {state.brief.trim() || "(Brief not filled)"}
+          </div>
+        </div>
+
+        <div className="confirm-divider" />
+
+        {/* ── PayPal Payment Section ── */}
+        <div className="stripe-section">
+          <div className="stripe-section-header">
+            <i className="ri-bank-card-line" style={{fontSize:18}} />
+            <span>Secure Payment</span>
+            <div className="stripe-badges">
+              <span className="pay-logo pay-pp"><span>Pay</span><span>Pal</span></span>
+              <span className="pay-logo pay-visa">VISA</span>
+              <span className="pay-logo pay-mc"><span className="mc-dot mc-red" /><span className="mc-dot mc-yellow" /></span>
+            </div>
+          </div>
+          <PayPalScriptProvider options={{
+            clientId: PAYPAL_CLIENT_ID,
+            currency: "USD",
+            locale: "en_US",
+            components: "buttons",
+            disableFunding: "paylater,venmo,sepa",
+            enableFunding: "card",
+          }}>
+            <PayPalCheckout
+              finalPrice={finalPrice}
+              description={description}
+              emailData={emailData}
+              orderData={orderData}
+              packageId={pkg.id}
+              service={state.service}
+              qty={state.qty}
+              onSuccess={() => {
+                setPaymentDone(true);
+                try {
+                  sessionStorage.removeItem("dd_checkout_step");
+                  sessionStorage.removeItem("dd_checkout_pkg");
+                  sessionStorage.removeItem("dd_checkout_wizard");
+                } catch {}
+              }}
+            />
+          </PayPalScriptProvider>
+        </div>
+
+        {/* ── PayPal Guide for first-time users ── */}
+        <PayPalGuide />
+
+        <div className="confirm-divider" />
+
+        {/* ── How It Works — Premium Education Card ── */}
+        <div className="hiw-card">
+          <div className="hiw-header">
+            <div className="hiw-icon-wrap">
+              <i className="ri-information-line" style={{fontSize:16}} />
+            </div>
+            <span className="hiw-title">What happens after payment?</span>
+          </div>
+          <div className="hiw-steps">
+            <div className="hiw-step">
+              <div className="hiw-num">
+                <i className="ri-chat-3-line" style={{fontSize:16}} />
+              </div>
+              <div className="hiw-text">
+                <strong>Send your brief &amp; we're instantly notified</strong>
+                <span>The moment you pay, your designer receives an automatic email notification — tap send on WhatsApp to confirm your details, and we'll get started right away</span>
+              </div>
+            </div>
+            <div className="hiw-connector" />
+            <div className="hiw-step">
+              <div className="hiw-num">
+                <i className="ri-edit-line" style={{fontSize:16}} />
+              </div>
+              <div className="hiw-text">
+                <strong>Designer starts working</strong>
+                <span>Your project begins within 24 hours</span>
+              </div>
+            </div>
+            <div className="hiw-connector" />
+            <div className="hiw-step">
+              <div className="hiw-num">
+                <i className="ri-eye-line" style={{fontSize:16}} />
+              </div>
+              <div className="hiw-text">
+                <strong>Review &amp; revisions</strong>
+                <span>Receive drafts, give feedback — {pkg.revisions} included</span>
+              </div>
+            </div>
+            <div className="hiw-connector" />
+            <div className="hiw-step">
+              <div className="hiw-num hiw-num-final">
+                <i className="ri-checkbox-circle-line" style={{fontSize:16}} />
+              </div>
+              <div className="hiw-text">
+                <strong>Files delivered</strong>
+                <span>Final designs sent to your email, WhatsApp &amp; Instagram</span>
+              </div>
+            </div>
+          </div>
+          <div className="hiw-guarantee">
+            <i className="ri-lock-line" style={{fontSize:14}} />
+            Secure payment · 100% money-back guarantee if not delivered
+          </div>
+        </div>
+
+        <div className="confirm-divider" />
+
+        {/* Total */}
+        <div className="confirm-total-row">
+          <span className="confirm-total-lbl">TOTAL PAYMENT</span>
+          <span className="confirm-total-price">US${finalPrice}</span>
+        </div>
+      </div>
+
+      <div className="step-nav">
+        <button className="btn-back" style={{ width: "100%", textAlign: "center" }} onClick={onBack}>
+          ← Change Package
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Articles Section (Blog) ──────────────────────────────
+// ─── Articles Full Page ───────────────────────────────────
+function ArticlesFullPage({ onBack }: { onBack: () => void }) {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [activeTag, setActiveTag] = useState("");
+
+  useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
+    supabase.from("articles").select("*").eq("published", true)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) console.error("Articles fetch error:", error);
+        if (data) {
+          setArticles(data);
+          const parts = window.location.pathname.split("/").filter(Boolean);
+          if (parts[0] === "articles" && parts[1]) {
+            const match = data.find((a: any) => a.slug === parts[1]);
+            if (match) setSelected(match);
+          }
+        }
+        setLoading(false);
+      });
+  }, []);
+
+  const openArticle = (a: any) => {
+    setSelected(a);
+    const slug = a.slug || a.id;
+    window.history.pushState({}, "", `/articles/${slug}`);
+    window.scrollTo(0,0);
+  };
+
+  const closeArticle = () => {
+    setSelected(null);
+    window.history.pushState({}, "", "/articles");
+    window.scrollTo(0,0);
+  };
+
+  useEffect(() => {
+    const onPop = () => {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      if (parts[0] === "articles" && parts[1]) {
+        const match = articles.find((a: any) => a.slug === parts[1]);
+        setSelected(match || null);
+      } else {
+        setSelected(null);
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [articles]);
+
+  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 12);
+  const filtered = articles.filter((a) => {
+    const matchSearch = !search || a.title?.toLowerCase().includes(search.toLowerCase()) || a.excerpt?.toLowerCase().includes(search.toLowerCase());
+    const matchTag = !activeTag || (a.tags || []).includes(activeTag);
+    return matchSearch && matchTag;
+  });
+
+  const BackButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button onClick={onClick} style={{display:"inline-flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #E2E8F0",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 16px",borderRadius:8,transition:"all .15s",fontFamily:"inherit"}}
+      onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#1DBF73";(e.currentTarget as HTMLElement).style.color="#1DBF73";}}
+      onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#E2E8F0";(e.currentTarget as HTMLElement).style.color="#374151";}}>
+      <i className="ri-arrow-left-line" style={{fontSize:14}} />
+      {label}
+    </button>
+  );
+
+  // ── ARTICLE DETAIL VIEW ──
+  if (selected) {
+    const readTime = selected.content ? Math.max(1, Math.ceil(selected.content.replace(/<[^>]*>/g,"").split(/\s+/).length / 200)) : 3;
+    return (
+      <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+        {/* Sticky top bar */}
+        <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <BackButton onClick={closeArticle} label="All Articles" />
+            <span style={{color:"#D1D5DB",fontSize:14}}>›</span>
+            <span style={{fontSize:13,color:"#6B7280",maxWidth:300,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected.title}</span>
+          </div>
+          <BackButton onClick={onBack} label="Home" />
+        </div>
+
+        <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
+          {/* Tags row — single line, clean pills */}
+          {selected.tags?.length > 0 && (
+            <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
+              {selected.tags.map((t: string, i: number) => (
+                <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#374151",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:600,letterSpacing:".4px",textTransform:"uppercase",whiteSpace:"nowrap"}}>{t}</span>
+              ))}
+            </div>
+          )}
+
+          {/* Title */}
+          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",marginBottom:18,margin:"0 0 18px"}}>{selected.title}</h1>
+
+          {/* Meta row */}
+          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <i className="ri-user-line" style={{fontSize:14,color:"#fff"}} />
+              </div>
+              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Dean Designers"}</span>
+            </div>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{readTime} min read</span>
+          </div>
+
+          {/* Cover image */}
+          {selected.cover_image && (
+            <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
+              <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden"}}>
+                <img src={selected.cover_image} alt={selected.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
+              </div>
+            </div>
+          )}
+
+          {/* Article body */}
+          <div className="article-body" style={{fontSize:16.5,lineHeight:1.85,color:"#374151",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
+
+          {/* Tags at bottom */}
+          {selected.tags?.length > 0 && (
+            <div style={{marginTop:40,paddingTop:24,borderTop:"1px solid #F0F0F0"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {selected.tags.map((t: string, i: number) => (
+                  <button key={i} onClick={() => { closeArticle(); setActiveTag(t); }} style={{background:"#F3F4F6",color:"#374151",padding:"5px 12px",borderRadius:4,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",fontFamily:"inherit"}}>{t}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Footer CTA */}
+          <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
+            <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
+            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 1,000+ projects · 25+ countries · 7+ years</p>
+            <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+              Start Your Order →
+            </button>
+          </div>
+
+          {/* Bottom back button */}
+          <div style={{marginTop:40,display:"flex",gap:12}}>
+            <BackButton onClick={closeArticle} label="← Back to Articles" />
+            <BackButton onClick={onBack} label="Go to Homepage" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── ARTICLES LIST VIEW ──
+  return (
+    <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+      {/* Sticky header */}
+      <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+        <BackButton onClick={onBack} label="Home" />
+        <div style={{flex:1,maxWidth:360,position:"relative"}}>
+          <i className="ri-search-line" style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",fontSize:14,color:"#9CA3AF"}} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,border:"1.5px solid #E5E7EB",borderRadius:8,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const,background:"#F9FAFB",color:"#111827"}} />
+        </div>
+        <span style={{fontSize:12,color:"#9CA3AF",fontWeight:500,marginLeft:"auto"}}>{filtered.length} article{filtered.length !== 1 ? "s" : ""}</span>
+      </div>
+
+      <div style={{maxWidth:1120,margin:"0 auto",padding:"40px 20px 80px"}}>
+        {/* Page header */}
+        <div style={{marginBottom:36}}>
+          <div style={{display:"inline-block",background:"#F0FDF4",color:"#16A34A",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:12}}>Design Blog</div>
+          <h1 style={{fontSize:"clamp(26px,4vw,38px)",fontWeight:800,letterSpacing:"-0.5px",color:"#111827",marginBottom:8,lineHeight:1.1}}>Articles & Insights</h1>
+          <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
+        </div>
+
+        {/* Tag filter — single horizontal scroll row, no wrapping chaos */}
+        {allTags.length > 0 && (
+          <div style={{marginBottom:32}}>
+            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none",WebkitOverflowScrolling:"touch" as any}}>
+              <button onClick={() => setActiveTag("")} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E5E7EB",background:!activeTag?"#F0FDF4":"#fff",color:!activeTag?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>All</button>
+              {allTags.map((t, i) => (
+                <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E5E7EB",background:activeTag===t?"#F0FDF4":"#fff",color:activeTag===t?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",whiteSpace:"nowrap"}}>{t}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* States */}
+        {loading ? (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
+                <div style={{aspectRatio:"16/9",background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
+                <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
+              </div>
+            ))}
+          </div>
+        ) : !filtered.length ? (
+          <div style={{textAlign:"center",padding:"80px 20px"}}>
+            <i className="ri-file-text-line" style={{fontSize:40,color:"#D1D5DB",margin:"0 auto 14px",display:"block"}} />
+            <p style={{fontSize:15,color:"#9CA3AF",fontWeight:600,margin:"0 0 4px"}}>No articles found</p>
+            <p style={{fontSize:13,color:"#D1D5DB",margin:0}}>Try a different search or tag</p>
+          </div>
+        ) : (
+          <>
+            {/* Featured article */}
+            {filtered.length > 0 && !search && !activeTag && (
+              <div onClick={() => openArticle(filtered[0])}
+                style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
+                onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
+                onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
+                <div style={{position:"relative",aspectRatio:"3/2",overflow:"hidden"}}>
+                  {filtered[0].cover_image
+                    ? <img src={filtered[0].cover_image} alt={filtered[0].title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />
+                    : <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                  }
+                </div>
+                <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                    <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
+                    <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                  </div>
+                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",marginBottom:10,margin:"0 0 10px"}}>{filtered[0].title}</h2>
+                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,marginBottom:18,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
+                  {/* Tags in featured — clean row */}
+                  {filtered[0].tags?.length > 0 && (
+                    <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
+                      {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
+                        <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"3px 8px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px"}}>{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{display:"flex",alignItems:"center",gap:6,color:"#1DBF73",fontSize:13,fontWeight:700}}>
+                    Read article <i className="ri-arrow-right-line" style={{fontSize:13}} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Article grid */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
+              {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
+                <div key={a.id} onClick={() => openArticle(a)}
+                  style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
+                  onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
+                  onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
+                  {/* Thumbnail — aspect-ratio 16:9, never crops unexpectedly */}
+                  <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden",flexShrink:0}}>
+                    {a.cover_image
+                      ? <img src={a.cover_image} alt={a.title} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s"}}
+                          onMouseOver={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="scale(1.04)";}}
+                          onMouseOut={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="";}} />
+                      : <div style={{position:"absolute",inset:0,background:"#F3F4F6",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          <i className="ri-image-line" style={{fontSize:32,color:"#D1D5DB"}} />
+                        </div>
+                    }
+                  </div>
+                  <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
+                    {/* Tags — single row, scroll not wrap */}
+                    {a.tags?.length > 0 && (
+                      <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
+                        {a.tags.slice(0,3).map((t: string, i: number) => (
+                          <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",whiteSpace:"nowrap"}}>{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",marginBottom:8,margin:"0 0 8px",flex:1}}>{a.title}</h3>
+                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,marginBottom:12,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto"}}>
+                      <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                      <span style={{fontSize:11,color:"#1DBF73",fontWeight:600}}>Read →</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── FAQ Section ───────────────────────────────────────────
+function FAQSection() {
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  
+  const faqs = [
+    {
+      q: "How does the design process work?",
+      a: "After you place your order, we receive your brief instantly. Within 24 hours, your dedicated designer reviews everything and starts working. You'll receive draft concepts within your package's delivery window, then we refine based on your feedback until you're 100% happy. Final files are delivered via email and your order tracker page.",
+    },
+    {
+      q: "What if I don't like the designs?",
+      a: "We have a 100% money-back guarantee. If you're not satisfied with the work after revisions, you can request a full refund — no questions asked. Most clients love their first draft, but we'll keep refining until it's exactly what you envisioned.",
+    },
+    {
+      q: "How many revisions do I get?",
+      a: "Each package includes a different number of revisions: Basic includes 2, Standard includes unlimited revisions for 7 days, and Premium includes unlimited revisions until you approve. Revisions are how we make sure the design is exactly right for your brand.",
+    },
+    {
+      q: "When will I receive my designs?",
+      a: "Delivery times depend on your package: Basic is 3 days, Standard is 5 days, and Premium is 7 days. Your designer starts within 24 hours of payment, and you can track progress in real-time on your order dashboard. Rush orders are available — message us for details.",
+    },
+    {
+      q: "What file formats will I get?",
+      a: "All final designs come with complete production-ready files: AI source files (Adobe Illustrator), high-resolution PNG (transparent background), JPG for web, PDF for print, and SVG for digital use. You'll have everything you need to print, post, or upload anywhere.",
+    },
+    {
+      q: "Can I use the designs commercially?",
+      a: "Absolutely. You own 100% commercial rights to all final designs once delivered. Use them on apparel, merchandise, websites, social media, business cards, or any commercial purpose. No royalties, no restrictions.",
+    },
+    {
+      q: "Is my payment secure?",
+      a: "Yes — we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
+    },
+    {
+      q: "What if I need changes after delivery?",
+      a: "Within your revision window, all changes are free. After final delivery, minor tweaks (color adjustments, text changes) are often included as a courtesy. Major redesigns are quoted separately, but most clients don't need them.",
+    },
+    {
+      q: "How do I communicate with my designer?",
+      a: "You'll have direct access via our built-in chat on the order tracker page. You can also reach out via WhatsApp or email. Your designer responds within 24 hours (usually much faster) and keeps you updated at every stage.",
+    },
+    {
+      q: "Do you sign an NDA?",
+      a: "Yes, on request for Premium clients. All projects are kept strictly confidential by default — your brand, designs, and brief are never shared, displayed, or used in our portfolio without your written permission.",
+    },
+    {
+      q: "What's your refund policy?",
+      a: "Full refund within 7 days if you're not satisfied after revisions. Partial refunds available if work has been delivered but you want to cancel. Refunds processed via PayPal within 3-5 business days. Read our full terms on the order tracker.",
+    },
+    {
+      q: "Can I order multiple designs?",
+      a: "Yes! You can return to the landing page anytime from your order tracker dashboard and place additional orders. Each order gets its own dedicated tracking and designer. Volume discounts apply for 2+ concepts.",
+    },
+  ];
+
+  return (
+    <section className="faq-section">
+      <div className="faq-inner">
+        <div className="faq-header">
+          <span className="faq-tag">FAQ</span>
+          <h2 className="faq-title">Everything you need to know</h2>
+          <p className="faq-sub">Common questions answered honestly. If you don't find what you're looking for, feel free to reach out.</p>
+        </div>
+        <div className="faq-list">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className={`faq-item ${openIdx === idx ? "open" : ""}`}>
+              <button className="faq-q" onClick={() => setOpenIdx(openIdx === idx ? null : idx)}>
+                <span>{faq.q}</span>
+                <span className="faq-toggle">
+                  <i className="ri-arrow-down-s-line" style={{fontSize:20}} />
+                </span>
+              </button>
+              <div className="faq-a">
+                <p>{faq.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="faq-cta">
+          <div className="faq-cta-icon">
+            <i className="ri-shield-check-line" style={{fontSize:22}} />
+          </div>
+          <div>
+            <strong>Ready to bring your brand to life?</strong>
+            <p>100% money-back guarantee. Production-ready files. Trusted by 2,000+ brands worldwide.</p>
+          </div>
+          <a className="faq-cta-btn" href="#wizard">
+            Start Your Order
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Main App ──────────────────────────────────────────────
+export default function App() {
+
+  // ── Dynamic packages from DB (fallback to hardcoded) ────
+  const { clothingPkgs, logoPkgs } = useDbPackages();
+
+  // ── Social Proof Toast ───────────────────────────────────
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState<"home"|"articles">(() => {
+    // Read initial page from URL so refresh stays on the same page
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.replace(/\/$/, "");
+      if (path === "/articles" || window.location.hash === "#articles") return "articles";
+    }
+    return "home";
+  });
+
+  // Keep the URL in sync with the current page (without full reload)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const targetPath = currentPage === "articles" ? "/articles" : "/";
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ page: currentPage }, "", targetPath);
+    }
+  }, [currentPage]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const onPopState = () => {
+      const path = window.location.pathname.replace(/\/$/, "");
+      setCurrentPage(path === "/articles" ? "articles" : "home");
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Large pool — randomize each session so customers never see same names
+  const proofPool = React.useMemo(() => {
+    const names = [
+      "Alex R.","James K.","Yuki T.","Sophie M.","Carlos D.","Emma L.","Liam W.","Aisha N.",
+      "Marcus B.","Olivia P.","Noah S.","Charlotte H.","Ethan G.","Mia F.","Lucas J.","Isabella V.",
+      "Mason O.","Amelia C.","Logan T.","Harper Q.","Daniel R.","Evelyn M.","Henry W.","Abigail B.",
+      "Sebastian K.","Emily D.","Jack P.","Ella N.","Owen L.","Avery S.","Caleb F.","Scarlett T.",
+      "Nathan H.","Grace W.","Wyatt B.","Chloe R.","Hudson J.","Lily M.","Theodore G.","Zoey D.",
+      "Aiden V.","Hannah P.","Connor O.","Aria K.","Levi C.","Layla N.","Asher M.","Audrey F.",
+      "Jordan B.","Riley T.","Sawyer L.","Brooklyn S.","Easton W.","Bella H.","Beckett P.","Penelope G.",
+      "Kai D.","Stella V.","Felix M.","Maya R.","Ezra J.","Ruby N.","Silas L.","Iris K.",
+      "Diego A.","Camille F.","Mateo P.","Eloise B.","Leo H.","Hazel W.","Adrian T.","Violet S.",
+      "Julian R.","Naomi D.","Anthony G.","Aurora M.","Jackson V.","Eliza C.","Eli J.","Nora P.",
+      "Hassan I.","Fatima Z.","Wei C.","Anya P.","Ravi M.","Priya S.","Andre L.","Camila O.",
+      "Dmitri V.","Lena K.","Tobias H.","Saskia W.","Mateusz N.","Zofia B.","Bjorn E.","Freya O.",
+    ];
+    const services = ["Clothing Design","Logo Brand Design"];
+    const flags = ["🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇩🇪","🇫🇷","🇯🇵","🇧🇷","🇲🇽","🇳🇬","🇮🇳","🇪🇸","🇮🇹","🇰🇷","🇸🇪","🇳🇱","🇨🇭","🇸🇬","🇦🇪","🇮🇪"];
+    const times = ["just now","1 min ago","2 min ago","4 min ago","7 min ago","12 min ago","18 min ago","25 min ago","32 min ago","41 min ago","58 min ago","1 hour ago","2 hours ago","3 hours ago"];
+    
+    // Shuffle helper
+    const shuffle = <T,>(arr: T[]): T[] => {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+    
+    return shuffle(names).slice(0, 25).map((name, i) => ({
+      name,
+      country: flags[Math.floor(Math.random() * flags.length)],
+      service: services[Math.floor(Math.random() * services.length)],
+      time: times[Math.min(i, times.length - 1)],
+    }));
+  }, []);
+
+  useEffect(() => {
+    let idx = 0;
+    const show = () => {
+      setToastData(proofPool[idx % proofPool.length]);
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 4000);
+      idx++;
+    };
+    const timer = setTimeout(() => { show(); }, 5000);
+    const interval = setInterval(show, 14000);
+    return () => { clearTimeout(timer); clearInterval(interval); };
+  }, [proofPool]);
+  const [step, setStep] = useState<number>(() => {
+    if (typeof window === "undefined") return 1;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_step");
+      return saved ? Number(saved) : 1;
+    } catch { return 1; }
+  });
+  const [direction, setDirection] = useState<Direction>("forward");
+  const [animKey, setAnimKey] = useState<number>(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const [selectedPkg, setSelectedPkg] = useState<Package | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_pkg");
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+  const [wizardState, setWizardState] = useState<WizardState>(() => {
+    const fallback: WizardState = {
+      service: null,
+      brandName: "",
+      email: "",
+      whatsapp: "",
+      instagram: "",
+      qty: 1,
+      brief: "",
+      briefImages: [],
+    };
+    if (typeof window === "undefined") return fallback;
+    try {
+      const saved = sessionStorage.getItem("dd_checkout_wizard");
+      return saved ? { ...fallback, ...JSON.parse(saved) } : fallback;
+    } catch { return fallback; }
+  });
+
+  // Persist checkout progress so a refresh resumes exactly where the customer left off
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.setItem("dd_checkout_step", String(step)); } catch {}
+  }, [step]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (selectedPkg) sessionStorage.setItem("dd_checkout_pkg", JSON.stringify(selectedPkg));
+      else sessionStorage.removeItem("dd_checkout_pkg");
+    } catch {}
+  }, [selectedPkg]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.setItem("dd_checkout_wizard", JSON.stringify(wizardState)); } catch {}
+  }, [wizardState]);
+
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3000);
+  };
+
+  // hidden, looping background music (unmutes on first interaction)
+  // Music removed
+
+  // Force-play hero video (some browsers block autoplay even when muted)
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (step !== 1) return;
+    const v = heroVideoRef.current;
+    if (!v) return;
+
+    const forcePlay = () => {
+      v.muted = true;
+      const p = v.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {
+          // Retry on first user interaction if blocked
+          const retry = () => {
+            v.muted = true;
+            v.play().catch(() => {});
+            window.removeEventListener("pointerdown", retry);
+            window.removeEventListener("touchstart", retry);
+            window.removeEventListener("scroll", retry);
+          };
+          window.addEventListener("pointerdown", retry, { passive: true });
+          window.addEventListener("touchstart", retry, { passive: true });
+          window.addEventListener("scroll", retry, { passive: true });
+        });
+      }
+    };
+
+    // Try immediately and again once metadata loads
+    forcePlay();
+    v.addEventListener("loadeddata", forcePlay);
+    v.addEventListener("canplay", forcePlay);
+
+    return () => {
+      v.removeEventListener("loadeddata", forcePlay);
+      v.removeEventListener("canplay", forcePlay);
+    };
+  }, [step]);
+
+  const goTo = (next: number, dir: Direction = "forward") => {
+    setDirection(dir);
+    setAnimKey((k) => k + 1);
+    setStep(next);
+  };
+
+  const handleSelectService = (s: "clothing" | "logo") => {
+    setWizardState((p) => ({ ...p, service: s }));
+    goTo(2, "forward");
+  };
+  const handleNextStep2 = () => {
+    if (wizardState.brandName.trim().length < 2) {
+      showToast("Brand name must be at least 2 characters");
+      return;
+    }
+    if (!wizardState.email.trim() || !/\S+@\S+\.\S+/.test(wizardState.email)) {
+      showToast("Please enter a valid email address");
+      return;
+    }
+    if (!wizardState.whatsapp.trim() && !wizardState.instagram.trim()) {
+      showToast("Please enter at least one contact method (WhatsApp or Instagram)");
+      return;
+    }
+    goTo(3, "forward");
+  };
+  const handleNextStep3 = () => goTo(4, "forward");
+  const handleNextStep4 = () => {
+    if (wizardState.brief.trim().length < 10) {
+      showToast("Brief must be at least 10 characters for best results");
+      return;
+    }
+    goTo(5, "forward");
+  };
+  const handleSelectPkg = (pkg: Package) => {
+    setSelectedPkg(pkg);
+    goTo(6, "forward");
+  };
+
+  const panelClass = `step-panel${direction === "back" ? " from-back" : ""}`;
+
+  return (
+    <div>
+      {/* NAVBAR */}
+      {/* ── NAVBAR with Hamburger ── */}
+      <nav className="navbar">
+        <div className="nav-wrap">
+          <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
+            <i className="ri-menu-line" style={{fontSize:20}} />
+          </button>
+          <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
+            DEAN DESIGNERS
+          </a>
+          <a href="/order-tracker.html" className="nav-profile" title="My Orders">
+            <i className="ri-user-line" style={{fontSize:18}} />
+          </a>
+        </div>
+      </nav>
+
+      {/* ── Drawer Overlay ── */}
+      {drawerOpen && (
+        <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
+          <div className="drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-head">
+              <div className="drawer-logo">
+                <i className="ri-flashlight-fill" style={{fontSize:16,color:"#fff"}} />
+              </div>
+              <span className="drawer-brand">Dean <span style={{color:"#1DBF73"}}>Designers</span></span>
+              <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
+            </div>
+            <div className="drawer-items">
+              <a className="drawer-item" href="#home" onClick={() => { setCurrentPage("home"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-home-4-line" style={{fontSize:18}} />Home
+              </a>
+              <a className="drawer-item" href="#wizard" onClick={() => setDrawerOpen(false)}>
+                <i className="ri-box-3-line" style={{fontSize:18}} />Services
+              </a>
+              <a className="drawer-item" href="#about" onClick={() => setDrawerOpen(false)}>
+                <i className="ri-user-line" style={{fontSize:18}} />Portfolio
+              </a>
+              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-article-line" style={{fontSize:18}} />Articles
+              </a>
+              <div className="drawer-divider" />
+              <a className="drawer-item" href="/order-tracker.html">
+                <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
+              </a>
+              <a className="drawer-item" href="#home" onClick={() => setDrawerOpen(false)}>
+                <i className="ri-logout-box-r-line" style={{fontSize:18}} />Sign Out
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ FULL ARTICLES PAGE ══ */}
+      {currentPage === "articles" && (
+        <ArticlesFullPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
+      )}
+
+      {/* HERO + FEATURE BAR — only visible on Step 1 AND home page */}
+      {currentPage === "home" && step === 1 && (
+        <>
+          <section className="hero hero-yt-section s0" id="home">
+            {/* Local video background — no controls ever */}
+            <video
+              ref={heroVideoRef}
+              className="hero-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23050505'/%3E%3C/svg%3E"
+            >
+              <source src="/process%20design.mp4" type="video/mp4" />
+            </video>
+            <div className="hero-overlay" />
+
+            {/* Minimal content */}
+            <div className="hero-content">
+              <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
+                Start Your Order
+                <span className="hero-cta-arrow">→</span>
+              </button>
+            </div>
+
+            {/* Scroll hint */}
+            <div className="hero-scroll-hint">
+              <i className="ri-arrow-down-s-line scroll-arrow" style={{fontSize:24,color:"rgba(255,255,255,0.6)"}} />
+              <i className="ri-arrow-down-s-line scroll-arrow scroll-arrow-2" style={{fontSize:24,color:"rgba(255,255,255,0.3)"}} />
+            </div>
+          </section>
+
+          <div className="feat-bar s1" id="services">
+            <div className="feat-ticker">
+              <div className="feat-track">
+                {[...FEATURES, ...FEATURES].map((f, i) => (
+                  <React.Fragment key={i}>
+                    <span className="feat-lbl">{f}</span>
+                    <span className="feat-sep">✦</span>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Trust Stats Bar ── */}
+          <div className="trust-bar">
+            <div className="trust-bar-inner">
+              <div className="tb-item">
+                <div className="tb-icon">
+                  <i className="ri-checkbox-circle-line" style={{fontSize:18}} />
+                </div>
+                <div className="tb-text">
+                  <strong>2,000+</strong>
+                  <span>Designs Delivered</span>
+                </div>
+              </div>
+              <div className="tb-divider" />
+              <div className="tb-item">
+                <div className="tb-icon">
+                  <i className="ri-shield-check-line" style={{fontSize:18}} />
+                </div>
+                <div className="tb-text">
+                  <strong>100%</strong>
+                  <span>Money-Back Guarantee</span>
+                </div>
+              </div>
+              <div className="tb-divider" />
+              <div className="tb-item">
+                <div className="tb-icon">
+                  <i className="ri-time-line" style={{fontSize:18}} />
+                </div>
+                <div className="tb-text">
+                  <strong>&lt;24h</strong>
+                  <span>Average Response</span>
+                </div>
+              </div>
+              <div className="tb-divider" />
+              <div className="tb-item">
+                <div className="tb-icon tb-icon-star">★</div>
+                <div className="tb-text">
+                  <strong>5.0 / 5.0</strong>
+                  <span>Client Satisfaction</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Testimonials />
+
+          {/* ── ABOUT SECTION ── */}
+          <section className="about-section s2" id="about" style={{padding:"60px 20px",background:"linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 50%,#E0F2F1 100%)"}}>
+            <div style={{maxWidth:800,margin:"0 auto",textAlign:"center"}}>
+              <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
+              <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
+              <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
+                Professional streetwear and logo design studio serving global clients since 2018. We turn brand visions into production-ready designs that stand out.
+              </p>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
+                {[
+                  {num:"1,000+",label:"Projects Completed"},
+                  {num:"5.0★",label:"Fiverr Rating"},
+                  {num:"25+",label:"Countries Served"},
+                  {num:"7+",label:"Years Experience"}
+                ].map((s,i)=>(
+                  <div key={i} style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(10px)",borderRadius:18,padding:"20px 14px",border:"1px solid rgba(255,255,255,0.5)",boxShadow:"0 4px 16px rgba(0,0,0,0.04)",transition:"all .2s"}}>
+                    <div style={{fontSize:26,fontWeight:800,color:"#1DBF73",marginBottom:4}}>{s.num}</div>
+                    <div style={{fontSize:11,color:"#64748B",fontWeight:600}}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{textAlign:"left",maxWidth:600,margin:"0 auto"}}>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail — organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
+                </p>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+                  <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
+                </p>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569"}}>
+                  <strong>AI-powered workflow.</strong> Our design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes every time.
+                </p>
+              </div>
+            </div>
+          </section>
+
+                  </>
+      )}
+
+      {/* WIZARD */}
+      {currentPage === "home" && (
+      <>
+      <section className="wizard-section s2" id="wizard">
+        <div className="wizard-wrap">
+          <ProgressBar step={step} />
+          <div className="step-outer">
+            {step === 1 && (
+              <div key={`s1-${animKey}`} className={panelClass}>
+                <Step1
+                  service={wizardState.service}
+                  onSelect={handleSelectService}
+                />
+              </div>
+            )}
+            {step === 2 && (
+              <div key={`s2-${animKey}`} className={panelClass}>
+                <Step2
+                  brandName={wizardState.brandName}
+                  email={wizardState.email}
+                  whatsapp={wizardState.whatsapp}
+                  instagram={wizardState.instagram}
+                  onChangeBrand={(v) => setWizardState((p) => ({ ...p, brandName: v }))}
+                  onChangeEmail={(v) => setWizardState((p) => ({ ...p, email: v }))}
+                  onChangeWA={(v) => setWizardState((p) => ({ ...p, whatsapp: v }))}
+                  onChangeIG={(v) => setWizardState((p) => ({ ...p, instagram: v }))}
+                  onNext={handleNextStep2}
+                  onBack={() => goTo(1, "back")}
+                />
+              </div>
+            )}
+            {step === 3 && (
+              <div key={`s3-${animKey}`} className={panelClass}>
+                <Step3
+                  qty={wizardState.qty}
+                  onChange={(q) => setWizardState((p) => ({ ...p, qty: q }))}
+                  onNext={handleNextStep3}
+                  onBack={() => goTo(2, "back")}
+                />
+              </div>
+            )}
+            {step === 4 && (
+              <div key={`s4-${animKey}`} className={panelClass}>
+                <Step4
+                  brief={wizardState.brief}
+                  onChange={(v) => setWizardState((p) => ({ ...p, brief: v }))}
+                  onNext={handleNextStep4}
+                  onBack={() => goTo(3, "back")}
+                  wizardService={wizardState.service}
+                  wizardBrand={wizardState.brandName}
+                  briefImages={wizardState.briefImages}
+                  onImagesChange={(imgs: string[]) => setWizardState((p) => ({ ...p, briefImages: imgs }))}
+                />
+              </div>
+            )}
+            {step === 5 && (
+              <div key={`s5-${animKey}`} className={panelClass}>
+                <Step5
+                  state={wizardState}
+                  onBack={() => goTo(4, "back")}
+                  onSelectPkg={handleSelectPkg}
+                  clothingPkgs={clothingPkgs}
+                  logoPkgs={logoPkgs}
+                />
+              </div>
+            )}
+            {step === 6 && selectedPkg && (
+              <div key={`s6-${animKey}`} className={panelClass}>
+                <Step6
+                  state={wizardState}
+                  pkg={selectedPkg}
+                  onBack={() => goTo(5, "back")}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {toast && <div className="toast">{toast}</div>}
+
+      {/* ── Social Proof Toast ── */}
+      <div className={`sp-toast${toastVisible ? " sp-show" : ""}`}>
+        <div className="sp-dot" />
+        <div className="sp-body">
+          <span className="sp-name">{toastData.name} {toastData.country}</span>
+          <span className="sp-detail">just ordered <strong>{toastData.service}</strong></span>
+          <span className="sp-time">{toastData.time}</span>
+        </div>
+      </div>
+
+      {/* ── Guarantee Section (visible on step 1) ── */}
+      {step === 1 && (
+        <section className="guarantee-section">
+          <div className="guarantee-inner">
+            <h3 className="guarantee-title">Why 1,000+ brands trust Dean Designers</h3>
+            <div className="guarantee-grid">
+              <div className="g-card">
+                <div className="g-icon">
+                  <i className="ri-shield-check-line" style={{fontSize:22}} />
+                </div>
+                <strong>100% Money-Back Guarantee</strong>
+                <p>Not satisfied? Get a full refund — no questions asked. Your investment is protected.</p>
+              </div>
+              <div className="g-card">
+                <div className="g-icon">
+                  <i className="ri-lock-line" style={{fontSize:22}} />
+                </div>
+                <strong>Secure PayPal Payment</strong>
+                <p>Encrypted checkout via PayPal. Pay with card, PayPal balance, or bank — buyer protection included.</p>
+              </div>
+              <div className="g-card">
+                <div className="g-icon">
+                  <i className="ri-checkbox-circle-line" style={{fontSize:22}} />
+                </div>
+                <strong>Production-Ready Files</strong>
+                <p>Every design comes with source files, high-res exports, and commercial license. Print-shop ready.</p>
+              </div>
+              <div className="g-card">
+                <div className="g-icon">
+                  <i className="ri-time-line" style={{fontSize:22}} />
+                </div>
+                <strong>24-Hour Kickoff</strong>
+                <p>Your designer starts within 24 hours and keeps you updated at every stage until delivery.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── FAQ Section (visible on step 1) ── */}
+      {step === 1 && <FAQSection />}
+
+      {/* ── Sticky Mobile CTA ── */}
+      {step === 1 && (
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }} className="sticky-cta">
+          Start Your Order →
+        </button>
+      )}
+      </>
+      )}
+
+      {/* Hidden background music player */}
+      {/* Music removed */}
+    </div>
+  );
+}
