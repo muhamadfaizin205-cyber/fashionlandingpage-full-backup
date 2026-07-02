@@ -1809,6 +1809,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
     const readTime = selected.content ? Math.max(1, Math.ceil(selected.content.replace(/<[^>]*>/g,"").split(/\s+/).length / 200)) : 3;
     return (
       <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+        {/* Sticky top bar */}
         <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <BackButton onClick={closeArticle} label="All Articles" />
@@ -1819,6 +1820,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
         </div>
 
         <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
+          {/* Tags row — single line, clean pills */}
           {selected.tags?.length > 0 && (
             <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
               {selected.tags.map((t: string, i: number) => (
@@ -1827,14 +1829,16 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
             </div>
           )}
 
-          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",margin:"0 0 18px"}}>{selected.title}</h1>
+          {/* Title */}
+          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",marginBottom:18,margin:"0 0 18px"}}>{selected.title}</h1>
 
+          {/* Meta row */}
           <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
-              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Xavian"}</span>
+              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Dean Designers"}</span>
             </div>
             <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
             <span style={{fontSize:13,color:"#6B7280"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>
@@ -1842,14 +1846,19 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
             <span style={{fontSize:13,color:"#6B7280"}}>{readTime} min read</span>
           </div>
 
+          {/* Cover image */}
           {selected.cover_image && (
             <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
-              <img src={selected.cover_image} alt={selected.title} style={{width:"100%",height:"auto",maxHeight:440,objectFit:"cover",display:"block"}} />
+              <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden"}}>
+                <img src={selected.cover_image} alt={selected.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
+              </div>
             </div>
           )}
 
+          {/* Article body */}
           <div className="article-body" style={{fontSize:16.5,lineHeight:1.85,color:"#374151",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
 
+          {/* Tags at bottom */}
           {selected.tags?.length > 0 && (
             <div style={{marginTop:40,paddingTop:24,borderTop:"1px solid #F0F0F0"}}>
               <div style={{fontSize:11,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
@@ -1861,6 +1870,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
             </div>
           )}
 
+          {/* Footer CTA */}
           <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
             <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
             <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
@@ -1870,6 +1880,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
             </button>
           </div>
 
+          {/* Bottom back button */}
           <div style={{marginTop:40,display:"flex",gap:12}}>
             <BackButton onClick={closeArticle} label="← Back to Articles" />
             <BackButton onClick={onBack} label="Go to Homepage" />
@@ -1882,6 +1893,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
   // ── ARTICLES LIST VIEW ──
   return (
     <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+      {/* Sticky header */}
       <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
         <BackButton onClick={onBack} label="Home" />
         <div style={{flex:1,maxWidth:360,position:"relative"}}>
@@ -1892,15 +1904,17 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
       </div>
 
       <div style={{maxWidth:1120,margin:"0 auto",padding:"40px 20px 80px"}}>
+        {/* Page header */}
         <div style={{marginBottom:36}}>
           <div style={{display:"inline-block",background:"#F0FDF4",color:"#16A34A",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:12}}>Design Blog</div>
           <h1 style={{fontSize:"clamp(26px,4vw,38px)",fontWeight:800,letterSpacing:"-0.5px",color:"#111827",marginBottom:8,lineHeight:1.1}}>Articles & Insights</h1>
           <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
         </div>
 
+        {/* Tag filter — single horizontal scroll row, no wrapping chaos */}
         {allTags.length > 0 && (
           <div style={{marginBottom:32}}>
-            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
+            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none",WebkitOverflowScrolling:"touch" as any}}>
               <button onClick={() => setActiveTag("")} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E5E7EB",background:!activeTag?"#F0FDF4":"#fff",color:!activeTag?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>All</button>
               {allTags.map((t, i) => (
                 <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E5E7EB",background:activeTag===t?"#F0FDF4":"#fff",color:activeTag===t?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",whiteSpace:"nowrap"}}>{t}</button>
@@ -1909,11 +1923,12 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
+        {/* States */}
         {loading ? (
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
             {[1,2,3,4,5,6].map(i => (
               <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
-                <div style={{height:200,background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
+                <div style={{aspectRatio:"16/9",background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
                 <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
               </div>
             ))}
@@ -1926,19 +1941,26 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           </div>
         ) : (
           <>
+            {/* Featured article */}
             {filtered.length > 0 && !search && !activeTag && (
               <div onClick={() => openArticle(filtered[0])}
                 style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
                 onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
                 onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
-                <div style={{minHeight:300,background:filtered[0].cover_image?`url(${filtered[0].cover_image}) center/cover`:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                <div style={{position:"relative",aspectRatio:"3/2",overflow:"hidden"}}>
+                  {filtered[0].cover_image
+                    ? <img src={filtered[0].cover_image} alt={filtered[0].title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />
+                    : <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                  }
+                </div>
                 <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
                     <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
                     <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
                   </div>
-                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",margin:"0 0 10px"}}>{filtered[0].title}</h2>
-                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
+                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",marginBottom:10,margin:"0 0 10px"}}>{filtered[0].title}</h2>
+                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,marginBottom:18,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
+                  {/* Tags in featured — clean row */}
                   {filtered[0].tags?.length > 0 && (
                     <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
                       {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
@@ -1953,20 +1975,26 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
               </div>
             )}
 
+            {/* Article grid */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
               {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
                 <div key={a.id} onClick={() => openArticle(a)}
                   style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
                   onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
                   onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
-                  {a.cover_image ? (
-                    <div style={{height:188,background:`url(${a.cover_image}) center/cover`,flexShrink:0}} />
-                  ) : (
-                    <div style={{height:188,background:"#F9FAFB",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                  )}
+                  {/* Thumbnail — aspect-ratio 16:9, never crops unexpectedly */}
+                  <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden",flexShrink:0}}>
+                    {a.cover_image
+                      ? <img src={a.cover_image} alt={a.title} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s"}}
+                          onMouseOver={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="scale(1.04)";}}
+                          onMouseOut={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="";}} />
+                      : <div style={{position:"absolute",inset:0,background:"#F3F4F6",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                    }
+                  </div>
                   <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
+                    {/* Tags — single row, scroll not wrap */}
                     {a.tags?.length > 0 && (
                       <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
                         {a.tags.slice(0,3).map((t: string, i: number) => (
@@ -1974,8 +2002,8 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                         ))}
                       </div>
                     )}
-                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",margin:"0 0 8px",flex:1}}>{a.title}</h3>
-                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
+                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",marginBottom:8,margin:"0 0 8px",flex:1}}>{a.title}</h3>
+                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,marginBottom:12,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto"}}>
                       <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
                       <span style={{fontSize:11,color:"#1DBF73",fontWeight:600}}>Read →</span>
@@ -1991,6 +2019,102 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── FAQ Section ───────────────────────────────────────────
+function FAQSection() {
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  
+  const faqs = [
+    {
+      q: "How does the design process work?",
+      a: "After you place your order, we receive your brief instantly. Within 24 hours, your dedicated designer reviews everything and starts working. You'll receive draft concepts within your package's delivery window, then we refine based on your feedback until you're 100% happy. Final files are delivered via email and your order tracker page.",
+    },
+    {
+      q: "What if I don't like the designs?",
+      a: "We have a 100% money-back guarantee. If you're not satisfied with the work after revisions, you can request a full refund — no questions asked. Most clients love their first draft, but we'll keep refining until it's exactly what you envisioned.",
+    },
+    {
+      q: "How many revisions do I get?",
+      a: "Each package includes a different number of revisions: Basic includes 2, Standard includes unlimited revisions for 7 days, and Premium includes unlimited revisions until you approve. Revisions are how we make sure the design is exactly right for your brand.",
+    },
+    {
+      q: "When will I receive my designs?",
+      a: "Delivery times depend on your package: Basic is 3 days, Standard is 5 days, and Premium is 7 days. Your designer starts within 24 hours of payment, and you can track progress in real-time on your order dashboard. Rush orders are available — message us for details.",
+    },
+    {
+      q: "What file formats will I get?",
+      a: "All final designs come with complete production-ready files: AI source files (Adobe Illustrator), high-resolution PNG (transparent background), JPG for web, PDF for print, and SVG for digital use. You'll have everything you need to print, post, or upload anywhere.",
+    },
+    {
+      q: "Can I use the designs commercially?",
+      a: "Absolutely. You own 100% commercial rights to all final designs once delivered. Use them on apparel, merchandise, websites, social media, business cards, or any commercial purpose. No royalties, no restrictions.",
+    },
+    {
+      q: "Is my payment secure?",
+      a: "Yes — we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
+    },
+    {
+      q: "What if I need changes after delivery?",
+      a: "Within your revision window, all changes are free. After final delivery, minor tweaks (color adjustments, text changes) are often included as a courtesy. Major redesigns are quoted separately, but most clients don't need them.",
+    },
+    {
+      q: "How do I communicate with my designer?",
+      a: "You'll have direct access via our built-in chat on the order tracker page. You can also reach out via WhatsApp or email. Your designer responds within 24 hours (usually much faster) and keeps you updated at every stage.",
+    },
+    {
+      q: "Do you sign an NDA?",
+      a: "Yes, on request for Premium clients. All projects are kept strictly confidential by default — your brand, designs, and brief are never shared, displayed, or used in our portfolio without your written permission.",
+    },
+    {
+      q: "What's your refund policy?",
+      a: "Full refund within 7 days if you're not satisfied after revisions. Partial refunds available if work has been delivered but you want to cancel. Refunds processed via PayPal within 3-5 business days. Read our full terms on the order tracker.",
+    },
+    {
+      q: "Can I order multiple designs?",
+      a: "Yes! You can return to the landing page anytime from your order tracker dashboard and place additional orders. Each order gets its own dedicated tracking and designer. Volume discounts apply for 2+ concepts.",
+    },
+  ];
+
+  return (
+    <section className="faq-section">
+      <div className="faq-inner">
+        <div className="faq-header">
+          <span className="faq-tag">FAQ</span>
+          <h2 className="faq-title">Everything you need to know</h2>
+          <p className="faq-sub">Common questions answered honestly. If you don't find what you're looking for, feel free to reach out.</p>
+        </div>
+        <div className="faq-list">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className={`faq-item ${openIdx === idx ? "open" : ""}`}>
+              <button className="faq-q" onClick={() => setOpenIdx(openIdx === idx ? null : idx)}>
+                <span>{faq.q}</span>
+                <span className="faq-toggle">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
+              </button>
+              <div className="faq-a">
+                <p>{faq.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="faq-cta">
+          <div className="faq-cta-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <strong>Ready to bring your brand to life?</strong>
+            <p>100% money-back guarantee. Production-ready files. Trusted by 2,000+ brands worldwide.</p>
+          </div>
+          <a className="faq-cta-btn" href="#wizard">
+            Start Your Order
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // ─── Main App ──────────────────────────────────────────────
 export default function App() {
