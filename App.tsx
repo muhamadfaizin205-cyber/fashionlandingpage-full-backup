@@ -1736,25 +1736,14 @@ function Step6({
 
 // ─── Articles Section (Blog) ──────────────────────────────
 // ─── Articles Full Page ───────────────────────────────────
-// ─── Articles Page helpers (must be OUTSIDE component to avoid React crash) ──
-function BackBtn({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button onClick={onClick} className="dd-btn-ghost" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:".82rem",padding:"7px 14px"}}>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      {label}
-    </button>
-  );
-}
-
-// ─── Articles Page (Gemini Design × Dean Designers) ────────────────────────
 function ArticlesFullPage({ onBack }: { onBack: () => void }) {
-  const [articles, setArticles] = React.useState<any[]>([]);
-  const [selected, setSelected] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [search, setSearch] = React.useState("");
-  const [activeTag, setActiveTag] = React.useState("");
+  const [articles, setArticles] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [activeTag, setActiveTag] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!supabase) { setLoading(false); return; }
     supabase.from("articles").select("*").eq("published", true)
       .order("created_at", { ascending: false })
@@ -1774,238 +1763,230 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
 
   const openArticle = (a: any) => {
     setSelected(a);
-    window.history.pushState({}, "", `/articles/${a.slug || a.id}`);
-    window.scrollTo(0, 0);
+    const slug = a.slug || a.id;
+    window.history.pushState({}, "", `/articles/${slug}`);
+    window.scrollTo(0,0);
   };
 
   const closeArticle = () => {
     setSelected(null);
     window.history.pushState({}, "", "/articles");
-    window.scrollTo(0, 0);
+    window.scrollTo(0,0);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const onPop = () => {
       const parts = window.location.pathname.split("/").filter(Boolean);
       if (parts[0] === "articles" && parts[1]) {
         const match = articles.find((a: any) => a.slug === parts[1]);
         setSelected(match || null);
-      } else setSelected(null);
+      } else {
+        setSelected(null);
+      }
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [articles]);
 
-  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 14);
+  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 12);
   const filtered = articles.filter((a) => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || a.title?.toLowerCase().includes(q) || a.excerpt?.toLowerCase().includes(q);
+    const matchSearch = !search || a.title?.toLowerCase().includes(search.toLowerCase()) || a.excerpt?.toLowerCase().includes(search.toLowerCase());
     const matchTag = !activeTag || (a.tags || []).includes(activeTag);
     return matchSearch && matchTag;
   });
 
-  const readTime = (a: any) => Math.max(1, Math.ceil((a.content || "").replace(/<[^>]*>/g,"").split(/\s+/).length / 200));
+  const BackButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button onClick={onClick} style={{display:"inline-flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #E2E8F0",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 16px",borderRadius:8,transition:"all .15s",fontFamily:"inherit"}}
+      onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#1DBF73";(e.currentTarget as HTMLElement).style.color="#1DBF73";}}
+      onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#E2E8F0";(e.currentTarget as HTMLElement).style.color="#374151";}}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      {label}
+    </button>
+  );
 
-  // BackBtn is defined outside this component (above) to avoid React crash
-
-  // ── ARTICLE DETAIL ──────────────────────────────────
+  // ── ARTICLE DETAIL VIEW ──
   if (selected) {
+    const readTime = selected.content ? Math.max(1, Math.ceil(selected.content.replace(/<[^>]*>/g,"").split(/\s+/).length / 200)) : 3;
     return (
-      <div className="dd-article-root">
-        <div className="dd-article-topbar">
-          <div className="dd-article-topbar-left">
-            <BackBtn onClick={closeArticle} label="Journal" />
-            <span className="dd-breadcrumb">›</span>
-            <span className="dd-breadcrumb-title">{selected.title}</span>
+      <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+        <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <BackButton onClick={closeArticle} label="All Articles" />
+            <span style={{color:"#D1D5DB",fontSize:14}}>›</span>
+            <span style={{fontSize:13,color:"#6B7280",maxWidth:300,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected.title}</span>
           </div>
-          <BackBtn onClick={onBack} label="Home" />
+          <BackButton onClick={onBack} label="Home" />
         </div>
 
-        <div className="dd-article-body-wrap">
+        <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
           {selected.tags?.length > 0 && (
-            <div className="dd-article-tags-top">
+            <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
               {selected.tags.map((t: string, i: number) => (
-                <span key={i} className="dd-article-tag">{t}</span>
+                <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#374151",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:600,letterSpacing:".4px",textTransform:"uppercase",whiteSpace:"nowrap"}}>{t}</span>
               ))}
             </div>
           )}
 
-          <h1 className="dd-article-h1">{selected.title}</h1>
+          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",margin:"0 0 18px"}}>{selected.title}</h1>
 
-          <div className="dd-article-byline">
-            <div className="dd-byline-avatar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Xavian"}</span>
             </div>
-            <div>
-              <div className="dd-byline-name">{selected.author_name || "Xavian"}</div>
-              <div className="dd-byline-meta">{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · {readTime(selected)} min read</div>
-            </div>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>
+            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
+            <span style={{fontSize:13,color:"#6B7280"}}>{readTime} min read</span>
           </div>
 
           {selected.cover_image && (
-            <div className="dd-article-cover">
-              <img src={selected.cover_image} alt={selected.title} />
+            <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
+              <img src={selected.cover_image} alt={selected.title} style={{width:"100%",height:"auto",maxHeight:440,objectFit:"cover",display:"block"}} />
             </div>
           )}
 
-          <div className="dd-article-content" dangerouslySetInnerHTML={{__html: selected.content}} />
+          <div className="article-body" style={{fontSize:16.5,lineHeight:1.85,color:"#374151",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
 
           {selected.tags?.length > 0 && (
-            <div style={{marginTop:36,paddingTop:20,borderTop:"1px solid rgba(255,255,255,.07)"}}>
-              <div style={{fontSize:".75rem",fontWeight:700,color:"#A0AAB2",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
+            <div style={{marginTop:40,paddingTop:24,borderTop:"1px solid #F0F0F0"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {selected.tags.map((t: string, i: number) => (
-                  <button key={i} onClick={()=>{closeArticle();setActiveTag(t);}} className="dd-article-tag" style={{border:"none",cursor:"pointer",fontFamily:"inherit"}}>
-                    {t}
-                  </button>
+                  <button key={i} onClick={() => { closeArticle(); setActiveTag(t); }} style={{background:"#F3F4F6",color:"#374151",padding:"5px 12px",borderRadius:4,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",fontFamily:"inherit"}}>{t}</button>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="dd-cta-box">
-            <span className="badge">Ready to build your brand?</span>
-            <h3>Professional Clothing & Logo Design</h3>
-            <p>5.0★ · 1,000+ projects · 25+ countries · 7+ years experience · Files in 1–3 days</p>
-            <button onClick={onBack} className="dd-btn-primary">Start Your Order →</button>
+          <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
+            <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
+            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 1,000+ projects · 25+ countries · 7+ years</p>
+            <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+              Start Your Order →
+            </button>
           </div>
 
-          <div className="dd-bottom-nav">
-            <BackBtn onClick={closeArticle} label="← Back to Journal" />
-            <BackBtn onClick={onBack} label="Go to Homepage" />
+          <div style={{marginTop:40,display:"flex",gap:12}}>
+            <BackButton onClick={closeArticle} label="← Back to Articles" />
+            <BackButton onClick={onBack} label="Go to Homepage" />
           </div>
         </div>
       </div>
     );
   }
 
-  // ── ARTICLE LIST ─────────────────────────────────────
-  const featured = filtered[0];
-  const rest = search || activeTag ? filtered : filtered.slice(1);
-
+  // ── ARTICLES LIST VIEW ──
   return (
-    <div className="dd-articles-root">
-
-      {/* Nav */}
-      <nav className="dd-nav">
-        <div className="dd-nav-logo">DEAN DESIGNERS.</div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <div className="dd-search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A0AAB2" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search articles..." />
-          </div>
-          <button onClick={onBack} className="dd-btn-primary" style={{padding:"9px 18px",fontSize:".82rem"}}>← Home</button>
+    <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
+      <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+        <BackButton onClick={onBack} label="Home" />
+        <div style={{flex:1,maxWidth:360,position:"relative"}}>
+          <svg style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,border:"1.5px solid #E5E7EB",borderRadius:8,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const,background:"#F9FAFB",color:"#111827"}} />
         </div>
-      </nav>
-
-      {/* Hero — featured article */}
-      {!loading && featured && !search && !activeTag && (
-        <header className="dd-hero">
-          <div className="dd-hero-content">
-            <span className="dd-hero-badge">✦ Featured Article</span>
-            <h1>{featured.title}</h1>
-            {featured.excerpt && <p className="dd-hero-excerpt">{featured.excerpt.substring(0,160)}{featured.excerpt.length > 160 ? "..." : ""}</p>}
-            <div className="dd-hero-meta">
-              <span className="author">{featured.author_name || "Xavian"}</span>
-              {" · "}
-              <span>{new Date(featured.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
-              {" · "}
-              <span>{readTime(featured)} min read</span>
-            </div>
-            <button onClick={()=>openArticle(featured)} className="dd-btn-primary">
-              Read Article →
-            </button>
-          </div>
-          <div className="dd-hero-img">
-            {featured.cover_image
-              ? <img src={featured.cover_image} alt={featured.title} />
-              : <div className="dd-hero-img-placeholder">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(29,191,115,.4)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                </div>
-            }
-          </div>
-        </header>
-      )}
-
-      {/* Tag filter */}
-      <div className="dd-tag-bar">
-        <div className="dd-tag-scroll">
-          <button className={`dd-tag${!activeTag?" active":""}`} onClick={()=>setActiveTag("")}>All Articles</button>
-          {allTags.map((t, i) => (
-            <button key={i} className={`dd-tag${activeTag===t?" active":""}`} onClick={()=>setActiveTag(activeTag===t?"":t)}>{t}</button>
-          ))}
-        </div>
+        <span style={{fontSize:12,color:"#9CA3AF",fontWeight:500,marginLeft:"auto"}}>{filtered.length} article{filtered.length !== 1 ? "s" : ""}</span>
       </div>
 
-      {/* Article grid */}
-      <section className="dd-grid-section">
-        <div className="dd-section-head">
-          <h2>{search ? `Results for "${search}"` : activeTag ? activeTag : "Latest Releases"}</h2>
-          <p>{filtered.length} article{filtered.length!==1?"s":""} · Dive into our latest thoughts on design, culture, and streetwear</p>
+      <div style={{maxWidth:1120,margin:"0 auto",padding:"40px 20px 80px"}}>
+        <div style={{marginBottom:36}}>
+          <div style={{display:"inline-block",background:"#F0FDF4",color:"#16A34A",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:12}}>Design Blog</div>
+          <h1 style={{fontSize:"clamp(26px,4vw,38px)",fontWeight:800,letterSpacing:"-0.5px",color:"#111827",marginBottom:8,lineHeight:1.1}}>Articles & Insights</h1>
+          <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
         </div>
 
+        {allTags.length > 0 && (
+          <div style={{marginBottom:32}}>
+            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
+              <button onClick={() => setActiveTag("")} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E5E7EB",background:!activeTag?"#F0FDF4":"#fff",color:!activeTag?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>All</button>
+              {allTags.map((t, i) => (
+                <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E5E7EB",background:activeTag===t?"#F0FDF4":"#fff",color:activeTag===t?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",whiteSpace:"nowrap"}}>{t}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {loading ? (
-          <div className="dd-grid">
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} style={{background:"#1A1D24",borderRadius:12,overflow:"hidden"}}>
-                <div className="dd-shimmer" style={{aspectRatio:"16/9"}} />
-                <div style={{padding:20}}>
-                  <div className="dd-shimmer" style={{height:10,width:"40%",marginBottom:12}} />
-                  <div className="dd-shimmer" style={{height:16,marginBottom:8}} />
-                  <div className="dd-shimmer" style={{height:12,width:"70%"}} />
-                </div>
+              <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
+                <div style={{height:200,background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
+                <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
               </div>
             ))}
           </div>
-        ) : !rest.length && !featured ? (
-          <div className="dd-empty">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#A0AAB2" strokeWidth="1.5" style={{margin:"0 auto 12px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p style={{color:"#A0AAB2",fontWeight:600}}>No articles found</p>
-            <p>Try a different search or tag</p>
+        ) : !filtered.length ? (
+          <div style={{textAlign:"center",padding:"80px 20px"}}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5" style={{margin:"0 auto 14px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p style={{fontSize:15,color:"#9CA3AF",fontWeight:600,margin:"0 0 4px"}}>No articles found</p>
+            <p style={{fontSize:13,color:"#D1D5DB",margin:0}}>Try a different search or tag</p>
           </div>
         ) : (
-          <div className="dd-grid">
-            {rest.map((a) => (
-              <article key={a.id} className="dd-card" onClick={()=>openArticle(a)}>
-                <div className="dd-card-thumb">
-                  {a.cover_image
-                    ? <img src={a.cover_image} alt={a.title} loading="lazy" />
-                    : <div className="dd-card-thumb-placeholder">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(29,191,115,.3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      </div>
-                  }
-                </div>
-                <div className="dd-card-body">
-                  {a.tags?.[0] && <span className="dd-card-category">{a.tags[0]}</span>}
-                  <h3 className="dd-card-title">{a.title}</h3>
-                  {a.excerpt && <p className="dd-card-excerpt">{a.excerpt}</p>}
-                  <div className="dd-card-meta">
-                    <span className="author">{a.author_name || "Xavian"}</span>
-                    <span className="dd-card-read">{readTime(a)} min read →</span>
+          <>
+            {filtered.length > 0 && !search && !activeTag && (
+              <div onClick={() => openArticle(filtered[0])}
+                style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
+                onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
+                onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
+                <div style={{minHeight:300,background:filtered[0].cover_image?`url(${filtered[0].cover_image}) center/cover`:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+                <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                    <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
+                    <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                  </div>
+                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",margin:"0 0 10px"}}>{filtered[0].title}</h2>
+                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
+                  {filtered[0].tags?.length > 0 && (
+                    <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
+                      {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
+                        <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"3px 8px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px"}}>{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{display:"flex",alignItems:"center",gap:6,color:"#1DBF73",fontSize:13,fontWeight:700}}>
+                    Read article <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                   </div>
                 </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+              </div>
+            )}
 
-      {/* Footer */}
-      <footer style={{background:"#090a0d",padding:"50px 5% 20px",borderTop:"1px solid rgba(255,255,255,.05)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:24,marginBottom:32}}>
-          <div>
-            <h2 style={{fontSize:"1.3rem",fontWeight:700,marginBottom:8}}>DEAN DESIGNERS.</h2>
-            <p style={{color:"#A0AAB2",maxWidth:360,fontSize:".9rem"}}>Elevating streetwear through intentional design and uncompromising quality.</p>
-          </div>
-          <div style={{display:"flex",gap:20}}>
-            <button onClick={onBack} style={{background:"none",border:"none",color:"#A0AAB2",cursor:"pointer",fontFamily:"inherit",fontSize:".9rem"}}>Home</button>
-            <a href="https://createclothingdesign.com" style={{color:"#A0AAB2",fontSize:".9rem"}}>Main Site</a>
-          </div>
-        </div>
-        <div style={{textAlign:"center",color:"#A0AAB2",fontSize:".8rem",paddingTop:16,borderTop:"1px solid rgba(255,255,255,.05)"}}>
-          © {new Date().getFullYear()} Dean Designers. All rights reserved.
-        </div>
-      </footer>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
+              {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
+                <div key={a.id} onClick={() => openArticle(a)}
+                  style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
+                  onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
+                  onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
+                  {a.cover_image ? (
+                    <div style={{height:188,background:`url(${a.cover_image}) center/cover`,flexShrink:0}} />
+                  ) : (
+                    <div style={{height:188,background:"#F9FAFB",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                  )}
+                  <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
+                    {a.tags?.length > 0 && (
+                      <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
+                        {a.tags.slice(0,3).map((t: string, i: number) => (
+                          <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",whiteSpace:"nowrap"}}>{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",margin:"0 0 8px",flex:1}}>{a.title}</h3>
+                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto"}}>
+                      <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+                      <span style={{fontSize:11,color:"#1DBF73",fontWeight:600}}>Read →</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
