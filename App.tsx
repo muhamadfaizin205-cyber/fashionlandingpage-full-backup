@@ -2014,6 +2014,150 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── Order Guide (collapsible) ────────────────────────────
+function OrderGuide() {
+  const [open, setOpen] = useState(false);
+
+  const steps = [
+    {
+      num: "01",
+      icon: "ri-palette-line",
+      title: "Pilih Layanan",
+      desc: "Di halaman utama, kamu akan melihat 2 layanan utama: Clothing Design (desain kaos, hoodie, jersey, streetwear) dan Logo Brand Design (logo, identitas visual brand). Klik layanan yang kamu butuhkan, lalu scroll ke bawah dan klik tombol hijau \"Start Your Order\" untuk mulai proses pemesanan.",
+      color: "#1DBF73",
+    },
+    {
+      num: "02",
+      icon: "ri-box-3-line",
+      title: "Pilih Paket & Jumlah Konsep",
+      desc: "Tersedia 3 paket: Basic (desain simpel, 1 revisi), Standard (desain detail + mockup, revisi lebih banyak), dan Premium (full package + unlimited revisi + priority). Pilih juga jumlah konsep desain — misalnya 2 konsep berarti kamu akan mendapat 2 variasi desain berbeda untuk dipilih. Harga otomatis terhitung sesuai paket × jumlah konsep.",
+      color: "#3B82F6",
+    },
+    {
+      num: "03",
+      icon: "ri-edit-line",
+      title: "Isi Brief Desain",
+      desc: "Ini bagian terpenting! Jelaskan desain yang kamu inginkan secara detail: nama brand, konsep/tema (misalnya streetwear Jepang, vintage, minimalis), warna yang diinginkan, teks/tulisan yang harus ada, dan referensi desain. Kamu juga bisa upload gambar referensi langsung dari HP atau laptop. Semakin detail brief-mu, semakin akurat hasil desainnya — tidak perlu revision bolak-balik.",
+      color: "#F59E0B",
+    },
+    {
+      num: "04",
+      icon: "ri-user-line",
+      title: "Isi Data Kontak",
+      desc: "Masukkan: (1) Email aktif — ini akan jadi login utama ke Order Tracker dan penerima email konfirmasi + access code. (2) Nomor WhatsApp — untuk komunikasi cepat jika desainer butuh klarifikasi. (3) Instagram (opsional) — supaya desainer bisa lihat style brand kamu. Pastikan email benar karena access code dikirim ke sini.",
+      color: "#8B5CF6",
+    },
+    {
+      num: "05",
+      icon: "ri-bank-card-line",
+      title: "Pembayaran Aman via PayPal",
+      desc: "Klik tombol PayPal untuk bayar. Kamu bisa bayar dengan: (1) Akun PayPal langsung, (2) Kartu debit/kredit Visa atau Mastercard tanpa perlu akun PayPal. Harga yang tertera adalah harga final dalam USD — tidak ada biaya tambahan atau biaya tersembunyi. Pembayaran diproses secara aman melalui server PayPal, data kartu kamu tidak pernah disimpan di website kami.",
+      color: "#EC4899",
+    },
+    {
+      num: "06",
+      icon: "ri-mail-send-line",
+      title: "Terima Email Konfirmasi & Access Code",
+      desc: "Setelah pembayaran berhasil, kamu akan langsung menerima email dari Dean Designers berisi: ringkasan order (paket, harga, brief), dan yang paling penting — Access Code 6 karakter (contoh: A3F2B1). Simpan kode ini baik-baik! Kamu membutuhkannya setiap kali login ke Order Tracker untuk melihat progress, chat dengan desainer, dan download file. Jika tidak menerima email dalam 5 menit, cek folder spam.",
+      color: "#14B8A6",
+    },
+    {
+      num: "07",
+      icon: "ri-chat-3-line",
+      title: "Pantau Progress & Chat dengan Desainer",
+      desc: "Buka halaman Order Tracker → masukkan email + access code → kamu langsung masuk ke dashboard. Di sini kamu bisa: (1) Lihat status order realtime (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat langsung dengan desainer — kirim pesan, gambar, voice note, (3) Minta revisi dengan menjelaskan perubahan yang diinginkan. Setiap ada update dari desainer, kamu akan mendapat notifikasi.",
+      color: "#F97316",
+    },
+    {
+      num: "08",
+      icon: "ri-download-line",
+      title: "Terima & Download File Final",
+      desc: "Setelah desain disetujui dan semua revisi selesai, desainer akan mengirim file final dalam format siap produksi: file vector (AI/EPS/SVG), file cetak (PDF high-res), file digital (PNG transparan), dan mockup preview. Status order berubah ke \"Delivered\". Kamu bisa download semua file langsung dari Order Tracker. File tersimpan permanen — bisa diakses kapan saja selama kamu punya email dan access code.",
+      color: "#1DBF73",
+    },
+  ];
+
+  return (
+    <section style={{maxWidth:1120,margin:"0 auto",padding:"0 20px 40px"}}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={{
+          background:"linear-gradient(135deg,#0F1115,#1a2420)",
+          border:"1px solid rgba(29,191,115,0.2)",
+          borderRadius:open ? "16px 16px 0 0" : 16,
+          padding:"20px 24px",
+          cursor:"pointer",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"space-between",
+          transition:"all .2s",
+        }}
+        onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(29,191,115,0.5)"; }}
+        onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(29,191,115,0.2)"; }}
+      >
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:36,height:36,background:"rgba(29,191,115,0.15)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <i className="ri-book-open-line" style={{fontSize:18,color:"#1DBF73"}} />
+          </div>
+          <div>
+            <div style={{fontSize:15,fontWeight:700,color:"#fff",letterSpacing:"-0.2px"}}>Panduan Cara Order</div>
+            <div style={{fontSize:12,color:"rgba(255,255,255,0.45)",marginTop:2}}>Step-by-step dari pemesanan hingga file diterima</div>
+          </div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontSize:11,fontWeight:600,color:"#1DBF73",textTransform:"uppercase",letterSpacing:1}}>{open ? "Tutup" : "Lihat"}</span>
+          <i className={open ? "ri-arrow-up-s-line" : "ri-arrow-down-s-line"} style={{fontSize:20,color:"#1DBF73",transition:"transform .2s"}} />
+        </div>
+      </div>
+
+      {open && (
+        <div style={{
+          background:"#fff",
+          border:"1px solid #E5E7EB",
+          borderTop:"none",
+          borderRadius:"0 0 16px 16px",
+          padding:"28px 24px 32px",
+          animation:"fadeUp .3s",
+        }}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+            {steps.map((s, i) => (
+              <div key={i} style={{
+                background:"#FAFAFA",
+                border:"1px solid #F0F0F0",
+                borderRadius:12,
+                padding:"20px 18px",
+                position:"relative",
+                overflow:"hidden",
+                transition:"all .2s",
+              }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.borderColor = s.color; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#F0F0F0"; (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.boxShadow = ""; }}
+              >
+                <div style={{position:"absolute",top:12,right:14,fontSize:32,fontWeight:800,color:s.color,opacity:0.08}}>{s.num}</div>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                  <div style={{width:32,height:32,background:s.color + "18",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <i className={s.icon} style={{fontSize:16,color:s.color}} />
+                  </div>
+                  <div style={{fontSize:11,fontWeight:700,color:s.color,letterSpacing:".5px"}}>STEP {s.num}</div>
+                </div>
+                <div style={{fontSize:14,fontWeight:700,color:"#111827",marginBottom:6,lineHeight:1.3}}>{s.title}</div>
+                <div style={{fontSize:12.5,color:"#6B7280",lineHeight:1.65}}>{s.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{marginTop:24,padding:"18px 20px",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:10,display:"flex",alignItems:"flex-start",gap:10}}>
+            <i className="ri-lightbulb-line" style={{fontSize:18,color:"#16A34A",flexShrink:0,marginTop:1}} />
+            <div style={{fontSize:12.5,color:"#15803D",lineHeight:1.65}}>
+              <strong>Tips:</strong> Simpan email konfirmasi dan access code kamu baik-baik. Kamu akan membutuhkannya untuk mengakses order tracker, chat dengan desainer, dan mendownload file final. Jika ada pertanyaan, hubungi kami via WhatsApp: <strong>+62 831-3153-3097</strong>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ─── FAQ Section ───────────────────────────────────────────
 function FAQSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -2655,6 +2799,9 @@ export default function App() {
           </div>
         </section>
       )}
+
+      {/* ── Order Guide (visible on step 1) ── */}
+      {step === 1 && <OrderGuide />}
 
       {/* ── FAQ Section (visible on step 1) ── */}
       {step === 1 && <FAQSection />}
