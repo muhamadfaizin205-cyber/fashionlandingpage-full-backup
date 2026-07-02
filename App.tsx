@@ -1736,14 +1736,122 @@ function Step6({
 
 // ─── Articles Section (Blog) ──────────────────────────────
 // ─── Articles Full Page ───────────────────────────────────
-function ArticlesFullPage({ onBack }: { onBack: () => void }) {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [activeTag, setActiveTag] = useState("");
+// ─── Articles Page (Gemini Design × Dean Designers) ────────────────────────
+const articleStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  .dd-articles-root { --bg-dark:#0F1115; --bg-card:#1A1D24; --accent:#1DBF73; --txt:#fff; --txt-gray:#A0AAB2; font-family:'Poppins',sans-serif; background:var(--bg-dark); color:var(--txt); min-height:100vh; }
+  .dd-btn-primary { background:var(--accent); color:#000; padding:10px 24px; border-radius:4px; font-weight:600; font-size:.9rem; border:none; cursor:pointer; font-family:inherit; transition:all .25s; display:inline-flex; align-items:center; gap:6px; }
+  .dd-btn-primary:hover { background:#179b5d; transform:translateY(-2px); }
+  .dd-btn-ghost { background:transparent; color:var(--txt-gray); padding:10px 20px; border-radius:4px; font-weight:500; font-size:.9rem; border:1px solid rgba(255,255,255,.15); cursor:pointer; font-family:inherit; transition:all .25s; }
+  .dd-btn-ghost:hover { border-color:var(--accent); color:var(--txt); }
+  /* Nav */
+  .dd-nav { display:flex; justify-content:space-between; align-items:center; padding:18px 5%; border-bottom:1px solid rgba(255,255,255,.05); position:sticky; top:0; z-index:100; background:rgba(15,17,21,.95); backdrop-filter:blur(12px); }
+  .dd-nav-logo { font-size:1.3rem; font-weight:700; letter-spacing:1px; color:var(--txt); }
+  .dd-nav-right { display:flex; align-items:center; gap:16px; }
+  /* Hero */
+  .dd-hero { display:flex; align-items:center; padding:60px 5%; gap:50px; background:radial-gradient(circle at top right, rgba(29,191,115,.1) 0%, var(--bg-dark) 55%); }
+  .dd-hero-content { flex:1; }
+  .dd-hero-badge { background:rgba(29,191,115,.15); color:var(--accent); padding:4px 12px; border-radius:20px; font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:18px; }
+  .dd-hero h1 { font-size:clamp(2rem,4vw,3.2rem); line-height:1.2; margin:0 0 16px; font-weight:700; }
+  .dd-hero-excerpt { color:var(--txt-gray); font-size:1.05rem; margin-bottom:24px; max-width:90%; line-height:1.7; }
+  .dd-hero-meta { color:var(--txt-gray); font-size:.87rem; margin-bottom:28px; }
+  .dd-hero-meta .author { color:var(--accent); font-weight:500; }
+  .dd-hero-img { flex:1; border-radius:12px; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,.5); aspect-ratio:4/3; }
+  .dd-hero-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .dd-hero-img-placeholder { width:100%; height:100%; background:linear-gradient(135deg,#1a2420,#0f1115); display:flex; align-items:center; justify-content:center; }
+  /* Tag filter */
+  .dd-tag-bar { padding:32px 5% 0; }
+  .dd-tag-scroll { display:flex; gap:10px; overflow-x:auto; white-space:nowrap; padding-bottom:8px; scrollbar-width:none; -ms-overflow-style:none; }
+  .dd-tag-scroll::-webkit-scrollbar { display:none; }
+  .dd-tag { background:var(--bg-card); border:1px solid rgba(255,255,255,.08); color:var(--txt-gray); padding:8px 18px; border-radius:30px; cursor:pointer; font-family:inherit; font-size:.88rem; transition:all .2s; white-space:nowrap; }
+  .dd-tag:hover { border-color:var(--accent); color:var(--txt); }
+  .dd-tag.active { background:var(--accent); color:#000; border-color:var(--accent); font-weight:600; }
+  /* Search */
+  .dd-search-wrap { padding:0 5%; margin-top:24px; }
+  .dd-search { position:relative; max-width:380px; }
+  .dd-search svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); pointer-events:none; }
+  .dd-search input { width:100%; padding:10px 14px 10px 38px; background:var(--bg-card); border:1px solid rgba(255,255,255,.08); border-radius:8px; color:var(--txt); font-family:inherit; font-size:.9rem; outline:none; transition:border-color .2s; }
+  .dd-search input::placeholder { color:var(--txt-gray); }
+  .dd-search input:focus { border-color:var(--accent); }
+  /* Grid */
+  .dd-grid-section { padding:40px 5% 80px; }
+  .dd-section-head { margin-bottom:32px; }
+  .dd-section-head h2 { font-size:1.8rem; margin-bottom:6px; }
+  .dd-section-head p { color:var(--txt-gray); }
+  .dd-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:28px; }
+  .dd-card { background:var(--bg-card); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.04); cursor:pointer; transition:transform .3s, box-shadow .3s, border-color .3s; display:flex; flex-direction:column; }
+  .dd-card:hover { transform:translateY(-5px); box-shadow:0 12px 32px rgba(0,0,0,.5); border-color:rgba(29,191,115,.3); }
+  .dd-card-thumb { aspect-ratio:16/9; overflow:hidden; flex-shrink:0; }
+  .dd-card-thumb img { width:100%; height:100%; object-fit:cover; transition:transform .5s; display:block; }
+  .dd-card:hover .dd-card-thumb img { transform:scale(1.05); }
+  .dd-card-thumb-placeholder { width:100%; height:100%; background:linear-gradient(135deg,#1a2420,#111); display:flex; align-items:center; justify-content:center; }
+  .dd-card-body { padding:20px 22px 22px; flex:1; display:flex; flex-direction:column; }
+  .dd-card-category { color:var(--accent); font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:block; }
+  .dd-card-title { font-size:1.1rem; line-height:1.45; margin:0 0 10px; flex:1; }
+  .dd-card-excerpt { color:var(--txt-gray); font-size:.88rem; margin-bottom:16px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .dd-card-meta { display:flex; justify-content:space-between; font-size:.82rem; color:var(--txt-gray); border-top:1px solid rgba(255,255,255,.05); padding-top:12px; margin-top:auto; }
+  .dd-card-meta .author { color:var(--txt); font-weight:500; }
+  .dd-card-read { color:var(--accent); font-weight:600; }
+  /* Article detail */
+  .dd-article-root { --bg-dark:#0F1115; --bg-card:#1A1D24; --accent:#1DBF73; --txt:#F1F3F5; --txt-gray:#A0AAB2; font-family:'Poppins',sans-serif; background:var(--bg-dark); color:var(--txt); min-height:100vh; }
+  .dd-article-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 5%; background:rgba(15,17,21,.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,.05); position:sticky; top:0; z-index:100; gap:12px; flex-wrap:wrap; }
+  .dd-article-topbar-left { display:flex; align-items:center; gap:12px; }
+  .dd-breadcrumb { font-size:.8rem; color:rgba(255,255,255,.35); }
+  .dd-breadcrumb-title { font-size:.8rem; color:rgba(255,255,255,.55); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dd-article-body-wrap { max-width:720px; margin:0 auto; padding:52px 24px 100px; }
+  .dd-article-tags-top { display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; margin-bottom:22px; scrollbar-width:none; }
+  .dd-article-tags-top::-webkit-scrollbar { display:none; }
+  .dd-article-tag { flex-shrink:0; background:rgba(29,191,115,.12); color:var(--accent); padding:3px 11px; border-radius:20px; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+  .dd-article-h1 { font-size:clamp(1.7rem,4vw,2.8rem); font-weight:700; line-height:1.18; letter-spacing:-.3px; margin:0 0 18px; }
+  .dd-article-byline { display:flex; align-items:center; gap:16px; padding:14px 0; border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07); margin-bottom:32px; flex-wrap:wrap; }
+  .dd-byline-avatar { width:36px; height:36px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .dd-byline-name { font-size:.9rem; font-weight:600; color:var(--txt); }
+  .dd-byline-meta { font-size:.82rem; color:var(--txt-gray); }
+  .dd-article-cover { border-radius:10px; overflow:hidden; margin-bottom:36px; aspect-ratio:16/9; }
+  .dd-article-cover img { width:100%; height:100%; object-fit:cover; display:block; }
+  .dd-article-content h1,.dd-article-content h2,.dd-article-content h3 { color:var(--txt); font-weight:700; line-height:1.3; margin:2em 0 .7em; }
+  .dd-article-content h2 { font-size:1.4rem; border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:.5em; }
+  .dd-article-content h3 { font-size:1.15rem; }
+  .dd-article-content p { color:var(--txt-gray); line-height:1.85; margin:0 0 1.4em; font-size:1.01rem; }
+  .dd-article-content ul,.dd-article-content ol { color:var(--txt-gray); margin:0 0 1.4em 1.4em; line-height:1.8; }
+  .dd-article-content li { margin-bottom:.5em; }
+  .dd-article-content strong { color:var(--txt); font-weight:600; }
+  .dd-article-content a { color:var(--accent); text-underline-offset:3px; }
+  .dd-article-content blockquote { border-left:3px solid var(--accent); background:rgba(29,191,115,.07); margin:1.5em 0; padding:.9em 1.3em; border-radius:0 8px 8px 0; color:var(--txt); font-style:italic; }
+  .dd-article-content img { width:100%; height:auto; border-radius:8px; aspect-ratio:16/9; object-fit:cover; margin:1.5em 0; }
+  .dd-article-content code { background:rgba(255,255,255,.07); padding:2px 6px; border-radius:4px; font-size:.87em; color:var(--accent); }
+  .dd-cta-box { margin-top:52px; padding:36px 32px; background:linear-gradient(135deg,#1a2420,#111318); border:1px solid rgba(29,191,115,.2); border-radius:14px; text-align:center; }
+  .dd-cta-box .badge { background:rgba(29,191,115,.15); color:var(--accent); padding:4px 14px; border-radius:20px; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:14px; }
+  .dd-cta-box h3 { font-size:1.5rem; font-weight:700; margin-bottom:8px; }
+  .dd-cta-box p { color:var(--txt-gray); margin-bottom:22px; font-size:.93rem; }
+  .dd-bottom-nav { margin-top:40px; display:flex; gap:10px; flex-wrap:wrap; }
+  /* Empty & Loading */
+  .dd-empty { text-align:center; padding:80px 20px; }
+  .dd-empty p { color:var(--txt-gray); margin:10px 0 0; }
+  /* Shimmer */
+  .dd-shimmer { animation:ddShimmer 1.5s infinite; background:linear-gradient(90deg,#1a1d24 25%,#212530 50%,#1a1d24 75%); background-size:200% 100%; border-radius:8px; }
+  @keyframes ddShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  /* Responsive */
+  @media(max-width:860px){
+    .dd-hero{flex-direction:column-reverse;padding:36px 5%;gap:28px;text-align:center}
+    .dd-hero-excerpt{margin:0 auto 24px;max-width:100%}
+    .dd-hero-img{width:100%;max-height:280px}
+    .dd-nav-links{display:none}
+  }
+  @media(max-width:560px){
+    .dd-grid{grid-template-columns:1fr}
+    .dd-article-h1{font-size:1.55rem}
+  }
+`;
 
-  useEffect(() => {
+function ArticlesFullPage({ onBack }: { onBack: () => void }) {
+  const [articles, setArticles] = React.useState<any[]>([]);
+  const [selected, setSelected] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [search, setSearch] = React.useState("");
+  const [activeTag, setActiveTag] = React.useState("");
+
+  React.useEffect(() => {
     if (!supabase) { setLoading(false); return; }
     supabase.from("articles").select("*").eq("published", true)
       .order("created_at", { ascending: false })
@@ -1763,358 +1871,249 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
 
   const openArticle = (a: any) => {
     setSelected(a);
-    const slug = a.slug || a.id;
-    window.history.pushState({}, "", `/articles/${slug}`);
-    window.scrollTo(0,0);
+    window.history.pushState({}, "", `/articles/${a.slug || a.id}`);
+    window.scrollTo(0, 0);
   };
 
   const closeArticle = () => {
     setSelected(null);
     window.history.pushState({}, "", "/articles");
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     const onPop = () => {
       const parts = window.location.pathname.split("/").filter(Boolean);
       if (parts[0] === "articles" && parts[1]) {
         const match = articles.find((a: any) => a.slug === parts[1]);
         setSelected(match || null);
-      } else {
-        setSelected(null);
-      }
+      } else setSelected(null);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [articles]);
 
-  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 12);
+  const allTags = Array.from(new Set(articles.flatMap((a) => a.tags || []))).slice(0, 14);
   const filtered = articles.filter((a) => {
-    const matchSearch = !search || a.title?.toLowerCase().includes(search.toLowerCase()) || a.excerpt?.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch = !q || a.title?.toLowerCase().includes(q) || a.excerpt?.toLowerCase().includes(q);
     const matchTag = !activeTag || (a.tags || []).includes(activeTag);
     return matchSearch && matchTag;
   });
 
-  const BackButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
-    <button onClick={onClick} style={{display:"inline-flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #E2E8F0",color:"#374151",fontSize:13,fontWeight:600,cursor:"pointer",padding:"8px 16px",borderRadius:8,transition:"all .15s",fontFamily:"inherit"}}
-      onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#1DBF73";(e.currentTarget as HTMLElement).style.color="#1DBF73";}}
-      onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.borderColor="#E2E8F0";(e.currentTarget as HTMLElement).style.color="#374151";}}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  const readTime = (a: any) => Math.max(1, Math.ceil((a.content || "").replace(/<[^>]*>/g,"").split(/\s+/).length / 200));
+
+  const BackBtn = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button onClick={onClick} className="dd-btn-ghost" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:".82rem",padding:"7px 14px"}}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       {label}
     </button>
   );
 
-  // ── ARTICLE DETAIL VIEW ──
+  // ── ARTICLE DETAIL ──────────────────────────────────
   if (selected) {
-    const readTime = selected.content ? Math.max(1, Math.ceil(selected.content.replace(/<[^>]*>/g,"").split(/\s+/).length / 200)) : 3;
     return (
-      <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
-        {/* Sticky top bar */}
-        <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <BackButton onClick={closeArticle} label="All Articles" />
-            <span style={{color:"#D1D5DB",fontSize:14}}>›</span>
-            <span style={{fontSize:13,color:"#6B7280",maxWidth:300,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected.title}</span>
+      <div className="dd-article-root">
+        <style>{articleStyles}</style>
+        <div className="dd-article-topbar">
+          <div className="dd-article-topbar-left">
+            <BackBtn onClick={closeArticle} label="Journal" />
+            <span className="dd-breadcrumb">›</span>
+            <span className="dd-breadcrumb-title">{selected.title}</span>
           </div>
-          <BackButton onClick={onBack} label="Home" />
+          <BackBtn onClick={onBack} label="Home" />
         </div>
 
-        <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
-          {/* Tags row — single line, clean pills */}
+        <div className="dd-article-body-wrap">
           {selected.tags?.length > 0 && (
-            <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
+            <div className="dd-article-tags-top">
               {selected.tags.map((t: string, i: number) => (
-                <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#374151",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:600,letterSpacing:".4px",textTransform:"uppercase",whiteSpace:"nowrap"}}>{t}</span>
+                <span key={i} className="dd-article-tag">{t}</span>
               ))}
             </div>
           )}
 
-          {/* Title */}
-          <h1 style={{fontSize:"clamp(26px,4.5vw,40px)",fontWeight:800,lineHeight:1.15,letterSpacing:"-0.5px",color:"#111827",marginBottom:18,margin:"0 0 18px"}}>{selected.title}</h1>
+          <h1 className="dd-article-h1">{selected.title}</h1>
 
-          {/* Meta row */}
-          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:32,paddingBottom:24,borderBottom:"1px solid #F0F0F0",flexWrap:"wrap"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <div style={{width:32,height:32,background:"linear-gradient(135deg,#1DBF73,#17B169)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <span style={{fontSize:13,fontWeight:600,color:"#111827"}}>{selected.author_name || "Dean Designers"}</span>
+          <div className="dd-article-byline">
+            <div className="dd-byline-avatar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
-            <span style={{fontSize:13,color:"#6B7280"}}>{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</span>
-            <span style={{color:"#D1D5DB",fontSize:13}}>·</span>
-            <span style={{fontSize:13,color:"#6B7280"}}>{readTime} min read</span>
+            <div>
+              <div className="dd-byline-name">{selected.author_name || "Xavian"}</div>
+              <div className="dd-byline-meta">{new Date(selected.created_at).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · {readTime(selected)} min read</div>
+            </div>
           </div>
 
-          {/* Cover image */}
           {selected.cover_image && (
-            <div style={{borderRadius:12,overflow:"hidden",marginBottom:36,boxShadow:"0 2px 20px rgba(0,0,0,0.08)"}}>
-              <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden"}}>
-                <img src={selected.cover_image} alt={selected.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
-              </div>
+            <div className="dd-article-cover">
+              <img src={selected.cover_image} alt={selected.title} />
             </div>
           )}
 
-          {/* Article body */}
-          <div className="article-body" style={{fontSize:16.5,lineHeight:1.85,color:"#374151",letterSpacing:".01em"}} dangerouslySetInnerHTML={{__html: selected.content}} />
+          <div className="dd-article-content" dangerouslySetInnerHTML={{__html: selected.content}} />
 
-          {/* Tags at bottom */}
           {selected.tags?.length > 0 && (
-            <div style={{marginTop:40,paddingTop:24,borderTop:"1px solid #F0F0F0"}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
+            <div style={{marginTop:36,paddingTop:20,borderTop:"1px solid rgba(255,255,255,.07)"}}>
+              <div style={{fontSize:".75rem",fontWeight:700,color:"#A0AAB2",textTransform:"uppercase",letterSpacing:".8px",marginBottom:10}}>Topics</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {selected.tags.map((t: string, i: number) => (
-                  <button key={i} onClick={() => { closeArticle(); setActiveTag(t); }} style={{background:"#F3F4F6",color:"#374151",padding:"5px 12px",borderRadius:4,fontSize:12,fontWeight:600,cursor:"pointer",border:"none",fontFamily:"inherit"}}>{t}</button>
+                  <button key={i} onClick={()=>{closeArticle();setActiveTag(t);}} className="dd-article-tag" style={{border:"none",cursor:"pointer",fontFamily:"inherit"}}>
+                    {t}
+                  </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Footer CTA */}
-          <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
-            <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
-            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 1,000+ projects · 25+ countries · 7+ years</p>
-            <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
-              Start Your Order →
-            </button>
+          <div className="dd-cta-box">
+            <span className="badge">Ready to build your brand?</span>
+            <h3>Professional Clothing & Logo Design</h3>
+            <p>5.0★ · 1,000+ projects · 25+ countries · 7+ years experience · Files in 1–3 days</p>
+            <button onClick={onBack} className="dd-btn-primary">Start Your Order →</button>
           </div>
 
-          {/* Bottom back button */}
-          <div style={{marginTop:40,display:"flex",gap:12}}>
-            <BackButton onClick={closeArticle} label="← Back to Articles" />
-            <BackButton onClick={onBack} label="Go to Homepage" />
+          <div className="dd-bottom-nav">
+            <BackBtn onClick={closeArticle} label="← Back to Journal" />
+            <BackBtn onClick={onBack} label="Go to Homepage" />
           </div>
         </div>
       </div>
     );
   }
 
-  // ── ARTICLES LIST VIEW ──
+  // ── ARTICLE LIST ─────────────────────────────────────
+  const featured = filtered[0];
+  const rest = search || activeTag ? filtered : filtered.slice(1);
+
   return (
-    <div style={{background:"#FAFAFA",minHeight:"100vh",fontFamily:"inherit"}}>
-      {/* Sticky header */}
-      <div style={{background:"#fff",borderBottom:"1px solid #F0F0F0",padding:"12px 24px",position:"sticky",top:0,zIndex:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-        <BackButton onClick={onBack} label="Home" />
-        <div style={{flex:1,maxWidth:360,position:"relative"}}>
-          <svg style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{width:"100%",paddingLeft:34,paddingRight:12,paddingTop:8,paddingBottom:8,border:"1.5px solid #E5E7EB",borderRadius:8,fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box" as const,background:"#F9FAFB",color:"#111827"}} />
+    <div className="dd-articles-root">
+      <style>{articleStyles}</style>
+
+      {/* Nav */}
+      <nav className="dd-nav">
+        <div className="dd-nav-logo">DEAN DESIGNERS.</div>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          <div className="dd-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A0AAB2" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search articles..." />
+          </div>
+          <button onClick={onBack} className="dd-btn-primary" style={{padding:"9px 18px",fontSize:".82rem"}}>← Home</button>
         </div>
-        <span style={{fontSize:12,color:"#9CA3AF",fontWeight:500,marginLeft:"auto"}}>{filtered.length} article{filtered.length !== 1 ? "s" : ""}</span>
+      </nav>
+
+      {/* Hero — featured article */}
+      {!loading && featured && !search && !activeTag && (
+        <header className="dd-hero">
+          <div className="dd-hero-content">
+            <span className="dd-hero-badge">✦ Featured Article</span>
+            <h1>{featured.title}</h1>
+            {featured.excerpt && <p className="dd-hero-excerpt">{featured.excerpt.substring(0,160)}{featured.excerpt.length > 160 ? "..." : ""}</p>}
+            <div className="dd-hero-meta">
+              <span className="author">{featured.author_name || "Xavian"}</span>
+              {" · "}
+              <span>{new Date(featured.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
+              {" · "}
+              <span>{readTime(featured)} min read</span>
+            </div>
+            <button onClick={()=>openArticle(featured)} className="dd-btn-primary">
+              Read Article →
+            </button>
+          </div>
+          <div className="dd-hero-img">
+            {featured.cover_image
+              ? <img src={featured.cover_image} alt={featured.title} />
+              : <div className="dd-hero-img-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(29,191,115,.4)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+            }
+          </div>
+        </header>
+      )}
+
+      {/* Tag filter */}
+      <div className="dd-tag-bar">
+        <div className="dd-tag-scroll">
+          <button className={`dd-tag${!activeTag?" active":""}`} onClick={()=>setActiveTag("")}>All Articles</button>
+          {allTags.map((t, i) => (
+            <button key={i} className={`dd-tag${activeTag===t?" active":""}`} onClick={()=>setActiveTag(activeTag===t?"":t)}>{t}</button>
+          ))}
+        </div>
       </div>
 
-      <div style={{maxWidth:1120,margin:"0 auto",padding:"40px 20px 80px"}}>
-        {/* Page header */}
-        <div style={{marginBottom:36}}>
-          <div style={{display:"inline-block",background:"#F0FDF4",color:"#16A34A",padding:"4px 12px",borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:12}}>Design Blog</div>
-          <h1 style={{fontSize:"clamp(26px,4vw,38px)",fontWeight:800,letterSpacing:"-0.5px",color:"#111827",marginBottom:8,lineHeight:1.1}}>Articles & Insights</h1>
-          <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
+      {/* Article grid */}
+      <section className="dd-grid-section">
+        <div className="dd-section-head">
+          <h2>{search ? `Results for "${search}"` : activeTag ? activeTag : "Latest Releases"}</h2>
+          <p>{filtered.length} article{filtered.length!==1?"s":""} · Dive into our latest thoughts on design, culture, and streetwear</p>
         </div>
 
-        {/* Tag filter — single horizontal scroll row, no wrapping chaos */}
-        {allTags.length > 0 && (
-          <div style={{marginBottom:32}}>
-            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none",WebkitOverflowScrolling:"touch" as any}}>
-              <button onClick={() => setActiveTag("")} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:!activeTag?"#1DBF73":"#E5E7EB",background:!activeTag?"#F0FDF4":"#fff",color:!activeTag?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>All</button>
-              {allTags.map((t, i) => (
-                <button key={i} onClick={() => setActiveTag(activeTag === t ? "" : t)} style={{flexShrink:0,padding:"6px 14px",borderRadius:4,border:"1.5px solid",borderColor:activeTag===t?"#1DBF73":"#E5E7EB",background:activeTag===t?"#F0FDF4":"#fff",color:activeTag===t?"#16A34A":"#6B7280",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",whiteSpace:"nowrap"}}>{t}</button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* States */}
         {loading ? (
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
+          <div className="dd-grid">
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0"}}>
-                <div style={{aspectRatio:"16/9",background:"linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s infinite"}} />
-                <div style={{padding:18}}><div style={{height:10,background:"#F3F4F6",borderRadius:3,marginBottom:10,width:"50%"}} /><div style={{height:16,background:"#F3F4F6",borderRadius:3,marginBottom:8}} /><div style={{height:12,background:"#F3F4F6",borderRadius:3,width:"75%"}} /></div>
+              <div key={i} style={{background:"#1A1D24",borderRadius:12,overflow:"hidden"}}>
+                <div className="dd-shimmer" style={{aspectRatio:"16/9"}} />
+                <div style={{padding:20}}>
+                  <div className="dd-shimmer" style={{height:10,width:"40%",marginBottom:12}} />
+                  <div className="dd-shimmer" style={{height:16,marginBottom:8}} />
+                  <div className="dd-shimmer" style={{height:12,width:"70%"}} />
+                </div>
               </div>
             ))}
           </div>
-        ) : !filtered.length ? (
-          <div style={{textAlign:"center",padding:"80px 20px"}}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5" style={{margin:"0 auto 14px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <p style={{fontSize:15,color:"#9CA3AF",fontWeight:600,margin:"0 0 4px"}}>No articles found</p>
-            <p style={{fontSize:13,color:"#D1D5DB",margin:0}}>Try a different search or tag</p>
+        ) : !rest.length && !featured ? (
+          <div className="dd-empty">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#A0AAB2" strokeWidth="1.5" style={{margin:"0 auto 12px",display:"block"}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p style={{color:"#A0AAB2",fontWeight:600}}>No articles found</p>
+            <p>Try a different search or tag</p>
           </div>
         ) : (
-          <>
-            {/* Featured article */}
-            {filtered.length > 0 && !search && !activeTag && (
-              <div onClick={() => openArticle(filtered[0])}
-                style={{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",marginBottom:28,display:"grid",gridTemplateColumns:"1.1fr 0.9fr",boxShadow:"0 1px 6px rgba(0,0,0,0.04)",transition:"all .2s"}}
-                onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 6px 28px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.transform="translateY(-2px)";}}
-                onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.boxShadow="0 1px 6px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.transform="";}}>
-                <div style={{position:"relative",aspectRatio:"3/2",overflow:"hidden"}}>
-                  {filtered[0].cover_image
-                    ? <img src={filtered[0].cover_image} alt={filtered[0].title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />
-                    : <div style={{position:"absolute",inset:0,background:"linear-gradient(135deg,#0F1115,#1a2420)"}} />
+          <div className="dd-grid">
+            {rest.map((a) => (
+              <article key={a.id} className="dd-card" onClick={()=>openArticle(a)}>
+                <div className="dd-card-thumb">
+                  {a.cover_image
+                    ? <img src={a.cover_image} alt={a.title} loading="lazy" />
+                    : <div className="dd-card-thumb-placeholder">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(29,191,115,.3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      </div>
                   }
                 </div>
-                <div style={{padding:"32px 28px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-                    <span style={{background:"#F0FDF4",color:"#16A34A",padding:"3px 10px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:.8}}>Featured</span>
-                    <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(filtered[0].created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
-                  </div>
-                  <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",marginBottom:10,margin:"0 0 10px"}}>{filtered[0].title}</h2>
-                  {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,marginBottom:18,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
-                  {/* Tags in featured — clean row */}
-                  {filtered[0].tags?.length > 0 && (
-                    <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
-                      {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
-                        <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"3px 8px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px"}}>{t}</span>
-                      ))}
-                    </div>
-                  )}
-                  <div style={{display:"flex",alignItems:"center",gap:6,color:"#1DBF73",fontSize:13,fontWeight:700}}>
-                    Read article <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <div className="dd-card-body">
+                  {a.tags?.[0] && <span className="dd-card-category">{a.tags[0]}</span>}
+                  <h3 className="dd-card-title">{a.title}</h3>
+                  {a.excerpt && <p className="dd-card-excerpt">{a.excerpt}</p>}
+                  <div className="dd-card-meta">
+                    <span className="author">{a.author_name || "Xavian"}</span>
+                    <span className="dd-card-read">{readTime(a)} min read →</span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Article grid */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:20}}>
-              {(search || activeTag ? filtered : filtered.slice(1)).map((a) => (
-                <div key={a.id} onClick={() => openArticle(a)}
-                  style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
-                  onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
-                  onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
-                  {/* Thumbnail — aspect-ratio 16:9, never crops unexpectedly */}
-                  <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden",flexShrink:0}}>
-                    {a.cover_image
-                      ? <img src={a.cover_image} alt={a.title} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s"}}
-                          onMouseOver={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="scale(1.04)";}}
-                          onMouseOut={(e)=>{(e.currentTarget as HTMLImageElement).style.transform="";}} />
-                      : <div style={{position:"absolute",inset:0,background:"#F3F4F6",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        </div>
-                    }
-                  </div>
-                  <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
-                    {/* Tags — single row, scroll not wrap */}
-                    {a.tags?.length > 0 && (
-                      <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
-                        {a.tags.slice(0,3).map((t: string, i: number) => (
-                          <span key={i} style={{flexShrink:0,background:"#F3F4F6",color:"#6B7280",padding:"2px 7px",borderRadius:3,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",whiteSpace:"nowrap"}}>{t}</span>
-                        ))}
-                      </div>
-                    )}
-                    <h3 style={{fontSize:15,fontWeight:700,lineHeight:1.4,color:"#111827",marginBottom:8,margin:"0 0 8px",flex:1}}>{a.title}</h3>
-                    {a.excerpt && <p style={{fontSize:12.5,color:"#6B7280",lineHeight:1.6,marginBottom:12,margin:"0 0 12px"}}>{a.excerpt.substring(0,100)}{a.excerpt.length > 100 ? "..." : ""}</p>}
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:"auto"}}>
-                      <span style={{fontSize:11,color:"#9CA3AF"}}>{new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</span>
-                      <span style={{fontSize:11,color:"#1DBF73",fontWeight:600}}>Read →</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+              </article>
+            ))}
+          </div>
         )}
-      </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{background:"#090a0d",padding:"50px 5% 20px",borderTop:"1px solid rgba(255,255,255,.05)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:24,marginBottom:32}}>
+          <div>
+            <h2 style={{fontSize:"1.3rem",fontWeight:700,marginBottom:8}}>DEAN DESIGNERS.</h2>
+            <p style={{color:"#A0AAB2",maxWidth:360,fontSize:".9rem"}}>Elevating streetwear through intentional design and uncompromising quality.</p>
+          </div>
+          <div style={{display:"flex",gap:20}}>
+            <button onClick={onBack} style={{background:"none",border:"none",color:"#A0AAB2",cursor:"pointer",fontFamily:"inherit",fontSize:".9rem"}}>Home</button>
+            <a href="https://createclothingdesign.com" style={{color:"#A0AAB2",fontSize:".9rem"}}>Main Site</a>
+          </div>
+        </div>
+        <div style={{textAlign:"center",color:"#A0AAB2",fontSize:".8rem",paddingTop:16,borderTop:"1px solid rgba(255,255,255,.05)"}}>
+          © {new Date().getFullYear()} Dean Designers. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }
 
-// ─── FAQ Section ───────────────────────────────────────────
-function FAQSection() {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
-  
-  const faqs = [
-    {
-      q: "How does the design process work?",
-      a: "After you place your order, we receive your brief instantly. Within 24 hours, your dedicated designer reviews everything and starts working. You'll receive draft concepts within your package's delivery window, then we refine based on your feedback until you're 100% happy. Final files are delivered via email and your order tracker page.",
-    },
-    {
-      q: "What if I don't like the designs?",
-      a: "We have a 100% money-back guarantee. If you're not satisfied with the work after revisions, you can request a full refund — no questions asked. Most clients love their first draft, but we'll keep refining until it's exactly what you envisioned.",
-    },
-    {
-      q: "How many revisions do I get?",
-      a: "Each package includes a different number of revisions: Basic includes 2, Standard includes unlimited revisions for 7 days, and Premium includes unlimited revisions until you approve. Revisions are how we make sure the design is exactly right for your brand.",
-    },
-    {
-      q: "When will I receive my designs?",
-      a: "Delivery times depend on your package: Basic is 3 days, Standard is 5 days, and Premium is 7 days. Your designer starts within 24 hours of payment, and you can track progress in real-time on your order dashboard. Rush orders are available — message us for details.",
-    },
-    {
-      q: "What file formats will I get?",
-      a: "All final designs come with complete production-ready files: AI source files (Adobe Illustrator), high-resolution PNG (transparent background), JPG for web, PDF for print, and SVG for digital use. You'll have everything you need to print, post, or upload anywhere.",
-    },
-    {
-      q: "Can I use the designs commercially?",
-      a: "Absolutely. You own 100% commercial rights to all final designs once delivered. Use them on apparel, merchandise, websites, social media, business cards, or any commercial purpose. No royalties, no restrictions.",
-    },
-    {
-      q: "Is my payment secure?",
-      a: "Yes — we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
-    },
-    {
-      q: "What if I need changes after delivery?",
-      a: "Within your revision window, all changes are free. After final delivery, minor tweaks (color adjustments, text changes) are often included as a courtesy. Major redesigns are quoted separately, but most clients don't need them.",
-    },
-    {
-      q: "How do I communicate with my designer?",
-      a: "You'll have direct access via our built-in chat on the order tracker page. You can also reach out via WhatsApp or email. Your designer responds within 24 hours (usually much faster) and keeps you updated at every stage.",
-    },
-    {
-      q: "Do you sign an NDA?",
-      a: "Yes, on request for Premium clients. All projects are kept strictly confidential by default — your brand, designs, and brief are never shared, displayed, or used in our portfolio without your written permission.",
-    },
-    {
-      q: "What's your refund policy?",
-      a: "Full refund within 7 days if you're not satisfied after revisions. Partial refunds available if work has been delivered but you want to cancel. Refunds processed via PayPal within 3-5 business days. Read our full terms on the order tracker.",
-    },
-    {
-      q: "Can I order multiple designs?",
-      a: "Yes! You can return to the landing page anytime from your order tracker dashboard and place additional orders. Each order gets its own dedicated tracking and designer. Volume discounts apply for 2+ concepts.",
-    },
-  ];
-
-  return (
-    <section className="faq-section">
-      <div className="faq-inner">
-        <div className="faq-header">
-          <span className="faq-tag">FAQ</span>
-          <h2 className="faq-title">Everything you need to know</h2>
-          <p className="faq-sub">Common questions answered honestly. If you don't find what you're looking for, feel free to reach out.</p>
-        </div>
-        <div className="faq-list">
-          {faqs.map((faq, idx) => (
-            <div key={idx} className={`faq-item ${openIdx === idx ? "open" : ""}`}>
-              <button className="faq-q" onClick={() => setOpenIdx(openIdx === idx ? null : idx)}>
-                <span>{faq.q}</span>
-                <span className="faq-toggle">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
-                </span>
-              </button>
-              <div className="faq-a">
-                <p>{faq.a}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="faq-cta">
-          <div className="faq-cta-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div>
-            <strong>Ready to bring your brand to life?</strong>
-            <p>100% money-back guarantee. Production-ready files. Trusted by 2,000+ brands worldwide.</p>
-          </div>
-          <a className="faq-cta-btn" href="#wizard">
-            Start Your Order
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 // ─── Main App ──────────────────────────────────────────────
 export default function App() {
