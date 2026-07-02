@@ -1259,20 +1259,8 @@ function Step5({
 
       <div className="pkg-grid">
         {activePkgs.map((pkg) => {
-          const rawTotal = pkg.basePrice * state.qty;
-
-          // Logo discount: $10 off per concept + 5% off for 2+ concepts
-          let discount = 0;
-          let discountLabel = "";
-          if (isLogo) {
-            const flatOff = 10 * state.qty; // $10 off per concept
-            const volumePct = state.qty >= 2 ? 0.05 : 0;
-            const volumeOff = Math.round(rawTotal * volumePct);
-            discount = flatOff + volumeOff;
-            const pct = Math.round((discount / rawTotal) * 100);
-            discountLabel = `${pct}% OFF`;
-          }
-          const finalPrice = rawTotal - discount;
+          const { raw: rawTotal, final: finalPrice, discount, pct } = calcPrice(pkg, state);
+          const discountLabel = pct > 0 ? `${pct}% OFF` : "";
 
           // Build feature list: prepend dynamic concept count for logo (checklist)
           const dynamicMeta = isLogo && pkg.featuresMeta
