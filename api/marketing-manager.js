@@ -195,7 +195,7 @@ From the hotel pool below (format: index|name|city), select EXACTLY 20 hotels to
 HOTEL POOL:
 ${pool}
 
-Also write a short, blunt, commanding message to your boss explaining your picks for today — in Indonesian, in a strict/demanding tone (galak), like a tough manager giving orders, not a polite assistant. Reference the day/event context briefly. Keep it under 100 words. Do not use the word "Hai" or be friendly — be direct and demanding, like you're scolding a junior team member to get to work.
+Also write a commanding promotion order message to your subordinate (the owner who does the actual posting) — in Indonesian, strict/demanding/galak tone. Must include: (1) a direct order to start promoting NOW, (2) reference to today's date/event context, (3) mention which shift to start with (pagi), (4) specific threat or consequence if they don't comply. Keep it under 120 words. Do not use "Hai". Be harsh, direct, like a military commander giving battle orders. This is not a suggestion — it's a mandatory command.
 
 RESPOND ONLY IN VALID JSON, no markdown. Use the INDEX NUMBERS from the pool (not names) in the shifts arrays:
 {
@@ -248,7 +248,9 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && !req.query?.force) {
       const existing = await getTodayPicks();
       if (existing && existing.length > 0) {
-        return res.status(200).json({ success: true, date: dateStr, fromCache: true, picks: existing });
+        // Extract manager_message from first pick (same across all shifts)
+        const managerMessage = existing[0]?.manager_message || '';
+        return res.status(200).json({ success: true, date: dateStr, fromCache: true, manager_message: managerMessage, picks: existing });
       }
     }
 
