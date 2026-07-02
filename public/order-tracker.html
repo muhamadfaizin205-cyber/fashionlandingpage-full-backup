@@ -376,7 +376,7 @@ const S_LABELS={new:'New Order',working:'In Progress',review:'Under Review',revi
 const S_CLASS={new:'os-new',working:'os-working',review:'os-review',revision:'os-revision',completed:'os-completed',delivered:'os-delivered'};
 const STEPS=[{id:'new',n:'Order Received',d:'Payment confirmed and brief sent to designer'},{id:'working',n:'Design in Progress',d:'Your designer is creating concepts'},{id:'review',n:'Ready for Review',d:'Drafts ready — provide your feedback'},{id:'revision',n:'Applying Revisions',d:'Refining based on your feedback'},{id:'completed',n:'Design Completed',d:'All work finalized and approved'},{id:'delivered',n:'Files Delivered',d:'Final files sent to you'}];
 
-let sb=null,email=null,orders=[],selOrder=null,curTab='overview',msgs=[],deadlineTimer=null;
+let sb=null,email=null,accessCode=null,orders=[],selOrder=null,curTab='overview',msgs=[],deadlineTimer=null;
 
 // ── Web Push Notifications ──
 var VAPID_PUBLIC_KEY='BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZJN5wDOeDGgAMEEqrMHxDkJvSTE';
@@ -452,36 +452,59 @@ async function init(){
   try{await waitSB();sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){document.getElementById('root').innerHTML='<div class="empty"><h3>Failed to load</h3><p>'+e.message+'</p></div>';return}
   const p=new URLSearchParams(location.search);
   const ue=p.get('email');
-  let se=null;try{se=localStorage.getItem(SK)}catch{}
+  let se=null,sc=null;try{se=localStorage.getItem(SK);sc=localStorage.getItem('dd_access_code')}catch{}
   email=ue||se;
-  if(email){try{localStorage.setItem(SK,email)}catch{};loadOrders()}else renderLogin();
+  accessCode=p.get('code')||sc;
+  if(email&&accessCode){try{localStorage.setItem(SK,email);localStorage.setItem('dd_access_code',accessCode)}catch{};loadOrders()}else renderLogin();
 }
 
 function renderLogin(){
-  document.getElementById('root').innerHTML='<div class="login"><div class="login-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h1>Track Your Order</h1><div class="login-sub">Enter the email you used when placing your order.</div><input class="login-input" id="em" type="email" placeholder="you@example.com" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" id="lb" onclick="doLogin()">View My Orders</button><div class="login-error" id="le"></div><div class="login-note">Your email is your access key — no password needed.</div></div>';
+  document.getElementById('root').innerHTML='<div class="login"><div class="login-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h1>Track Your Order</h1><div class="login-sub">Enter the email and access code from your order confirmation.</div><input class="login-input" id="em" type="email" placeholder="you@example.com"/><input class="login-input" id="ac" type="text" placeholder="Access Code (e.g. A3F2B1)" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-weight:700;font-size:18px" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" id="lb" onclick="doLogin()">View My Orders</button><div class="login-error" id="le"></div><div class="login-note">Your access code was sent to your email after payment.</div></div>';
   setTimeout(()=>{const e=document.getElementById('em');if(e)e.focus()},100);
 }
 
 async function doLogin(){
   const v=document.getElementById('em').value.trim().toLowerCase(),er=document.getElementById('le'),b=document.getElementById('lb');
+  const codeInput=document.getElementById('ac');
+  const code=codeInput?codeInput.value.trim().toUpperCase():'';
   const fails=getLoginFails();
   if(fails.lockUntil&&Date.now()<fails.lockUntil){er.textContent='Too many attempts. Try again in 5 minutes.';er.style.display='block';return}
   if(!v){er.textContent='Please enter your email';er.style.display='block';return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){er.textContent='Invalid email format';er.style.display='block';return}
-  er.style.display='none';b.disabled=true;b.textContent='Checking...';
+  if(!code||code.length<4){er.textContent='Please enter your access code (from confirmation email)';er.style.display='block';return}
+  er.style.display='none';b.disabled=true;b.textContent='Verifying...';
   try{
-    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(v)+'&check=1');
+    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(v)+'&code='+encodeURIComponent(code));
     var result=await resp.json();
-    if(!result.exists){addLoginFail();er.textContent='No orders found for this email.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
+    if(!result.success){
+      addLoginFail();
+      er.textContent=result.error==='Invalid access code'?'Wrong access code. Check your confirmation email.':'No orders found for this email.';
+      er.style.display='block';b.disabled=false;b.textContent='View My Orders';return;
+    }
   }catch(e){er.textContent='Connection error. Try again.';er.style.display='block';b.disabled=false;b.textContent='View My Orders';return}
-  clearLoginFails();email=v;try{localStorage.setItem(SK,v);localStorage.setItem('dd_cust_time',String(Date.now()))}catch{};loadOrders();
+  clearLoginFails();email=v;accessCode=code;
+  try{localStorage.setItem(SK,v);localStorage.setItem('dd_access_code',code);localStorage.setItem('dd_cust_time',String(Date.now()))}catch{};
+  orders=result.orders||[];
+  if(!orders.length){renderLogin();return}
+  selOrder=orders[0];curTab=currentNav;
+  renderDashboard();loadMyProfile();
+  if(curTab==='chat'){loadChat();}
+  try{
+    sb.channel('rt-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
+    sb.channel('rt-msgs-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},(payload)=>{
+      if(payload.new&&payload.new.order_email===email&&payload.new.sender_type==='admin'){
+        playReceiveSound();showMsgNotification(payload.new);
+        if(curTab==='chat')loadChat();
+      }
+    }).subscribe();
+  }catch(e){}
 }
 
 async function loadOrders(){
   document.getElementById('root').innerHTML='<div class="loading"><div class="spinner"></div> Loading your orders...</div>';
   renderSidebar();
   try{
-    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(email));
+    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(email)+'&code='+encodeURIComponent(accessCode||''));
     var result=await resp.json();
     if(!result.success){document.getElementById('root').innerHTML='<div class="empty"><h3>Error</h3><p>'+(result.error||'Failed to load')+'</p></div>';return}
     var data=result.orders;
