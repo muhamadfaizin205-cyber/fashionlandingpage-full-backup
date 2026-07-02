@@ -1376,19 +1376,25 @@ function PayPalGuide() {
   );
 }
 
-// ─── PayPal Checkout Buttons ───────────────────────────────
+// ─── PayPal Checkout Buttons (SERVER-SIDE price — P1 fix) ──
 function PayPalCheckout({
   finalPrice,
   description,
   emailData,
   orderData,
   onSuccess,
+  packageId,
+  service,
+  qty,
 }: {
   finalPrice: number;
   description: string;
   emailData: Record<string, string | number>;
   orderData: Record<string, unknown>;
   onSuccess: () => void;
+  packageId: string;
+  service: string;
+  qty: number;
 }) {
   const [errMsg, setErrMsg] = useState("");
   const [sending, setSending] = useState(false);
@@ -1404,44 +1410,56 @@ function PayPalCheckout({
         <PayPalButtons
           style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
           fundingSource={undefined}
-          createOrder={(_data, actions) =>
-            actions.order.create({
-              intent: "CAPTURE",
-              purchase_units: [{
-                amount: {
-                  value: String(Number(finalPrice).toFixed(2)),
-                  currency_code: "USD",
-                },
-                description,
-              }],
-              application_context: {
-                shipping_preference: "NO_SHIPPING",
-                user_action: "PAY_NOW",
-              },
-            })
-          }
-          onApprove={(_data, actions) => {
-            return actions.order!.capture().then(() => {
-              // Mark UI as success immediately
-              onSuccess();
-
-              // Run side effects in background — fire and forget, don't block PayPal
-              setTimeout(() => {
-                if (supabase) {
-                  supabase.from("orders").insert([orderData]).select().single()
-                    .then((res: { data?: { id?: string } | null }) => {
-                      if (res?.data?.id) {
-                        try { sessionStorage.setItem("dd_last_order_id", res.data.id); } catch {}
-                      }
-                      console.log("Order saved to Supabase", res?.data?.id);
-                    })
-                    .catch((e: unknown) => console.error("Supabase save failed:", e));
+          createOrder={async () => {
+            // SERVER-SIDE order creation — price is looked up from DB on server
+            // Client CANNOT manipulate the amount
+            try {
+              const resp = await fetch("/api/create-paypal-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ packageId, service, qty, description }),
+              });
+              const data = await resp.json();
+              if (!resp.ok || !data.id) {
+                throw new Error(data.error || "Failed to create order");
+              }
+              console.log(`PayPal order created server-side: $${data.serverPrice}`);
+              return data.id;
+            } catch (e: any) {
+              setErrMsg(`Order creation failed: ${e.message}. Try again or contact us on WhatsApp.`);
+              throw e;
+            }
+          }}
+          onApprove={async (data) => {
+            setSending(true);
+            try {
+              // SERVER-SIDE capture — verifies amount and saves to DB
+              const resp = await fetch("/api/capture-paypal-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderID: data.orderID,
+                  orderData: orderData,
+                }),
+              });
+              const result = await resp.json();
+              if (result.status === "COMPLETED") {
+                if (result.orderId) {
+                  try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
                 }
+                onSuccess();
+                // Send email notification (fire and forget)
                 emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
                   .then(() => console.log("Email sent"))
                   .catch((e: unknown) => console.error("Email failed:", e));
-              }, 0);
-            });
+              } else {
+                setErrMsg("Payment was not completed. Status: " + (result.status || "unknown"));
+              }
+            } catch (e: any) {
+              setErrMsg("Capture failed: " + e.message);
+            } finally {
+              setSending(false);
+            }
           }}
           onError={(err) => {
             console.error("PayPal error:", err);
@@ -1632,6 +1650,9 @@ function Step6({
               description={description}
               emailData={emailData}
               orderData={orderData}
+              packageId={pkg.id}
+              service={state.service}
+              qty={state.qty}
               onSuccess={() => {
                 setPaymentDone(true);
                 try {
