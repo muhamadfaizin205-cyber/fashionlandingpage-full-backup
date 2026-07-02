@@ -218,6 +218,91 @@ async function processOneTopic(topic) {
   return { topic, title: article.title, id: saved?.[0]?.id, has_image: !!coverUrl };
 }
 
+const GROQ_KEY = process.env.GROQ_API_KEY || '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';
+
+async function getExistingTitles() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?select=title,slug&order=created_at.desc&limit=50`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    const data = await res.json();
+    return (data || []).map(a => a.title);
+  } catch { return []; }
+}
+
+async function generateUniqueTopic() {
+  const existingTitles = await getExistingTitles();
+  const existingList = existingTitles.length > 0
+    ? existingTitles.map((t, i) => `${i + 1}. ${t}`).join('\n')
+    : '(none yet)';
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const month = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const prompt = `You are a senior SEO content strategist for Dean Designers (createclothingdesign.com) — a professional clothing design and logo design service.
+
+Today is ${dateStr}.
+
+EXISTING ARTICLES (DO NOT repeat these topics or angles):
+${existingList}
+
+Generate ONE fresh, unique article topic that:
+1. Is COMPLETELY DIFFERENT from all existing articles above — different angle, different keyword, different audience segment
+2. Targets a high-value SEO keyword related to clothing design, streetwear, logo design, branding, or fashion entrepreneurship
+3. Is timely and relevant for ${month}
+4. Would rank on Google for long-tail searches
+5. Naturally promotes createclothingdesign.com or Dean Designers
+
+Think creatively — consider these angles:
+- Seasonal/event-based (holidays, fashion weeks, back-to-school, etc.)
+- Industry news and emerging trends
+- Case studies and success stories
+- Technical guides (fabric, printing, color theory, file formats)
+- Business strategy (pricing, marketing, launching, scaling)
+- Comparison posts (service A vs B, method X vs Y)
+- Listicles and curated guides
+- Regional/cultural fashion topics
+- Niche markets (anime merch, band merch, sports teams, corporate)
+- Platform-specific (Etsy, Shopify, TikTok Shop, Instagram)
+
+Respond with ONLY the article topic as a single line. No quotes, no numbering, no explanation.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200,
+        temperature: 1.1,
+      }),
+    });
+    const data = await res.json();
+    const topic = (data.choices?.[0]?.message?.content || '').trim();
+    if (topic && topic.length > 10) {
+      console.log('[Auto-Article] AI generated unique topic:', topic);
+      return topic;
+    }
+  } catch (e) {
+    console.error('[Auto-Article] Groq topic generation failed:', e.message);
+  }
+
+  // Fallback: pick random from pool, but skip topics whose slugs already exist
+  const usedSlugs = new Set(existingTitles.map(t => generateSlug(t)));
+  const available = TOPIC_POOL.filter(t => !usedSlugs.has(generateSlug(t)));
+  if (available.length > 0) {
+    return available[Math.floor(Math.random() * available.length)];
+  }
+  // Last resort: random pool topic + unique angle
+  return TOPIC_POOL[Math.floor(Math.random() * TOPIC_POOL.length)] + ' — ' + dateStr + ' edition';
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -229,12 +314,8 @@ export default async function handler(req, res) {
     if (req.method === 'POST' && req.body?.custom_topic) {
       topics = [req.body.custom_topic];
     } else {
-      // Auto: pick 2 from pool based on day
-      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-      topics = [
-        TOPIC_POOL[(dayOfYear * 2) % TOPIC_POOL.length],
-        TOPIC_POOL[(dayOfYear * 2 + 1) % TOPIC_POOL.length]
-      ];
+      // Smart topic: AI generates fresh unique topic based on what's already published
+      topics = [await generateUniqueTopic()];
     }
 
     const results = [];
