@@ -2,19 +2,33 @@ name: Daily Marketing Manager Picks
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 07:00 WIB setiap hari (00:00 UTC) — picks siap saat owner mulai kerja
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # 07:00 WIB (00:00 UTC) — picks siap sebelum owner mulai kerja
+  workflow_dispatch:      # bisa trigger manual dari GitHub Actions tab
 
 jobs:
   generate-picks:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Marketing Manager
+      - name: Generate today's hotel picks
         run: |
-          echo "Calling marketing manager to pick today's 20 hotels..."
-          curl -s -X GET \
-            "https://fashionlandingpage-full-backup.vercel.app/api/marketing-manager" \
+          echo "=== Marketing Manager: Generating picks for $(date '+%Y-%m-%d') ==="
+          
+          RESPONSE=$(curl -s -X POST \
+            "https://www.createclothingdesign.com/api/marketing-manager?force=1" \
             -H "Content-Type: application/json" \
-            --max-time 60
-          echo ""
-          echo "Done!"
+            -d '{}' \
+            --max-time 90 \
+            -w "\nHTTP_STATUS:%{http_code}")
+          
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS")
+          
+          echo "Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "ERROR: API returned $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "=== Done! Today's picks generated successfully ==="
