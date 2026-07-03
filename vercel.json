@@ -3,6 +3,10 @@
     {
       "path": "/api/auto-article",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/marketing-manager",
+      "schedule": "0 0 * * *"
     }
   ],
   "rewrites": [
