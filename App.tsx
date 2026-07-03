@@ -1504,28 +1504,26 @@ function PayPalCheckout({
           })
         }
         onApprove={(_data, actions) => {
-          return actions.order!.capture().then(() => {
-            // Show success immediately
-            onSuccess();
-            // Save order via server API (uses service_role, bypasses RLS)
-            setTimeout(() => {
-              fetch("/api/save-order", {
+          return actions.order!.capture().then(async () => {
+            // Save order FIRST before showing success (fixes race condition)
+            try {
+              const result = await fetch("/api/save-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderData, capturedAmount: finalPrice }),
-              })
-                .then(r => r.json())
-                .then((result) => {
-                  if (result.orderId) {
-                    try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
-                  }
-                  console.log("Order saved:", result.orderId);
-                })
-                .catch((e: unknown) => console.error("Order save failed:", e));
-              // Send confirmation email
-              emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
-                .catch((e: unknown) => console.error("Email failed:", e));
-            }, 0);
+              }).then(r => r.json());
+              if (result.orderId) {
+                try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+              }
+              console.log("Order saved:", result.orderId);
+            } catch (e) {
+              console.error("Order save failed:", e);
+            }
+            // Send email (fire and forget)
+            emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
+              .catch((e: unknown) => console.error("Email failed:", e));
+            // NOW show success + redirect
+            onSuccess();
           });
         }}
         onError={(err) => {
@@ -1594,7 +1592,7 @@ function Step6({
     if (paymentDone) {
       const timer = setTimeout(() => {
         window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
-      }, 2500);
+      }, 4000);
       return () => clearTimeout(timer);
     }
   }, [paymentDone, state.email]);
