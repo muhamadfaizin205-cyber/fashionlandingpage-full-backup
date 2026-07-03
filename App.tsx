@@ -1481,91 +1481,59 @@ function PayPalCheckout({
   onSuccess: () => void;
 }) {
   const [errMsg, setErrMsg] = useState("");
-  const [sending, setSending] = useState(false);
 
   return (
     <div className="paypal-checkout">
-      {sending ? (
-        <div className="stripe-loading">
-          <span className="stripe-spinner" />
-          <span>Confirming payment…</span>
-        </div>
-      ) : (
-        <PayPalButtons
-          style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
-          fundingSource={undefined}
-          createOrder={(_data, actions) =>
-            actions.order.create({
-              intent: "CAPTURE",
-              purchase_units: [{
-                amount: {
-                  value: String(Number(finalPrice).toFixed(2)),
-                  currency_code: "USD",
-                },
-                description,
-              }],
-              application_context: {
-                shipping_preference: "NO_SHIPPING",
-                user_action: "PAY_NOW",
+      <PayPalButtons
+        style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
+        fundingSource={undefined}
+        createOrder={(_data, actions) =>
+          actions.order.create({
+            intent: "CAPTURE",
+            purchase_units: [{
+              amount: {
+                value: String(Number(finalPrice).toFixed(2)),
+                currency_code: "USD",
               },
-            })
-          }
-          onApprove={(_data, actions) => {
-            setSending(true);
-            return actions.order!.capture().then(async () => {
-              // 1. Save order + get access code BEFORE showing success screen
-              let accessCode = "";
-              let orderId = "";
-              try {
-                const saveResp = await fetch("/api/save-order", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ orderData, capturedAmount: finalPrice }),
-                });
-                const result = await saveResp.json();
-                if (result.orderId) {
-                  orderId = result.orderId;
-                  try { sessionStorage.setItem("dd_last_order_id", orderId); } catch {}
-                }
-                if (result.accessCode) {
-                  accessCode = result.accessCode;
-                  try { sessionStorage.setItem("dd_access_code", accessCode); } catch {}
-                }
-                // 2. Send confirmation email WITH access code
-                const emailWithCode = { ...emailData, access_code: accessCode };
-                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
-                  .catch((e: unknown) => console.error("Email failed:", e));
-              } catch (saveErr) {
-                console.error("Save order failed:", saveErr);
-                // Fallback: direct Supabase insert
-                try {
-                  if (supabase) {
-                    const res = await (supabase.from("orders").insert([orderData]).select().single() as any);
+              description,
+            }],
+            application_context: {
+              shipping_preference: "NO_SHIPPING",
+              user_action: "PAY_NOW",
+            },
+          })
+        }
+        onApprove={(_data, actions) => {
+          return actions.order!.capture().then(() => {
+            // Payment success — show success screen immediately
+            onSuccess();
+            // Save order & send email in background
+            setTimeout(() => {
+              if (supabase) {
+                supabase.from("orders").insert([orderData]).select().single()
+                  .then((res: { data?: { id?: string } | null }) => {
                     if (res?.data?.id) {
-                      orderId = res.data.id;
-                      try { sessionStorage.setItem("dd_last_order_id", orderId); } catch {}
+                      try { sessionStorage.setItem("dd_last_order_id", res.data.id); } catch {}
                     }
-                  }
-                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, { ...emailData, access_code: "" }, EJS_KEY).catch(() => {});
-                } catch {}
+                  })
+                  .catch((e: unknown) => console.error("Supabase save failed:", e));
               }
-
-              // 3. Show success (access code already in sessionStorage)
-              setSending(false);
-              onSuccess();
-            });
-          }}
-          onError={(err) => {
-            console.error("PayPal error:", err);
-            setErrMsg("Payment failed. Please check your card details or try logging in to PayPal directly. If the problem persists, contact us on WhatsApp: +62 831-3153-3097");
-          }}
-          onCancel={() => setErrMsg("Payment cancelled. Click the PayPal or Debit/Credit Card button above to try again.")}
-        />
-      )}
+              emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
+                .catch((e: unknown) => console.error("Email failed:", e));
+            }, 0);
+          });
+        }}
+        onError={(err) => {
+          console.error("PayPal error:", err);
+          setErrMsg("Payment failed. Please try again or contact us on WhatsApp: +62 831-3153-3097");
+        }}
+        onCancel={() => setErrMsg("Payment cancelled.")}
+      />
       {errMsg && <p className="stripe-error-msg">⚠️ {errMsg}</p>}
     </div>
   );
 }
+
 
 // ─── Step 6: Order Confirmation + PayPal Payment ───────────
 function Step6({
@@ -1620,16 +1588,14 @@ function Step6({
   useEffect(() => {
     if (paymentDone) {
       const timer = setTimeout(() => {
-        const _ac = sessionStorage.getItem("dd_access_code") || "";
-        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(_ac)}&new=1`;
+        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
       }, 2500);
       return () => clearTimeout(timer);
     }
   }, [paymentDone, state.email]);
 
   if (paymentDone) {
-    const shownCode = sessionStorage.getItem("dd_access_code") || "";
-    const trackerUrl = `/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(shownCode)}&new=1`;
+    const trackerUrl = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
     return (
       <div className="step-panel">
         <div className="payment-success-box">
@@ -1638,16 +1604,6 @@ function Step6({
           <p className="success-sub">
             US${finalPrice} received — your order is secured.
           </p>
-
-          {/* Access Code — prominent display */}
-          {shownCode && (
-            <div style={{background:"linear-gradient(135deg,#0F1115,#1a2420)",border:"1.5px solid rgba(29,191,115,0.3)",borderRadius:12,padding:"20px 24px",margin:"20px 0",textAlign:"center"}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",letterSpacing:2,textTransform:"uppercase",marginBottom:10}}>Your Order Access Code</div>
-              <div style={{fontSize:32,fontWeight:800,letterSpacing:8,color:"#fff",fontFamily:"monospace",marginBottom:8}}>{shownCode}</div>
-              <div style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}>Use this code + your email to log in to Order Tracker</div>
-              <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:6}}>Also sent to <strong style={{color:"rgba(255,255,255,0.7)"}}>{state.email}</strong></div>
-            </div>
-          )}
 
           <div className="redirect-notice">
             <div className="redirect-spinner"></div>
