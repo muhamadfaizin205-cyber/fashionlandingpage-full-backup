@@ -1511,45 +1511,48 @@ function PayPalCheckout({
             })
           }
           onApprove={(_data, actions) => {
-            return actions.order!.capture().then(() => {
-              // Mark UI as success immediately
-              onSuccess();
-
-              // Run side effects in background — fire and forget, don't block PayPal
-              setTimeout(() => {
-                // Save order + generate access code via server
-                fetch("/api/save-order", {
+            setSending(true);
+            return actions.order!.capture().then(async () => {
+              // 1. Save order + get access code BEFORE showing success screen
+              let accessCode = "";
+              let orderId = "";
+              try {
+                const saveResp = await fetch("/api/save-order", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ orderData, capturedAmount: finalPrice }),
-                })
-                  .then(r => r.json())
-                  .then((result) => {
-                    if (result.orderId) {
-                      try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+                });
+                const result = await saveResp.json();
+                if (result.orderId) {
+                  orderId = result.orderId;
+                  try { sessionStorage.setItem("dd_last_order_id", orderId); } catch {}
+                }
+                if (result.accessCode) {
+                  accessCode = result.accessCode;
+                  try { sessionStorage.setItem("dd_access_code", accessCode); } catch {}
+                }
+                // 2. Send confirmation email WITH access code
+                const emailWithCode = { ...emailData, access_code: accessCode };
+                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
+                  .catch((e: unknown) => console.error("Email failed:", e));
+              } catch (saveErr) {
+                console.error("Save order failed:", saveErr);
+                // Fallback: direct Supabase insert
+                try {
+                  if (supabase) {
+                    const res = await (supabase.from("orders").insert([orderData]).select().single() as any);
+                    if (res?.data?.id) {
+                      orderId = res.data.id;
+                      try { sessionStorage.setItem("dd_last_order_id", orderId); } catch {}
                     }
-                    if (result.accessCode) {
-                      try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
-                    }
-                    const emailWithCode = { ...emailData, access_code: result.accessCode || "" };
-                    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
-                      .catch((e: unknown) => console.error("Email failed:", e));
-                  })
-                  .catch(() => {
-                    // Fallback: save direct to Supabase if API fails
-                    if (supabase) {
-                      supabase.from("orders").insert([orderData]).select().single()
-                        .then((res: { data?: { id?: string } | null }) => {
-                          if (res?.data?.id) {
-                            try { sessionStorage.setItem("dd_last_order_id", res.data.id); } catch {}
-                          }
-                        })
-                        .catch((e: unknown) => console.error("Supabase save failed:", e));
-                    }
-                    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
-                      .catch((e: unknown) => console.error("Email failed:", e));
-                  });
-              }, 0);
+                  }
+                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, { ...emailData, access_code: "" }, EJS_KEY).catch(() => {});
+                } catch {}
+              }
+
+              // 3. Show success (access code already in sessionStorage)
+              setSending(false);
+              onSuccess();
             });
           }}
           onError={(err) => {
@@ -1625,6 +1628,8 @@ function Step6({
   }, [paymentDone, state.email]);
 
   if (paymentDone) {
+    const shownCode = sessionStorage.getItem("dd_access_code") || "";
+    const trackerUrl = `/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(shownCode)}&new=1`;
     return (
       <div className="step-panel">
         <div className="payment-success-box">
@@ -1634,13 +1639,23 @@ function Step6({
             US${finalPrice} received — your order is secured.
           </p>
 
+          {/* Access Code — prominent display */}
+          {shownCode && (
+            <div style={{background:"linear-gradient(135deg,#0F1115,#1a2420)",border:"1.5px solid rgba(29,191,115,0.3)",borderRadius:12,padding:"20px 24px",margin:"20px 0",textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",letterSpacing:2,textTransform:"uppercase",marginBottom:10}}>Your Order Access Code</div>
+              <div style={{fontSize:32,fontWeight:800,letterSpacing:8,color:"#fff",fontFamily:"monospace",marginBottom:8}}>{shownCode}</div>
+              <div style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}>Use this code + your email to log in to Order Tracker</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:6}}>Also sent to <strong style={{color:"rgba(255,255,255,0.7)"}}>{state.email}</strong></div>
+            </div>
+          )}
+
           <div className="redirect-notice">
             <div className="redirect-spinner"></div>
             <p>Redirecting to your order dashboard...</p>
           </div>
 
           <a
-            href={`/order-tracker.html?email=${encodeURIComponent(state.email)}&code=${encodeURIComponent(sessionStorage.getItem("dd_access_code")||"")}&new=1`}
+            href={trackerUrl}
             className="btn-track-order btn-track-primary"
           >
             <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
