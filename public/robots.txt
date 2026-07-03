@@ -1,62 +1,55 @@
-# Mengizinkan semua AI dan mesin pencari di seluruh dunia tanpa terkecuali
+# Dean Designers — createclothingdesign.com
+# All search engines and AI bots welcome
+
 User-agent: *
 Allow: /
 
-# Penegasan prioritas untuk AI terbesar saat ini
-User-agent: GPTBot
+# Google
+User-agent: Googlebot
 Allow: /
-
-User-agent: ChatGPT-User
+User-agent: Googlebot-Image
 Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
 User-agent: Google-Extended
 Allow: /
 
-User-agent: Googlebot
+# AI Bots — explicitly allowed
+User-agent: GPTBot
 Allow: /
-
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
 User-agent: PerplexityBot
 Allow: /
-
-User-agent: FacebookBot
-Allow: /
-
-User-agent: Bytespider
-Allow: /
-
 User-agent: Bingbot
 Allow: /
-
+User-agent: Applebot
+Allow: /
 User-agent: Applebot-Extended
 Allow: /
-
-# DAFTAR AI TAMBAHAN YANG BARU DIMASUKKAN:
 User-agent: xAI-Bot
 Allow: /
-
 User-agent: Amazonbot
 Allow: /
-
 User-agent: Cohere-ai
 Allow: /
-
 User-agent: CCBot
 Allow: /
-
-User-agent: Omgilibot
-Allow: /
-
 User-agent: YouBot
 Allow: /
-
 User-agent: Diffbot
 Allow: /
+User-agent: FacebookBot
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: Meta-ExternalAgent
+Allow: /
 
-# Alamat peta situs untuk memandu jalan semua AI (Sudah diperbaiki ke file .xml)
-Sitemap: https://createclothingdesign.com/sitemap.xml
+# Sitemap
+Sitemap: https://www.createclothingdesign.com/sitemap.xml
+
+# AI context file
+# LLMs.txt: https://www.createclothingdesign.com/llms.txt
