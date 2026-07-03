@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 // ─── PayPal Client ID ─────────────────────────────────────
 const PAYPAL_CLIENT_ID =
   (import.meta.env.VITE_PAYPAL_CLIENT_ID as string) ||
-  "Aahba2p6rEAs6m2CwGUcUulhQCchnfRPc66b_FMWFYLycexS0YlaYia-0Fvu5M3-oP5S74QetxrSvN7w"; // SANDBOX
+  "AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena";
 
 // ─── Supabase ─────────────────────────────────────────────
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || "https://zqawpdspxdcmofnmrbku.supabase.co";
