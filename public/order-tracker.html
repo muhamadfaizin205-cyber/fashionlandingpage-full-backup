@@ -352,6 +352,7 @@ a{color:inherit;text-decoration:none}
 .typing-dot:nth-child(2){animation-delay:.2s}
 .typing-dot:nth-child(3){animation-delay:.4s}
 @keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(29,191,115,0.5)}70%{box-shadow:0 0 0 6px rgba(29,191,115,0)}100%{box-shadow:0 0 0 0 rgba(29,191,115,0)}}
 /* Image in chat */
 .cm-img{max-width:220px;border-radius:10px;cursor:pointer;display:block;margin-bottom:4px}
 /* Reply preview */
@@ -835,8 +836,27 @@ function updatePresenceUI(){
 function relTime(iso){var d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return'just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago'}
 function subscribeTyping(){try{sb.channel('typ-'+email).on('broadcast',{event:'typing'},(p)=>{if(p&&p.payload&&p.payload.sender==='admin'){remoteTyping=true;showTypingUI();clearTimeout(typingTimeout);typingTimeout=setTimeout(()=>{remoteTyping=false;hideTypingUI()},3000)}}).subscribe()}catch(e){}}
 function broadcastTyping(){try{sb.channel('typ-'+email).send({type:'broadcast',event:'typing',payload:{sender:'client'}})}catch(e){}}
-function showTypingUI(){var t=document.getElementById('typing-ind');if(!t){var box=document.getElementById('chat-msgs');if(!box)return;t=document.createElement('div');t.id='typing-ind';t.className='cm admin';t.innerHTML='<div class="cm-bubble" style="padding:10px 14px"><div class="cm-typing"><span></span><span></span><span></span></div></div>';box.appendChild(t);box.scrollTop=box.scrollHeight}}
-function hideTypingUI(){var t=document.getElementById('typing-ind');if(t)t.remove()}
+function showTypingUI(){
+  // 1. Show typing bubble in chat
+  var t=document.getElementById('typing-ind');
+  if(!t){var box=document.getElementById('chat-msgs');if(!box)return;
+    t=document.createElement('div');t.id='typing-ind';t.className='cm admin';
+    t.innerHTML='<div class="cm-bubble" style="padding:8px 14px;display:flex;align-items:center;gap:8px"><div class="cm-typing"><span></span><span></span><span></span></div><span style="font-size:12px;color:#8696A0;font-style:italic">typing...</span></div>';
+    box.appendChild(t);box.scrollTop=box.scrollHeight}
+  // 2. Update header status to "typing..."
+  var txt=document.getElementById('chat-status-txt');
+  if(txt){txt.textContent='typing...';txt.style.color='#1DBF73';txt.style.fontWeight='600'}
+  var dot=document.getElementById('chat-online-dot');
+  if(dot){dot.className='chat-head-dot online';dot.style.background='#1DBF73';dot.style.animation='pulse 1s infinite'}
+}
+function hideTypingUI(){
+  var t=document.getElementById('typing-ind');if(t)t.remove();
+  // Restore header to online/offline status
+  var txt=document.getElementById('chat-status-txt');
+  if(txt){txt.textContent=adminOnline?'Online':adminLastSeen?'Last seen '+relTime(adminLastSeen):'Offline';txt.style.color='';txt.style.fontWeight=''}
+  var dot=document.getElementById('chat-online-dot');
+  if(dot){dot.className='chat-head-dot'+(adminOnline?' online':'');dot.style.animation=''}
+}
 function findMsg(id){return msgs.find(function(m){return m.id===id})}
 function svgReceipt(msg){if(msg.sender_type!=='client')return'';var read=msg.read,del=msg.delivered||read;var c=read?'#53BDEB':'rgba(255,255,255,0.45)';if(!del)return'<svg class="cm-receipt" width="15" height="10" viewBox="0 0 16 11" fill="none"><path d="M11 .5L5 7 2.4 4.7 1 6.2l4 3.7L12.5 2z" fill="'+c+'"/></svg>';return'<svg class="cm-receipt" width="19" height="10" viewBox="0 0 20 11" fill="none"><path d="M14 .5L8 7l-.7-.7-1.4 1.5 2.1 2L15.5 2z" fill="'+c+'"/><path d="M10 .5L4 7 1.4 4.7 0 6.2l4 3.7L11.5 2z" fill="'+c+'"/></svg>'}
 
@@ -1253,6 +1273,7 @@ async function uploadProfileAvatar(input){
 // Presence cleanup
 window.addEventListener('beforeunload',function(){if(sb&&email)sb.from('user_presence').upsert({email:email,is_online:false,last_seen:new Date().toISOString(),user_type:'client'},{onConflict:'email'}).then(()=>{})});
 document.addEventListener('visibilitychange',function(){if(sb&&email)sb.from('user_presence').upsert({email:email,is_online:!document.hidden,last_seen:new Date().toISOString(),user_type:'client'},{onConflict:'email'}).then(()=>{})});
+setInterval(function(){if(sb&&email&&!document.hidden)sb.from('user_presence').upsert({email:email,is_online:true,last_seen:new Date().toISOString(),user_type:'client'},{onConflict:'email'}).then(()=>{})},30000);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 </script>
 </body>
