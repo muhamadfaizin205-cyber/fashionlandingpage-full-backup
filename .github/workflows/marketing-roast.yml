@@ -2,7 +2,7 @@ name: Hourly Marketing Roast Check
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour, on the hour
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -11,9 +11,12 @@ jobs:
     steps:
       - name: Check progress and roast if behind
         run: |
-          curl -s -X GET \
-            "https://fashionlandingpage-full-backup.vercel.app/api/marketing-roast" \
+          echo "=== Roast Check: $(date '+%Y-%m-%d %H:%M') ==="
+          RESPONSE=$(curl -s -X GET \
+            "https://www.createclothingdesign.com/api/marketing-roast" \
             -H "Content-Type: application/json" \
-            --max-time 60
-          echo ""
-          echo "Done!"
+            --max-time 60 \
+            -w "\nHTTP_STATUS:%{http_code}")
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+          echo "Status: $HTTP_STATUS"
+          echo "=== Done ==="
