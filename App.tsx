@@ -1704,7 +1704,6 @@ function Step6({
             components: "buttons",
             disableFunding: "paylater,venmo,sepa",
             enableFunding: "card",
-            "data-namespace": "paypal_sdk",
           }}>
             <PayPalCheckout
               finalPrice={finalPrice}
