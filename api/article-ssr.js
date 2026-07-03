@@ -93,6 +93,17 @@ ${tags.map(t => `<meta property="article:tag" content="${t}">`).join('\n')}
   "isPartOf":{"@type":"Blog","name":"Dean Designers Journal","url":"${BASE_URL}/articles"}
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Home","item":"${BASE_URL}"},
+    {"@type":"ListItem","position":2,"name":"Articles","item":"${BASE_URL}/articles"},
+    {"@type":"ListItem","position":3,"name":"${title}","item":"${url}"}
+  ]
+}
+</script>
 </head>
 <body>
 <header>
