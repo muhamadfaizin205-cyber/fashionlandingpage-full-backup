@@ -1496,6 +1496,7 @@ function PayPalCheckout({
           fundingSource={undefined}
           createOrder={(_data, actions) =>
             actions.order.create({
+              intent: "CAPTURE",
               purchase_units: [{
                 amount: {
                   value: String(Number(finalPrice).toFixed(2)),
@@ -1503,55 +1504,53 @@ function PayPalCheckout({
                 },
                 description,
               }],
+              application_context: {
+                shipping_preference: "NO_SHIPPING",
+                user_action: "PAY_NOW",
+              },
             })
           }
-          onApprove={async (data, actions) => {
-            setSending(true);
-            try {
-              const details = await actions.order!.capture();
-
-              // Extract amount from PayPal response
-              const capturedAmount = Number(
-                details.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || finalPrice
-              );
-              const paypalOrderId = details.id || "";
-
-              // Save order server-side (fire and forget — don't block success screen)
-              let accessCode = "";
-              try {
-                const saveResp = await fetch("/api/save-order", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ orderData, capturedAmount, paypalOrderId }),
-                });
-                const saveResult = await saveResp.json();
-                if (saveResult.orderId) {
-                  try { sessionStorage.setItem("dd_last_order_id", saveResult.orderId); } catch {}
-                }
-                if (saveResult.accessCode) {
-                  accessCode = saveResult.accessCode;
-                  try { sessionStorage.setItem("dd_access_code", accessCode); } catch {}
-                }
-              } catch (saveErr) {
-                console.error("Order save failed (payment still successful):", saveErr);
-              }
-
-              // Send confirmation email
-              try {
-                const emailWithCode = { ...emailData, access_code: accessCode || "See Order Tracker" };
-                await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY);
-              } catch (emailErr) {
-                console.error("Email failed (payment still successful):", emailErr);
-              }
-
-              // Show success — do this LAST after all side effects
+          onApprove={(_data, actions) => {
+            return actions.order!.capture().then(() => {
+              // Mark UI as success immediately
               onSuccess();
 
-            } catch (captureErr) {
-              console.error("PayPal capture error:", captureErr);
-              setSending(false);
-              setErrMsg("Payment capture failed. If money was deducted, please contact us immediately on WhatsApp: +62 831-3153-3097");
-            }
+              // Run side effects in background — fire and forget, don't block PayPal
+              setTimeout(() => {
+                // Save order + generate access code via server
+                fetch("/api/save-order", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ orderData, capturedAmount: finalPrice }),
+                })
+                  .then(r => r.json())
+                  .then((result) => {
+                    if (result.orderId) {
+                      try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+                    }
+                    if (result.accessCode) {
+                      try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
+                    }
+                    const emailWithCode = { ...emailData, access_code: result.accessCode || "" };
+                    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
+                      .catch((e: unknown) => console.error("Email failed:", e));
+                  })
+                  .catch(() => {
+                    // Fallback: save direct to Supabase if API fails
+                    if (supabase) {
+                      supabase.from("orders").insert([orderData]).select().single()
+                        .then((res: { data?: { id?: string } | null }) => {
+                          if (res?.data?.id) {
+                            try { sessionStorage.setItem("dd_last_order_id", res.data.id); } catch {}
+                          }
+                        })
+                        .catch((e: unknown) => console.error("Supabase save failed:", e));
+                    }
+                    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
+                      .catch((e: unknown) => console.error("Email failed:", e));
+                  });
+              }, 0);
+            });
           }}
           onError={(err) => {
             console.error("PayPal error:", err);
@@ -1730,8 +1729,10 @@ function Step6({
           <PayPalScriptProvider options={{
             clientId: PAYPAL_CLIENT_ID,
             currency: "USD",
+            locale: "en_US",
             components: "buttons",
-            disableFunding: "paylater,venmo",
+            disableFunding: "paylater,venmo,sepa",
+            enableFunding: "card",
           }}>
             <PayPalCheckout
               finalPrice={finalPrice}
@@ -1770,7 +1771,7 @@ function Step6({
               </div>
               <div className="hiw-text">
                 <strong>Send your brief &amp; we're instantly notified</strong>
-                <span>The moment you pay, your designer receives an automatic email notification — tap send on WhatsApp to confirm your details, and we'll get started right away</span>
+                <span>The moment you pay, your designer is instantly notified. Log in to your Order Tracker to chat, share details, and track progress in real time.</span>
               </div>
             </div>
             <div className="hiw-connector" />
@@ -2129,49 +2130,49 @@ function OrderGuide() {
       num: "02",
       icon: "ri-box-3-line",
       title: "Pilih Paket & Jumlah Konsep",
-      desc: "Tersedia 3 paket: Basic (desain simpel, 1 revisi), Standard (desain detail + mockup, revisi lebih banyak), dan Premium (full package + unlimited revisi + priority). Pilih juga jumlah konsep desain — misalnya 2 konsep berarti kamu akan mendapat 2 variasi desain berbeda untuk dipilih. Harga otomatis terhitung sesuai paket × jumlah konsep.",
+      desc: "Choose from 3 packages: Basic (simple design, limited revisions), Standard (detailed design + mockup, more revisions), or Premium (full package, unlimited revisions, priority). Also select how many concepts you want — 2 concepts means you get 2 different design variations to choose from. Price is calculated automatically as package × concepts.",
       color: "#3B82F6",
     },
     {
       num: "03",
       icon: "ri-edit-line",
       title: "Isi Brief Desain",
-      desc: "Ini bagian terpenting! Jelaskan desain yang kamu inginkan secara detail: nama brand, konsep/tema (misalnya streetwear Jepang, vintage, minimalis), warna yang diinginkan, teks/tulisan yang harus ada, dan referensi desain. Kamu juga bisa upload gambar referensi langsung dari HP atau laptop. Semakin detail brief-mu, semakin akurat hasil desainnya — tidak perlu revision bolak-balik.",
+      desc: "This is the most important step! Describe your design in detail: brand name, concept/theme (e.g. Japanese streetwear, vintage, minimal), colors you want, any text or copy that must appear, and reference images. You can upload reference images directly from your phone or laptop. The more detail you provide, the more accurate the result — fewer revisions needed.",
       color: "#F59E0B",
     },
     {
       num: "04",
       icon: "ri-user-line",
       title: "Isi Data Kontak",
-      desc: "Masukkan: (1) Email aktif — ini akan jadi login utama ke Order Tracker dan penerima email konfirmasi + access code. (2) Nomor WhatsApp — untuk komunikasi cepat jika desainer butuh klarifikasi. (3) Instagram (opsional) — supaya desainer bisa lihat style brand kamu. Pastikan email benar karena access code dikirim ke sini.",
+      desc: "Enter: (1) Active email — this is your Order Tracker login and where your confirmation + access code will be sent. (2) WhatsApp number — for quick communication if your designer needs clarification. (3) Instagram (optional) — helps your designer understand your brand style. Make sure your email is correct, as your access code is sent there.",
       color: "#8B5CF6",
     },
     {
       num: "05",
       icon: "ri-bank-card-line",
-      title: "Pembayaran Aman via PayPal",
-      desc: "Klik tombol PayPal untuk bayar. Kamu bisa bayar dengan: (1) Akun PayPal langsung, (2) Kartu debit/kredit Visa atau Mastercard tanpa perlu akun PayPal. Harga yang tertera adalah harga final dalam USD — tidak ada biaya tambahan atau biaya tersembunyi. Pembayaran diproses secara aman melalui server PayPal, data kartu kamu tidak pernah disimpan di website kami.",
+      title: "Secure Payment via PayPal",
+      desc: "Click the PayPal button to pay. You can pay with: (1) Your PayPal account, or (2) Visa/Mastercard debit or credit card — no PayPal account needed. Price shown is the final amount in USD. No hidden fees. Payment is processed securely through PayPal — your card details never touch our servers.",
       color: "#EC4899",
     },
     {
       num: "06",
       icon: "ri-mail-send-line",
-      title: "Terima Email Konfirmasi & Access Code",
-      desc: "Setelah pembayaran berhasil, kamu akan langsung menerima email dari Dean Designers berisi: ringkasan order (paket, harga, brief), dan yang paling penting — Access Code 6 karakter (contoh: A3F2B1). Simpan kode ini baik-baik! Kamu membutuhkannya setiap kali login ke Order Tracker untuk melihat progress, chat dengan desainer, dan download file. Jika tidak menerima email dalam 5 menit, cek folder spam.",
+      title: "Receive Confirmation Email & Access Code",
+      desc: "After payment, you'll immediately receive a confirmation email from Dean Designers with your order summary and a 6-character Access Code (e.g. A3F2B1). Keep this code safe — you'll need it every time you log in to the Order Tracker to check progress, chat with your designer, and download your files. If the email doesn't arrive within 5 minutes, check your spam folder.",
       color: "#14B8A6",
     },
     {
       num: "07",
       icon: "ri-chat-3-line",
-      title: "Pantau Progress & Chat dengan Desainer",
-      desc: "Buka halaman Order Tracker → masukkan email + access code → kamu langsung masuk ke dashboard. Di sini kamu bisa: (1) Lihat status order realtime (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat langsung dengan desainer — kirim pesan, gambar, voice note, (3) Minta revisi dengan menjelaskan perubahan yang diinginkan. Setiap ada update dari desainer, kamu akan mendapat notifikasi.",
+      title: "Track Progress & Chat with Your Designer",
+      desc: "Open the Order Tracker → enter your email + access code → you're in. From your dashboard you can: (1) Track order status in real time (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat directly with your designer — text, images, voice notes, (3) Request revisions by describing the changes you want. You'll get notified every time your designer sends an update.",
       color: "#F97316",
     },
     {
       num: "08",
       icon: "ri-download-line",
       title: "Terima & Download File Final",
-      desc: "Setelah desain disetujui dan semua revisi selesai, desainer akan mengirim file final dalam format siap produksi: file vector (AI/EPS/SVG), file cetak (PDF high-res), file digital (PNG transparan), dan mockup preview. Status order berubah ke \"Delivered\". Kamu bisa download semua file langsung dari Order Tracker. File tersimpan permanen — bisa diakses kapan saja selama kamu punya email dan access code.",
+      desc: "Once your design is approved and all revisions are complete, your designer will deliver the final files in production-ready formats: vector files (AI/EPS/SVG), print-ready PDF, transparent PNG, and a mockup preview. Order status changes to \"Delivered\". Download all files directly from your Order Tracker — stored permanently, accessible anytime with your email and access code.",
       color: "#1DBF73",
     },
   ];
