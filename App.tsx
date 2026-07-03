@@ -625,7 +625,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
   2: {
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
     tips: [
-      "Email — your access code will be sent here after payment",
+      "Email — your order confirmation and login link will be sent here",
       "WhatsApp — designer contacts you here if needed",
       "Instagram — helps designer understand your brand style",
     ],
@@ -657,7 +657,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
     icon: "ri-bank-card-line", title: "Payment", color: "#14B8A6",
     tips: [
       "Pay with PayPal or debit/credit card (Visa, Mastercard)",
-      "After payment you'll receive an email with your Access Code",
+      "After payment you'll receive a confirmation email with your login link",
       "Use email + code to track order, chat with designer, download files",
     ],
   },
@@ -1458,7 +1458,7 @@ function PayPalGuide() {
             </ol>
           </div>
           <div className="pp-guide-tip">
-            After payment, you'll receive a confirmation email with your <strong>Access Code</strong>. Use it to log in to your Order Tracker where you can chat directly with your designer.
+            After payment, you'll receive a confirmation email. You can log in to your Order Tracker using your email to chat directly with your designer.
           </div>
         </div>
       )}
@@ -2118,7 +2118,7 @@ function OrderGuide() {
       num: "04",
       icon: "ri-user-line",
       title: "Isi Data Kontak",
-      desc: "Enter: (1) Active email — this is your Order Tracker login and where your confirmation + access code will be sent. (2) WhatsApp number — for quick communication if your designer needs clarification. (3) Instagram (optional) — helps your designer understand your brand style. Make sure your email is correct, as your access code is sent there.",
+      desc: "Enter: (1) Active email — this is your Order Tracker login and where your confirmation will be sent. (2) WhatsApp number — for quick communication if your designer needs clarification. (3) Instagram (optional) — helps your designer understand your brand style. Make sure your email is correct.",
       color: "#8B5CF6",
     },
     {
@@ -2131,22 +2131,22 @@ function OrderGuide() {
     {
       num: "06",
       icon: "ri-mail-send-line",
-      title: "Receive Confirmation Email & Access Code",
-      desc: "After payment, you'll immediately receive a confirmation email from Dean Designers with your order summary and a 6-character Access Code (e.g. A3F2B1). Keep this code safe — you'll need it every time you log in to the Order Tracker to check progress, chat with your designer, and download your files. If the email doesn't arrive within 5 minutes, check your spam folder.",
+      title: "Receive Confirmation Email",
+      desc: "After payment, you'll immediately receive a confirmation email from Dean Designers with your order summary. Use your email to log in to the Order Tracker to check progress, chat with your designer, and download your files. If the email doesn't arrive within 5 minutes, check your spam folder.",
       color: "#14B8A6",
     },
     {
       num: "07",
       icon: "ri-chat-3-line",
       title: "Track Progress & Chat with Your Designer",
-      desc: "Open the Order Tracker → enter your email + access code → you're in. From your dashboard you can: (1) Track order status in real time (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat directly with your designer — text, images, voice notes, (3) Request revisions by describing the changes you want. You'll get notified every time your designer sends an update.",
+      desc: "Open the Order Tracker → enter your email → you're in. From your dashboard you can: (1) Track order status in real time (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat directly with your designer — text, images, voice notes, (3) Request revisions by describing the changes you want. You'll get notified every time your designer sends an update.",
       color: "#F97316",
     },
     {
       num: "08",
       icon: "ri-download-line",
       title: "Terima & Download File Final",
-      desc: "Once your design is approved and all revisions are complete, your designer will deliver the final files in production-ready formats: vector files (AI/EPS/SVG), print-ready PDF, transparent PNG, and a mockup preview. Order status changes to \"Delivered\". Download all files directly from your Order Tracker — stored permanently, accessible anytime with your email and access code.",
+      desc: "Once your design is approved and all revisions are complete, your designer will deliver the final files in production-ready formats: vector files (AI/EPS/SVG), print-ready PDF, transparent PNG, and a mockup preview. Order status changes to \"Delivered\". Download all files directly from your Order Tracker — stored permanently, accessible anytime with your email.",
       color: "#1DBF73",
     },
   ];
@@ -2223,7 +2223,7 @@ function OrderGuide() {
           <div style={{marginTop:24,padding:"18px 20px",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:10,display:"flex",alignItems:"flex-start",gap:10}}>
             <i className="ri-lightbulb-line" style={{fontSize:18,color:"#16A34A",flexShrink:0,marginTop:1}} />
             <div style={{fontSize:12.5,color:"#15803D",lineHeight:1.65}}>
-              <strong>Tips:</strong> Simpan email konfirmasi dan access code kamu baik-baik. Kamu akan membutuhkannya untuk mengakses order tracker, chat dengan desainer, dan mendownload file final. Jika ada pertanyaan, hubungi kami via WhatsApp: <strong>+62 831-3153-3097</strong>
+              <strong>Tips:</strong> Save your confirmation email. You'll need your email address to access the Order Tracker, chat with your designer, and download your final files. Questions? Contact us on WhatsApp: <strong>+62 831-3153-3097</strong>
             </div>
           </div>
         </div>
