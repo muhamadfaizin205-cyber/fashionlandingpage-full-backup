@@ -1458,7 +1458,7 @@ function PayPalGuide() {
             </ol>
           </div>
           <div className="pp-guide-tip">
-            After payment, send the receipt screenshot via WhatsApp so we can start working immediately.
+            After payment, you'll receive a confirmation email with your <strong>Access Code</strong>. Use it to log in to your Order Tracker where you can chat directly with your designer.
           </div>
         </div>
       )}
@@ -1473,18 +1473,12 @@ function PayPalCheckout({
   emailData,
   orderData,
   onSuccess,
-  packageId,
-  service,
-  qty,
 }: {
   finalPrice: number;
   description: string;
   emailData: Record<string, string | number>;
   orderData: Record<string, unknown>;
   onSuccess: () => void;
-  packageId: string;
-  service: string;
-  qty: number;
 }) {
   const [errMsg, setErrMsg] = useState("");
   const [sending, setSending] = useState(false);
@@ -1500,61 +1494,65 @@ function PayPalCheckout({
         <PayPalButtons
           style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 50 }}
           fundingSource={undefined}
-          createOrder={async () => {
-            // SERVER-SIDE order creation — price is looked up from DB on server
-            // Client CANNOT manipulate the amount
-            try {
-              const resp = await fetch("/api/create-paypal-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ packageId, service, qty, description }),
-              });
-              const data = await resp.json();
-              if (!resp.ok || !data.id) {
-                throw new Error(data.error || "Failed to create order");
-              }
-              console.log(`PayPal order created server-side: $${data.serverPrice}`);
-              return data.id;
-            } catch (e: any) {
-              setErrMsg(`Order creation failed: ${e.message}. Try again or contact us on WhatsApp.`);
-              throw e;
-            }
-          }}
-          onApprove={async (data) => {
+          createOrder={(_data, actions) =>
+            actions.order.create({
+              intent: "CAPTURE",
+              purchase_units: [{
+                amount: {
+                  value: String(Number(finalPrice).toFixed(2)),
+                  currency_code: "USD",
+                },
+                description,
+              }],
+              application_context: {
+                shipping_preference: "NO_SHIPPING",
+                user_action: "PAY_NOW",
+              },
+            })
+          }
+          onApprove={(_data, actions) => {
             setSending(true);
-            try {
-              // SERVER-SIDE capture — verifies amount and saves to DB
-              const resp = await fetch("/api/capture-paypal-order", {
+            return actions.order!.capture().then((details) => {
+              // Get verified amount from PayPal capture response
+              const capturedAmount = details.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || finalPrice;
+              const paypalOrderId = details.id || "";
+
+              // Show success immediately
+              onSuccess();
+
+              // Save order via server API (bypasses RLS, generates access code)
+              fetch("/api/save-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  orderID: data.orderID,
-                  orderData: orderData,
+                  orderData,
+                  capturedAmount: Number(capturedAmount),
+                  paypalOrderId,
                 }),
-              });
-              const result = await resp.json();
-              if (result.status === "COMPLETED") {
-                if (result.orderId) {
-                  try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
-                }
-                // A1: Save access code for redirect to tracker
-                if (result.accessCode) {
-                  try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
-                }
-                onSuccess();
-                // Send email with access code included
-                const emailWithCode = { ...emailData, access_code: result.accessCode || "Check your dashboard" };
-                emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
-                  .then(() => console.log("Email sent"))
-                  .catch((e: unknown) => console.error("Email failed:", e));
-              } else {
-                setErrMsg("Payment was not completed. Status: " + (result.status || "unknown"));
-              }
-            } catch (e: any) {
-              setErrMsg("Capture failed: " + e.message);
-            } finally {
+              })
+                .then(r => r.json())
+                .then((result) => {
+                  if (result.orderId) {
+                    try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+                  }
+                  if (result.accessCode) {
+                    try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
+                  }
+                  // Send email with access code
+                  const emailWithCode = { ...emailData, access_code: result.accessCode || "Check your email" };
+                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
+                    .then(() => console.log("Email sent"))
+                    .catch((e: unknown) => console.error("Email failed:", e));
+                })
+                .catch((e: unknown) => {
+                  console.error("Order save failed:", e);
+                  // Still send email without access code
+                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY).catch(() => {});
+                });
+            }).catch(() => {
               setSending(false);
-            }
+              setErrMsg("Payment capture failed. If money was deducted, contact us on WhatsApp: +62 831-3153-3097");
+            });
           }}
           onError={(err) => {
             console.error("PayPal error:", err);
@@ -1743,9 +1741,6 @@ function Step6({
               description={description}
               emailData={emailData}
               orderData={orderData}
-              packageId={pkg.id}
-              service={state.service}
-              qty={state.qty}
               onSuccess={() => {
                 setPaymentDone(true);
                 try {
