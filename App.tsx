@@ -1505,19 +1505,24 @@ function PayPalCheckout({
         }
         onApprove={(_data, actions) => {
           return actions.order!.capture().then(() => {
-            // Payment success — show success screen immediately
+            // Show success immediately
             onSuccess();
-            // Save order & send email in background
+            // Save order via server API (uses service_role, bypasses RLS)
             setTimeout(() => {
-              if (supabase) {
-                supabase.from("orders").insert([orderData]).select().single()
-                  .then((res: { data?: { id?: string } | null }) => {
-                    if (res?.data?.id) {
-                      try { sessionStorage.setItem("dd_last_order_id", res.data.id); } catch {}
-                    }
-                  })
-                  .catch((e: unknown) => console.error("Supabase save failed:", e));
-              }
+              fetch("/api/save-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderData, capturedAmount: finalPrice }),
+              })
+                .then(r => r.json())
+                .then((result) => {
+                  if (result.orderId) {
+                    try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
+                  }
+                  console.log("Order saved:", result.orderId);
+                })
+                .catch((e: unknown) => console.error("Order save failed:", e));
+              // Send confirmation email
               emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY)
                 .catch((e: unknown) => console.error("Email failed:", e));
             }, 0);
@@ -1578,7 +1583,7 @@ function Step6({
     package_badge: pkg.badge,
     delivery:      pkg.delivery,
     revisions:     pkg.revisions,
-    // price is NOT included — server sets it from PayPal captured amount (P2 fix)
+    price:         finalPrice,
     status:        "new",
     paid_via:      "paypal",
     priority:      "normal",
