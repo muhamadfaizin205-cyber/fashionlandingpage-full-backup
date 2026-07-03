@@ -31,8 +31,20 @@ async function fetchActiveHotels() {
   return all;
 }
 
+function getWIBDate() {
+  // Always use WIB (UTC+7) to avoid timezone mismatch between server and admin
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  return wib;
+}
+
+function getWIBDateStr() {
+  const wib = getWIBDate();
+  return wib.toISOString().split('T')[0];
+}
+
 async function getTodayPicks() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getWIBDateStr();
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/marketing_picks?pick_date=eq.${today}&select=*&order=shift.asc`,
     { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
@@ -235,14 +247,29 @@ RESPOND ONLY IN VALID JSON, no markdown. Use the INDEX NUMBERS from the pool (no
   return { manager_message: parsed.manager_message, shifts: shiftsWithIds };
 }
 
+// Fallback: if Groq fails, pick 20 random hotels with a generic message
+function randomFallbackPicks(hotels, dateStr, dayName) {
+  const shuffled = [...hotels].sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, 20);
+  const shifts = {};
+  const keys = ['pagi', 'siang', 'sore', 'malam'];
+  keys.forEach((k, i) => {
+    shifts[k] = picked.slice(i * 5, i * 5 + 5).map(h => h.id);
+  });
+  return {
+    manager_message: `DENGAR BAIK-BAIK! Hari ini ${dayName} ${dateStr}. Saya sudah pilihkan 20 hotel untuk kamu promosikan. MULAI DARI SHIFT PAGI SEKARANG JUGA! Jangan buang waktu, setiap menit yang terlewat adalah uang yang hilang. Kalau sampai sore belum selesai semua, saya anggap kamu tidak serius. KERJAKAN SEKARANG!`,
+    shifts,
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    const dayName = today.toLocaleDateString('id-ID', { weekday: 'long' });
+    const today = getWIBDate();
+    const dateStr = getWIBDateStr();
+    const dayName = today.toLocaleDateString('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
 
     // Only use cached picks for plain GET without force flag
     const isForced = req.method === 'POST' || req.query?.force === '1';
@@ -252,6 +279,8 @@ export default async function handler(req, res) {
         const managerMessage = existing[0]?.manager_message || '';
         return res.status(200).json({ success: true, date: dateStr, fromCache: true, manager_message: managerMessage, picks: existing });
       }
+      // No picks for today yet — auto-generate instead of returning empty
+      console.log('[Manager] No picks for ' + dateStr + ' — auto-generating...');
     }
 
     const hotels = await fetchActiveHotels();
@@ -264,7 +293,20 @@ export default async function handler(req, res) {
     // 2. Live "on this day" facts from Wikipedia (free, no API key) for extra real-world flavor
     const eventContext = req.body?.event_context || await buildEventContext(today, dayName, dateStr);
 
-    const result = await pickHotelsWithGroq(hotels, dateStr, dayName, eventContext);
+    let result;
+    try {
+      result = await pickHotelsWithGroq(hotels, dateStr, dayName, eventContext);
+    } catch (groqErr) {
+      console.error('[Manager] Groq failed, using random fallback:', groqErr.message);
+      result = randomFallbackPicks(hotels, dateStr, dayName);
+    }
+
+    // Validate result — if shifts are empty, use fallback
+    const totalPicked = Object.values(result.shifts || {}).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+    if (totalPicked < 10) {
+      console.warn('[Manager] Groq returned <10 hotels, using fallback');
+      result = randomFallbackPicks(hotels, dateStr, dayName);
+    }
 
     // Build rows to insert: one row per shift, storing only hotel IDs.
     // Names/addresses are intentionally NOT snapshotted here so the admin dashboard
