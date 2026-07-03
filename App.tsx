@@ -1510,49 +1510,53 @@ function PayPalCheckout({
               },
             })
           }
-          onApprove={(_data, actions) => {
+          onApprove={async (_data, actions) => {
             setSending(true);
-            return actions.order!.capture().then((details) => {
-              // Get verified amount from PayPal capture response
-              const capturedAmount = details.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || finalPrice;
+            try {
+              const details = await actions.order!.capture();
+
+              // Extract amount from PayPal response
+              const capturedAmount = Number(
+                details.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || finalPrice
+              );
               const paypalOrderId = details.id || "";
 
-              // Show success immediately
+              // Save order server-side (fire and forget — don't block success screen)
+              let accessCode = "";
+              try {
+                const saveResp = await fetch("/api/save-order", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ orderData, capturedAmount, paypalOrderId }),
+                });
+                const saveResult = await saveResp.json();
+                if (saveResult.orderId) {
+                  try { sessionStorage.setItem("dd_last_order_id", saveResult.orderId); } catch {}
+                }
+                if (saveResult.accessCode) {
+                  accessCode = saveResult.accessCode;
+                  try { sessionStorage.setItem("dd_access_code", accessCode); } catch {}
+                }
+              } catch (saveErr) {
+                console.error("Order save failed (payment still successful):", saveErr);
+              }
+
+              // Send confirmation email
+              try {
+                const emailWithCode = { ...emailData, access_code: accessCode || "See Order Tracker" };
+                await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY);
+              } catch (emailErr) {
+                console.error("Email failed (payment still successful):", emailErr);
+              }
+
+              // Show success — do this LAST after all side effects
               onSuccess();
 
-              // Save order via server API (bypasses RLS, generates access code)
-              fetch("/api/save-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  orderData,
-                  capturedAmount: Number(capturedAmount),
-                  paypalOrderId,
-                }),
-              })
-                .then(r => r.json())
-                .then((result) => {
-                  if (result.orderId) {
-                    try { sessionStorage.setItem("dd_last_order_id", result.orderId); } catch {}
-                  }
-                  if (result.accessCode) {
-                    try { sessionStorage.setItem("dd_access_code", result.accessCode); } catch {}
-                  }
-                  // Send email with access code
-                  const emailWithCode = { ...emailData, access_code: result.accessCode || "Check your email" };
-                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailWithCode, EJS_KEY)
-                    .then(() => console.log("Email sent"))
-                    .catch((e: unknown) => console.error("Email failed:", e));
-                })
-                .catch((e: unknown) => {
-                  console.error("Order save failed:", e);
-                  // Still send email without access code
-                  emailjs.send(EJS_SERVICE, EJS_TEMPLATE, emailData, EJS_KEY).catch(() => {});
-                });
-            }).catch(() => {
+            } catch (captureErr) {
+              console.error("PayPal capture error:", captureErr);
               setSending(false);
-              setErrMsg("Payment capture failed. If money was deducted, contact us on WhatsApp: +62 831-3153-3097");
-            });
+              setErrMsg("Payment capture failed. If money was deducted, please contact us immediately on WhatsApp: +62 831-3153-3097");
+            }
           }}
           onError={(err) => {
             console.error("PayPal error:", err);
