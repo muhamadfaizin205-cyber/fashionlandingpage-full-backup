@@ -24,8 +24,14 @@ export default async function handler(req, res) {
   // Strip any client-supplied price — use captured amount from PayPal response
   const { price: _clientPrice, access_code: _ac, ...safeData } = orderData;
 
+  // Sanitize: ensure brief_images is stored as JSON string if column is TEXT
+  const sanitized = { ...safeData };
+  if (Array.isArray(sanitized.brief_images)) {
+    sanitized.brief_images = sanitized.brief_images; // keep as array for JSONB
+  }
+
   const row = {
-    ...safeData,
+    ...sanitized,
     price: capturedAmount || orderData.price || 0,
     access_code: accessCode,
     paypal_order_id: paypalOrderId || '',
@@ -49,7 +55,8 @@ export default async function handler(req, res) {
 
     if (!sbRes.ok) {
       console.error('[save-order] DB error:', JSON.stringify(data));
-      return res.status(500).json({ error: 'Failed to save order' });
+      console.error('[save-order] Row attempted:', JSON.stringify(row));
+      return res.status(500).json({ error: 'Failed to save order', detail: JSON.stringify(data) });
     }
 
     console.log('[save-order] Saved:', savedId, '$' + row.price, 'code:', accessCode);
