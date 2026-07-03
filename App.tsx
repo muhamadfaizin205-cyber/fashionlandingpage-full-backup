@@ -1496,7 +1496,6 @@ function PayPalCheckout({
           fundingSource={undefined}
           createOrder={(_data, actions) =>
             actions.order.create({
-              intent: "CAPTURE",
               purchase_units: [{
                 amount: {
                   value: String(Number(finalPrice).toFixed(2)),
@@ -1504,13 +1503,9 @@ function PayPalCheckout({
                 },
                 description,
               }],
-              application_context: {
-                shipping_preference: "NO_SHIPPING",
-                user_action: "PAY_NOW",
-              },
             })
           }
-          onApprove={async (_data, actions) => {
+          onApprove={async (data, actions) => {
             setSending(true);
             try {
               const details = await actions.order!.capture();
@@ -1735,10 +1730,8 @@ function Step6({
           <PayPalScriptProvider options={{
             clientId: PAYPAL_CLIENT_ID,
             currency: "USD",
-            locale: "en_US",
             components: "buttons",
-            disableFunding: "paylater,venmo,sepa",
-            enableFunding: "card",
+            disableFunding: "paylater,venmo",
           }}>
             <PayPalCheckout
               finalPrice={finalPrice}
