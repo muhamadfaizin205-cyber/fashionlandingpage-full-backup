@@ -2311,8 +2311,11 @@ function appendAdminBubble(m,isMob){
     inner+='<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:2px">'+fmtTime(m.created_at)+adSvgReceipt(m)+'</div></div>';
   }
   div.innerHTML=inner;
+  var wasAtBottom=(box.scrollHeight-box.scrollTop-box.clientHeight)<60;
+  div.style.opacity='0';div.style.transform='translateY(8px)';div.style.transition='opacity .2s,transform .2s';
   box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
+  requestAnimationFrame(function(){div.style.opacity='1';div.style.transform='';});
+  if(wasAtBottom||m.sender_type==='admin'){box.scrollTop=box.scrollHeight;}
 }
 
 function renderChatRoom(target){
