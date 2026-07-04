@@ -70,6 +70,7 @@ export default async function handler(req, res) {
         sender_email: admin ? 'admin@deandesigners.com' : body.sender_email,
         sender_type: admin ? 'admin' : 'client',
         message: body.message || '',
+        image_url: body.image_url || null,
         voice_url: body.voice_url || null,
         read: false,
         delivered: false,

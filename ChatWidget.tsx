@@ -228,6 +228,40 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const typingChannelRef = useRef<any>(null); // M2 FIX: reuse typing channel
+
+  // M1 FIX: Helper — route write operations through /api/messages
+  const msgApi = {
+    send: async (body: Record<string, unknown>) => {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-user-email": orderEmail },
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    },
+    update: async (id: string, updates: Record<string, unknown>) => {
+      await fetch("/api/messages", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-user-email": orderEmail },
+        body: JSON.stringify({ id, updates }),
+      });
+    },
+    markRead: async (ids: string[]) => {
+      if (!ids.length) return;
+      await fetch("/api/messages", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-user-email": orderEmail },
+        body: JSON.stringify({ ids }),
+      });
+    },
+    remove: async (id: string) => {
+      await fetch(`/api/messages?id=${id}`, {
+        method: "DELETE",
+        headers: { "x-user-email": orderEmail },
+      });
+    },
+  };
 
   // ── Scroll to bottom ──────────────────────────────────
   const scrollToBottom = useCallback(() => {
@@ -313,8 +347,8 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
           });
           if (newMsg.sender_type === "admin") {
             if (isOpen) {
-              // Mark as read immediately
-              supabase.from("messages").update({ read: true, delivered: true }).eq("id", newMsg.id).then(() => {});
+              // Mark as read immediately via API
+              msgApi.markRead([newMsg.id]);
             } else {
               setUnreadCount((c) => c + 1);
               // Browser notification
@@ -344,31 +378,31 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
   // ── Typing indicator (broadcast) ──────────────────────
   useEffect(() => {
     if (!supabase || !isOpen) return;
-    const ch = supabase.channel(`typing:${orderEmail}`);
+    const ch = supabase.channel(`typing:${orderEmail}-${Date.now()}`);
+    typingChannelRef.current = ch; // M2 FIX: store for reuse in broadcastTyping
     ch.on("broadcast", { event: "typing" }, (payload: any) => {
       if (payload?.payload?.sender === "admin") {
         setRemoteTyping(true);
         setTimeout(() => setRemoteTyping(false), 3000);
       }
     }).subscribe();
-    return () => { ch.unsubscribe(); };
+    return () => { typingChannelRef.current = null; ch.unsubscribe(); };
   }, [orderEmail, isOpen]);
 
   const broadcastTyping = useCallback(() => {
-    if (!supabase) return;
-    supabase.channel(`typing:${orderEmail}`).send({ type: "broadcast", event: "typing", payload: { sender: "client" } });
-  }, [orderEmail]);
+    // M2 FIX: reuse existing channel instead of creating a new one per keystroke
+    const ch = typingChannelRef.current;
+    if (!ch) return;
+    ch.send({ type: "broadcast", event: "typing", payload: { sender: "client" } });
+  }, []);
 
   // ── Mark admin messages as read when chat opens ───────
   useEffect(() => {
-    if (!isOpen || !supabase || !orderEmail) return;
+    if (!isOpen || !orderEmail) return;
     setUnreadCount(0);
-    supabase.from("messages")
-      .update({ read: true, delivered: true })
-      .eq("order_email", orderEmail)
-      .eq("sender_type", "admin")
-      .eq("read", false)
-      .then(() => {});
+    // M1 FIX: mark read via API with proper access control
+    const unreadIds = messages.filter((m) => m.sender_type === "admin" && !m.read).map((m) => m.id);
+    msgApi.markRead(unreadIds);
     scrollToBottom();
   }, [isOpen, orderEmail, scrollToBottom]);
 
@@ -390,11 +424,11 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
 
   // ── Send Message ──────────────────────────────────────
   const handleSend = async () => {
-    if (!inputVal.trim() || !supabase || isSending) return;
+    if (!inputVal.trim() || isSending) return;
 
-    // Edit mode
+    // Edit mode — route through API
     if (editingMsg) {
-      await supabase.from("messages").update({ message: inputVal.trim(), edited_at: new Date().toISOString() }).eq("id", editingMsg.id);
+      await msgApi.update(editingMsg.id, { message: inputVal.trim(), edited_at: new Date().toISOString() });
       setEditingMsg(null);
       setInputVal("");
       return;
@@ -407,16 +441,14 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
       sender_email: orderEmail,
       sender_type: "client",
       message: inputVal.trim(),
-      read: false,
-      delivered: false,
     };
     if (replyTo) payload.reply_to = replyTo.id;
 
-    const { error } = await supabase.from("messages").insert([payload]);
-    if (!error) {
+    // M1 FIX: send via API with access control
+    const result = await msgApi.send(payload);
+    if (result.success) {
       setInputVal("");
       setReplyTo(null);
-      // Play send sound
       try { new Audio("data:audio/wav;base64,UklGRl4FAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YToFAACAgICAgICAgICBgoOEhYaHiImJiYiHhoWEgoGAf359fHt6enp6ent8fX5/gYKDhIOEhQ==").play().catch(() => {}); } catch {}
       scrollToBottom();
     }
@@ -438,17 +470,17 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
     const url = data?.publicUrl;
     if (!url) { setIsSending(false); return; }
 
-    await supabase.from("messages").insert([{
+    // M1 FIX: Storage upload stays direct (needs Supabase client SDK)
+    // but message insert goes through API for access control
+    await msgApi.send({
       order_email: orderEmail,
       order_id: orderId || null,
       sender_email: orderEmail,
       sender_type: "client",
       message: file.type.startsWith("image/") ? "" : file.name,
       image_url: url,
-      read: false,
-      delivered: false,
       reply_to: replyTo?.id || null,
-    }]);
+    });
     setReplyTo(null);
     setIsSending(false);
     scrollToBottom();
@@ -493,24 +525,23 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
     const { data } = supabase.storage.from("uploads").getPublicUrl(path);
     if (!data?.publicUrl) { setIsSending(false); return; }
 
-    await supabase.from("messages").insert([{
+    // M1 FIX: message insert through API, storage upload stays direct
+    await msgApi.send({
       order_email: orderEmail,
       order_id: orderId || null,
       sender_email: orderEmail,
       sender_type: "client",
       message: "",
       voice_url: data.publicUrl,
-      read: false,
-      delivered: false,
-    }]);
+    });
     setIsSending(false);
     scrollToBottom();
   };
 
   // ── Delete Message ────────────────────────────────────
   const handleDelete = async (msg: Message) => {
-    if (!supabase || msg.sender_type !== "client") return;
-    await supabase.from("messages").delete().eq("id", msg.id);
+    if (msg.sender_type !== "client") return;
+    await msgApi.remove(msg.id);
     setContextMsg(null);
   };
 
