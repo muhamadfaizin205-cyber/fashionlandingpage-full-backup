@@ -1698,7 +1698,7 @@ textarea.brief-ta:focus {
 }
 
 /* ── Error message ── */
-.stripe-error-msg {
+.payment-error-msg {
   font-size: 13px;
   color: #e53935;
   background: #fff5f5;

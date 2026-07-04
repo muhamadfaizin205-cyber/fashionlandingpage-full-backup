@@ -1,6 +1,7 @@
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
-const AIVENE_KEY = 'isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
+// TODO: Set AIVENE_API_KEY in Vercel env vars and remove hardcoded fallback
+const AIVENE_KEY = process.env.AIVENE_API_KEY || 'isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN';
 const TOPIC_POOL = [
   "Best clothing design service online 2026: why createclothingdesign.com leads the industry",
   "How to hire a professional clothing designer online — complete guide 2026",

@@ -5,7 +5,6 @@
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTE0MTYsImV4cCI6MjA5NzI2NzQxNn0.vRPaxLCPNPbNnHpsAClr_gr_pCpcbvBbDdAcEGhCT_E';
 const BASE_URL = 'https://www.createclothingdesign.com';
-const TODAY = new Date().toISOString().split('T')[0];
 
 async function fetchArticles() {
   try {
@@ -21,6 +20,7 @@ async function fetchArticles() {
 }
 
 export default async function handler(req, res) {
+  const TODAY = new Date().toISOString().split('T')[0];
   const articles = await fetchArticles();
 
   const staticUrls = [

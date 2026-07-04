@@ -55,9 +55,7 @@ interface WizardState {
 }
 
 // ─── Constants ────────────────────────────────────────────
-const GROQ_API_KEY = "isk-GNByYriUHJP1S5uFeNJJI3rW9zBVqvZbiHyRFtIN";
-// Dedicated Groq key for the brief generator — fast inference (5-8s) via Groq's LPU hardware
-const BRIEF_GROQ_KEY = "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";
+// C1 FIX: API keys moved to server-side /api/generate-brief.js
 
 // ─── Clothing Design Packages ─────────────────────────────
 const PACKAGES: Package[] = [
@@ -233,145 +231,6 @@ function useDbPackages() {
   return { clothingPkgs, logoPkgs };
 }
 
-// ─── Background Music ─────────────────────────────────────
-// Hidden YouTube player. Browsers block autoplay-with-sound, so we
-// autoplay MUTED (allowed) and unmute on the first user interaction
-// (click / scroll / key / touch anywhere). Loops forever.
-const BG_MUSIC_VIDEO_ID = "YhUqxWR4mnE";
-const BG_MUSIC_VOLUME = 35; // 0–100
-
-function useBackgroundMusic(videoId: string, volume: number) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    let player: any = null;
-    let unmuted = false;
-    let destroyed = false;
-    let retryTimer: any = null;
-    const evts = ["click", "pointerdown", "keydown", "touchstart", "scroll", "wheel", "mousemove"];
-
-    const playerDiv = document.createElement("div");
-    container.innerHTML = "";
-    container.appendChild(playerDiv);
-
-    // Attempt to unmute & play with sound on any user gesture
-    const tryUnmute = () => {
-      if (unmuted || destroyed || !player) return;
-      try {
-        const state = player.getPlayerState?.();
-        // If not playing, try to play first
-        if (state !== 1) player.playVideo();
-        player.unMute();
-        player.setVolume(volume);
-        // Verify it actually unmuted after a tick
-        setTimeout(() => {
-          try {
-            if (!player.isMuted?.()) {
-              unmuted = true;
-              evts.forEach((e) => window.removeEventListener(e, tryUnmute));
-            }
-          } catch {}
-        }, 100);
-      } catch {}
-    };
-
-    // Periodically retry playing if the player stalls (some browsers pause hidden tabs)
-    const startRetry = () => {
-      retryTimer = setInterval(() => {
-        if (destroyed || !player) return;
-        try {
-          const state = player.getPlayerState?.();
-          // -1 = unstarted, 0 = ended, 2 = paused, 5 = cued
-          if (state === -1 || state === 0 || state === 2 || state === 5) {
-            player.playVideo();
-          }
-        } catch {}
-      }, 3000);
-    };
-
-    const initPlayer = () => {
-      if (destroyed) return;
-      const YT = (window as any).YT;
-      if (!YT?.Player) return;
-
-      try {
-        player = new YT.Player(playerDiv, {
-          videoId,
-          width: 200,
-          height: 200,
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 0,
-            loop: 1,
-            playlist: videoId,
-            playsinline: 1,
-            disablekb: 1,
-            modestbranding: 1,
-            rel: 0,
-            fs: 0,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: (e: any) => {
-              if (destroyed) return;
-              e.target.playVideo();
-              startRetry();
-              // Listen for ANY user gesture to unmute
-              evts.forEach((ev) =>
-                window.addEventListener(ev, tryUnmute, { passive: true })
-              );
-            },
-            onStateChange: (e: any) => {
-              if (destroyed) return;
-              // Loop: replay when ended
-              if (e.data === YT.PlayerState.ENDED) {
-                e.target.playVideo();
-              }
-              // If playing and not yet unmuted, try on next gesture
-              if (e.data === YT.PlayerState.PLAYING && !unmuted) {
-                tryUnmute();
-              }
-            },
-            onError: () => {
-              // Retry init after error
-              if (!destroyed) setTimeout(initPlayer, 5000);
-            },
-          },
-        });
-      } catch {}
-    };
-
-    if ((window as any).YT?.Player) {
-      initPlayer();
-    } else {
-      const prev = (window as any).onYouTubeIframeAPIReady;
-      (window as any).onYouTubeIframeAPIReady = () => {
-        if (typeof prev === "function") prev();
-        initPlayer();
-      };
-      if (!document.getElementById("yt-api-script")) {
-        const s = document.createElement("script");
-        s.id = "yt-api-script";
-        s.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(s);
-      }
-    }
-
-    return () => {
-      destroyed = true;
-      if (retryTimer) clearInterval(retryTimer);
-      evts.forEach((e) => window.removeEventListener(e, tryUnmute));
-      try { player?.destroy?.(); } catch {}
-    };
-  }, [videoId, volume]);
-
-  return containerRef;
-}
-
 // ─── Testimonials — auto-scrolling carousel ─────────────────
 interface Review {
   text: string;
@@ -525,10 +384,6 @@ function calcPrice(pkg: Package, state: WizardState): { raw: number; final: numb
   const discount = canDiscount ? totalDiscount : 0;
   const pct = canDiscount ? Math.round((discount / raw) * 100) : 0;
   return { raw, final: raw - discount, discount, pct };
-}
-
-function WaIcon() {
-  return <i className="ri-whatsapp-fill" style={{fontSize:15,flexShrink:0}} />;
 }
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -1029,70 +884,23 @@ function Step4({
   const handleGenerate = async () => {
     setPhase("loading");
     setAiError("");
-    const userContext = [
-      `Brand name: ${wizardBrand || "not specified"}`,
-      `Service type: ${svcLabel}`,
-      `Design concept/theme: ${answers.concept || "-"}`,
-      `Color references: ${answers.colors || "-"}`,
-      `Brand/design references: ${answers.references || "-"}`,
-    ].join("\n");
-    const prompt = `You are an elite creative director writing a comprehensive design brief for a top-tier graphic designer. Based on the client's input below, produce a highly detailed, professional, and production-ready brief.
-
-CLIENT INPUT:
-${userContext}
-
-CRITICAL FORMATTING RULES:
-- Write in plain natural human language. NO asterisks (*), NO markdown, NO bold formatting, NO bullet symbols.
-- Use section headers like "PROJECT OVERVIEW", "DESIGN DIRECTION" etc. on their own line followed by a colon.
-- Write in flowing paragraphs, like a professional document — not a list.
-- Do NOT use dashes as bullet points. Write full sentences.
-
-STRUCTURE:
-
-PROJECT OVERVIEW:
-Summarize the project scope, brand identity, and target audience in 2-3 natural sentences.
-
-DESIGN DIRECTION:
-Describe the visual style, mood, and aesthetic in detail. Reference specific design movements, visual metaphors, or cultural influences. Be specific about typography feel, layout approach, and overall visual weight.
-
-COLOR PALETTE:
-Define the primary and secondary color direction. Expand on complementary tones, contrast strategy, and how colors should evoke the brand mood.
-
-REFERENCES AND INSPIRATION:
-Expand on the client's references. Describe what elements to draw from each reference. If no references given, suggest relevant visual references from the streetwear and brand design world.
-
-TECHNICAL REQUIREMENTS:
-Describe expected deliverables, file formats, resolution requirements, and any print-specific or digital-specific notes in full sentences.
-
-DOS AND DONTS:
-Write 3-4 specific guidelines to direct the designer, in full sentence form. No bullet points.
-
-Write at least 400 words. Be specific, opinionated, and actionable. Every sentence should give the designer clear direction. Do not use placeholder language.`;
-
     try {
-      const res = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${BRIEF_GROQ_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 2000,
-            temperature: 0.7,
-          }),
-        }
-      );
+      const res = await fetch("/api/generate-brief", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brandName: wizardBrand,
+          serviceType: wizardService,
+          concept: answers.concept,
+          colors: answers.colors,
+          references: answers.references,
+        }),
+      });
       const data = await res.json();
-      const text = data?.choices?.[0]?.message?.content ?? "";
-      if (!text) {
-        const errMsg = data?.error?.message ?? "Empty response from AI";
-        throw new Error(errMsg);
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to generate brief");
       }
-      onChange(text.trim());
+      onChange(data.brief);
       setPhase("done");
     } catch (err: any) {
       setAiError(err?.message ?? "Failed to connect to AI.");
@@ -1532,7 +1340,7 @@ function PayPalCheckout({
         }}
         onCancel={() => setErrMsg("Payment cancelled.")}
       />
-      {errMsg && <p className="stripe-error-msg">⚠️ {errMsg}</p>}
+      {errMsg && <p className="payment-error-msg">⚠️ {errMsg}</p>}
     </div>
   );
 }
@@ -2247,7 +2055,7 @@ function FAQSection() {
     },
     {
       q: "How many revisions do I get?",
-      a: "Each package includes a different number of revisions: Basic includes 2, Standard includes unlimited revisions for 7 days, and Premium includes unlimited revisions until you approve. Revisions are how we make sure the design is exactly right for your brand.",
+      a: "Each package includes a different number of revisions: Basic includes 2 revisions, Standard includes 8 revisions (clothing) or 3 revisions (logo), and Premium includes unlimited revisions. Revisions are how we make sure the design is exactly right for your brand.",
     },
     {
       q: "When will I receive my designs?",
@@ -2316,7 +2124,7 @@ function FAQSection() {
           </div>
           <div>
             <strong>Ready to bring your brand to life?</strong>
-            <p>100% money-back guarantee. Production-ready files. Trusted by 2,000+ brands worldwide.</p>
+            <p>100% money-back guarantee. Production-ready files. Trusted by 1,000+ brands worldwide.</p>
           </div>
           <a className="faq-cta-btn" href="#wizard">
             Start Your Order
@@ -2474,9 +2282,6 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
-  // hidden, looping background music (unmutes on first interaction)
-  // Music removed
-
   // Force-play hero video (some browsers block autoplay even when muted)
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -2601,8 +2406,8 @@ export default function App() {
               <a className="drawer-item" href="/order-tracker.html">
                 <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
               </a>
-              <a className="drawer-item" href="#home" onClick={() => setDrawerOpen(false)}>
-                <i className="ri-logout-box-r-line" style={{fontSize:18}} />Sign Out
+              <a className="drawer-item" href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer">
+                <i className="ri-whatsapp-fill" style={{fontSize:18}} />Contact Us
               </a>
             </div>
           </div>
@@ -2669,7 +2474,7 @@ export default function App() {
                   <i className="ri-checkbox-circle-line" style={{fontSize:18}} />
                 </div>
                 <div className="tb-text">
-                  <strong>2,000+</strong>
+                  <strong>1,000+</strong>
                   <span>Designs Delivered</span>
                 </div>
               </div>
@@ -2886,8 +2691,6 @@ export default function App() {
       </>
       )}
 
-      {/* Hidden background music player */}
-      {/* Music removed */}
     </div>
   );
 }

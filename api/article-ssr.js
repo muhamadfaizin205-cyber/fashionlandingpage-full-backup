@@ -83,7 +83,7 @@ ${tags.map(t => `<meta property="article:tag" content="${t}">`).join('\n')}
   "description":"${excerpt}",
   "image":"${esc(cover)}",
   "author":{"@type":"Person","name":"${author}"},
-  "publisher":{"@type":"Organization","name":"Dean Designers","url":"${BASE_URL}","logo":{"@type":"ImageObject","url":"${BASE_URL}/favicon.png"}},
+  "publisher":{"@type":"Organization","name":"Dean Designers","url":"${BASE_URL}","logo":{"@type":"ImageObject","url":"${BASE_URL}/favicon-512x512.png","width":512,"height":512}},
   "datePublished":"${date}",
   "dateModified":"${a.updated_at || date}",
   "mainEntityOfPage":{"@type":"WebPage","@id":"${url}"},

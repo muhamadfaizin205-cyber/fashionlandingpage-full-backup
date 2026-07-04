@@ -1,14 +1,23 @@
+// C5 FIX: Admin-only endpoint — requires x-admin-hash header
+const ADMIN_HASH = '2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-hash');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Auth check — admin only
+  if (req.headers['x-admin-hash'] !== ADMIN_HASH) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
 
   const { topic, style, language } = req.body || {};
   if (!topic) return res.status(400).json({ error: 'Topic is required' });
 
-  const apiKey = process.env.GOOGLE_AI_KEY || 'AQ.Ab8RN6INaPwXBo5oAmiOgyZIBLlYSxJ3RYlADOf8X50hs8H2PA';
+  const apiKey = process.env.GOOGLE_AI_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'GOOGLE_AI_KEY not configured in Vercel env vars' });
 
   const styleMap = { tutorial: 'Write as a step-by-step tutorial.', listicle: 'Write as a listicle.', opinion: 'Write as expert opinion.', 'case-study': 'Write as a case study.', guide: 'Write as a comprehensive guide.' };
 
