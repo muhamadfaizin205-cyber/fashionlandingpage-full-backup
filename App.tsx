@@ -885,10 +885,11 @@ function Step4({
     setPhase("loading");
     setAiError("");
     try {
-      const res = await fetch("/api/generate-brief", {
+      const res = await fetch("/api/ai-write", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "brief",
           brandName: wizardBrand,
           serviceType: wizardService,
           concept: answers.concept,
