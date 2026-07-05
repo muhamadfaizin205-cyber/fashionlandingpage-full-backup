@@ -342,7 +342,7 @@ function Testimonials() {
       <div className="testimonials-head">
         <div className="testimonials-eyebrow">Client Reviews</div>
         <h2 className="testimonials-title">
-          Trusted by <span>Brands Worldwide</span>
+          Trusted by <span>Brands Worldwide</span> Who Create Clothing Design With Us
         </h2>
         <p className="testimonials-sub">
           Real feedback from clients on Fiverr. 7+ years, 1,000+ happy brands.
@@ -2283,6 +2283,12 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  // Hide SEO fallback content after React renders (Google already read it on initial crawl)
+  useEffect(() => {
+    const el = document.getElementById("seo-fallback");
+    if (el) el.style.display = "none";
+  }, []);
+
   // Force-play hero video (some browsers block autoplay even when muted)
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -2441,6 +2447,8 @@ export default function App() {
 
             {/* Minimal content */}
             <div className="hero-content">
+              <h1 className="hero-h1">Create Clothing Design — Professional Streetwear & Logo Design Studio</h1>
+              <p className="hero-sub">Custom streetwear graphics, brand identity & logo design. 5.0★ rated · 1,000+ projects · 25+ countries.</p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
@@ -2518,7 +2526,7 @@ export default function App() {
               <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
               <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
               <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
-                Professional streetwear and logo design studio serving global clients since 2018. We turn brand visions into production-ready designs that stand out.
+                Professional studio to create clothing design and brand identity. Serving global clients since 2018, we turn brand visions into production-ready streetwear designs that stand out.
               </p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
                 {[
@@ -2689,9 +2697,40 @@ export default function App() {
           Start Your Order →
         </button>
       )}
+
+      {/* ── SEO Footer with crawlable links ── */}
+      {step === 1 && (
+        <footer className="site-footer">
+          <div className="footer-inner">
+            <div className="footer-col">
+              <h3 className="footer-heading">Create Clothing Design</h3>
+              <p className="footer-text">Dean Designers is a professional studio where you can create clothing design, streetwear graphics, and logo brand identity. Trusted by 1,000+ brands from 25+ countries since 2018.</p>
+            </div>
+            <div className="footer-col">
+              <h3 className="footer-heading">Services</h3>
+              <nav>
+                <a href="https://www.createclothingdesign.com" className="footer-link">Custom Clothing Design</a>
+                <a href="https://www.createclothingdesign.com" className="footer-link">Streetwear Graphics</a>
+                <a href="https://www.createclothingdesign.com" className="footer-link">Logo & Brand Identity</a>
+                <a href="https://www.createclothingdesign.com/articles" className="footer-link">Articles & Insights</a>
+              </nav>
+            </div>
+            <div className="footer-col">
+              <h3 className="footer-heading">Connect</h3>
+              <nav>
+                <a href="https://www.fiverr.com/muhamadfaizi836" target="_blank" rel="noopener noreferrer" className="footer-link">Fiverr Profile</a>
+                <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a>
+                <a href="mailto:muhamadfaizin205@gmail.com" className="footer-link">Email Us</a>
+              </nav>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>© {new Date().getFullYear()} Dean Designers — createclothingdesign.com · Professional Streetwear & Logo Design Studio</p>
+          </div>
+        </footer>
+      )}
       </>
       )}
-
     </div>
   );
 }
