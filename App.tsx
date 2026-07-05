@@ -2718,7 +2718,7 @@ export default function App() {
             <div className="footer-col">
               <h3 className="footer-heading">Connect</h3>
               <nav>
-                <a href="https://www.fiverr.com/muhamadfaizi836" target="_blank" rel="noopener noreferrer" className="footer-link">Fiverr Profile</a>
+                <a href="https://www.fiverr.com/muhamadfaizi836" target="_blank" rel="noopener noreferrer" className="footer-link">Dean's Studio on Fiverr</a>
                 <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a>
                 <a href="mailto:muhamadfaizin205@gmail.com" className="footer-link">Email Us</a>
               </nav>
