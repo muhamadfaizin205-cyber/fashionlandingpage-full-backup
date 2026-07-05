@@ -53,3 +53,4 @@ CREATE TRIGGER presence_last_seen
 -- ═══════════════════════════════════════════════════════════
 -- DONE — Now deploy the new ChatWidget.tsx code
 -- ═══════════════════════════════════════════════════════════
+

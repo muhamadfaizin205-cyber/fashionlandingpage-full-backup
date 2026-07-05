@@ -52,3 +52,4 @@ CREATE TRIGGER profile_timestamp
 INSERT INTO user_profiles (email, display_name, bio, status, user_type)
 VALUES ('admin@deandesigners.com', 'Dean Designers', 'Professional Streetwear & Logo Design Studio', 'available', 'admin')
 ON CONFLICT (email) DO NOTHING;
+
