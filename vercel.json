@@ -3,10 +3,14 @@
     {
       "path": "/api/auto-article",
       "schedule": "0 9 * * *"
-    },
+    }
+  ],
+  "redirects": [
     {
-      "path": "/api/marketing-manager",
-      "schedule": "0 0 * * *"
+      "source": "/:path*",
+      "has": [{ "type": "query", "key": "q" }],
+      "destination": "/:path*",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -25,4 +29,3 @@
     }
   ]
 }
-
