@@ -184,20 +184,26 @@ body {
   animation: fadeUp 0.7s ease both;
 }
 .hero-h1 {
-  font-size: clamp(22px, 4vw, 36px);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.5px;
-  color: #fff;
-  margin: 0 0 12px;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 .hero-sub {
-  font-size: clamp(13px, 2vw, 16px);
-  color: rgba(255,255,255,0.75);
-  margin: 0 0 24px;
-  line-height: 1.5;
-  font-weight: 400;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .hero-badge {
