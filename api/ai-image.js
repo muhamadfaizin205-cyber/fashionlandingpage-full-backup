@@ -33,3 +33,4 @@ export default async function handler(req, res) {
     return res.status(200).json({ url: imageUrl, revised_prompt: data.data[0].revised_prompt || '' });
   } catch (err) { return res.status(500).json({ error: err.message }); }
 }
+

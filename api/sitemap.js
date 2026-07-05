@@ -54,3 +54,4 @@ ${allUrls.map(u => `  <url>
   res.setHeader('Cache-Control', 'public, max-age=3600'); // cache 1 jam
   return res.status(200).send(xml);
 }
+

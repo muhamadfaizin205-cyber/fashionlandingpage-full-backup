@@ -742,3 +742,4 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
     </>
   );
 }
+

@@ -135,3 +135,4 @@ RESPOND ONLY IN VALID JSON (no markdown, no backticks):
     catch (e) { return res.status(200).json({ content: text, title: topic, excerpt: '', tags: [], slug: '' }); }
   } catch (err) { return res.status(500).json({ error: err.message }); }
 }
+
