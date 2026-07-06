@@ -1704,15 +1704,16 @@ function Step6({
   // ── Success screen — auto-redirect to order tracker ─────
   useEffect(() => {
     if (paymentDone) {
+      // Save customer email for auto-login
+      try { localStorage.setItem("dd_customer_email", state.email.toLowerCase()); } catch {}
       const timer = setTimeout(() => {
-        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
+        window.location.href = `/my-orders`;
       }, 4000);
       return () => clearTimeout(timer);
     }
   }, [paymentDone, state.email]);
 
   if (paymentDone) {
-    const trackerUrl = `/order-tracker.html?email=${encodeURIComponent(state.email)}&new=1`;
     return (
       <div className="step-panel">
         <div className="payment-success-box">
@@ -1728,7 +1729,7 @@ function Step6({
           </div>
 
           <a
-            href={trackerUrl}
+            href="/my-orders"
             className="btn-track-order btn-track-primary"
           >
             <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
@@ -2699,7 +2700,7 @@ export default function App() {
           <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
             DEAN DESIGNERS
           </a>
-          <a href="/order-tracker.html" className="nav-profile" title="My Orders">
+          <a href="#" className="nav-profile" title="My Orders" onClick={(e) => { e.preventDefault(); setCurrentPage("orders"); window.scrollTo(0,0); }}>
             <i className="ri-user-line" style={{fontSize:18}} />
           </a>
         </div>
@@ -3048,13 +3049,6 @@ export default function App() {
       {step === 1 && (
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }} className="sticky-cta">
           Start Your Order →
-        </button>
-      )}
-
-      {/* ── Floating Account Button (goes to customer dashboard) ── */}
-      {currentPage !== "orders" && (
-        <button className="account-fab" onClick={() => { setCurrentPage("orders"); window.scrollTo(0,0); }} aria-label="My Account">
-          <i className="ri-user-3-line" style={{fontSize:22}} />
         </button>
       )}
 
