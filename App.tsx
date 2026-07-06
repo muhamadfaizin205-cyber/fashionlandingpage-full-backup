@@ -275,8 +275,8 @@ const DEFAULT_GIGS: Gig[] = [
     short_desc: "Professional streetwear, t-shirt, hoodie, and merch graphic design. Production-ready files included.",
     description: "",
     category: "clothing-design",
-    cover_url: "/clothing%20slide%201.jpg",
-    gallery_urls: ["/clothing%20slide%201.jpg","/clothing%20slide%202.png","/clothing%20slide%203.png"],
+    cover_url: "/clothing-1.jpg",
+    gallery_urls: ["/clothing-1.jpg","/clothing-2.png","/clothing-3.png"],
     basic_price: 50, basic_delivery: 3, basic_revisions: "2 Revisions",
     basic_features: ["Source file included","Print-ready resolution","Front design only"],
     basic_desc: "Simple single-side apparel graphic. Best for testing one design.",
@@ -297,8 +297,8 @@ const DEFAULT_GIGS: Gig[] = [
     short_desc: "Unique logo design with brand identity package. Vector files, mockups, and social media kit included.",
     description: "",
     category: "logo-design",
-    cover_url: "/logo%20slide%201.png",
-    gallery_urls: ["/logo%20slide%201.png","/logo%20slide%202.png"],
+    cover_url: "/logo-1.png",
+    gallery_urls: ["/logo-1.png","/logo-2.png"],
     basic_price: 80, basic_delivery: 5, basic_revisions: "2 Revisions",
     basic_features: ["Logo transparency","Vector file","Printable file"],
     basic_desc: "Clean logo concept. Safe for testing your brand direction.",
@@ -428,15 +428,6 @@ function MyOrdersPage({ onBack }: { onBack: () => void }) {
 // ─── GigCard component (Fiverr-style) ───────────────────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
-  const [imgIdx, setImgIdx] = useState(0);
-  const images = gig.gallery_urls && gig.gallery_urls.length > 0 ? gig.gallery_urls : (gig.cover_url ? [gig.cover_url] : []);
-
-  useEffect(() => {
-    if (images.length < 2) return;
-    const t = setInterval(() => setImgIdx(i => (i + 1) % images.length), 2500);
-    return () => clearInterval(t);
-  }, [images.length]);
-
   const tier = activeTab === "basic"
     ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
     : activeTab === "standard"
@@ -447,20 +438,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
 
   return (
     <article className="gig-card">
-      <div className="gig-cover">
-        {images.length > 0 ? (
-          <img src={images[imgIdx]} alt={gig.title} loading="lazy" />
-        ) : (
-          <div className="gig-cover-placeholder">
-            <i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} />
-          </div>
-        )}
-        {images.length > 1 && (
-          <div className="gig-dots">
-            {images.map((_, i) => <span key={i} className={`gig-dot ${i === imgIdx ? "active" : ""}`} />)}
-          </div>
-        )}
-      </div>
+      {gig.cover_url && <img className="gig-cover-img" src={gig.cover_url} alt={gig.title} />}
       <div className="gig-body">
         <div className="gig-seller">
           <img className="gig-seller-avatar" src="/favicon-96x96.png" alt="Dean Designers" />
@@ -846,13 +824,13 @@ function StepGuide({ stepNum }: { stepNum: number }) {
 // ─── Step 1 ────────────────────────────────────────────────
 // Rotating background slideshow for service cards (changes every 2s)
 const CLOTHING_SLIDES = [
-  "/clothing%20slide%201.jpg",
-  "/clothing%20slide%202.png",
-  "/clothing%20slide%203.png",
+  "/clothing-1.jpg",
+  "/clothing-2.png",
+  "/clothing-3.png",
 ];
 const LOGO_SLIDES = [
-  "/logo%20slide%201.png",
-  "/logo%20slide%202.png",
+  "/logo-1.png",
+  "/logo-2.png",
 ];
 
 function CardSlideshow({ images }: { images: string[] }) {
