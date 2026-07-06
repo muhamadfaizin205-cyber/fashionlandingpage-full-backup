@@ -1707,7 +1707,7 @@ function Step6({
       // Save customer email for auto-login
       try { localStorage.setItem("dd_customer_email", state.email.toLowerCase()); } catch {}
       const timer = setTimeout(() => {
-        window.location.href = `/my-orders`;
+        window.location.href = `/order-tracker.html?email=${encodeURIComponent(state.email)}`;
       }, 4000);
       return () => clearTimeout(timer);
     }
@@ -1729,7 +1729,7 @@ function Step6({
           </div>
 
           <a
-            href="/my-orders"
+            href={`/order-tracker.html?email=${encodeURIComponent(state.email)}`}
             className="btn-track-order btn-track-primary"
           >
             <i className="ri-arrow-right-s-line" style={{fontSize:18}} />
@@ -2700,7 +2700,7 @@ export default function App() {
           <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
             DEAN DESIGNERS
           </a>
-          <a href="#" className="nav-profile" title="My Orders" onClick={(e) => { e.preventDefault(); setCurrentPage("orders"); window.scrollTo(0,0); }}>
+          <a href="/order-tracker.html" className="nav-profile" title="My Orders">
             <i className="ri-user-line" style={{fontSize:18}} />
           </a>
         </div>
@@ -2734,7 +2734,7 @@ export default function App() {
                 <i className="ri-article-line" style={{fontSize:18}} />Articles
               </a>
               <div className="drawer-divider" />
-              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("orders"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+              <a className="drawer-item" href="/order-tracker.html" onClick={() => setDrawerOpen(false)}>
                 <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
               </a>
               <a className="drawer-item" href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer">
