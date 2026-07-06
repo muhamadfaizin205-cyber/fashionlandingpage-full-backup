@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Admin · Dean Designers</title>
+<title>My Orders · Dean Designers</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
@@ -386,7 +386,7 @@ function clearLoginAttempts(){localStorage.removeItem(BF_KEY)}
 // Session timeout (30 min)
 const SESSION_TIMEOUT=1800000;
 function checkSession(){const t=sessionStorage.getItem('dd_session_time');if(t&&Date.now()-parseInt(t)>SESSION_TIMEOUT){sessionStorage.removeItem(SK);sessionStorage.removeItem('dd_session_time');location.reload();return false}sessionStorage.setItem('dd_session_time',String(Date.now()));return true}
-setInterval(()=>{if(sessionStorage.getItem(SK)==='ok')checkSession()},60000);
+setInterval(()=>{if(localStorage.getItem('dd_customer_email'))checkSession()},60000);
 
 // Rate limiting for messages
 let lastMsgTime=0;
@@ -403,6 +403,7 @@ const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
 var adminHash=sessionStorage.getItem('dd_admin_hash')||'';
+var customerEmail=localStorage.getItem('dd_customer_email')||'';
 
 // ── Web Push for Admin ──
 var VAPID_PUBLIC_KEY='BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZJN5wDOeDGgAMEEqrMHxDkJvSTE';
@@ -461,39 +462,31 @@ async function init(){
 }
 
 function renderLogin(){
-  document.getElementById('root').innerHTML='<div class="login-wrap"><div class="login-card"><div class="login-logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h1>Admin Sign In</h1><div class="sub">Enter your credentials</div><input class="login-input" id="u" placeholder="Username" autocomplete="username"/><input class="login-input" id="p" type="password" placeholder="Password" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" onclick="doLogin()">Sign In</button><div class="login-error" id="le"></div></div></div>';
+  document.getElementById('root').innerHTML='<div class="login-wrap"><div class="login-card"><div class="login-logo"><img src="/favicon-96x96.png" alt="DD" style="width:100%;height:100%;object-fit:cover"></div><h1>Track Your Order</h1><div class="sub">Enter the email you used when ordering</div><input class="login-input" id="u" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" onclick="doLogin()">Sign In</button><div class="login-error" id="le"></div></div></div>';var emailParam=new URLSearchParams(window.location.search).get("email");if(emailParam){setTimeout(function(){document.getElementById("u").value=emailParam;doLogin()},300);}
 }
 
 async function doLogin(){
-  const u=document.getElementById('u').value.trim(),p=document.getElementById('p').value,e=document.getElementById('le');
-  // Brute force check
-  const attempts=getLoginAttempts();
-  if(attempts.lockUntil&&Date.now()<attempts.lockUntil){
-    const mins=Math.ceil((attempts.lockUntil-Date.now())/60000);
-    e.textContent='Too many failed attempts. Try again in '+mins+' minute(s).';
-    e.style.display='block';return;
-  }
-  if(!u||!p){e.textContent='Enter both fields';e.style.display='block';return}
-  const hash=await hashPass(p);
-  if(u===ADMIN_USER&&hash===ADMIN_HASH){
-    clearLoginAttempts();
-    adminHash=hash; // store for API auth headers
-    sessionStorage.setItem(SK,'ok');
-    sessionStorage.setItem('dd_admin_hash',hash);
-    sessionStorage.setItem('dd_session_time',String(Date.now()));
-    startApp();
-  } else{
-    addLoginAttempt();
-    const att=getLoginAttempts();
-    const remaining=5-(att.count||0);
-    e.textContent='Invalid credentials.'+(remaining>0?' '+remaining+' attempts remaining.':' Account locked for 5 minutes.');
-    e.style.display='block';
-    document.getElementById('p').value='';
-  }
+  const u=document.getElementById('u').value.trim().toLowerCase(),e=document.getElementById('le');
+  if(!u||!u.includes('@')){e.textContent='Enter a valid email';e.style.display='block';return}
+  e.style.display='none';
+  try{
+    const res=await fetch('/api/get-orders?email='+encodeURIComponent(u));
+    const data=await res.json();
+    if(data.success&&data.orders&&data.orders.length>0){
+      customerEmail=u;
+      localStorage.setItem('dd_customer_email',u);
+      sessionStorage.setItem(SK,'ok');
+      sessionStorage.setItem('dd_session_time',String(Date.now()));
+      startApp();
+    }else{
+      e.textContent='No orders found for this email.';e.style.display='block';
+    }
+  }catch(err){e.textContent='Network error. Try again.';e.style.display='block';}
 }
 
 function startApp(){
   sb=window.supabase.createClient(SB_URL,SB_KEY);
+  customerEmail=localStorage.getItem('dd_customer_email')||'';
   renderApp();
   loadOrders();
   loadConversations();
@@ -515,7 +508,7 @@ function startApp(){
       loadConversations();
       if(chatEmail&&m.order_email===chatEmail){
         chatMsgs.push(m);
-        if(!m.read) fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({ids:[m.id]})}).catch(()=>{});
+        if(!m.read) fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({ids:[m.id]})}).catch(()=>{});
         // Save input text
         var sfx='';var inp=document.getElementById('cr-inp'+sfx);
         var saved=inp?inp.value:'';
@@ -536,7 +529,7 @@ function startApp(){
 
 async function loadOrders(){
   try{
-    var resp=await fetch('/api/get-orders',{headers:{'x-admin-hash':adminHash}});
+    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(customerEmail));
     var result=await resp.json();
     orders=result.orders||[];
   }catch(e){orders=[];console.error('loadOrders failed:',e)}
@@ -545,7 +538,7 @@ async function loadOrders(){
 
 async function loadConversations(){
   try{
-    var resp=await fetch('/api/messages?email=all&all=1',{headers:{'x-admin-hash':adminHash}});
+    var resp=await fetch('/api/messages?email='+encodeURIComponent(customerEmail),{headers:{'x-user-email':customerEmail}});
     var result=await resp.json();
     var data=result.messages||[];
   }catch(e){data=[];}
@@ -2245,13 +2238,13 @@ async function loadChatMsgs(target){
   var _oldInp=document.getElementById('cr-inp'+_sfx);
   var _savedTxt=_oldInp?_oldInp.value:'';
   try{
-    var resp=await fetch('/api/messages?email='+encodeURIComponent(chatEmail),{headers:{'x-admin-hash':adminHash}});
+    var resp=await fetch('/api/messages?email='+encodeURIComponent(customerEmail),{headers:{'x-user-email':customerEmail}});
     var result=await resp.json();
     var data=result.messages||[];
   }catch(e){data=[];}
   chatMsgs=data||[];
   const unread=chatMsgs.filter(m=>m.sender_type==='client'&&!m.read).map(m=>m.id);
-  if(unread.length)fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({ids:unread})}).then(()=>loadConversations()).catch(()=>{});
+  if(unread.length)fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({ids:unread})}).then(()=>loadConversations()).catch(()=>{});
   loadClientPresence();adSubscribeTyping();renderChatRoom(target);
   // Restore saved input text
   var _newInp=document.getElementById('cr-inp'+_sfx);
@@ -2376,7 +2369,7 @@ async function sendAdminMsg(email,isMobile){
   inp.value='';inp.style.height='auto';
   if(adEditing){
     var eId=adEditing.id;adEditing=null;
-    await fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({id:eId,updates:{message:msg,edited_at:new Date().toISOString()}})});
+    await fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({id:eId,updates:{message:msg,edited_at:new Date().toISOString()}})});
     var idx=chatMsgs.findIndex(function(m){return m.id===eId});
     if(idx>-1){chatMsgs[idx].message=msg;chatMsgs[idx].edited_at=new Date().toISOString();}
     renderChatRoom(isMobile?'mobile':undefined);return;
@@ -2393,7 +2386,7 @@ async function sendAdminMsg(email,isMobile){
   setTimeout(function(){var cb=document.querySelector('.cr-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
   // Send to server
   try{
-    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({order_email:optimistic.order_email,order_id:optimistic.order_id,message:msg,reply_to:optimistic.reply_to||null})});
+    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({order_email:optimistic.order_email,order_id:optimistic.order_id,message:msg,reply_to:optimistic.reply_to||null})});
     var result=await resp.json();var data=result.message?[result.message]:null;
     var idx2=chatMsgs.findIndex(function(m){return m.id===tempId});
     if(idx2>-1&&data&&data[0]){
@@ -2430,7 +2423,7 @@ async function sendAdminImage(email,input,isMobile){
   var payload={order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:file.type.startsWith('image/')?'':file.name,image_url:d.data.publicUrl,read:false,delivered:false};
   if(adReplyTo)payload.reply_to=adReplyTo.id;
   adReplyTo=null;input.value='';
-  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify(payload)});playSendSound();
+  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify(payload)});playSendSound();
   loadChatMsgs(isMobile?'mobile':undefined);loadConversations();
 }
 function adToggleRec(isMob){if(adRecording){adStopRec()}else{adStartRec(isMob)}}
@@ -2447,10 +2440,10 @@ async function adStartRec(isMob){
 function adStopRec(){if(adMediaRec&&adMediaRec.state==='recording')adMediaRec.stop();if(adRecTimer)clearInterval(adRecTimer)}
 function adCancelRec(){if(adMediaRec&&adMediaRec.state==='recording'){adRecChunks=[];adMediaRec.stop()}if(adRecTimer)clearInterval(adRecTimer);adRecording=false;loadChatMsgs()}
 function adRenderRecBar(isMob){var sfx=isMob?'-m':'';var bar=document.getElementById('cr-bar'+sfx);if(!bar||!adRecording)return;bar.innerHTML='<div class="cr-rec"><div class="cr-rec-dot"></div><span class="cr-rec-time">'+Math.floor(adRecSec/60)+':'+String(adRecSec%60).padStart(2,'0')+'</span><span class="cr-rec-label">Recording...</span><button onclick="adCancelRec()" style="padding:4px 10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:11px;cursor:pointer">Cancel</button><button onclick="adStopRec()" style="padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Send ✓</button></div>'}
-async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({order_email:chatEmail,order_id:order?order.id:null,message:'',voice_url:d.data.publicUrl})});playSendSound();loadChatMsgs();loadConversations()}
+async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({order_email:chatEmail,order_id:order?order.id:null,message:'',voice_url:d.data.publicUrl})});playSendSound();loadChatMsgs();loadConversations()}
 var adCurAudio=null;
 function adPlayVoice(btn,url){if(adCurAudio){adCurAudio.pause();adCurAudio=null}var a=new Audio();a.preload='auto';a.src=url;adCurAudio=a;var w=btn.closest('.msg-voice'),f=w.querySelector('.msg-voice-fill'),dur=w.querySelector('.msg-voice-dur');var pi='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;function showDur(){if(a.duration&&isFinite(a.duration)){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')}}a.addEventListener('loadedmetadata',showDur);a.addEventListener('durationchange',showDur);a.addEventListener('timeupdate',function(){if(a.duration&&isFinite(a.duration)){f.style.width=(a.currentTime/a.duration*100)+'%';var cm=Math.floor(a.currentTime/60),cs=Math.floor(a.currentTime%60);dur.textContent=cm+':'+String(cs).padStart(2,'0')}});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';adCurAudio=null;showDur()});a.play().catch(function(e){console.error('Play failed:',e)});btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
-async function adDeleteMsg(id,isMob){if(!confirm('Delete this message?'))return;await fetch('/api/messages?id='+id,{method:'DELETE',headers:{'x-admin-hash':adminHash}});loadChatMsgs(isMob?'mobile':undefined);loadConversations()}
+async function adDeleteMsg(id,isMob){if(!confirm('Delete this message?'))return;await fetch('/api/messages?id='+id,{method:'DELETE',headers:{'x-user-email':customerEmail}});loadChatMsgs(isMob?'mobile':undefined);loadConversations()}
 function adImgOverlay(src){var ov=document.createElement('div');ov.className='cr-img-overlay';ov.onclick=function(){ov.remove()};var img=document.createElement('img');img.src=src;img.alt='Preview';ov.appendChild(img);document.body.appendChild(ov)}
 function openMobileChat(){document.getElementById('mobile-chat').classList.add('open');loadConversations()}
 function closeChatRoom(isMobile){
