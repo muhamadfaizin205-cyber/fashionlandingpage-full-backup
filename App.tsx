@@ -266,9 +266,56 @@ function useDbPackages() {
   return { clothingPkgs, logoPkgs };
 }
 
-// ─── Gigs fetch hook ────────────────────────────────────────
+// ─── Default Gigs (hardcoded fallback — DB overrides when available) ──
+const DEFAULT_GIGS: Gig[] = [
+  {
+    id: "gig-clothing",
+    title: "I will create custom streetwear clothing design and apparel graphics",
+    slug: "custom-streetwear-clothing-design",
+    short_desc: "Professional streetwear, t-shirt, hoodie, and merch graphic design. Production-ready files included.",
+    description: "",
+    category: "clothing-design",
+    cover_url: "/clothing%20slide%201.jpg",
+    gallery_urls: ["/clothing%20slide%201.jpg","/clothing%20slide%202.png","/clothing%20slide%203.png"],
+    basic_price: 50, basic_delivery: 3, basic_revisions: "2 Revisions",
+    basic_features: ["Source file included","Print-ready resolution","Front design only"],
+    basic_desc: "Simple single-side apparel graphic. Best for testing one design.",
+    standard_price: 75, standard_delivery: 3, standard_revisions: "8 Revisions",
+    standard_features: ["Source file included","Print-ready resolution","Front & back design","Realistic mockup","Enhanced detailing","Commercial use"],
+    standard_desc: "Front & back with mockup. Most popular for brand drops.",
+    premium_price: 120, premium_delivery: 5, premium_revisions: "Unlimited",
+    premium_features: ["Source file included","Print-ready resolution","Front & back design","Realistic mockup","Enhanced detailing","Commercial use","Techpack included"],
+    premium_desc: "Complete apparel system with techpack. Full brand-ready.",
+    rating: 5.0, review_count: 52, orders_count: 127,
+    service_type: "clothing" as const, is_active: true, sort_order: 1,
+    seo_title: "", seo_description: "",
+  },
+  {
+    id: "gig-logo",
+    title: "I will design a professional logo and brand identity for your clothing line",
+    slug: "professional-logo-brand-identity",
+    short_desc: "Unique logo design with brand identity package. Vector files, mockups, and social media kit included.",
+    description: "",
+    category: "logo-design",
+    cover_url: "/logo%20slide%201.png",
+    gallery_urls: ["/logo%20slide%201.png","/logo%20slide%202.png"],
+    basic_price: 80, basic_delivery: 5, basic_revisions: "2 Revisions",
+    basic_features: ["Logo transparency","Vector file","Printable file"],
+    basic_desc: "Clean logo concept. Safe for testing your brand direction.",
+    standard_price: 150, standard_delivery: 7, standard_revisions: "3 Revisions",
+    standard_features: ["Logo transparency","Vector file","Printable file","3D mockup","Source file"],
+    standard_desc: "Refined logo with mockup and source files. Ready for branding.",
+    premium_price: 200, premium_delivery: 7, premium_revisions: "3 Revisions",
+    premium_features: ["Logo transparency","Vector file","Printable file","3D mockup","Source file","Social media kit"],
+    premium_desc: "Complete brand identity with social media kit.",
+    rating: 5.0, review_count: 38, orders_count: 89,
+    service_type: "logo" as const, is_active: true, sort_order: 2,
+    seo_title: "", seo_description: "",
+  },
+];
+
 function useGigs() {
-  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [gigs, setGigs] = useState<Gig[]>(DEFAULT_GIGS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -279,7 +326,7 @@ function useGigs() {
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .then(({ data, error }) => {
-        if (!error && data) setGigs(data as Gig[]);
+        if (!error && data && data.length > 0) setGigs(data as Gig[]);
         setLoading(false);
       });
   }, []);
@@ -290,6 +337,15 @@ function useGigs() {
 // ─── GigCard component (Fiverr-style) ───────────────────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
+  const [imgIdx, setImgIdx] = useState(0);
+  const images = gig.gallery_urls && gig.gallery_urls.length > 0 ? gig.gallery_urls : (gig.cover_url ? [gig.cover_url] : []);
+
+  useEffect(() => {
+    if (images.length < 2) return;
+    const t = setInterval(() => setImgIdx(i => (i + 1) % images.length), 2500);
+    return () => clearInterval(t);
+  }, [images.length]);
+
   const tier = activeTab === "basic"
     ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
     : activeTab === "standard"
@@ -301,11 +357,18 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   return (
     <article className="gig-card">
       <div className="gig-cover">
-        {gig.cover_url ? (
-          <img src={gig.cover_url} alt={gig.title} loading="lazy" />
+        {images.length > 0 ? (
+          images.map((src, i) => (
+            <img key={src} src={src} alt={i === 0 ? gig.title : ""} loading="lazy" className={`gig-slide ${i === imgIdx ? "active" : ""}`} />
+          ))
         ) : (
           <div className="gig-cover-placeholder">
             <i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} />
+          </div>
+        )}
+        {images.length > 1 && (
+          <div className="gig-dots">
+            {images.map((_, i) => <span key={i} className={`gig-dot ${i === imgIdx ? "active" : ""}`} />)}
           </div>
         )}
       </div>
@@ -2267,12 +2330,14 @@ export default function App() {
 
   // Handle gig order — pre-select service and scroll to wizard
   const handleGigOrder = (gig: Gig) => {
+    // Switch to homepage, set service, and enter wizard at step 2 (brand info)
     setWizardState(p => ({ ...p, service: gig.service_type as "clothing" | "logo" }));
+    setCurrentPage("home");
     goTo(2, "forward");
     setTimeout(() => {
       const el = document.getElementById("wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    }, 200);
   };
 
   // ── Social Proof Toast ───────────────────────────────────
