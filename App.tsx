@@ -481,6 +481,9 @@ function MyOrdersPage({ onBack }: { onBack: () => void }) {
 // ─── GigCard component (Fiverr-style) ───────────────────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
+  const [slideIdx, setSlideIdx] = useState(0);
+  const imgs = (gig.gallery_urls && gig.gallery_urls.length > 0) ? gig.gallery_urls.slice(0,5) : (gig.cover_url ? [gig.cover_url] : []);
+
   const tier = activeTab === "basic"
     ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
     : activeTab === "standard"
@@ -491,7 +494,26 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
 
   return (
     <article className="gig-card">
-      {gig.cover_url && <img className="gig-cover-img" src={gig.cover_url} alt={gig.title} />}
+      {imgs.length > 0 ? (
+        <div className="gig-gallery">
+          <div className="gig-gallery-track" style={{transform:`translateX(-${slideIdx*100}%)`}}>
+            {imgs.map((src, i) => (
+              <img key={i} src={src} alt={i===0 ? gig.title : ""} className="gig-gallery-slide" />
+            ))}
+          </div>
+          {imgs.length > 1 && (
+            <>
+              <button className="gig-gallery-btn gig-gallery-prev" onClick={() => setSlideIdx(i => (i - 1 + imgs.length) % imgs.length)}>‹</button>
+              <button className="gig-gallery-btn gig-gallery-next" onClick={() => setSlideIdx(i => (i + 1) % imgs.length)}>›</button>
+              <div className="gig-gallery-dots">
+                {imgs.map((_, i) => <span key={i} className={`gig-gallery-dot ${i===slideIdx?"active":""}`} />)}
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="gig-cover-placeholder"><i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} /></div>
+      )}
       <div className="gig-body">
         <div className="gig-seller">
           <img className="gig-seller-avatar" src="/favicon-96x96.png" alt="Dean Designers" />
