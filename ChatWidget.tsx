@@ -203,11 +203,11 @@ function relativeTime(iso: string): string {
 // ═══════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════
-export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderId?: string }) {
+export function ChatWidget({ orderEmail, orderId, embedded }: { orderEmail: string; orderId?: string; embedded?: boolean }) {
   // ── State ─────────────────────────────────────────────
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputVal, setInputVal] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(embedded ? true : false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
@@ -581,15 +581,17 @@ export function ChatWidget({ orderEmail, orderId }: { orderEmail: string; orderI
   // ── Render ────────────────────────────────────────────
   return (
     <>
-      {/* ── Floating Chat Button ── */}
-      <button className="cw-fab" onClick={() => { setIsOpen(!isOpen); if (!isOpen) setUnreadCount(0); }} aria-label="Chat">
-        {isOpen ? <IconClose /> : <IconChat />}
-        {!isOpen && unreadCount > 0 && <span className="cw-fab-badge">{unreadCount}</span>}
-      </button>
+      {/* ── Floating Chat Button (hidden in embedded mode) ── */}
+      {!embedded && (
+        <button className="cw-fab" onClick={() => { setIsOpen(!isOpen); if (!isOpen) setUnreadCount(0); }} aria-label="Chat">
+          {isOpen ? <IconClose /> : <IconChat />}
+          {!isOpen && unreadCount > 0 && <span className="cw-fab-badge">{unreadCount}</span>}
+        </button>
+      )}
 
       {/* ── Chat Panel ── */}
       {isOpen && (
-        <div className="cw-panel" ref={panelRef}>
+        <div className={embedded ? "cw-panel cw-embedded" : "cw-panel"} ref={panelRef}>
           {/* Header */}
           <div className="cw-header">
             <div className="cw-header-info">

@@ -471,7 +471,7 @@ function MyOrdersPage({ onBack }: { onBack: () => void }) {
 
       {tab === "chat" && (
         <div style={{minHeight:400}}>
-          <ChatWidget orderEmail={customerEmail} />
+          <ChatWidget orderEmail={customerEmail} embedded />
         </div>
       )}
     </section>
@@ -3048,6 +3048,13 @@ export default function App() {
       {step === 1 && (
         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }} className="sticky-cta">
           Start Your Order →
+        </button>
+      )}
+
+      {/* ── Floating Account Button (goes to customer dashboard) ── */}
+      {currentPage !== "orders" && (
+        <button className="account-fab" onClick={() => { setCurrentPage("orders"); window.scrollTo(0,0); }} aria-label="My Account">
+          <i className="ri-user-3-line" style={{fontSize:22}} />
         </button>
       )}
 
