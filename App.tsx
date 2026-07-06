@@ -449,9 +449,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
     <article className="gig-card">
       <div className="gig-cover">
         {images.length > 0 ? (
-          images.map((src, i) => (
-            <img key={src} src={src} alt={i === 0 ? gig.title : ""} loading="lazy" className={`gig-slide ${i === imgIdx ? "active" : ""}`} />
-          ))
+          <img src={images[imgIdx]} alt={gig.title} loading="lazy" />
         ) : (
           <div className="gig-cover-placeholder">
             <i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} />

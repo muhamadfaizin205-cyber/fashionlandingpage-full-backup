@@ -3554,19 +3554,7 @@ html {
   max-width: 550px;
 }
 
-/* ═══ Gig Image Slideshow ═══ */
-.gig-slide {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.gig-slide.active {
-  opacity: 1;
-}
+/* ═══ Gig Image Dots ═══ */
 .gig-dots {
   position: absolute;
   bottom: 8px;
