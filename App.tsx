@@ -54,6 +54,41 @@ interface WizardState {
   briefImages: string[];
 }
 
+// ─── Gig Types ──────────────────────────────────────────
+interface Gig {
+  id: string;
+  title: string;
+  slug: string;
+  short_desc: string;
+  description: string;
+  category: string;
+  cover_url: string;
+  gallery_urls: string[];
+  basic_price: number;
+  basic_delivery: number;
+  basic_revisions: string;
+  basic_features: string[];
+  basic_desc: string;
+  standard_price: number;
+  standard_delivery: number;
+  standard_revisions: string;
+  standard_features: string[];
+  standard_desc: string;
+  premium_price: number;
+  premium_delivery: number;
+  premium_revisions: string;
+  premium_features: string[];
+  premium_desc: string;
+  rating: number;
+  review_count: number;
+  orders_count: number;
+  service_type: "clothing" | "logo";
+  is_active: boolean;
+  sort_order: number;
+  seo_title: string;
+  seo_description: string;
+}
+
 // ─── Constants ────────────────────────────────────────────
 // C1 FIX: API keys moved to server-side /api/generate-brief.js
 
@@ -229,6 +264,93 @@ function useDbPackages() {
   }, []);
 
   return { clothingPkgs, logoPkgs };
+}
+
+// ─── Gigs fetch hook ────────────────────────────────────────
+function useGigs() {
+  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
+    supabase
+      .from("gigs")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        if (!error && data) setGigs(data as Gig[]);
+        setLoading(false);
+      });
+  }, []);
+
+  return { gigs, loading };
+}
+
+// ─── GigCard component (Fiverr-style) ───────────────────────
+function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
+  const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
+  const tier = activeTab === "basic"
+    ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
+    : activeTab === "standard"
+    ? { price: gig.standard_price, delivery: gig.standard_delivery, revisions: gig.standard_revisions, features: gig.standard_features, desc: gig.standard_desc }
+    : { price: gig.premium_price, delivery: gig.premium_delivery, revisions: gig.premium_revisions, features: gig.premium_features, desc: gig.premium_desc };
+
+  const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(gig.rating) ? "★" : "☆").join("");
+
+  return (
+    <article className="gig-card">
+      <div className="gig-cover">
+        {gig.cover_url ? (
+          <img src={gig.cover_url} alt={gig.title} loading="lazy" />
+        ) : (
+          <div className="gig-cover-placeholder">
+            <i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} />
+          </div>
+        )}
+      </div>
+      <div className="gig-body">
+        <div className="gig-seller">
+          <div className="gig-seller-avatar">D</div>
+          <div className="gig-seller-info">
+            <span className="gig-seller-name">Dean Designers</span>
+            <span className="gig-seller-level">Top Rated Seller</span>
+          </div>
+        </div>
+        <h3 className="gig-title">{gig.title}</h3>
+        <p className="gig-short-desc">{gig.short_desc}</p>
+        <div className="gig-rating">
+          <span className="gig-stars">{stars}</span>
+          <span className="gig-rating-num">{gig.rating.toFixed(1)}</span>
+          <span className="gig-review-count">({gig.review_count})</span>
+          <span className="gig-orders">{gig.orders_count}+ orders</span>
+        </div>
+
+        {/* Pricing tabs */}
+        <div className="gig-tabs">
+          <button className={`gig-tab ${activeTab==="basic"?"active":""}`} onClick={()=>setActiveTab("basic")}>Basic</button>
+          <button className={`gig-tab ${activeTab==="standard"?"active":""}`} onClick={()=>setActiveTab("standard")}>Standard</button>
+          <button className={`gig-tab ${activeTab==="premium"?"active":""}`} onClick={()=>setActiveTab("premium")}>Premium</button>
+        </div>
+        <div className="gig-tier">
+          <div className="gig-tier-price">${tier.price}<span>/concept</span></div>
+          <p className="gig-tier-desc">{tier.desc}</p>
+          <div className="gig-tier-meta">
+            <span><i className="ri-time-line" /> {tier.delivery}-day delivery</span>
+            <span><i className="ri-refresh-line" /> {tier.revisions}</span>
+          </div>
+          <ul className="gig-tier-features">
+            {(typeof tier.features === "string" ? JSON.parse(tier.features) : tier.features).map((f: string, i: number) => (
+              <li key={i}><i className="ri-check-line" /> {f}</li>
+            ))}
+          </ul>
+        </div>
+        <button className="gig-order-btn" onClick={() => onOrder(gig)}>
+          Continue →
+        </button>
+      </div>
+    </article>
+  );
 }
 
 // ─── Testimonials — auto-scrolling carousel ─────────────────
@@ -2141,6 +2263,17 @@ export default function App() {
 
   // ── Dynamic packages from DB (fallback to hardcoded) ────
   const { clothingPkgs, logoPkgs } = useDbPackages();
+  const { gigs } = useGigs();
+
+  // Handle gig order — pre-select service and scroll to wizard
+  const handleGigOrder = (gig: Gig) => {
+    setWizardState(p => ({ ...p, service: gig.service_type as "clothing" | "logo" }));
+    goTo(2, "forward");
+    setTimeout(() => {
+      const el = document.getElementById("wizard");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
 
   // ── Social Proof Toast ───────────────────────────────────
   const [toastVisible, setToastVisible] = useState(false);
@@ -2461,6 +2594,21 @@ export default function App() {
               <i className="ri-arrow-down-s-line scroll-arrow scroll-arrow-2" style={{fontSize:24,color:"rgba(255,255,255,0.3)"}} />
             </div>
           </section>
+
+          {/* ── Fiverr-style Gigs Section ── */}
+          {gigs.length > 0 && (
+            <section className="gigs-section" id="gigs">
+              <div className="gigs-header">
+                <h2 className="gigs-title">Our Services</h2>
+                <p className="gigs-subtitle">Choose a service to create clothing design, logo, or brand identity — just like ordering on Fiverr</p>
+              </div>
+              <div className="gigs-grid">
+                {gigs.map(gig => (
+                  <GigCard key={gig.id} gig={gig} onOrder={handleGigOrder} />
+                ))}
+              </div>
+            </section>
+          )}
 
           <div className="feat-bar s1" id="services">
             <div className="feat-ticker">

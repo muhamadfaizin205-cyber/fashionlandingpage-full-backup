@@ -3259,3 +3259,263 @@ html {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   FIVERR-STYLE GIGS SECTION
+   ═══════════════════════════════════════════════════════════ */
+.gigs-section {
+  padding: 56px 20px 40px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.gigs-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.gigs-title {
+  font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+.gigs-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.gigs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ── Gig Card ── */
+.gig-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow .2s, transform .2s;
+}
+.gig-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+.gig-cover {
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: #f3f4f6;
+  position: relative;
+}
+.gig-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gig-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+}
+.gig-body {
+  padding: 16px 18px 18px;
+}
+
+/* Seller info */
+.gig-seller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.gig-seller-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1DBF73, #16a34a);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.gig-seller-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+.gig-seller-level {
+  font-size: 11px;
+  color: #1DBF73;
+  font-weight: 600;
+  margin-left: 4px;
+  background: rgba(29,191,115,0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Title & desc */
+.gig-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.4;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.gig-short-desc {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Rating */
+.gig-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.gig-stars {
+  color: #FFB33E;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.gig-rating-num {
+  font-weight: 700;
+  color: #111827;
+}
+.gig-review-count {
+  color: #6b7280;
+}
+.gig-orders {
+  color: #6b7280;
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid #e5e7eb;
+}
+
+/* Pricing tabs */
+.gig-tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 14px;
+}
+.gig-tab {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+.gig-tab:hover {
+  color: #111827;
+}
+.gig-tab.active {
+  color: #1DBF73;
+  border-bottom-color: #1DBF73;
+}
+
+/* Tier content */
+.gig-tier {
+  margin-bottom: 14px;
+}
+.gig-tier-price {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+}
+.gig-tier-price span {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6b7280;
+}
+.gig-tier-desc {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.gig-tier-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 10px;
+}
+.gig-tier-meta i {
+  color: #1DBF73;
+  margin-right: 3px;
+}
+.gig-tier-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gig-tier-features li {
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.4;
+}
+.gig-tier-features i {
+  color: #1DBF73;
+  margin-right: 4px;
+  font-size: 11px;
+}
+
+/* Order button */
+.gig-order-btn {
+  width: 100%;
+  padding: 12px;
+  background: #1DBF73;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.gig-order-btn:hover {
+  background: #19a463;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 640px) {
+  .gigs-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .gigs-section {
+    padding: 40px 16px 32px;
+  }
+}
