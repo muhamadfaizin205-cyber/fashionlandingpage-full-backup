@@ -585,7 +585,6 @@ function renderApp(){
         // Invite Customer
         '<button class="sb-ic '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite<span class="sb-ic-tip">Invite Customer</span></button>'+
         '<button class="sb-ic '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Articles<span class="sb-ic-tip">Articles</span></button>'+
-        '<button class="sb-ic '+(currentView==='gigs'?'active':'')+'" onclick="switchView(\'gigs\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Gigs<span class="sb-ic-tip">Manage Gigs</span></button>'+
         
         '<div class="sb-divider"></div>'+
         // Landing page
@@ -607,7 +606,6 @@ function renderApp(){
       '<div class="md-item '+(currentView==='packages'?'active':'')+'" onclick="switchView(\'packages\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Packages</div>'+
       '<div class="md-item '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite Customer</div>'+
       '<div class="md-item '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles</div>'+
-      '<div class="md-item '+(currentView==='gigs'?'active':'')+'" onclick="switchView(\'gigs\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Gigs</div>'+
         '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
       '<div class="md-item '+(currentView==='hotel'?'active':'')+'" onclick="switchView(\'hotel\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>HOTEL</div>'+
       '<div class="md-item '+(currentView==='marketing'?'active':'')+'" onclick="switchView(\'marketing\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg><span style="color:#DC2626;font-weight:700">Manager</span></div>'+
@@ -686,8 +684,6 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>PromoGen</h1><div class="page-actions"><button class="btn-primary" onclick="enrichAllAddresses()" id="enrich-all-btn" style="background:#fff;color:#4F46E5;border:1px solid #C7D2FE"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Enrich All Addresses</button><button class="btn-primary" onclick="openHotelEditor()" style="background:#6366F1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Hotel</button></div></div><div id="hotel-enrich-status"></div><div id="hotel-area"></div></div>';
   } else if(currentView==='marketing'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>Marketing Manager</h1><div class="page-actions"><button class="btn-primary" onclick="runMarketingManager(true)" id="mm-regen-btn" style="background:#fff;color:#DC2626;border:1px solid #FECACA"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Force New Picks</button></div></div><div id="marketing-area"></div></div>';
-  } else if(currentView==='gigs'){
-    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Gigs</h1><div class="page-actions"><button class="btn-primary" onclick="openGigEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Gig</button></div></div><div id="gigs-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -697,7 +693,6 @@ function renderCurrentView(){
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='hotel')renderHotelView();
   else if(currentView==='marketing')renderMarketingView();
-  else if(currentView==='gigs')renderGigsView();
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
   if(sbIcons&&!document.getElementById('agent-nav-btn')){
@@ -2622,197 +2617,6 @@ window.addEventListener('beforeunload',function(){if(sb)sb.from('user_presence')
 document.addEventListener('visibilitychange',function(){if(sb)sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:!document.hidden,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{})});
 // Heartbeat: keep admin online status fresh every 30s
 setInterval(function(){if(sb&&!document.hidden)sb.from('user_presence').upsert({email:'admin@deandesigners.com',is_online:true,last_seen:new Date().toISOString(),user_type:'admin'},{onConflict:'email'}).then(()=>{})},30000);
-
-// ═══════════════════════════════════════════════════════════
-// GIGS MANAGEMENT — Full CRUD
-// ═══════════════════════════════════════════════════════════
-let allGigs=[];
-
-async function loadGigs(){
-  if(!sb)return;
-  const{data,error}=await sb.from('gigs').select('*').order('sort_order',{ascending:true});
-  if(!error&&data)allGigs=data;
-  return allGigs;
-}
-
-async function renderGigsView(){
-  const el=document.getElementById('gigs-area');
-  if(!el)return;
-  el.innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3)">Loading gigs...</div>';
-  await loadGigs();
-  if(allGigs.length===0){
-    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--txt3)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:12px"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><p>No gigs yet. Click <strong>New Gig</strong> to create one.</p></div>';
-    return;
-  }
-  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;padding:0 0 24px">';
-  allGigs.forEach(g=>{
-    const active=g.is_active;
-    html+='<div style="background:var(--card);border-radius:14px;border:1px solid '+(active?'var(--border)':'#FECACA')+';overflow:hidden;position:relative">'+
-      (g.cover_url?'<img src="'+esc(g.cover_url)+'" style="width:100%;height:160px;object-fit:cover" alt="">':'<div style="width:100%;height:100px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);display:flex;align-items:center;justify-content:center"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1DBF73" stroke-width="1.5" style="opacity:.3"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>')+
-      '<div style="padding:14px 16px">'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
-        '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:'+(active?'var(--green-bg)':'#FEF2F2')+';color:'+(active?'var(--green)':'#DC2626')+'">'+(active?'ACTIVE':'INACTIVE')+'</span>'+
-        '<span style="font-size:11px;color:var(--txt3)">'+esc(g.service_type||'clothing')+'</span>'+
-      '</div>'+
-      '<h3 style="font-size:14px;font-weight:700;margin:0 0 6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+esc(g.title)+'</h3>'+
-      '<div style="font-size:12px;color:var(--txt3);margin-bottom:10px">'+
-        '★ '+Number(g.rating).toFixed(1)+' ('+g.review_count+' reviews) · '+g.orders_count+' orders'+
-      '</div>'+
-      '<div style="display:flex;gap:8px;font-size:12px;margin-bottom:12px">'+
-        '<span style="padding:4px 8px;background:var(--bg);border-radius:6px"><strong>B:</strong> $'+Number(g.basic_price)+'</span>'+
-        '<span style="padding:4px 8px;background:var(--bg);border-radius:6px"><strong>S:</strong> $'+Number(g.standard_price)+'</span>'+
-        '<span style="padding:4px 8px;background:var(--bg);border-radius:6px"><strong>P:</strong> $'+Number(g.premium_price)+'</span>'+
-      '</div>'+
-      '<div style="display:flex;gap:8px">'+
-        '<button class="btn-ghost" onclick="openGigEditor(\''+g.id+'\')" style="flex:1;font-size:12px;padding:8px">✏️ Edit</button>'+
-        '<button class="btn-ghost" onclick="toggleGigActive(\''+g.id+'\','+(!active)+')" style="flex:1;font-size:12px;padding:8px">'+(active?'⏸ Deactivate':'▶ Activate')+'</button>'+
-        '<button class="btn-ghost" onclick="deleteGig(\''+g.id+'\')" style="font-size:12px;padding:8px;color:#DC2626">🗑</button>'+
-      '</div>'+
-      '</div></div>';
-  });
-  html+='</div>';
-  el.innerHTML=html;
-}
-
-async function toggleGigActive(id,val){
-  if(!sb)return;
-  await sb.from('gigs').update({is_active:val}).eq('id',id);
-  renderGigsView();
-}
-
-async function deleteGig(id){
-  if(!confirm('Delete this gig permanently?'))return;
-  if(!sb)return;
-  await sb.from('gigs').delete().eq('id',id);
-  renderGigsView();
-}
-
-function openGigEditor(id){
-  let gig=id?allGigs.find(g=>g.id===id):null;
-  const isNew=!gig;
-  if(!gig)gig={title:'',slug:'',short_desc:'',description:'',category:'clothing-design',cover_url:'',service_type:'clothing',
-    basic_price:50,basic_delivery:3,basic_revisions:'2 Revisions',basic_features:'[]',basic_desc:'',
-    standard_price:75,standard_delivery:3,standard_revisions:'8 Revisions',standard_features:'[]',standard_desc:'',
-    premium_price:120,premium_delivery:5,premium_revisions:'Unlimited',premium_features:'[]',premium_desc:'',
-    rating:5.0,review_count:0,orders_count:0,sort_order:0,is_active:true,seo_title:'',seo_description:''};
-  const bfStr=typeof gig.basic_features==='string'?gig.basic_features:JSON.stringify(gig.basic_features||[]);
-  const sfStr=typeof gig.standard_features==='string'?gig.standard_features:JSON.stringify(gig.standard_features||[]);
-  const pfStr=typeof gig.premium_features==='string'?gig.premium_features:JSON.stringify(gig.premium_features||[]);
-
-  const modal=document.createElement('div');
-  modal.id='gig-modal';
-  modal.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);padding:20px';
-  modal.innerHTML='<div style="background:#fff;border-radius:16px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;padding:28px">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h2 style="font-size:18px;font-weight:800;margin:0">'+(isNew?'New Gig':'Edit Gig')+'</h2><button onclick="closeGigEditor()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">×</button></div>'+
-    '<div style="display:flex;flex-direction:column;gap:14px">'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Title<input id="ge-title" class="login-input" value="'+esc(gig.title)+'" placeholder="I will create custom streetwear..."></label>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Slug<input id="ge-slug" class="login-input" value="'+esc(gig.slug)+'" placeholder="custom-streetwear-design"></label>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-      '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Service Type<select id="ge-stype" class="login-input" style="padding:10px"><option value="clothing"'+(gig.service_type==='clothing'?' selected':'')+'>Clothing</option><option value="logo"'+(gig.service_type==='logo'?' selected':'')+'>Logo</option></select></label>'+
-      '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Sort Order<input id="ge-sort" class="login-input" type="number" value="'+(gig.sort_order||0)+'"></label>'+
-    '</div>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Short Description<textarea id="ge-short" class="login-input" rows="2" style="resize:vertical">'+esc(gig.short_desc)+'</textarea></label>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Full Description<textarea id="ge-desc" class="login-input" rows="4" style="resize:vertical">'+esc(gig.description)+'</textarea></label>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Cover Image URL<input id="ge-cover" class="login-input" value="'+esc(gig.cover_url||'')+'" placeholder="https://..."></label>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'+
-      '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Rating<input id="ge-rating" class="login-input" type="number" step="0.1" value="'+Number(gig.rating)+'"></label>'+
-      '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Reviews<input id="ge-reviews" class="login-input" type="number" value="'+(gig.review_count||0)+'"></label>'+
-      '<label style="font-size:12px;font-weight:600;color:var(--txt2)">Orders<input id="ge-orders" class="login-input" type="number" value="'+(gig.orders_count||0)+'"></label>'+
-    '</div>'+
-    '<hr style="border:none;border-top:1px solid var(--border)">'+
-    '<h3 style="font-size:14px;font-weight:700;margin:0">Pricing Tiers</h3>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'+
-      '<div style="background:var(--bg);padding:12px;border-radius:10px"><div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">BASIC</div>'+
-        '<label style="font-size:11px;color:var(--txt3)">Price ($)<input id="ge-bp" class="login-input" type="number" value="'+Number(gig.basic_price)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Delivery (days)<input id="ge-bd" class="login-input" type="number" value="'+(gig.basic_delivery||3)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Revisions<input id="ge-br" class="login-input" value="'+esc(gig.basic_revisions||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Description<input id="ge-bdesc" class="login-input" value="'+esc(gig.basic_desc||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Features (JSON)<textarea id="ge-bf" class="login-input" rows="3" style="font-size:11px;resize:vertical">'+esc(bfStr)+'</textarea></label>'+
-      '</div>'+
-      '<div style="background:var(--bg);padding:12px;border-radius:10px"><div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px">STANDARD</div>'+
-        '<label style="font-size:11px;color:var(--txt3)">Price ($)<input id="ge-sp" class="login-input" type="number" value="'+Number(gig.standard_price)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Delivery (days)<input id="ge-sd" class="login-input" type="number" value="'+(gig.standard_delivery||3)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Revisions<input id="ge-sr" class="login-input" value="'+esc(gig.standard_revisions||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Description<input id="ge-sdesc" class="login-input" value="'+esc(gig.standard_desc||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Features (JSON)<textarea id="ge-sf" class="login-input" rows="3" style="font-size:11px;resize:vertical">'+esc(sfStr)+'</textarea></label>'+
-      '</div>'+
-      '<div style="background:var(--bg);padding:12px;border-radius:10px"><div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px">PREMIUM</div>'+
-        '<label style="font-size:11px;color:var(--txt3)">Price ($)<input id="ge-pp" class="login-input" type="number" value="'+Number(gig.premium_price)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Delivery (days)<input id="ge-pd" class="login-input" type="number" value="'+(gig.premium_delivery||5)+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Revisions<input id="ge-pr" class="login-input" value="'+esc(gig.premium_revisions||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Description<input id="ge-pdesc" class="login-input" value="'+esc(gig.premium_desc||'')+'"></label>'+
-        '<label style="font-size:11px;color:var(--txt3)">Features (JSON)<textarea id="ge-pf" class="login-input" rows="3" style="font-size:11px;resize:vertical">'+esc(pfStr)+'</textarea></label>'+
-      '</div>'+
-    '</div>'+
-    '<hr style="border:none;border-top:1px solid var(--border)">'+
-    '<h3 style="font-size:14px;font-weight:700;margin:0">SEO</h3>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">SEO Title<input id="ge-seot" class="login-input" value="'+esc(gig.seo_title||'')+'"></label>'+
-    '<label style="font-size:12px;font-weight:600;color:var(--txt2)">SEO Description<textarea id="ge-seod" class="login-input" rows="2" style="resize:vertical">'+esc(gig.seo_description||'')+'</textarea></label>'+
-    '<button class="btn-primary" onclick="saveGig('+(isNew?'null':'\\''+gig.id+'\\'')+')" style="width:100%;padding:14px;font-size:14px;margin-top:8px">'+(isNew?'Create Gig':'Save Changes')+'</button>'+
-    '</div></div>';
-  document.body.appendChild(modal);
-  // Auto-generate slug from title
-  document.getElementById('ge-title').addEventListener('input',function(){
-    if(isNew){document.getElementById('ge-slug').value=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
-  });
-}
-
-function closeGigEditor(){
-  const m=document.getElementById('gig-modal');
-  if(m)m.remove();
-}
-
-async function saveGig(id){
-  if(!sb)return;
-  const data={
-    title:document.getElementById('ge-title').value.trim(),
-    slug:document.getElementById('ge-slug').value.trim(),
-    short_desc:document.getElementById('ge-short').value.trim(),
-    description:document.getElementById('ge-desc').value.trim(),
-    cover_url:document.getElementById('ge-cover').value.trim(),
-    service_type:document.getElementById('ge-stype').value,
-    sort_order:parseInt(document.getElementById('ge-sort').value)||0,
-    rating:parseFloat(document.getElementById('ge-rating').value)||5.0,
-    review_count:parseInt(document.getElementById('ge-reviews').value)||0,
-    orders_count:parseInt(document.getElementById('ge-orders').value)||0,
-    basic_price:parseFloat(document.getElementById('ge-bp').value)||50,
-    basic_delivery:parseInt(document.getElementById('ge-bd').value)||3,
-    basic_revisions:document.getElementById('ge-br').value||'2 Revisions',
-    basic_desc:document.getElementById('ge-bdesc').value.trim(),
-    basic_features:safeJSON(document.getElementById('ge-bf').value),
-    standard_price:parseFloat(document.getElementById('ge-sp').value)||75,
-    standard_delivery:parseInt(document.getElementById('ge-sd').value)||3,
-    standard_revisions:document.getElementById('ge-sr').value||'8 Revisions',
-    standard_desc:document.getElementById('ge-sdesc').value.trim(),
-    standard_features:safeJSON(document.getElementById('ge-sf').value),
-    premium_price:parseFloat(document.getElementById('ge-pp').value)||120,
-    premium_delivery:parseInt(document.getElementById('ge-pd').value)||5,
-    premium_revisions:document.getElementById('ge-pr').value||'Unlimited',
-    premium_desc:document.getElementById('ge-pdesc').value.trim(),
-    premium_features:safeJSON(document.getElementById('ge-pf').value),
-    seo_title:document.getElementById('ge-seot').value.trim(),
-    seo_description:document.getElementById('ge-seod').value.trim(),
-  };
-  if(!data.title||!data.slug){alert('Title and slug are required');return;}
-  let err;
-  if(id){
-    const r=await sb.from('gigs').update(data).eq('id',id);
-    err=r.error;
-  }else{
-    data.is_active=true;
-    const r=await sb.from('gigs').insert(data);
-    err=r.error;
-  }
-  if(err){alert('Error: '+err.message);return;}
-  closeGigEditor();
-  renderGigsView();
-}
-
-function safeJSON(str){
-  try{return JSON.parse(str)}catch(e){return str.split(',').map(s=>s.trim()).filter(Boolean)}
-}
-
 </script>
 </body>
 </html>
-
