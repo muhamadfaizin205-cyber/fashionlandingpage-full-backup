@@ -100,7 +100,7 @@ INSERT INTO gigs (title, slug, short_desc, description, category, cover_url, ser
   120, 5, 'Unlimited',
   '["Source file included", "Print-ready resolution", "Front & back design", "Realistic mockup", "Enhanced detailing", "Commercial use", "Techpack included"]',
   'Complete apparel system with techpack. Full brand-ready package.',
-  5.0, 52, 127,
+  4.9, 1247, 3200,
   'Custom Streetwear Clothing Design | Dean Designers',
   'Professional custom streetwear and apparel graphic design service. T-shirt, hoodie, merch designs with print-ready files.'
 ),
@@ -122,7 +122,7 @@ INSERT INTO gigs (title, slug, short_desc, description, category, cover_url, ser
   200, 7, '3 Revisions',
   '["Logo transparency", "Vector file", "Printable file", "3D mockup", "Source file", "Social media kit"]',
   'Complete brand identity with social media kit. Full long-term branding package.',
-  5.0, 38, 89,
+  5.0, 986, 8100,
   'Professional Logo & Brand Identity Design | Dean Designers',
   'Custom logo and brand identity design for clothing brands. Vector files, mockups, social media kit included.'
 );

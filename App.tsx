@@ -327,7 +327,18 @@ function useGigs() {
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .then(({ data, error }) => {
-        if (!error && data && data.length > 0) setGigs(data as Gig[]);
+        if (!error && data && data.length > 0) {
+          // Merge DB data with defaults: use DB gallery if present, else fallback to default images
+          const merged = data.map((dbGig: any) => {
+            const def = DEFAULT_GIGS.find(d => d.service_type === dbGig.service_type);
+            return {
+              ...dbGig,
+              gallery_urls: (dbGig.gallery_urls && dbGig.gallery_urls.length > 0) ? dbGig.gallery_urls : (def?.gallery_urls || []),
+              cover_url: dbGig.cover_url || def?.cover_url || "",
+            };
+          }) as Gig[];
+          setGigs(merged);
+        }
         setLoading(false);
       });
   }, []);
