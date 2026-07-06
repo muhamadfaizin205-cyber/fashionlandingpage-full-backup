@@ -17,7 +17,8 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/articles/:slug", "destination": "/api/article-ssr?slug=:slug" },
     { "source": "/articles", "destination": "/index.html" },
-    { "source": "/gigs", "destination": "/index.html" }
+    { "source": "/gigs", "destination": "/index.html" },
+    { "source": "/my-orders", "destination": "/index.html" }
   ],
   "headers": [
     {

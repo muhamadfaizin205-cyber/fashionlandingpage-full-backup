@@ -334,6 +334,97 @@ function useGigs() {
   return { gigs, loading };
 }
 
+// ─── My Orders Page (customer-facing order tracker) ─────────
+function MyOrdersPage({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [error, setError] = useState("");
+
+  const lookup = async () => {
+    if (!email.trim() || !email.includes("@")) { setError("Please enter a valid email"); return; }
+    setLoading(true); setError(""); setSearched(false);
+    try {
+      const res = await fetch(`/api/get-orders?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      const data = await res.json();
+      if (data.success) { setOrders(data.orders || []); setSearched(true); }
+      else { setError(data.error || "Something went wrong"); }
+    } catch { setError("Network error. Please try again."); }
+    setLoading(false);
+  };
+
+  const statusColor = (s: string) => {
+    if (s === "completed" || s === "delivered") return "#1DBF73";
+    if (s === "in_progress" || s === "processing") return "#446EE7";
+    if (s === "cancelled") return "#DC2626";
+    return "#F59E0B";
+  };
+
+  return (
+    <section className="gigs-page">
+      <div className="gigs-page-header">
+        <button className="gigs-back-btn" onClick={onBack}>← Back</button>
+        <h1 className="gigs-page-title">My Orders</h1>
+        <p className="gigs-page-subtitle">Enter the email you used when placing your order</p>
+      </div>
+
+      <div style={{maxWidth:480,marginBottom:32}}>
+        <div style={{display:"flex",gap:8}}>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && lookup()}
+            placeholder="your@email.com"
+            style={{flex:1,padding:"12px 16px",border:"1.5px solid #e5e7eb",borderRadius:10,fontSize:14,outline:"none",fontFamily:"inherit"}}
+          />
+          <button onClick={lookup} disabled={loading} style={{padding:"12px 24px",background:"#1DBF73",color:"#fff",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",opacity:loading?0.6:1}}>
+            {loading ? "..." : "Find"}
+          </button>
+        </div>
+        {error && <p style={{color:"#DC2626",fontSize:13,marginTop:8}}>{error}</p>}
+      </div>
+
+      {searched && orders.length === 0 && (
+        <div style={{textAlign:"center",padding:"40px 20px",color:"#6b7280"}}>
+          <i className="ri-inbox-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
+          <p>No orders found for this email.</p>
+        </div>
+      )}
+
+      {orders.length > 0 && (
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          {orders.map((o: any) => (
+            <div key={o.id} style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",padding:"16px 20px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:8}}>
+                <div>
+                  <span style={{fontSize:15,fontWeight:700,color:"#111827"}}>{o.service === "logo" ? "Logo Design" : "Clothing Design"}</span>
+                  <span style={{fontSize:12,color:"#6b7280",marginLeft:8}}>{o.package_name || o.badge || ""}</span>
+                </div>
+                <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:statusColor(o.status || "pending")+"15",color:statusColor(o.status || "pending"),textTransform:"uppercase"}}>
+                  {o.status || "pending"}
+                </span>
+              </div>
+              <div style={{display:"flex",gap:16,fontSize:12,color:"#6b7280",flexWrap:"wrap"}}>
+                <span><strong>Brand:</strong> {o.brand_name || "-"}</span>
+                <span><strong>Qty:</strong> {o.qty || 1} concept(s)</span>
+                <span><strong>Total:</strong> ${Number(o.total_price || o.price || 0).toFixed(2)}</span>
+                <span><strong>Date:</strong> {new Date(o.created_at).toLocaleDateString()}</span>
+              </div>
+              {o.brief && (
+                <p style={{fontSize:12,color:"#374151",marginTop:8,lineHeight:1.5,background:"#f9fafb",padding:"8px 12px",borderRadius:8}}>
+                  {o.brief.substring(0, 150)}{o.brief.length > 150 ? "..." : ""}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ─── GigCard component (Fiverr-style) ───────────────────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
@@ -2344,12 +2435,13 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home"|"articles"|"gigs">(() => {
+  const [currentPage, setCurrentPage] = useState<"home"|"articles"|"gigs"|"orders">(() => {
     // Read initial page from URL so refresh stays on the same page
     if (typeof window !== "undefined") {
       const path = window.location.pathname.replace(/\/$/, "");
       if (path === "/articles" || window.location.hash === "#articles") return "articles";
       if (path === "/gigs" || window.location.hash === "#gigs") return "gigs";
+      if (path === "/my-orders") return "orders";
     }
     return "home";
   });
@@ -2357,7 +2449,7 @@ export default function App() {
   // Keep the URL in sync with the current page (without full reload)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const targetPath = currentPage === "articles" ? "/articles" : currentPage === "gigs" ? "/gigs" : "/";
+    const targetPath = currentPage === "articles" ? "/articles" : currentPage === "gigs" ? "/gigs" : currentPage === "orders" ? "/my-orders" : "/";
     if (window.location.pathname !== targetPath) {
       window.history.pushState({ page: currentPage }, "", targetPath);
     }
@@ -2367,7 +2459,7 @@ export default function App() {
   useEffect(() => {
     const onPopState = () => {
       const path = window.location.pathname.replace(/\/$/, "");
-      setCurrentPage(path === "/articles" ? "articles" : path === "/gigs" ? "gigs" : "home");
+      setCurrentPage(path === "/articles" ? "articles" : path === "/gigs" ? "gigs" : path === "/my-orders" ? "orders" : "home");
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -2612,7 +2704,7 @@ export default function App() {
                 <i className="ri-article-line" style={{fontSize:18}} />Articles
               </a>
               <div className="drawer-divider" />
-              <a className="drawer-item" href="/order-tracker.html">
+              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("orders"); setDrawerOpen(false); window.scrollTo(0,0); }}>
                 <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
               </a>
               <a className="drawer-item" href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer">
@@ -2626,6 +2718,11 @@ export default function App() {
       {/* ══ FULL ARTICLES PAGE ══ */}
       {currentPage === "articles" && (
         <ArticlesFullPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
+      )}
+
+      {/* ══ MY ORDERS PAGE — customer order tracker ══ */}
+      {currentPage === "orders" && (
+        <MyOrdersPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
       )}
 
       {/* ══ GIGS PAGE — Fiverr-style service listings ══ */}
