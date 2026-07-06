@@ -2279,11 +2279,12 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home"|"articles">(() => {
+  const [currentPage, setCurrentPage] = useState<"home"|"articles"|"gigs">(() => {
     // Read initial page from URL so refresh stays on the same page
     if (typeof window !== "undefined") {
       const path = window.location.pathname.replace(/\/$/, "");
       if (path === "/articles" || window.location.hash === "#articles") return "articles";
+      if (path === "/gigs" || window.location.hash === "#gigs") return "gigs";
     }
     return "home";
   });
@@ -2291,7 +2292,7 @@ export default function App() {
   // Keep the URL in sync with the current page (without full reload)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const targetPath = currentPage === "articles" ? "/articles" : "/";
+    const targetPath = currentPage === "articles" ? "/articles" : currentPage === "gigs" ? "/gigs" : "/";
     if (window.location.pathname !== targetPath) {
       window.history.pushState({ page: currentPage }, "", targetPath);
     }
@@ -2301,7 +2302,7 @@ export default function App() {
   useEffect(() => {
     const onPopState = () => {
       const path = window.location.pathname.replace(/\/$/, "");
-      setCurrentPage(path === "/articles" ? "articles" : "home");
+      setCurrentPage(path === "/articles" ? "articles" : path === "/gigs" ? "gigs" : "home");
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -2539,6 +2540,9 @@ export default function App() {
               <a className="drawer-item" href="#about" onClick={() => setDrawerOpen(false)}>
                 <i className="ri-user-line" style={{fontSize:18}} />Portfolio
               </a>
+              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-store-2-line" style={{fontSize:18}} />Gigs
+              </a>
               <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
                 <i className="ri-article-line" style={{fontSize:18}} />Articles
               </a>
@@ -2557,6 +2561,31 @@ export default function App() {
       {/* ══ FULL ARTICLES PAGE ══ */}
       {currentPage === "articles" && (
         <ArticlesFullPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
+      )}
+
+      {/* ══ GIGS PAGE — Fiverr-style service listings ══ */}
+      {currentPage === "gigs" && (
+        <section className="gigs-page">
+          <div className="gigs-page-header">
+            <button className="gigs-back-btn" onClick={() => { setCurrentPage("home"); window.scrollTo(0,0); }}>
+              ← Back
+            </button>
+            <h1 className="gigs-page-title">Our Gigs</h1>
+            <p className="gigs-page-subtitle">Professional design services — choose a gig to create clothing design, logo, or brand identity</p>
+          </div>
+          {gigs.length === 0 ? (
+            <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
+              <i className="ri-store-2-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
+              <p>No gigs available yet. Check back soon!</p>
+            </div>
+          ) : (
+            <div className="gigs-grid">
+              {gigs.map(gig => (
+                <GigCard key={gig.id} gig={gig} onOrder={handleGigOrder} />
+              ))}
+            </div>
+          )}
+        </section>
       )}
 
       {/* HERO + FEATURE BAR — only visible on Step 1 AND home page */}
@@ -2594,21 +2623,6 @@ export default function App() {
               <i className="ri-arrow-down-s-line scroll-arrow scroll-arrow-2" style={{fontSize:24,color:"rgba(255,255,255,0.3)"}} />
             </div>
           </section>
-
-          {/* ── Fiverr-style Gigs Section ── */}
-          {gigs.length > 0 && (
-            <section className="gigs-section" id="gigs">
-              <div className="gigs-header">
-                <h2 className="gigs-title">Our Services</h2>
-                <p className="gigs-subtitle">Choose a service to create clothing design, logo, or brand identity — just like ordering on Fiverr</p>
-              </div>
-              <div className="gigs-grid">
-                {gigs.map(gig => (
-                  <GigCard key={gig.id} gig={gig} onOrder={handleGigOrder} />
-                ))}
-              </div>
-            </section>
-          )}
 
           <div className="feat-bar s1" id="services">
             <div className="feat-ticker">

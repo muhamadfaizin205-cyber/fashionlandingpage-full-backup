@@ -3519,3 +3519,42 @@ html {
     padding: 40px 16px 32px;
   }
 }
+
+/* ═══ Gigs Page Layout ═══ */
+.gigs-page {
+  padding: 100px 20px 60px;
+  max-width: 1080px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+.gigs-page-header {
+  margin-bottom: 36px;
+}
+.gigs-back-btn {
+  background: none;
+  border: none;
+  color: #1DBF73;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+.gigs-back-btn:hover {
+  text-decoration: underline;
+}
+.gigs-page-title {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+.gigs-page-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 550px;
+}
