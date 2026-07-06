@@ -3,6 +3,7 @@ import "./styles.css";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import emailjs from "@emailjs/browser";
 import { createClient } from "@supabase/supabase-js";
+import { ChatWidget } from "./ChatWidget";
 
 // ─── PayPal Client ID ─────────────────────────────────────
 const PAYPAL_CLIENT_ID =
@@ -336,22 +337,51 @@ function useGigs() {
 
 // ─── My Orders Page (customer-facing order tracker) ─────────
 function MyOrdersPage({ onBack }: { onBack: () => void }) {
-  const [email, setEmail] = useState("");
+  const [customerEmail, setCustomerEmail] = useState(() => {
+    try { return localStorage.getItem("dd_customer_email") || ""; } catch { return ""; }
+  });
+  const [inputEmail, setInputEmail] = useState("");
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState<"orders"|"chat">("orders");
 
-  const lookup = async () => {
-    if (!email.trim() || !email.includes("@")) { setError("Please enter a valid email"); return; }
-    setLoading(true); setError(""); setSearched(false);
+  const isLoggedIn = !!customerEmail;
+
+  useEffect(() => { if (isLoggedIn) fetchOrders(customerEmail); }, [customerEmail]);
+
+  const fetchOrders = async (em: string) => {
+    setLoading(true); setError("");
     try {
-      const res = await fetch(`/api/get-orders?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      const res = await fetch(`/api/get-orders?email=${encodeURIComponent(em.toLowerCase())}`);
       const data = await res.json();
-      if (data.success) { setOrders(data.orders || []); setSearched(true); }
-      else { setError(data.error || "Something went wrong"); }
-    } catch { setError("Network error. Please try again."); }
+      if (data.success) setOrders(data.orders || []);
+      else setError(data.error || "Something went wrong");
+    } catch { setError("Network error"); }
     setLoading(false);
+  };
+
+  const handleLogin = async () => {
+    const em = inputEmail.trim().toLowerCase();
+    if (!em || !em.includes("@")) { setError("Please enter a valid email"); return; }
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`/api/get-orders?email=${encodeURIComponent(em)}`);
+      const data = await res.json();
+      if (data.success && data.orders && data.orders.length > 0) {
+        setCustomerEmail(em);
+        try { localStorage.setItem("dd_customer_email", em); } catch {}
+        setOrders(data.orders);
+      } else {
+        setError("No orders found for this email. Please use the email you ordered with.");
+      }
+    } catch { setError("Network error"); }
+    setLoading(false);
+  };
+
+  const handleLogout = () => {
+    setCustomerEmail(""); setOrders([]);
+    try { localStorage.removeItem("dd_customer_email"); } catch {}
   };
 
   const statusColor = (s: string) => {
@@ -361,64 +391,87 @@ function MyOrdersPage({ onBack }: { onBack: () => void }) {
     return "#F59E0B";
   };
 
+  if (!isLoggedIn) return (
+    <section className="gigs-page">
+      <div className="gigs-page-header">
+        <button className="gigs-back-btn" onClick={onBack}>\u2190 Back</button>
+        <h1 className="gigs-page-title">Customer Login</h1>
+        <p className="gigs-page-subtitle">Sign in with the email you used when placing your order</p>
+      </div>
+      <div className="cust-login-box">
+        <img src="/favicon-96x96.png" alt="Dean Designers" style={{width:48,height:48,borderRadius:12,marginBottom:16}} />
+        <h2 style={{fontSize:18,fontWeight:800,margin:"0 0 4px",color:"#111827"}}>Welcome to Dean Designers</h2>
+        <p style={{fontSize:13,color:"#6b7280",margin:"0 0 20px"}}>Enter your order email to continue</p>
+        <input type="email" value={inputEmail} onChange={e => setInputEmail(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleLogin()} placeholder="your@email.com"
+          style={{width:"100%",padding:"12px 16px",border:"1.5px solid #e5e7eb",borderRadius:10,fontSize:14,outline:"none",fontFamily:"inherit",boxSizing:"border-box",marginBottom:12}} />
+        <button onClick={handleLogin} disabled={loading}
+          style={{width:"100%",padding:"12px",background:"#1DBF73",color:"#fff",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",opacity:loading?0.6:1}}>
+          {loading ? "Checking..." : "Sign In"}
+        </button>
+        {error && <p style={{color:"#DC2626",fontSize:13,marginTop:12}}>{error}</p>}
+      </div>
+    </section>
+  );
+
   return (
     <section className="gigs-page">
       <div className="gigs-page-header">
-        <button className="gigs-back-btn" onClick={onBack}>← Back</button>
-        <h1 className="gigs-page-title">My Orders</h1>
-        <p className="gigs-page-subtitle">Enter the email you used when placing your order</p>
-      </div>
-
-      <div style={{maxWidth:480,marginBottom:32}}>
-        <div style={{display:"flex",gap:8}}>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && lookup()}
-            placeholder="your@email.com"
-            style={{flex:1,padding:"12px 16px",border:"1.5px solid #e5e7eb",borderRadius:10,fontSize:14,outline:"none",fontFamily:"inherit"}}
-          />
-          <button onClick={lookup} disabled={loading} style={{padding:"12px 24px",background:"#1DBF73",color:"#fff",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",opacity:loading?0.6:1}}>
-            {loading ? "..." : "Find"}
-          </button>
+        <button className="gigs-back-btn" onClick={onBack}>\u2190 Back</button>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+          <div>
+            <h1 className="gigs-page-title" style={{marginBottom:2}}>My Account</h1>
+            <p style={{fontSize:13,color:"#6b7280",margin:0}}>{customerEmail}</p>
+          </div>
+          <button onClick={handleLogout} style={{padding:"8px 16px",background:"none",border:"1.5px solid #e5e7eb",borderRadius:8,fontSize:12,fontWeight:600,color:"#6b7280",cursor:"pointer"}}>Sign Out</button>
         </div>
-        {error && <p style={{color:"#DC2626",fontSize:13,marginTop:8}}>{error}</p>}
       </div>
 
-      {searched && orders.length === 0 && (
-        <div style={{textAlign:"center",padding:"40px 20px",color:"#6b7280"}}>
-          <i className="ri-inbox-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
-          <p>No orders found for this email.</p>
+      <div className="cust-tabs">
+        <button className={`cust-tab ${tab==="orders"?"active":""}`} onClick={()=>setTab("orders")}>
+          <i className="ri-inbox-line" /> My Orders
+        </button>
+        <button className={`cust-tab ${tab==="chat"?"active":""}`} onClick={()=>setTab("chat")}>
+          <i className="ri-chat-3-line" /> Chat with Designer
+        </button>
+      </div>
+
+      {tab === "orders" && (
+        <div>
+          {loading && <p style={{color:"#6b7280",padding:20}}>Loading...</p>}
+          {error && <p style={{color:"#DC2626",padding:20}}>{error}</p>}
+          {!loading && orders.length === 0 && (
+            <div style={{textAlign:"center",padding:"40px 20px",color:"#6b7280"}}>
+              <i className="ri-inbox-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
+              <p>No orders found.</p>
+            </div>
+          )}
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {orders.map((o: any) => (
+              <div key={o.id} style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",padding:"16px 20px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <span style={{fontSize:15,fontWeight:700,color:"#111827"}}>{o.service === "logo" ? "Logo Design" : "Clothing Design"}</span>
+                    <span style={{fontSize:12,color:"#6b7280",marginLeft:8}}>{o.package_name || o.badge || ""}</span>
+                  </div>
+                  <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:statusColor(o.status||"pending")+"15",color:statusColor(o.status||"pending"),textTransform:"uppercase"}}>{o.status||"pending"}</span>
+                </div>
+                <div style={{display:"flex",gap:16,fontSize:12,color:"#6b7280",flexWrap:"wrap"}}>
+                  <span><strong>Brand:</strong> {o.brand_name||"-"}</span>
+                  <span><strong>Qty:</strong> {o.qty||1}</span>
+                  <span><strong>Total:</strong> ${Number(o.total_price||o.price||0).toFixed(2)}</span>
+                  <span><strong>Date:</strong> {new Date(o.created_at).toLocaleDateString()}</span>
+                </div>
+                {o.brief && <p style={{fontSize:12,color:"#374151",marginTop:8,lineHeight:1.5,background:"#f9fafb",padding:"8px 12px",borderRadius:8}}>{o.brief.substring(0,200)}{o.brief.length>200?"...":""}</p>}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {orders.length > 0 && (
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          {orders.map((o: any) => (
-            <div key={o.id} style={{background:"#fff",borderRadius:12,border:"1px solid #e5e7eb",padding:"16px 20px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,flexWrap:"wrap",gap:8}}>
-                <div>
-                  <span style={{fontSize:15,fontWeight:700,color:"#111827"}}>{o.service === "logo" ? "Logo Design" : "Clothing Design"}</span>
-                  <span style={{fontSize:12,color:"#6b7280",marginLeft:8}}>{o.package_name || o.badge || ""}</span>
-                </div>
-                <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:statusColor(o.status || "pending")+"15",color:statusColor(o.status || "pending"),textTransform:"uppercase"}}>
-                  {o.status || "pending"}
-                </span>
-              </div>
-              <div style={{display:"flex",gap:16,fontSize:12,color:"#6b7280",flexWrap:"wrap"}}>
-                <span><strong>Brand:</strong> {o.brand_name || "-"}</span>
-                <span><strong>Qty:</strong> {o.qty || 1} concept(s)</span>
-                <span><strong>Total:</strong> ${Number(o.total_price || o.price || 0).toFixed(2)}</span>
-                <span><strong>Date:</strong> {new Date(o.created_at).toLocaleDateString()}</span>
-              </div>
-              {o.brief && (
-                <p style={{fontSize:12,color:"#374151",marginTop:8,lineHeight:1.5,background:"#f9fafb",padding:"8px 12px",borderRadius:8}}>
-                  {o.brief.substring(0, 150)}{o.brief.length > 150 ? "..." : ""}
-                </p>
-              )}
-            </div>
-          ))}
+      {tab === "chat" && (
+        <div style={{minHeight:400}}>
+          <ChatWidget orderEmail={customerEmail} />
         </div>
       )}
     </section>
