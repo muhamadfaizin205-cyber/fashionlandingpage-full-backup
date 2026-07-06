@@ -3339,14 +3339,9 @@ html {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1DBF73, #16a34a);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
+  object-fit: cover;
   flex-shrink: 0;
+  border: 1.5px solid rgba(29,191,115,0.3);
 }
 .gig-seller-name {
   font-size: 13px;
@@ -3560,9 +3555,6 @@ html {
 }
 
 /* ═══ Gig Image Slideshow ═══ */
-.gig-cover {
-  position: relative;
-}
 .gig-slide {
   position: absolute;
   inset: 0;
@@ -3574,7 +3566,6 @@ html {
 }
 .gig-slide.active {
   opacity: 1;
-  position: relative;
 }
 .gig-dots {
   position: absolute;

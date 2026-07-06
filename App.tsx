@@ -465,7 +465,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
       </div>
       <div className="gig-body">
         <div className="gig-seller">
-          <div className="gig-seller-avatar">D</div>
+          <img className="gig-seller-avatar" src="/favicon-96x96.png" alt="Dean Designers" />
           <div className="gig-seller-info">
             <span className="gig-seller-name">Dean Designers</span>
             <span className="gig-seller-level">Top Rated Seller</span>
