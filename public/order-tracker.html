@@ -762,7 +762,7 @@ async function sendInvite(){
 
 function renderStats(){
   const t=orders.length,r=orders.reduce((s,o)=>s+Number(o.price||0),0),a=orders.filter(o=>['new','working','review','revision'].includes(o.status)).length,c=orders.filter(o=>['completed','delivered'].includes(o.status)).length;
-  document.getElementById('stats-area').innerHTML='<div class="stats"><div class="stat"><div class="stat-val">'+t+'</div><div class="stat-label">Total Orders</div></div><div class="stat"><div class="stat-val green">$'+r.toFixed(0)+'</div><div class="stat-label">Revenue</div></div><div class="stat"><div class="stat-val">'+a+'</div><div class="stat-label">In Progress</div></div><div class="stat"><div class="stat-val">'+c+'</div><div class="stat-label">Completed</div></div></div>';
+  document.getElementById('stats-area').innerHTML='<div class="stats"><div class="stat"><div class="stat-val">'+t+'</div><div class="stat-label">Total Orders</div></div><div class="stat"><div class="stat-val">'+a+'</div><div class="stat-label">In Progress</div></div><div class="stat"><div class="stat-val">'+c+'</div><div class="stat-label">Completed</div></div></div>';
 }
 
 function renderOrders(){
