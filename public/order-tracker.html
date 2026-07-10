@@ -372,9 +372,9 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;gap:8px;color:var(--txt2)"><div class="spinner"></div> Loading...</div></div>
 
 <script>
-const ADMIN_USER="dean";
+const ADMIN_USER=""; // unused in customer tracker
 // SHA-256 hashed password (original: deandesigners2025)
-const ADMIN_HASH="2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0";
+const ADMIN_HASH=""; // unused in customer tracker
 async function hashPass(p){const e=new TextEncoder().encode(p);const h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 
 // Brute force protection
@@ -402,7 +402,7 @@ const SL={new:'New',working:'Working',review:'Review',revision:'Revision',comple
 const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision',completed:'b-completed',delivered:'b-delivered'};
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
-var adminHash=sessionStorage.getItem('dd_admin_hash')||'';
+var adminHash=''; // disabled for customer
 var customerEmail=localStorage.getItem('dd_customer_email')||'';
 
 // ── Web Push for Admin ──
@@ -587,7 +587,7 @@ function renderApp(){
       // Profile + signout at bottom
       '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #1F2937">'+
         '<button class="sb-ic" onclick="logout()" title="Sign Out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out<span class="sb-ic-tip">Sign Out</span></button>'+
-        '<div class="sb-profile-ic" id="sb-profile-area" onclick="openAdminProfileModal()" title="Edit Profile">DD</div>'+
+        
       '</div>'+
     '</aside>';
 
@@ -604,7 +604,7 @@ function renderApp(){
       
       
       '<div class="md-divider"></div>'+
-      '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
+      
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
       '<div class="md-item" onclick="logout()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div>'+
     '</div></div>';
@@ -668,8 +668,7 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Orders</h1><div class="page-actions"><div class="page-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search orders..." oninput="search=this.value;renderOrders()" value="'+esc(search||'')+'"/></div><button class="btn-ghost" onclick="loadOrders()">↻ Refresh</button></div></div><div id="stats-area"></div><div id="filters-area"></div><div id="orders-area"></div></div>';
   } else if(currentView==='packages'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Packages</h1></div><div id="pkg-area"></div></div>';
-  } else if(currentView==='invite'){
-    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Invite Customer</h1></div><div id="invite-area"></div></div>';
+
   } else if(currentView==='articles'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Articles</h1><div class="page-actions"><button class="btn-primary" onclick="openAIWriter()" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> AI Write</button><button class="btn-primary" onclick="openArticleEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Article</button></div></div><div id="articles-area"></div></div>';
   } else if(currentView==='ai-agent'){
@@ -681,8 +680,6 @@ function renderCurrentView(){
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
-  else if(currentView==='packages')renderPackagesView();
-  else if(currentView==='invite')renderInviteView();
   else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='hotel')renderHotelView();
@@ -786,7 +783,7 @@ function openDetail(id){
   selId=id;const o=orders.find(x=>x.id===id);if(!o)return;
   // Also open chat for this client + auto-open chat panel
   if(o.email){chatEmail=o.email;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs()}
-  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
+  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'</div><div class="modal-foot" style="justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:var(--txt3)">Status:</span><span class="badge b-'+(o.status||'new')+'">'+SL[o.status||'new']+'</span></div><button class="mbtn mbtn-g" onclick="closeModal()">Close</button></div></div>';
   document.getElementById('modal').classList.add('open');
   if(o.email)renderBriefAdmin(o.email).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
 }
@@ -797,7 +794,7 @@ async function saveOrder(id){
   await sb.from('orders').update({status:document.getElementById('m-status').value,priority:document.getElementById('m-priority').value,notes:document.getElementById('m-notes').value}).eq('id',id);
   closeModal();loadOrders();
 }
-async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
+async function void(0&&id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
 
 
 
@@ -2527,7 +2524,8 @@ function updateSidebarProfile(){
   var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
   el.innerHTML=av?'<img src="'+av+'" alt=""/>':initials;
 }
-async function openAdminProfileModal(){
+async function openAdminProfileModal(){return; // disabled for customer
+  var _unused=function(){
   // Always reload from DB
   if(sb){var{data}=await sb.from('user_profiles').select('*').eq('email','admin@deandesigners.com').limit(1);if(data&&data[0])adminProfile=data[0]}
   updateSidebarProfile();
@@ -2564,7 +2562,7 @@ async function uploadAdminAvatar(input){
   if(!data||!data.publicUrl)return;
   adminProfile.avatar_url=data.publicUrl;
   await sb.from('user_profiles').upsert({email:'admin@deandesigners.com',avatar_url:data.publicUrl,display_name:adminProfile.display_name||'Dean Designers',bio:adminProfile.bio||'',status:adminProfile.status||'available',user_type:'admin'},{onConflict:'email'});
-  closeAdminProfileModal();openAdminProfileModal();updateSidebarProfile();
+  // disabled for customer
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
