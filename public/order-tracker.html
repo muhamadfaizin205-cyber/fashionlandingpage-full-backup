@@ -417,7 +417,8 @@ function urlB64ToUint8ArrayAdmin(base64String){
   return out;
 }
 
-async function registerAdminPush(){
+async function registerAdminPush(){return;/*disabled*/
+var _disabled=function(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
   try{
     var reg=await navigator.serviceWorker.register('/sw.js');
@@ -680,10 +681,10 @@ function renderCurrentView(){
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
-  else if(currentView==='articles')renderArticlesView();
+  // articles disabled
   else if(currentView==='ai-agent')renderAIAgentView();
-  else if(currentView==='hotel')renderHotelView();
-  else if(currentView==='marketing')renderMarketingView();
+  // hotel disabled
+  // marketing disabled
   // Admin-only nav buttons removed for customer tracker
 }
 
@@ -972,7 +973,8 @@ var SHIFT_META={
   malam:{label:'Malam',time:'19:00 - 22:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',color:'#4338CA'}
 };
 
-async function renderMarketingView(){
+async function renderMarketingView(){return;/*disabled*/
+var _disabled=function(){
   var el=document.getElementById('marketing-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Memanggil manager...</div>';
   subscribeRoastRealtime();
@@ -1320,7 +1322,8 @@ function hotelTemplate(h){
     'Atau booking via aplikasi RedDoorz ada HARGA SPESIAL DIPOTONG 25% pake kode promo RDAFFASIKPROMO. Kode promo bisa dipake berulang kali!';
 }
 
-async function renderHotelView(){
+async function renderHotelView(){return;/*disabled*/
+var _disabled=function(){
   var el=document.getElementById('hotel-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading hotels...</div>';
   if(!sb)return;
@@ -1431,7 +1434,7 @@ function selectHotel(id){
 }
 
 // Re-render using already-loaded curHotels, no Supabase refetch
-function renderHotelViewLocal(){
+function renderHotelViewLocal(){return;/*disabled*/
   var el=document.getElementById('hotel-area');if(!el)return;
   var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">';
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden">';
@@ -1710,7 +1713,8 @@ async function findHotelAddress(){
   btn.innerHTML=origHtml;
 }
 
-async function saveHotelForm(){
+async function saveHotelForm(){return;/*disabled*/
+var _disabled=function(){
   var name=document.getElementById('ho-name').value.trim();
   if(!name){alert('Name is required');return}
   var parseNum=function(v){v=v.trim();return v===''?null:Number(v)};
@@ -1742,7 +1746,8 @@ async function saveHotelForm(){
 var curArticles=[];
 var editingArticleId=null;
 
-async function renderArticlesView(){
+async function renderArticlesView(){return;/*disabled*/
+var _disabled=function(){
   var el=document.getElementById('articles-area');
   if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading articles...</div>';
@@ -1807,7 +1812,8 @@ function openArticleEditor(id){
   document.getElementById('modal').classList.add('open');
 }
 
-async function saveArticleForm(){
+async function saveArticleForm(){return;/*disabled*/
+var _disabled=function(){
   var title=document.getElementById('art-title').value.trim();
   if(!title){alert('Title is required');return}
   var tagsStr=document.getElementById('art-tags').value.trim();
@@ -1842,7 +1848,8 @@ function openAIWriter(){
   document.getElementById('modal').classList.add('open');
 }
 
-async function runAIWrite(){
+async function runAIWrite(){return;/*disabled*/
+var _disabled=function(){
   var topic=document.getElementById('ai-topic').value.trim();
   if(!topic){alert('Please enter a topic');return}
   var btn=document.getElementById('ai-write-btn');
