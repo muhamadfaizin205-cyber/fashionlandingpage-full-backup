@@ -169,7 +169,7 @@ async function sendMsg(){
   var inp=document.getElementById('ci');
   var txt=inp.value.trim();if(!txt)return;inp.value='';
   await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},
-    body:JSON.stringify({order_email:email,sender_email:email,text:txt})});
+    body:JSON.stringify({order_email:email,sender_email:email,message:txt})});
 }
 
 function switchView(v){view=v;renderContent();
@@ -236,11 +236,12 @@ function renderMessages(){
   var el=document.getElementById('msgs');if(!el)return;
   if(!messages.length){el.innerHTML='<div class="chat-empty">No messages yet. Say hi! 👋</div>';return}
   el.innerHTML=messages.map(function(m){
-    var me=m.sender_email===email;
+    var me=m.sender_email===email||m.sender_type==='client';
     var t=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var body=m.message||m.text||'';
     return '<div style="display:flex;flex-direction:column;align-items:'+(me?'flex-end':'flex-start')+'">'+
       (m.image_url?'<img class="msg-img" src="'+esc(m.image_url)+'">':'')+
-      '<div class="msg '+(me?'me':'them')+'">'+esc(m.text||m.message||'')+'</div>'+
+      '<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>'+
       '<div class="msg-time">'+t+'</div></div>';
   }).join('');
   scrollChat();
