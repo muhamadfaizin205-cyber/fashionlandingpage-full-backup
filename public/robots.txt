@@ -51,6 +51,10 @@ Allow: /
 # Sitemap
 Sitemap: https://www.createclothingdesign.com/sitemap.xml
 
+# Block keyword file from search engines (internal reference only)
+User-agent: Googlebot
+Disallow: /keywords.txt
+
 # AI context file
 LLMs.txt: https://www.createclothingdesign.com/llms.txt
 
