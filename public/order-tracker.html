@@ -688,7 +688,8 @@ function renderCurrentView(){
 }
 
 // ── PACKAGES VIEW ──
-async function renderPackagesView(){
+async function renderPackagesView(){return; // disabled for customer
+  var _x=async function(){
   await loadPackages();
   const el=document.getElementById('pkg-area');if(!el)return;
   let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
@@ -710,7 +711,8 @@ async function renderPackagesView(){
 }
 
 // ── INVITE CUSTOMER VIEW ──
-function renderInviteView(){
+function renderInviteView(){return; // disabled for customer
+  var _x2=function(){
   const el=document.getElementById('invite-area');if(!el)return;
   el.innerHTML='<div style="max-width:600px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px"><div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.6">Invite customers who paid offline (bank transfer, WhatsApp deal, etc.) to access the order tracker and chat with you. They\'ll receive an order link and can chat without making PayPal payment.</div>'+
     '<div class="profile-field"><div class="profile-label">Customer Email *</div><input class="profile-input" id="iv-email" type="email" placeholder="customer@example.com"/></div>'+
@@ -790,7 +792,8 @@ function openDetail(id){
 
 function closeModal(){document.getElementById('modal').classList.remove('open');selId=null;renderOrders()}
 
-async function saveOrder(id){
+async function saveOrder(id){return; // disabled for customer
+  var _x3=async function(id){
   await sb.from('orders').update({status:document.getElementById('m-status').value,priority:document.getElementById('m-priority').value,notes:document.getElementById('m-notes').value}).eq('id',id);
   closeModal();loadOrders();
 }
@@ -2531,7 +2534,7 @@ async function openAdminProfileModal(){return; // disabled for customer
   updateSidebarProfile();
   var av=adminProfile.avatar_url;
   var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
-  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAdminProfileModal()"><div class="profile-modal"><div class="profile-modal-head"><h3>Edit Profile</h3><button class="profile-modal-close" onclick="closeAdminProfileModal()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAdminProfileModal()"><div class="profile-modal"><div class="profile-modal-head"><h3>Profile</h3><button class="profile-modal-close" onclick="closeAdminProfileModal()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
   h+='<div class="profile-avatar-wrap"><label class="profile-avatar" title="Change photo"><input type="file" accept="image/*" style="display:none" onchange="uploadAdminAvatar(this)"/>'+(av?'<img src="'+av+'" alt=""/>':initials)+'<div class="profile-avatar-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></label></div>';
   h+='<div class="profile-field"><div class="profile-label">Display Name</div><input class="profile-input" id="apf-name" value="'+esc(adminProfile.display_name||'')+'" placeholder="Dean Designers" maxlength="50"/></div>';
   h+='<div class="profile-field"><div class="profile-label">Bio</div><textarea class="profile-textarea" id="apf-bio" placeholder="Describe your studio..." maxlength="200">'+esc(adminProfile.bio||'')+'</textarea></div>';
