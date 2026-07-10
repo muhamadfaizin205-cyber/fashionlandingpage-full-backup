@@ -372,9 +372,9 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;gap:8px;color:var(--txt2)"><div class="spinner"></div> Loading...</div></div>
 
 <script>
-const ADMIN_USER=""; // unused in customer tracker
+const ADMIN_USER="dean";
 // SHA-256 hashed password (original: deandesigners2025)
-const ADMIN_HASH=""; // unused in customer tracker
+const ADMIN_HASH="2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0";
 async function hashPass(p){const e=new TextEncoder().encode(p);const h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 
 // Brute force protection
@@ -386,7 +386,7 @@ function clearLoginAttempts(){localStorage.removeItem(BF_KEY)}
 // Session timeout (30 min)
 const SESSION_TIMEOUT=1800000;
 function checkSession(){const t=sessionStorage.getItem('dd_session_time');if(t&&Date.now()-parseInt(t)>SESSION_TIMEOUT){sessionStorage.removeItem(SK);sessionStorage.removeItem('dd_session_time');location.reload();return false}sessionStorage.setItem('dd_session_time',String(Date.now()));return true}
-setInterval(()=>{if(localStorage.getItem('dd_customer_email'))checkSession()},60000);
+setInterval(()=>{if(sessionStorage.getItem(SK)==='ok')checkSession()},60000);
 
 // Rate limiting for messages
 let lastMsgTime=0;
@@ -402,8 +402,7 @@ const SL={new:'New',working:'Working',review:'Review',revision:'Revision',comple
 const SC={new:'b-new',working:'b-working',review:'b-review',revision:'b-revision',completed:'b-completed',delivered:'b-delivered'};
 
 let sb=null,orders=[],filter='all',search='',selId=null,chatEmail=null,chatMsgs=[],convs=[];
-var adminHash=''; // disabled for customer
-var customerEmail=localStorage.getItem('dd_customer_email')||'';
+var adminHash=sessionStorage.getItem('dd_admin_hash')||'';
 
 // ── Web Push for Admin ──
 var VAPID_PUBLIC_KEY='BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZJN5wDOeDGgAMEEqrMHxDkJvSTE';
@@ -417,8 +416,7 @@ function urlB64ToUint8ArrayAdmin(base64String){
   return out;
 }
 
-async function registerAdminPush(){return;/*disabled*/
-var _disabled=function(){
+async function registerAdminPush(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
   try{
     var reg=await navigator.serviceWorker.register('/sw.js');
@@ -463,7 +461,7 @@ async function init(){
 }
 
 function renderLogin(){
-  document.getElementById('root').innerHTML='<div class="login-wrap"><div class="login-card"><div class="login-logo"><img src="/favicon-96x96.png" alt="DD" style="width:100%;height:100%;object-fit:cover"></div><h1>Track Your Order</h1><div class="sub">Enter the email you used when ordering</div><input class="login-input" id="u" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" onclick="doLogin()">Sign In</button><div class="login-error" id="le"></div></div></div>';var emailParam=new URLSearchParams(window.location.search).get("email");if(emailParam){setTimeout(function(){document.getElementById("u").value=emailParam;doLogin()},300);}
+  document.getElementById('root').innerHTML='<div class="login-wrap"><div class="login-card"><div class="login-logo"><img src="/favicon-96x96.png" alt="DD" style="width:100%;height:100%;object-fit:cover;border-radius:10px"></div><h1>Track Your Order</h1><div class="sub">Enter the email you used when ordering</div><input class="login-input" id="u" type="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="login-btn" onclick="doLogin()">Sign In</button><div class="login-error" id="le"></div></div></div>';
 }
 
 async function doLogin(){
@@ -474,21 +472,16 @@ async function doLogin(){
     const res=await fetch('/api/get-orders?email='+encodeURIComponent(u));
     const data=await res.json();
     if(data.success&&data.orders&&data.orders.length>0){
-      customerEmail=u;
       localStorage.setItem('dd_customer_email',u);
       sessionStorage.setItem(SK,'ok');
       sessionStorage.setItem('dd_session_time',String(Date.now()));
       startApp();
-    }else{
-      e.textContent='No orders found for this email.';e.style.display='block';
-    }
-  }catch(err){e.textContent='Network error. Try again.';e.style.display='block';}
+    }else{e.textContent='No orders found for this email.';e.style.display='block'}
+  }catch(err){e.textContent='Network error.';e.style.display='block'}
 }
 
 function startApp(){
   sb=window.supabase.createClient(SB_URL,SB_KEY);
-  customerEmail=localStorage.getItem('dd_customer_email')||'';
-  customerEmail=localStorage.getItem('dd_customer_email')||'';
   renderApp();
   loadOrders();
   loadConversations();
@@ -510,7 +503,7 @@ function startApp(){
       loadConversations();
       if(chatEmail&&m.order_email===chatEmail){
         chatMsgs.push(m);
-        if(!m.read) fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({ids:[m.id]})}).catch(()=>{});
+        if(!m.read) fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify({ids:[m.id]})}).catch(()=>{});
         // Save input text
         var sfx='';var inp=document.getElementById('cr-inp'+sfx);
         var saved=inp?inp.value:'';
@@ -531,7 +524,7 @@ function startApp(){
 
 async function loadOrders(){
   try{
-    var resp=await fetch('/api/get-orders?email='+encodeURIComponent(customerEmail));
+    var cemail=localStorage.getItem('dd_customer_email')||'';var resp=await fetch('/api/get-orders?email='+encodeURIComponent(cemail));
     var result=await resp.json();
     orders=result.orders||[];
   }catch(e){orders=[];console.error('loadOrders failed:',e)}
@@ -540,7 +533,7 @@ async function loadOrders(){
 
 async function loadConversations(){
   try{
-    var resp=await fetch('/api/messages?email='+encodeURIComponent(customerEmail),{headers:{'x-user-email':customerEmail}});
+    var cemail2=localStorage.getItem('dd_customer_email')||'';var resp=await fetch('/api/messages?email='+encodeURIComponent(cemail2),{headers:{'x-user-email':cemail2}});
     var result=await resp.json();
     var data=result.messages||[];
   }catch(e){data=[];}
@@ -601,9 +594,9 @@ function renderApp(){
       
       
       
-        
-      
-      
+        '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
+      '<div class="md-item '+(currentView==='hotel'?'active':'')+'" onclick="switchView(\'hotel\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>HOTEL</div>'+
+      '<div class="md-item '+(currentView==='marketing'?'active':'')+'" onclick="switchView(\'marketing\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg><span style="color:#DC2626;font-weight:700">Manager</span></div>'+
       '<div class="md-divider"></div>'+
       
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -669,7 +662,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Orders</h1><div class="page-actions"><div class="page-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search orders..." oninput="search=this.value;renderOrders()" value="'+esc(search||'')+'"/></div><button class="btn-ghost" onclick="loadOrders()">↻ Refresh</button></div></div><div id="stats-area"></div><div id="filters-area"></div><div id="orders-area"></div></div>';
   } else if(currentView==='packages'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Packages</h1></div><div id="pkg-area"></div></div>';
-
+  } else if(currentView==='invite'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Invite Customer</h1></div><div id="invite-area"></div></div>';
   } else if(currentView==='articles'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Articles</h1><div class="page-actions"><button class="btn-primary" onclick="openAIWriter()" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> AI Write</button><button class="btn-primary" onclick="openArticleEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Article</button></div></div><div id="articles-area"></div></div>';
   } else if(currentView==='ai-agent'){
@@ -681,16 +675,56 @@ function renderCurrentView(){
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
-  // articles disabled
+  else if(currentView==='packages')renderPackagesView();
+  else if(currentView==='invite')renderInviteView();
+  else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
-  // hotel disabled
-  // marketing disabled
-  // Admin-only nav buttons removed for customer tracker
+  else if(currentView==='hotel')renderHotelView();
+  else if(currentView==='marketing')renderMarketingView();
+  // Admin nav buttons disabled for customer tracker
+  var sbIcons=document.querySelector('.sb-icons');
+  if(false&&sbIcons&&!document.getElementById('agent-nav-btn')){
+    var agentBtn=document.createElement('button');
+    agentBtn.id='agent-nav-btn';
+    agentBtn.className='sb-ic';
+    agentBtn.title='AI Agent';
+    agentBtn.onclick=function(){switchView('ai-agent')};
+    agentBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent<span class="sb-ic-tip">AI Agent</span>';
+    sbIcons.appendChild(agentBtn);
+  }
+  if(document.getElementById('agent-nav-btn')){
+    document.getElementById('agent-nav-btn').className='sb-ic'+(currentView==='ai-agent'?' active':'');
+  }
+  // Inject HOTEL nav button
+  if(sbIcons&&!document.getElementById('hotel-nav-btn')){
+    var hotelBtn=document.createElement('button');
+    hotelBtn.id='hotel-nav-btn';
+    hotelBtn.className='sb-ic';
+    hotelBtn.title='HOTEL';
+    hotelBtn.onclick=function(){switchView('hotel')};
+    hotelBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>HOTEL<span class="sb-ic-tip">PromoGen</span>';
+    sbIcons.appendChild(hotelBtn);
+  }
+  if(document.getElementById('hotel-nav-btn')){
+    document.getElementById('hotel-nav-btn').className='sb-ic'+(currentView==='hotel'?' active':'');
+  }
+  // Inject Marketing Manager nav button
+  if(sbIcons&&!document.getElementById('marketing-nav-btn')){
+    var mmBtn=document.createElement('button');
+    mmBtn.id='marketing-nav-btn';
+    mmBtn.className='sb-ic';
+    mmBtn.title='Marketing Manager';
+    mmBtn.onclick=function(){switchView('marketing')};
+    mmBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>Manager<span class="sb-ic-tip">Marketing Manager</span>';
+    sbIcons.appendChild(mmBtn);
+  }
+  if(document.getElementById('marketing-nav-btn')){
+    document.getElementById('marketing-nav-btn').className='sb-ic'+(currentView==='marketing'?' active':'');
+  }
 }
 
 // ── PACKAGES VIEW ──
-async function renderPackagesView(){return; // disabled for customer
-  var _x=async function(){
+async function renderPackagesView(){
   await loadPackages();
   const el=document.getElementById('pkg-area');if(!el)return;
   let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
@@ -712,8 +746,7 @@ async function renderPackagesView(){return; // disabled for customer
 }
 
 // ── INVITE CUSTOMER VIEW ──
-function renderInviteView(){return; // disabled for customer
-  var _x2=function(){
+function renderInviteView(){
   const el=document.getElementById('invite-area');if(!el)return;
   el.innerHTML='<div style="max-width:600px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px"><div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.6">Invite customers who paid offline (bank transfer, WhatsApp deal, etc.) to access the order tracker and chat with you. They\'ll receive an order link and can chat without making PayPal payment.</div>'+
     '<div class="profile-field"><div class="profile-label">Customer Email *</div><input class="profile-input" id="iv-email" type="email" placeholder="customer@example.com"/></div>'+
@@ -793,12 +826,11 @@ function openDetail(id){
 
 function closeModal(){document.getElementById('modal').classList.remove('open');selId=null;renderOrders()}
 
-async function saveOrder(id){return; // disabled for customer
-  var _x3=async function(id){
+async function saveOrder(id){
   await sb.from('orders').update({status:document.getElementById('m-status').value,priority:document.getElementById('m-priority').value,notes:document.getElementById('m-notes').value}).eq('id',id);
   closeModal();loadOrders();
 }
-async function void(0&&id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
+async function deleteOrder(id){if(!confirm('Delete this order?'))return;await sb.from('orders').delete().eq('id',id);closeModal();loadOrders()}
 
 
 
@@ -973,8 +1005,7 @@ var SHIFT_META={
   malam:{label:'Malam',time:'19:00 - 22:00',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',color:'#4338CA'}
 };
 
-async function renderMarketingView(){return;/*disabled*/
-var _disabled=function(){
+async function renderMarketingView(){
   var el=document.getElementById('marketing-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Memanggil manager...</div>';
   subscribeRoastRealtime();
@@ -1322,8 +1353,7 @@ function hotelTemplate(h){
     'Atau booking via aplikasi RedDoorz ada HARGA SPESIAL DIPOTONG 25% pake kode promo RDAFFASIKPROMO. Kode promo bisa dipake berulang kali!';
 }
 
-async function renderHotelView(){return;/*disabled*/
-var _disabled=function(){
+async function renderHotelView(){
   var el=document.getElementById('hotel-area');if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading hotels...</div>';
   if(!sb)return;
@@ -1434,7 +1464,7 @@ function selectHotel(id){
 }
 
 // Re-render using already-loaded curHotels, no Supabase refetch
-function renderHotelViewLocal(){return;/*disabled*/
+function renderHotelViewLocal(){
   var el=document.getElementById('hotel-area');if(!el)return;
   var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">';
   h+='<div style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden">';
@@ -1713,8 +1743,7 @@ async function findHotelAddress(){
   btn.innerHTML=origHtml;
 }
 
-async function saveHotelForm(){return;/*disabled*/
-var _disabled=function(){
+async function saveHotelForm(){
   var name=document.getElementById('ho-name').value.trim();
   if(!name){alert('Name is required');return}
   var parseNum=function(v){v=v.trim();return v===''?null:Number(v)};
@@ -1746,8 +1775,7 @@ var _disabled=function(){
 var curArticles=[];
 var editingArticleId=null;
 
-async function renderArticlesView(){return;/*disabled*/
-var _disabled=function(){
+async function renderArticlesView(){
   var el=document.getElementById('articles-area');
   if(!el)return;
   el.innerHTML='<div class="loading"><div class="spinner"></div> Loading articles...</div>';
@@ -1812,8 +1840,7 @@ function openArticleEditor(id){
   document.getElementById('modal').classList.add('open');
 }
 
-async function saveArticleForm(){return;/*disabled*/
-var _disabled=function(){
+async function saveArticleForm(){
   var title=document.getElementById('art-title').value.trim();
   if(!title){alert('Title is required');return}
   var tagsStr=document.getElementById('art-tags').value.trim();
@@ -1848,8 +1875,7 @@ function openAIWriter(){
   document.getElementById('modal').classList.add('open');
 }
 
-async function runAIWrite(){return;/*disabled*/
-var _disabled=function(){
+async function runAIWrite(){
   var topic=document.getElementById('ai-topic').value.trim();
   if(!topic){alert('Please enter a topic');return}
   var btn=document.getElementById('ai-write-btn');
@@ -2207,13 +2233,13 @@ async function loadChatMsgs(target){
   var _oldInp=document.getElementById('cr-inp'+_sfx);
   var _savedTxt=_oldInp?_oldInp.value:'';
   try{
-    var resp=await fetch('/api/messages?email='+encodeURIComponent(customerEmail),{headers:{'x-user-email':customerEmail}});
+    var cemail3=localStorage.getItem('dd_customer_email')||'';var resp=await fetch('/api/messages?email='+encodeURIComponent(cemail3),{headers:{'x-user-email':cemail3}});
     var result=await resp.json();
     var data=result.messages||[];
   }catch(e){data=[];}
   chatMsgs=data||[];
   const unread=chatMsgs.filter(m=>m.sender_type==='client'&&!m.read).map(m=>m.id);
-  if(unread.length)fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({ids:unread})}).then(()=>loadConversations()).catch(()=>{});
+  if(unread.length)fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify({ids:unread})}).then(()=>loadConversations()).catch(()=>{});
   loadClientPresence();adSubscribeTyping();renderChatRoom(target);
   // Restore saved input text
   var _newInp=document.getElementById('cr-inp'+_sfx);
@@ -2338,7 +2364,7 @@ async function sendAdminMsg(email,isMobile){
   inp.value='';inp.style.height='auto';
   if(adEditing){
     var eId=adEditing.id;adEditing=null;
-    await fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({id:eId,updates:{message:msg,edited_at:new Date().toISOString()}})});
+    await fetch('/api/messages',{method:'PATCH',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify({id:eId,updates:{message:msg,edited_at:new Date().toISOString()}})});
     var idx=chatMsgs.findIndex(function(m){return m.id===eId});
     if(idx>-1){chatMsgs[idx].message=msg;chatMsgs[idx].edited_at=new Date().toISOString();}
     renderChatRoom(isMobile?'mobile':undefined);return;
@@ -2355,7 +2381,7 @@ async function sendAdminMsg(email,isMobile){
   setTimeout(function(){var cb=document.querySelector('.cr-msgs');if(cb)cb.scrollTop=cb.scrollHeight;},30);
   // Send to server
   try{
-    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({order_email:optimistic.order_email,order_id:optimistic.order_id,message:msg,reply_to:optimistic.reply_to||null})});
+    var resp=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify({order_email:optimistic.order_email,order_id:optimistic.order_id,message:msg,reply_to:optimistic.reply_to||null})});
     var result=await resp.json();var data=result.message?[result.message]:null;
     var idx2=chatMsgs.findIndex(function(m){return m.id===tempId});
     if(idx2>-1&&data&&data[0]){
@@ -2392,7 +2418,7 @@ async function sendAdminImage(email,input,isMobile){
   var payload={order_email:email,order_id:order?order.id:null,sender_email:'admin@deandesigners.com',sender_type:'admin',message:file.type.startsWith('image/')?'':file.name,image_url:d.data.publicUrl,read:false,delivered:false};
   if(adReplyTo)payload.reply_to=adReplyTo.id;
   adReplyTo=null;input.value='';
-  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify(payload)});playSendSound();
+  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify(payload)});playSendSound();
   loadChatMsgs(isMobile?'mobile':undefined);loadConversations();
 }
 function adToggleRec(isMob){if(adRecording){adStopRec()}else{adStartRec(isMob)}}
@@ -2409,10 +2435,10 @@ async function adStartRec(isMob){
 function adStopRec(){if(adMediaRec&&adMediaRec.state==='recording')adMediaRec.stop();if(adRecTimer)clearInterval(adRecTimer)}
 function adCancelRec(){if(adMediaRec&&adMediaRec.state==='recording'){adRecChunks=[];adMediaRec.stop()}if(adRecTimer)clearInterval(adRecTimer);adRecording=false;loadChatMsgs()}
 function adRenderRecBar(isMob){var sfx=isMob?'-m':'';var bar=document.getElementById('cr-bar'+sfx);if(!bar||!adRecording)return;bar.innerHTML='<div class="cr-rec"><div class="cr-rec-dot"></div><span class="cr-rec-time">'+Math.floor(adRecSec/60)+':'+String(adRecSec%60).padStart(2,'0')+'</span><span class="cr-rec-label">Recording...</span><button onclick="adCancelRec()" style="padding:4px 10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:11px;cursor:pointer">Cancel</button><button onclick="adStopRec()" style="padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Send ✓</button></div>'}
-async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':customerEmail},body:JSON.stringify({order_email:chatEmail,order_id:order?order.id:null,message:'',voice_url:d.data.publicUrl})});playSendSound();loadChatMsgs();loadConversations()}
+async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':(localStorage.getItem('dd_customer_email')||'')},body:JSON.stringify({order_email:chatEmail,order_id:order?order.id:null,message:'',voice_url:d.data.publicUrl})});playSendSound();loadChatMsgs();loadConversations()}
 var adCurAudio=null;
 function adPlayVoice(btn,url){if(adCurAudio){adCurAudio.pause();adCurAudio=null}var a=new Audio();a.preload='auto';a.src=url;adCurAudio=a;var w=btn.closest('.msg-voice'),f=w.querySelector('.msg-voice-fill'),dur=w.querySelector('.msg-voice-dur');var pi='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;function showDur(){if(a.duration&&isFinite(a.duration)){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')}}a.addEventListener('loadedmetadata',showDur);a.addEventListener('durationchange',showDur);a.addEventListener('timeupdate',function(){if(a.duration&&isFinite(a.duration)){f.style.width=(a.currentTime/a.duration*100)+'%';var cm=Math.floor(a.currentTime/60),cs=Math.floor(a.currentTime%60);dur.textContent=cm+':'+String(cs).padStart(2,'0')}});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';adCurAudio=null;showDur()});a.play().catch(function(e){console.error('Play failed:',e)});btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
-async function adDeleteMsg(id,isMob){if(!confirm('Delete this message?'))return;await fetch('/api/messages?id='+id,{method:'DELETE',headers:{'x-user-email':customerEmail}});loadChatMsgs(isMob?'mobile':undefined);loadConversations()}
+async function adDeleteMsg(id,isMob){if(!confirm('Delete this message?'))return;await fetch('/api/messages?id='+id,{method:'DELETE',headers:{'x-user-email':(localStorage.getItem('dd_customer_email')||'')}});loadChatMsgs(isMob?'mobile':undefined);loadConversations()}
 function adImgOverlay(src){var ov=document.createElement('div');ov.className='cr-img-overlay';ov.onclick=function(){ov.remove()};var img=document.createElement('img');img.src=src;img.alt='Preview';ov.appendChild(img);document.body.appendChild(ov)}
 function openMobileChat(){document.getElementById('mobile-chat').classList.add('open');loadConversations()}
 function closeChatRoom(isMobile){
@@ -2534,14 +2560,13 @@ function updateSidebarProfile(){
   var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
   el.innerHTML=av?'<img src="'+av+'" alt=""/>':initials;
 }
-async function openAdminProfileModal(){return; // disabled for customer
-  var _unused=function(){
+async function openAdminProfileModal(){
   // Always reload from DB
   if(sb){var{data}=await sb.from('user_profiles').select('*').eq('email','admin@deandesigners.com').limit(1);if(data&&data[0])adminProfile=data[0]}
   updateSidebarProfile();
   var av=adminProfile.avatar_url;
   var initials=(adminProfile.display_name||'DD').substring(0,2).toUpperCase();
-  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAdminProfileModal()"><div class="profile-modal"><div class="profile-modal-head"><h3>Profile</h3><button class="profile-modal-close" onclick="closeAdminProfileModal()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
+  var h='<div class="profile-modal-bg" onclick="if(event.target===this)closeAdminProfileModal()"><div class="profile-modal"><div class="profile-modal-head"><h3>Edit Profile</h3><button class="profile-modal-close" onclick="closeAdminProfileModal()">×</button></div><div class="profile-modal-body" style="display:flex;gap:0;flex:1;overflow:hidden;padding:0"><div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)" id="art-editor-col">';
   h+='<div class="profile-avatar-wrap"><label class="profile-avatar" title="Change photo"><input type="file" accept="image/*" style="display:none" onchange="uploadAdminAvatar(this)"/>'+(av?'<img src="'+av+'" alt=""/>':initials)+'<div class="profile-avatar-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></label></div>';
   h+='<div class="profile-field"><div class="profile-label">Display Name</div><input class="profile-input" id="apf-name" value="'+esc(adminProfile.display_name||'')+'" placeholder="Dean Designers" maxlength="50"/></div>';
   h+='<div class="profile-field"><div class="profile-label">Bio</div><textarea class="profile-textarea" id="apf-bio" placeholder="Describe your studio..." maxlength="200">'+esc(adminProfile.bio||'')+'</textarea></div>';
@@ -2572,7 +2597,7 @@ async function uploadAdminAvatar(input){
   if(!data||!data.publicUrl)return;
   adminProfile.avatar_url=data.publicUrl;
   await sb.from('user_profiles').upsert({email:'admin@deandesigners.com',avatar_url:data.publicUrl,display_name:adminProfile.display_name||'Dean Designers',bio:adminProfile.bio||'',status:adminProfile.status||'available',user_type:'admin'},{onConflict:'email'});
-  // disabled for customer
+  closeAdminProfileModal();openAdminProfileModal();updateSidebarProfile();
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
