@@ -2637,6 +2637,35 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  // ── Dynamic page title for SEO ──
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      home: "Create Clothing Design | Streetwear & Logo — Dean Designers",
+      gigs: "Our Gigs — Streetwear & Logo Design Services | Dean Designers",
+      articles: "Articles & Insights — Dean Designers",
+      orders: "My Orders — Dean Designers",
+    };
+    document.title = titles[currentPage] || titles.home;
+    // Dynamic meta description
+    const descs: Record<string, string> = {
+      home: "Create clothing design with Dean Designers — professional custom streetwear, t-shirt, hoodie & logo design studio. 5.0★ rated, 1000+ projects.",
+      gigs: "Browse our design gigs — custom streetwear clothing design and professional logo & brand identity packages. Starting from $50.",
+      articles: "Design tips, streetwear trends, and branding insights from Dean Designers.",
+      orders: "Track your order status and chat with your designer at Dean Designers.",
+    };
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", descs[currentPage] || descs.home);
+    // Dynamic canonical
+    const canonicals: Record<string, string> = {
+      home: "https://www.createclothingdesign.com/",
+      gigs: "https://www.createclothingdesign.com/gigs",
+      articles: "https://www.createclothingdesign.com/articles",
+      orders: "https://www.createclothingdesign.com/my-orders",
+    };
+    const link = document.querySelector('link[rel="canonical"]');
+    if (link) link.setAttribute("href", canonicals[currentPage] || canonicals.home);
+  }, [currentPage]);
+
   // Hide SEO fallback content after React renders (Google already read it on initial crawl)
   useEffect(() => {
     const el = document.getElementById("seo-fallback");
