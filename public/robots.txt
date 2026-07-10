@@ -52,5 +52,5 @@ Allow: /
 Sitemap: https://www.createclothingdesign.com/sitemap.xml
 
 # AI context file
-# LLMs.txt: https://www.createclothingdesign.com/llms.txt
+LLMs.txt: https://www.createclothingdesign.com/llms.txt
 
