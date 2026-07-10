@@ -153,10 +153,12 @@ function startApp(){
 }
 
 async function loadOrders(){
-  var r=await fetch('/api/get-orders?email='+encodeURIComponent(email));
-  var d=await r.json();
-  if(d.success)orders=d.orders||[];
-  renderOrders();
+  try{
+    var r=await fetch('/api/get-orders?email='+encodeURIComponent(email));
+    var d=await r.json();
+    if(d.success)orders=d.orders||[];
+  }catch(e){console.error('loadOrders error',e)}
+  renderContent();
 }
 
 async function loadMessages(){
@@ -170,15 +172,29 @@ function setupRealtime(){
   if(!sb||chatCh)return;
   chatCh=sb.channel('cust:'+email)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'order_email=eq.'+email},function(p){
-      messages.push(p.new);renderMessages();scrollChat();
+      var m=p.new;
+      // Skip if already in array (optimistic or duplicate)
+      if(messages.find(function(x){return x.id===m.id}))return;
+      // Replace temp message if it's our own
+      var tempIdx=messages.findIndex(function(x){return x.id&&x.id.startsWith('temp-')&&x.message===m.message&&x.sender_email===m.sender_email});
+      if(tempIdx>=0){messages[tempIdx]=m;}
+      else{messages.push(m);}
+      renderMessages();scrollChat();
     }).subscribe();
 }
 
 async function sendMsg(){
   var inp=document.getElementById('ci');
   var txt=inp.value.trim();if(!txt)return;inp.value='';
-  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},
-    body:JSON.stringify({order_email:email,sender_email:email,message:txt})});
+  // Optimistic: show message immediately
+  var tempMsg={id:'temp-'+Date.now(),order_email:email,sender_email:email,sender_type:'client',message:txt,created_at:new Date().toISOString(),image_url:null};
+  messages.push(tempMsg);
+  renderMessages();scrollChat();
+  // Send to server
+  try{
+    await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},
+      body:JSON.stringify({order_email:email,sender_email:email,message:txt})});
+  }catch(e){console.error('sendMsg error',e)}
 }
 
 function switchView(v){view=v;renderContent();
