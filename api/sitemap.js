@@ -25,8 +25,8 @@ export default async function handler(req, res) {
 
   const staticUrls = [
     { loc: `${BASE_URL}/`, changefreq: 'weekly', priority: '1.0', lastmod: TODAY },
+    { loc: `${BASE_URL}/gigs`, changefreq: 'weekly', priority: '0.9', lastmod: TODAY },
     { loc: `${BASE_URL}/articles`, changefreq: 'daily', priority: '0.9', lastmod: TODAY },
-    { loc: `${BASE_URL}/order-tracker.html`, changefreq: 'monthly', priority: '0.4', lastmod: TODAY },
   ];
 
   const articleUrls = articles
