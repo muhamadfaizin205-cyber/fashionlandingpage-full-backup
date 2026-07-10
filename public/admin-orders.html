@@ -120,7 +120,7 @@ a{color:inherit;text-decoration:none}
 .ocard:hover{border-color:rgba(29,191,115,0.3);box-shadow:var(--green-glow);transform:translateY(-2px);background:var(--card-hover)}
 .ocard.selected{border-color:rgba(29,191,115,0.3);background:rgba(29,191,115,0.06)}
 .ocard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
-.ocard-brand{font-size:14px;font-weight:700;margin-bottom:1px}
+.ocard-brand{font-size:14px;font-weight:700;margin-bottom:1px;color:#F1F5F9}
 .ocard-email{font-size:11px;color:var(--txt3)}
 .ocard-price{font-size:16px;font-weight:800;color:var(--green)}
 .ocard-meta{display:flex;gap:10px;font-size:11px;color:var(--txt2);flex-wrap:wrap;align-items:center}
@@ -158,7 +158,7 @@ a{color:inherit;text-decoration:none}
 .cr-info{flex:1;min-width:0}.cr-name{font-size:13px;font-weight:700;color:#F1F5F9}.cr-sub{font-size:10px;color:var(--txt3)}
 .cr-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;background:#9CA3AF;border-radius:50%;border:2px solid var(--card)}.cr-dot.online{background:#4ADE80}
 .cr-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:5px;background:rgba(0,0,0,0.2);scroll-behavior:smooth}
-.cr-msgs::-webkit-scrollbar{width:4px}.cr-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+.cr-msgs::-webkit-scrollbar{width:4px}.cr-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .cr-empty{text-align:center;padding:50px 16px;color:#94A3B8;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .msg{display:flex;flex-direction:column;max-width:82%;animation:fadeUp .12s;position:relative}
 .msg.admin{align-self:flex-end;align-items:flex-end}
@@ -226,7 +226,7 @@ a{color:inherit;text-decoration:none}
 .modal-bg.open{display:flex}
 .modal{background:#1E293B;border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.06)}
 .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.modal-title{font-size:17px;font-weight:800}
+.modal-title{font-size:17px;font-weight:800;color:#F1F5F9}
 .modal-x{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;color:var(--txt2);font-size:18px;cursor:pointer}
 .modal-body{padding:20px 22px}
 .mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px}
@@ -241,7 +241,7 @@ a{color:inherit;text-decoration:none}
 .mbtn{padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;transition:all .12s;display:inline-flex;align-items:center;gap:5px}
 .mbtn-g{background:var(--green);color:#fff}.mbtn-g:hover{background:var(--green-dark)}
 .mbtn-r{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}.mbtn-r:hover{background:#FEE2E2}
-.msel{padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:inherit;appearance:auto;flex:1;min-width:120px}
+.msel{padding:10px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:inherit;appearance:auto;flex:1;min-width:120px;background:rgba(255,255,255,0.06);color:#F1F5F9}
 
 .empty{text-align:center;padding:50px 20px;color:var(--txt3);font-size:13px}
 .spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
@@ -304,11 +304,11 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 
 /* Profile Modal */
 .profile-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:center;justify-content:center;animation:fadeUp .2s}
-.profile-modal{background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,0.12);width:92%;max-width:400px;overflow:hidden;animation:fadeUp .25s}
-.profile-modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.profile-modal-head h3{font-size:17px;font-weight:800;margin:0}
-.profile-modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--txt2);font-size:18px}
-.profile-modal-body{padding:24px 22px}
+.profile-modal{background:#1E293B;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,0.12);width:92%;max-width:400px;overflow:hidden;animation:fadeUp .25s}
+.profile-modal-head{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between}
+.profile-modal-head h3{font-size:17px;font-weight:800;margin:0;color:#F1F5F9}
+.profile-modal-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#94A3B8;font-size:18px}
+.profile-modal-body{padding:24px 22px;color:#F1F5F9}
 .profile-avatar-wrap{display:flex;justify-content:center;margin-bottom:20px}
 .profile-avatar{width:90px;height:90px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;cursor:pointer;position:relative;overflow:hidden;transition:opacity .15s}
 .profile-avatar:hover{opacity:.85}
@@ -317,11 +317,11 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .profile-avatar:hover .profile-avatar-overlay{opacity:1}
 .profile-field{margin-bottom:16px}
 .profile-label{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-.profile-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--txt);outline:none;transition:border .15s}
+.profile-input{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;font-family:inherit;color:#F1F5F9;outline:none;transition:border .15s;background:rgba(255,255,255,0.04)}
 .profile-input:focus{border-color:var(--green)}
-.profile-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--txt);outline:none;resize:none;min-height:70px;transition:border .15s}
+.profile-textarea{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:13px;font-family:inherit;color:#F1F5F9;outline:none;resize:none;min-height:70px;transition:border .15s;background:rgba(255,255,255,0.04)}
 .profile-textarea:focus{border-color:var(--green)}
-.profile-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--txt);outline:none;appearance:auto;background:var(--card)}
+.profile-select{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:13px;font-family:inherit;color:#F1F5F9;outline:none;appearance:auto;background:rgba(255,255,255,0.06)}
 .profile-save{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
 .profile-save:hover{background:var(--green-dark)}
 .profile-save:disabled{opacity:.5;cursor:not-allowed}
@@ -359,8 +359,8 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .cr-msgs::-webkit-scrollbar{width:4px}
 .cr-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:4px}
 .cm-wrap,.cm{animation:msgSlideIn .2s ease-out}
-.cm.client .cm-bubble,.cm.admin-sent .cm-bubble{border-radius:16px 16px 4px 16px !important;background:#DCF8C6 !important;color:#111 !important;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
-.cm.admin .cm-bubble{border-radius:16px 16px 16px 4px !important;background:#fff !important;color:#111 !important;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
+.cm.client .cm-bubble,.cm.admin-sent .cm-bubble{border-radius:16px 16px 4px 16px !important;background:rgba(29,191,115,0.2) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.cm.admin .cm-bubble{border-radius:16px 16px 16px 4px !important;background:rgba(255,255,255,0.1) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
 .cr-bar{background:#F0F2F5 !important;padding:8px 10px !important;border-top:none !important}
 .cr-inp{background:#fff !important;border:none !important;border-radius:24px !important;padding:10px 16px !important;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06) !important}
 .cr-send{border-radius:50% !important;background:linear-gradient(135deg,#1DBF73,#17B169) !important;width:44px;height:44px;box-shadow:0 2px 8px rgba(29,191,115,0.3) !important}
@@ -2299,7 +2299,7 @@ function appendAdminBubble(m,isMob){
       esc(m.message||'')+
       '<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right">sending...</div></div>';
   } else {
-    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.08);color:#111">';
+    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#E2E8F0">';
     if(m.image_url)inner+='<img src="'+esc(m.image_url)+'" style="max-width:200px;border-radius:10px;cursor:pointer;display:block;margin-bottom:4px" onclick="openAdImg(this.src)"/>';
     if(m.voice_url)inner+='<div class="msg-voice"><button class="msg-voice-btn" onclick="adPlayVoice(this,\''+esc(m.voice_url)+'\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button><div class="msg-voice-track"><div class="msg-voice-fill" style="width:0%"></div></div><span class="msg-voice-dur">0:00</span></div>';
     if(m.message)inner+=esc(m.message);
@@ -2399,7 +2399,7 @@ async function sendAdminMsg(email,isMobile){
         // Rebuild inner with confirmed data
         var bgColor='#DCF8C6';
         var borderRadius='16px 16px 4px 16px';
-        var newInner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.08);color:#111">';
+        var newInner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#E2E8F0">';
         if(data[0].message)newInner+=esc(data[0].message);
         newInner+='<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right">'+fmtTime(data[0].created_at)+' ✓</div></div>';
         tempEl.innerHTML=newInner;
@@ -2441,7 +2441,7 @@ async function adStartRec(isMob){
 }
 function adStopRec(){if(adMediaRec&&adMediaRec.state==='recording')adMediaRec.stop();if(adRecTimer)clearInterval(adRecTimer)}
 function adCancelRec(){if(adMediaRec&&adMediaRec.state==='recording'){adRecChunks=[];adMediaRec.stop()}if(adRecTimer)clearInterval(adRecTimer);adRecording=false;loadChatMsgs()}
-function adRenderRecBar(isMob){var sfx=isMob?'-m':'';var bar=document.getElementById('cr-bar'+sfx);if(!bar||!adRecording)return;bar.innerHTML='<div class="cr-rec"><div class="cr-rec-dot"></div><span class="cr-rec-time">'+Math.floor(adRecSec/60)+':'+String(adRecSec%60).padStart(2,'0')+'</span><span class="cr-rec-label">Recording...</span><button onclick="adCancelRec()" style="padding:4px 10px;background:#eee;color:#333;border:none;border-radius:8px;font-size:11px;cursor:pointer">Cancel</button><button onclick="adStopRec()" style="padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Send ✓</button></div>'}
+function adRenderRecBar(isMob){var sfx=isMob?'-m':'';var bar=document.getElementById('cr-bar'+sfx);if(!bar||!adRecording)return;bar.innerHTML='<div class="cr-rec"><div class="cr-rec-dot"></div><span class="cr-rec-time">'+Math.floor(adRecSec/60)+':'+String(adRecSec%60).padStart(2,'0')+'</span><span class="cr-rec-label">Recording...</span><button onclick="adCancelRec()" style="padding:4px 10px;background:rgba(255,255,255,0.1);color:#E2E8F0;border:none;border-radius:8px;font-size:11px;cursor:pointer">Cancel</button><button onclick="adStopRec()" style="padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Send ✓</button></div>'}
 async function adUploadVN(blob,ext){if(!sb||!chatEmail)return;var path='voice/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;var r=await sb.storage.from('uploads').upload(path,blob);if(r.error)return;var d=sb.storage.from('uploads').getPublicUrl(path);if(!d||!d.data||!d.data.publicUrl)return;var order=orders.find(function(o){return o.email===chatEmail});await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-admin-hash':adminHash},body:JSON.stringify({order_email:chatEmail,order_id:order?order.id:null,message:'',voice_url:d.data.publicUrl})});playSendSound();loadChatMsgs();loadConversations()}
 var adCurAudio=null;
 function adPlayVoice(btn,url){if(adCurAudio){adCurAudio.pause();adCurAudio=null}var a=new Audio();a.preload='auto';a.src=url;adCurAudio=a;var w=btn.closest('.msg-voice'),f=w.querySelector('.msg-voice-fill'),dur=w.querySelector('.msg-voice-dur');var pi='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>',pa='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';btn.innerHTML=pa;function showDur(){if(a.duration&&isFinite(a.duration)){var m=Math.floor(a.duration/60),s=Math.floor(a.duration%60);dur.textContent=m+':'+String(s).padStart(2,'0')}}a.addEventListener('loadedmetadata',showDur);a.addEventListener('durationchange',showDur);a.addEventListener('timeupdate',function(){if(a.duration&&isFinite(a.duration)){f.style.width=(a.currentTime/a.duration*100)+'%';var cm=Math.floor(a.currentTime/60),cs=Math.floor(a.currentTime%60);dur.textContent=cm+':'+String(cs).padStart(2,'0')}});a.addEventListener('ended',function(){btn.innerHTML=pi;f.style.width='0%';adCurAudio=null;showDur()});a.play().catch(function(e){console.error('Play failed:',e)});btn.onclick=function(){if(a.paused){a.play();btn.innerHTML=pa}else{a.pause();btn.innerHTML=pi}}}
@@ -2692,7 +2692,7 @@ function openGigEditor(id){
     '<div style="font-size:11px;color:var(--txt3)">'+gallery.length+' of 5 photos uploaded'+(gallery.length>=5?' <span style="color:var(--green);font-weight:600">✓ Max reached</span>':'')+'</div>'+
     '</div>';
 
-  modal.innerHTML='<div style="background:#fff;border-radius:16px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;padding:28px">'+
+  modal.innerHTML='<div style="background:#1E293B;border-radius:16px;color:#F1F5F9;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;padding:28px">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h2 style="font-size:18px;font-weight:800;margin:0">'+(isNew?'New Gig':'Edit Gig')+'</h2><button onclick="closeGigEditor()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">×</button></div>'+
     '<div style="display:flex;flex-direction:column;gap:14px">'+
     '<label style="font-size:12px;font-weight:600">Title<input id="ge-title" class="login-input" value="'+esc(gig.title)+'"></label>'+
