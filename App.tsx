@@ -683,7 +683,7 @@ function Testimonials() {
           Trusted by <span>Brands Worldwide</span> Who Create Clothing Design With Us
         </h2>
         <p className="testimonials-sub">
-          Real feedback from clients on Fiverr. 7+ years, 1,000+ happy brands.
+          Real feedback from our clients. 136,000+ designs completed for 7,000+ brands since 2018.
         </p>
       </div>
       <LazyMount minHeight={420}>
@@ -2091,7 +2091,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
             <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
             <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
-            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 1,000+ projects · 25+ countries · 7+ years</p>
+            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 136,000+ designs · 7,000+ brands · Since 2018</p>
             <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
               Start Your Order →
             </button>
@@ -2464,7 +2464,7 @@ function FAQSection() {
           </div>
           <div>
             <strong>Ready to bring your brand to life?</strong>
-            <p>100% money-back guarantee. Production-ready files. Trusted by 1,000+ brands worldwide.</p>
+            <p>100% money-back guarantee. Production-ready files. Trusted by 7,000+ brands. 136,000+ designs completed.</p>
           </div>
           <a className="faq-cta-btn" href="#wizard">
             Start Your Order
@@ -2648,7 +2648,7 @@ export default function App() {
     document.title = titles[currentPage] || titles.home;
     // Dynamic meta description
     const descs: Record<string, string> = {
-      home: "Create clothing design with Dean Designers — professional custom streetwear, t-shirt, hoodie & logo design studio. 5.0★ rated, 1000+ projects.",
+      home: "Create clothing design with Dean Designers — professional custom streetwear & logo design studio. 136,000+ designs, 7,000+ brands served since 2018.",
       gigs: "Browse our design gigs — custom streetwear clothing design and professional logo & brand identity packages. Starting from $50.",
       articles: "Design tips, streetwear trends, and branding insights from Dean Designers.",
       orders: "Track your order status and chat with your designer at Dean Designers.",
@@ -2864,7 +2864,7 @@ export default function App() {
             {/* Minimal content */}
             <div className="hero-content">
               <h1 className="hero-h1">Create Clothing Design — Professional Streetwear & Logo Design Studio</h1>
-              <p className="hero-sub">Custom streetwear graphics, brand identity & logo design. 5.0★ rated · 1,000+ projects · 25+ countries.</p>
+              <p className="hero-sub">Custom streetwear graphics, brand identity & logo design. 136,000+ designs · 7,000+ brands · Since 2018.</p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
@@ -2899,7 +2899,7 @@ export default function App() {
                   <i className="ri-checkbox-circle-line" style={{fontSize:18}} />
                 </div>
                 <div className="tb-text">
-                  <strong>1,000+</strong>
+                  <strong>136K+</strong>
                   <span>Designs Delivered</span>
                 </div>
               </div>
@@ -2942,7 +2942,7 @@ export default function App() {
               <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
               <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
               <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
-                Professional studio to create clothing design and brand identity. Serving global clients since 2018, we turn brand visions into production-ready streetwear designs that stand out.
+                Professional studio to create clothing design and brand identity. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
               </p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
                 {[
@@ -3134,7 +3134,7 @@ export default function App() {
             <div className="footer-col">
               <h3 className="footer-heading">Connect</h3>
               <nav>
-                <a href="https://www.fiverr.com/muhamadfaizi836" target="_blank" rel="noopener noreferrer" className="footer-link">Dean's Studio on Fiverr</a>
+                <a href="https://www.createclothingdesign.com/gigs" className="footer-link">Our Services</a>
                 <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a>
                 <a href="mailto:muhamadfaizin205@gmail.com" className="footer-link">Email Us</a>
               </nav>
