@@ -2946,7 +2946,7 @@ export default function App() {
               </p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
                 {[
-                  {num:"1,000+",label:"Projects Completed"},
+                  {num:"136,000+",label:"Projects Completed"},
                   {num:"5.0★",label:"Fiverr Rating"},
                   {num:"25+",label:"Countries Served"},
                   {num:"7+",label:"Years Experience"}
@@ -3069,7 +3069,7 @@ export default function App() {
       {step === 1 && (
         <section className="guarantee-section">
           <div className="guarantee-inner">
-            <h3 className="guarantee-title">Why 1,000+ brands trust Dean Designers</h3>
+            <h3 className="guarantee-title">Why 7,000+ brands trust Dean Designers</h3>
             <div className="guarantee-grid">
               <div className="g-card">
                 <div className="g-icon">
@@ -3120,7 +3120,7 @@ export default function App() {
           <div className="footer-inner">
             <div className="footer-col">
               <h3 className="footer-heading">Create Clothing Design</h3>
-              <p className="footer-text">Dean Designers is a professional studio where you can create clothing design, streetwear graphics, and logo brand identity. Trusted by 1,000+ brands from 25+ countries since 2018.</p>
+              <p className="footer-text">Dean Designers is a professional studio where you can create clothing design, streetwear graphics, and logo brand identity. Trusted by 7,000+ brands worldwide since 2018.</p>
             </div>
             <div className="footer-col">
               <h3 className="footer-heading">Services</h3>
