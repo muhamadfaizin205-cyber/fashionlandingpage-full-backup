@@ -351,7 +351,7 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .opp-row-val{font-size:13px;color:var(--txt);font-weight:500}
 
 /* ══ WhatsApp/IG Style Admin Chat ══ */
-.cr-area{display:flex;flex-direction:column;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff20'/%3E%3C/svg%3E") #E5DDD5}
+.cr-area{display:flex;flex-direction:column;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff08'/%3E%3C/svg%3E") #0B1120}
 .cr-head{background:linear-gradient(135deg,#1DBF73,#17B169) !important;padding:12px 16px !important}
 .cr-head h3{color:#fff !important}
 .cr-head .cr-status{color:rgba(255,255,255,0.85) !important;font-size:11px}
@@ -2291,11 +2291,11 @@ function appendAdminBubble(m,isMob){
   var div=document.createElement('div');
   div.id='msg-'+m.id;
   div.style.cssText='display:flex;flex-direction:column;max-width:72%;margin-bottom:3px;'+(isCl?'align-self:flex-start;align-items:flex-start':'align-self:flex-end;align-items:flex-end');
-  var bgColor=isCl?'#fff':'#DCF8C6';
+  var bgColor=isCl?'rgba(255,255,255,0.1)':'rgba(29,191,115,0.2)';
   var borderRadius=isCl?'16px 16px 16px 4px':'16px 16px 4px 16px';
   var inner='';
   if(m._sending){
-    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.08);opacity:0.75">'+
+    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);opacity:0.5;color:#94A3B8">'+
       esc(m.message||'')+
       '<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right">sending...</div></div>';
   } else {
@@ -2397,7 +2397,7 @@ async function sendAdminMsg(email,isMobile){
       if(tempEl){
         tempEl.id='msg-'+data[0].id;
         // Rebuild inner with confirmed data
-        var bgColor='#DCF8C6';
+        var bgColor='rgba(29,191,115,0.2)';
         var borderRadius='16px 16px 4px 16px';
         var newInner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#E2E8F0">';
         if(data[0].message)newInner+=esc(data[0].message);
