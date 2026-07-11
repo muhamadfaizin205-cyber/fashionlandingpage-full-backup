@@ -6,6 +6,7 @@
 <title>My Orders · Dean Designers</title>
 <link rel="icon" href="/favicon-96x96.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -284,28 +285,28 @@ function renderApp(){
     '<div class="side">'+
       '<div class="side-logo"><img src="/favicon-96x96.png" alt="DD"></div>'+
       '<div class="side-nav">'+
-        '<button class="side-btn active" data-v="orders" onclick="switchView(\'orders\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Orders</button>'+
-        '<button class="side-btn" data-v="chat" onclick="switchView(\'chat\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>'+
+        '<button class="side-btn active" data-v="orders" onclick="switchView(\'orders\')"><i class="ri-inbox-2-line" style="font-size:20px"></i>Orders</button>'+
+        '<button class="side-btn" data-v="chat" onclick="switchView(\'chat\')"><i class="ri-chat-3-line" style="font-size:20px"></i>Chat</button>'+
       '</div>'+
       '<div class="side-bottom">'+
-        '<button class="side-btn" onclick="window.open(\'https://wa.me/628986737474\',\'_blank\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Call</button>'+
-        '<button class="side-btn" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Out</button>'+
+        '<button class="side-btn" onclick="window.open(\'https://wa.me/628986737474\',\'_blank\')"><i class="ri-whatsapp-line" style="font-size:20px"></i>Call</button>'+
+        '<button class="side-btn" onclick="logout()"><i class="ri-logout-box-r-line" style="font-size:20px"></i>Out</button>'+
       '</div>'+
     '</div>'+
     '<div class="mob-bar">'+
       '<div style="display:flex;gap:4px">'+
-        '<button class="mob-tab active" data-v="orders" onclick="switchView(\'orders\')">📦 Orders</button>'+
-        '<button class="mob-tab" data-v="chat" onclick="switchView(\'chat\')">💬 Chat</button>'+
+        '<button class="mob-tab active" data-v="orders" onclick="switchView(\'orders\')"><i class="ri-inbox-2-line"></i> Orders</button>'+
+        '<button class="mob-tab" data-v="chat" onclick="switchView(\'chat\')"><i class="ri-chat-3-line"></i> Chat</button>'+
       '</div>'+
       '<button onclick="logout()" style="font-size:12px;color:var(--txt3)">Sign Out</button>'+
     '</div>'+
     '<div class="main"><div class="main-content" id="content"></div></div>'+
     '<div class="chat">'+
-      '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="chat-av" style="position:relative"><img src="/favicon-96x96.png" alt="DD"><span class="chat-online-dot" id="designer-dot" style="position:absolute;bottom:0;right:0;border:2px solid #161921"></span></div><div><div class="chat-name">Dean Designers</div><div class="chat-last-seen" id="designer-status">Checking...</div></div></div>'+
+      '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><i class="ri-arrow-left-line" style="font-size:18px"></i></button><div class="chat-av" style="position:relative"><img src="/favicon-96x96.png" alt="DD"><span class="chat-online-dot" id="designer-dot" style="position:absolute;bottom:0;right:0;border:2px solid #161921"></span></div><div><div class="chat-name">Dean Designers</div><div class="chat-last-seen" id="designer-status">Checking...</div></div></div>'+
       '<div class="chat-msgs" id="msgs"></div>'+
       '<div id="typing-ind" style="display:none;padding:4px 14px;font-size:11px;color:#64748B;align-items:center;gap:6px"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> Designer is typing</div>'+
       '<input type="file" id="file-input" accept="image/*" style="display:none" onchange="sendFile()">'+
-      '<div class="chat-input"><button class="chat-att" onclick="document.getElementById(\'file-input\').click()" title="Send image"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-mic" id="mic-btn" onclick="toggleRecord()" title="Voice note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button><button class="chat-send" onclick="sendMsg()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'+
+      '<div class="chat-input"><button class="chat-att" onclick="document.getElementById(\'file-input\').click()" title="Send image"><i class="ri-image-add-line" style="font-size:18px"></i></button><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-mic" id="mic-btn" onclick="toggleRecord()" title="Voice note"><i class="ri-mic-line" style="font-size:18px"></i></button><button class="chat-send" onclick="sendMsg()"><i class="ri-send-plane-2-fill" style="font-size:18px"></i></button></div>'+
     '</div>'+
     '</div>';
   renderContent();renderMessages();setupTypingListener();
@@ -341,7 +342,7 @@ function renderMessages(){
       html+='<img class="msg-img" src="'+esc(m.image_url)+'" onclick="showImgOverlay(\''+esc(m.image_url)+'\')">';
       if(body&&body!=='📷 Image')html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
     }else if(m.voice_url){
-      html+='<div class="msg '+(me?'me':'them')+'"><div class="msg-voice"><button class="msg-voice-btn" onclick="playVoice(this,\''+esc(m.voice_url)+'\')" style="background:'+(me?'rgba(255,255,255,0.2)':'var(--g)')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button><div class="msg-voice-track"><div class="msg-voice-fill"></div></div><span class="msg-voice-dur">0s</span></div></div>';
+      html+='<div class="msg '+(me?'me':'them')+'"><div class="msg-voice"><button class="msg-voice-btn" onclick="playVoice(this,\''+esc(m.voice_url)+'\')" style="background:'+(me?'rgba(255,255,255,0.2)':'var(--g)')+'"><i class="ri-play-fill" style="font-size:14px"></i></button><div class="msg-voice-track"><div class="msg-voice-fill"></div></div><span class="msg-voice-dur">0s</span></div></div>';
     }else if(body){
       html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
     }
