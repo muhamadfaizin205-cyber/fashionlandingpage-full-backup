@@ -172,8 +172,8 @@ a{color:inherit;text-decoration:none}
 .msg.admin .msg-reply-name{color:rgba(255,255,255,.8)}
 .msg-reply-text{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.7;font-size:10.5px;color:rgba(255,255,255,0.7)}
 .msg-bubble{padding:7px 10px 4px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word;min-width:60px;white-space:pre-wrap}
-.msg.admin .msg-bubble{background:linear-gradient(135deg,#1DBF73,#059669);color:#fff;border-bottom-right-radius:4px}
-.msg.client .msg-bubble{background:rgba(255,255,255,0.1);color:#F1F5F9;border:1px solid rgba(255,255,255,0.08);border-bottom-left-radius:4px}
+.msg.admin .msg-bubble{background:#1DBF73;color:#fff;border-bottom-right-radius:4px}
+.msg.client .msg-bubble{background:rgba(255,255,255,0.08);color:#E2E8F0;border:1px solid rgba(255,255,255,0.06);border-bottom-left-radius:4px}
 .msg-meta{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:2px}
 .msg-time{font-size:9.5px;color:rgba(255,255,255,0.4)}
 .msg-edited{font-size:9px;opacity:.4;font-style:italic}
@@ -359,8 +359,9 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .cr-msgs::-webkit-scrollbar{width:4px}
 .cr-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:4px}
 .cm-wrap,.cm{animation:msgSlideIn .2s ease-out}
-.cm.client .cm-bubble,.cm.admin-sent .cm-bubble{border-radius:16px 16px 4px 16px !important;background:rgba(29,191,115,0.2) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
-.cm.admin .cm-bubble{border-radius:16px 16px 16px 4px !important;background:rgba(255,255,255,0.1) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.cm.admin-sent .cm-bubble{border-radius:16px 16px 4px 16px !important;background:#1DBF73 !important;color:#fff !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.cm.client .cm-bubble{border-radius:16px 16px 16px 4px !important;background:rgba(255,255,255,0.1) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.cm.admin .cm-bubble{border-radius:16px 16px 16px 4px !important;background:rgba(255,255,255,0.08) !important;color:#E2E8F0 !important;box-shadow:0 1px 2px rgba(0,0,0,0.2)}
 .cr-bar{background:#F0F2F5 !important;padding:8px 10px !important;border-top:none !important}
 .cr-inp{background:rgba(255,255,255,0.08) !important;border:1.5px solid rgba(255,255,255,0.1) !important;border-radius:24px !important;padding:10px 16px !important;font-size:14px;box-shadow:none !important;color:#F1F5F9 !important}
 .cr-send{border-radius:50% !important;background:linear-gradient(135deg,#1DBF73,#17B169) !important;width:44px;height:44px;box-shadow:0 2px 8px rgba(29,191,115,0.3) !important}
@@ -2291,7 +2292,7 @@ function appendAdminBubble(m,isMob){
   var div=document.createElement('div');
   div.id='msg-'+m.id;
   div.style.cssText='display:flex;flex-direction:column;max-width:72%;margin-bottom:3px;'+(isCl?'align-self:flex-start;align-items:flex-start':'align-self:flex-end;align-items:flex-end');
-  var bgColor=isCl?'rgba(255,255,255,0.1)':'rgba(29,191,115,0.2)';
+  var bgColor=isCl?'rgba(255,255,255,0.08)':'#1DBF73';
   var borderRadius=isCl?'16px 16px 16px 4px':'16px 16px 4px 16px';
   var inner='';
   if(m._sending){
@@ -2299,7 +2300,7 @@ function appendAdminBubble(m,isMob){
       esc(m.message||'')+
       '<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right">sending...</div></div>';
   } else {
-    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#E2E8F0">';
+    inner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:'+(isCl?'#E2E8F0':'#fff')+'">';
     if(m.image_url)inner+='<img src="'+esc(m.image_url)+'" style="max-width:200px;border-radius:10px;cursor:pointer;display:block;margin-bottom:4px" onclick="openAdImg(this.src)"/>';
     if(m.voice_url)inner+='<div class="msg-voice"><button class="msg-voice-btn" onclick="adPlayVoice(this,\''+esc(m.voice_url)+'\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button><div class="msg-voice-track"><div class="msg-voice-fill" style="width:0%"></div></div><span class="msg-voice-dur">0:00</span></div>';
     if(m.message)inner+=esc(m.message);
@@ -2397,9 +2398,9 @@ async function sendAdminMsg(email,isMobile){
       if(tempEl){
         tempEl.id='msg-'+data[0].id;
         // Rebuild inner with confirmed data
-        var bgColor='rgba(29,191,115,0.2)';
+        var bgColor='#1DBF73';
         var borderRadius='16px 16px 4px 16px';
-        var newInner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#E2E8F0">';
+        var newInner='<div style="background:'+bgColor+';padding:8px 12px;border-radius:'+borderRadius+';font-size:14px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.2);color:#fff">';
         if(data[0].message)newInner+=esc(data[0].message);
         newInner+='<div style="font-size:10px;color:#667781;margin-top:2px;text-align:right">'+fmtTime(data[0].created_at)+' ✓</div></div>';
         tempEl.innerHTML=newInner;
