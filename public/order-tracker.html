@@ -90,6 +90,29 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .typing-dots span:nth-child(3){animation-delay:.4s}
 @keyframes tdot{0%,60%,100%{opacity:.2}30%{opacity:1}}
 
+/* Online status */
+.chat-online-dot{width:8px;height:8px;border-radius:50%;background:#6B7280;display:inline-block;margin-right:4px}
+.chat-online-dot.online{background:#4ADE80;box-shadow:0 0 4px rgba(74,222,128,0.5)}
+.chat-last-seen{font-size:10px;color:var(--txt3)}
+
+/* Voice note */
+.msg-voice{display:flex;align-items:center;gap:8px;min-width:160px}
+.msg-voice-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,0.1);color:#fff}
+.msg-voice-track{flex:1;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
+.msg-voice-fill{height:100%;background:var(--g);border-radius:2px;width:0%;transition:width .1s}
+.msg-voice-dur{font-size:10px;color:var(--txt3);min-width:26px}
+.msg-img{max-width:200px;border-radius:8px;cursor:pointer;margin-bottom:4px}
+
+/* Attachment & Mic buttons */
+.chat-att,.chat-mic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:none;color:var(--txt3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.chat-att:hover,.chat-mic:hover{background:rgba(29,191,115,0.1);color:var(--g)}
+.chat-mic.recording{background:#DC2626;color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Image overlay */
+.img-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.img-overlay img{max-width:90%;max-height:90%;border-radius:8px}
+
 /* Desktop: main content needs right margin for chat */
 @media(min-width:769px){
   .main{margin-right:360px}
@@ -278,10 +301,11 @@ function renderApp(){
     '</div>'+
     '<div class="main"><div class="main-content" id="content"></div></div>'+
     '<div class="chat">'+
-      '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="chat-av"><img src="/favicon-96x96.png" alt="DD"></div><div><div class="chat-name">Dean Designers</div><div class="chat-status">Designer</div></div></div>'+
+      '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="chat-av" style="position:relative"><img src="/favicon-96x96.png" alt="DD"><span class="chat-online-dot" id="designer-dot" style="position:absolute;bottom:0;right:0;border:2px solid #161921"></span></div><div><div class="chat-name">Dean Designers</div><div class="chat-last-seen" id="designer-status">Checking...</div></div></div>'+
       '<div class="chat-msgs" id="msgs"></div>'+
       '<div id="typing-ind" style="display:none;padding:4px 14px;font-size:11px;color:#64748B;align-items:center;gap:6px"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> Designer is typing</div>'+
-      '<div class="chat-input"><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-send" onclick="sendMsg()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'+
+      '<input type="file" id="file-input" accept="image/*" style="display:none" onchange="sendFile()">'+
+      '<div class="chat-input"><button class="chat-att" onclick="document.getElementById(\'file-input\').click()" title="Send image"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-mic" id="mic-btn" onclick="toggleRecord()" title="Voice note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button><button class="chat-send" onclick="sendMsg()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'+
     '</div>'+
     '</div>';
   renderContent();renderMessages();setupTypingListener();
@@ -312,14 +336,117 @@ function renderMessages(){
     var me=m.sender_email===email||m.sender_type==='client';
     var t=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     var body=m.message||m.text||'';
-    return '<div style="display:flex;flex-direction:column;align-items:'+(me?'flex-end':'flex-start')+'">'+
-      (m.image_url?'<img class="msg-img" src="'+esc(m.image_url)+'">':'')+
-      '<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>'+
-      '<div class="msg-time">'+t+'</div></div>';
+    var html='<div style="display:flex;flex-direction:column;align-items:'+(me?'flex-end':'flex-start')+'">';
+    if(m.image_url){
+      html+='<img class="msg-img" src="'+esc(m.image_url)+'" onclick="showImgOverlay(\''+esc(m.image_url)+'\')">';
+      if(body&&body!=='📷 Image')html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
+    }else if(m.voice_url){
+      html+='<div class="msg '+(me?'me':'them')+'"><div class="msg-voice"><button class="msg-voice-btn" onclick="playVoice(this,\''+esc(m.voice_url)+'\')" style="background:'+(me?'rgba(255,255,255,0.2)':'var(--g)')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg></button><div class="msg-voice-track"><div class="msg-voice-fill"></div></div><span class="msg-voice-dur">0s</span></div></div>';
+    }else if(body){
+      html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
+    }
+    html+='<div class="msg-time">'+t+'</div></div>';
+    return html;
   }).join('');
   scrollChat();
 }
 function scrollChat(){var el=document.getElementById('msgs');if(el)setTimeout(function(){el.scrollTop=el.scrollHeight},50)}
+
+// ═══ Online presence ═══
+function checkDesignerPresence(){
+  if(!sb)return;
+  sb.from('user_presence').select('*').eq('user_type','admin').limit(1).then(function(r){
+    if(r.data&&r.data[0]){
+      var d=r.data[0],dot=document.getElementById('designer-dot'),st=document.getElementById('designer-status');
+      var online=d.is_online&&(Date.now()-new Date(d.last_seen).getTime()<60000);
+      if(dot)dot.className='chat-online-dot'+(online?' online':'');
+      if(st)st.textContent=online?'Online':'Last seen '+timeAgo(d.last_seen);
+    }
+  });
+}
+function timeAgo(d){var s=Math.floor((Date.now()-new Date(d).getTime())/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return new Date(d).toLocaleDateString()}
+setInterval(checkDesignerPresence,5000);
+setTimeout(checkDesignerPresence,1000);
+
+// ═══ Customer presence (let admin see we're online) ═══
+setInterval(function(){
+  if(sb&&email&&!document.hidden)sb.from('user_presence').upsert({email:email,is_online:true,last_seen:new Date().toISOString(),user_type:'customer'},{onConflict:'email'}).then(function(){});
+},15000);
+// Set offline on page hide
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden&&sb&&email)sb.from('user_presence').upsert({email:email,is_online:false,last_seen:new Date().toISOString(),user_type:'customer'},{onConflict:'email'}).then(function(){});
+});
+
+// ═══ Send image/file ═══
+async function sendFile(){
+  var input=document.getElementById('file-input');
+  if(!input||!input.files[0])return;
+  var file=input.files[0];
+  if(file.size>5*1024*1024){alert('File too large (max 5MB)');input.value='';return}
+  var path='chat/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'_');
+  var r=await sb.storage.from('uploads').upload(path,file);
+  input.value='';
+  if(r.error){alert('Upload failed');return}
+  var url=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+  // Send as image message
+  var tempMsg={id:'temp-'+Date.now(),order_email:email,sender_email:email,sender_type:'client',message:'',image_url:url,created_at:new Date().toISOString()};
+  messages.push(tempMsg);renderMessages();scrollChat();
+  await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},
+    body:JSON.stringify({order_email:email,sender_email:email,message:'📷 Image',image_url:url})});
+}
+
+// ═══ Voice note recording ═══
+var mediaRec=null,audioChunks=[],isRecording=false;
+async function toggleRecord(){
+  if(isRecording){stopRecord();return}
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRec=new MediaRecorder(stream);
+    audioChunks=[];
+    mediaRec.ondataavailable=function(e){audioChunks.push(e.data)};
+    mediaRec.onstop=async function(){
+      var blob=new Blob(audioChunks,{type:'audio/webm'});
+      stream.getTracks().forEach(function(t){t.stop()});
+      // Upload
+      var path='voice/'+Date.now()+'.webm';
+      var r=await sb.storage.from('uploads').upload(path,blob);
+      if(r.error){alert('Voice upload failed');return}
+      var url=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+      var tempMsg={id:'temp-'+Date.now(),order_email:email,sender_email:email,sender_type:'client',message:'',voice_url:url,created_at:new Date().toISOString()};
+      messages.push(tempMsg);renderMessages();scrollChat();
+      await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json','x-user-email':email},
+        body:JSON.stringify({order_email:email,sender_email:email,message:'🎤 Voice message',voice_url:url})});
+    };
+    mediaRec.start();isRecording=true;
+    document.getElementById('mic-btn').classList.add('recording');
+    // Auto stop after 60s
+    setTimeout(function(){if(isRecording)stopRecord()},60000);
+  }catch(e){alert('Microphone access denied')}
+}
+function stopRecord(){
+  if(mediaRec&&mediaRec.state==='recording')mediaRec.stop();
+  isRecording=false;
+  var btn=document.getElementById('mic-btn');if(btn)btn.classList.remove('recording');
+}
+
+// ═══ Play voice note ═══
+var currentAudio=null;
+function playVoice(btn,url){
+  if(currentAudio){currentAudio.pause();currentAudio=null}
+  var audio=new Audio(url);currentAudio=audio;
+  var fill=btn.parentElement.querySelector('.msg-voice-fill');
+  var dur=btn.parentElement.querySelector('.msg-voice-dur');
+  audio.onloadedmetadata=function(){dur.textContent=Math.floor(audio.duration)+'s'};
+  audio.ontimeupdate=function(){if(fill)fill.style.width=(audio.currentTime/audio.duration*100)+'%'};
+  audio.onended=function(){if(fill)fill.style.width='0%';currentAudio=null};
+  audio.play();
+}
+
+// ═══ Image overlay ═══
+function showImgOverlay(src){
+  var ov=document.createElement('div');ov.className='img-overlay';ov.onclick=function(){ov.remove()};
+  ov.innerHTML='<img src="'+src+'">';document.body.appendChild(ov);
+}
 </script>
 </body>
 </html>
