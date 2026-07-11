@@ -85,6 +85,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .chat-input textarea:focus{border-color:var(--g)}
 .chat-send{width:36px;height:36px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .chat-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:13px}
+.typing-dots span{animation:tdot 1.4s infinite;font-size:18px;font-weight:900;color:var(--g)}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{opacity:.2}30%{opacity:1}}
 
 /* Desktop: main content needs right margin for chat */
 @media(min-width:769px){
@@ -150,6 +154,44 @@ async function doLogin(){
 function startApp(){
   sb=window.supabase.createClient(SB_URL,SB_KEY);
   renderApp();loadOrders();loadMessages();setupRealtime();
+  // Polling fallback: check new messages every 3s (in case realtime fails)
+  setInterval(function(){if(email)pollNewMessages()},3000);
+}
+
+async function pollNewMessages(){
+  try{
+    var lastId=messages.length>0?messages[messages.length-1].id:null;
+    var r=await fetch('/api/messages?email='+encodeURIComponent(email),{headers:{'x-user-email':email}});
+    var d=await r.json();
+    if(d.success&&d.messages){
+      var newMsgs=d.messages.filter(function(m){return!messages.find(function(x){return x.id===m.id||x.id==='temp-'+m.id})});
+      if(newMsgs.length>0){
+        // Remove temp messages that match new real ones
+        messages=messages.filter(function(x){return!x.id||!x.id.startsWith('temp-')});
+        messages=d.messages;
+        renderMessages();scrollChat();
+      }
+    }
+  }catch(e){}
+}
+
+var isTyping=false,typingTimer=null,remoteTyping=false;
+function handleTyping(){
+  if(!sb||!email)return;
+  if(!isTyping){isTyping=true;sb.channel('typing:'+email).send({type:'broadcast',event:'typing',payload:{who:'client',typing:true}})}
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(function(){isTyping=false;sb.channel('typing:'+email).send({type:'broadcast',event:'typing',payload:{who:'client',typing:false}})},2000);
+}
+
+function setupTypingListener(){
+  if(!sb)return;
+  sb.channel('typing:'+email).on('broadcast',{event:'typing'},function(p){
+    if(p.payload&&p.payload.who==='admin'){
+      remoteTyping=p.payload.typing;
+      var el=document.getElementById('typing-ind');
+      if(el)el.style.display=remoteTyping?'flex':'none';
+    }
+  }).subscribe();
 }
 
 async function loadOrders(){
@@ -237,10 +279,11 @@ function renderApp(){
     '<div class="chat">'+
       '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="chat-av"><img src="/favicon-96x96.png" alt="DD"></div><div><div class="chat-name">Dean Designers</div><div class="chat-status">Designer</div></div></div>'+
       '<div class="chat-msgs" id="msgs"></div>'+
-      '<div class="chat-input"><textarea id="ci" rows="1" placeholder="Type a message..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-send" onclick="sendMsg()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'+
+      '<div id="typing-ind" style="display:none;padding:4px 14px;font-size:11px;color:#64748B;align-items:center;gap:6px"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> Designer is typing</div>'+
+      '<div class="chat-input"><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-send" onclick="sendMsg()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'+
     '</div>'+
     '</div>';
-  renderContent();renderMessages();
+  renderContent();renderMessages();setupTypingListener();
 }
 
 function renderContent(){

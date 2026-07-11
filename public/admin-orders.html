@@ -373,6 +373,7 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .typing-dot:nth-child(3){animation-delay:.4s}
 @keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(29,191,115,0.5)}70%{box-shadow:0 0 0 6px rgba(29,191,115,0)}100%{box-shadow:0 0 0 0 rgba(29,191,115,0)}}
+@keyframes tdot{0%,60%,100%{opacity:.2}30%{opacity:1}}
 
 </style>
 </head>
@@ -2228,8 +2229,20 @@ function renderConvList(){
   const el=document.getElementById('conv-list');if(el)el.innerHTML=html;
   const mel=document.getElementById('m-conv-list');if(mel)mel.innerHTML=html.replace(/onclick="selectConv/g,'onclick="selectConvMobile');
 }
-function selectConv(email){chatEmail=email;adReplyTo=null;adEditing=null;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs();renderConvList()}
-function selectConvMobile(email){chatEmail=email;adReplyTo=null;adEditing=null;loadChatMsgs('mobile');renderConvList()}
+function selectConv(email){chatEmail=email;adReplyTo=null;adEditing=null;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs();renderConvList();setupAdminTypingListener(email)}
+function selectConvMobile(email){chatEmail=email;adReplyTo=null;adEditing=null;loadChatMsgs('mobile');renderConvList();setupAdminTypingListener(email)}
+var _adTypCh=null;
+function setupAdminTypingListener(em){
+  if(_adTypCh){_adTypCh.unsubscribe();_adTypCh=null}
+  if(!sb||!em)return;
+  _adTypCh=sb.channel('typing:'+em).on('broadcast',{event:'typing'},function(p){
+    if(p.payload&&p.payload.who==='client'){
+      var el=document.getElementById('cr-typing');var el2=document.getElementById('cr-typing-m');
+      if(el)el.style.display=p.payload.typing?'flex':'none';
+      if(el2)el2.style.display=p.payload.typing?'flex':'none';
+    }
+  }).subscribe();
+}
 async function loadChatMsgs(target){
   if(!chatEmail)return;
   var _sfx=target==='mobile'?'-m':'';
@@ -2261,7 +2274,7 @@ function loadClientPresence(){
 }
 function adRelTime(iso){var d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return'just now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago'}
 function adSubscribeTyping(){try{sb.channel('typ-'+chatEmail).on('broadcast',{event:'typing'},(p)=>{if(p&&p.payload&&p.payload.sender==='client'){adRemoteTyping=true;adShowTyping();clearTimeout(adTypTimeout);adTypTimeout=setTimeout(()=>{adRemoteTyping=false;adHideTyping()},3000)}}).subscribe()}catch(e){}}
-function adBroadcastTyping(){if(!chatEmail)return;try{sb.channel('typ-'+chatEmail).send({type:'broadcast',event:'typing',payload:{sender:'admin'}})}catch(e){}}
+function adBroadcastTyping(){if(!chatEmail)return;try{sb.channel('typing:'+chatEmail).send({type:'broadcast',event:'typing',payload:{who:'admin',typing:true}});clearTimeout(window._adTypTimer);window._adTypTimer=setTimeout(function(){sb.channel('typing:'+chatEmail).send({type:'broadcast',event:'typing',payload:{who:'admin',typing:false}})},2000)}catch(e){}}
 function adShowTyping(){
   var t=document.getElementById('ad-typing');
   if(!t){var box=document.getElementById('cr-msgs')||document.getElementById('cr-msgs-m');if(!box)return;
@@ -2335,7 +2348,7 @@ function renderChatRoom(target){
     if(isA)h+='<button class="msg-act" onclick="adDeleteMsg(\''+m.id+'\','+isMob+')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
     h+='</div></div>';
   });
-  h+='</div><div id="cr-action-bar'+sfx+'"></div>';
+  h+='</div><div id="cr-typing'+sfx+'" style="display:none;padding:4px 14px;font-size:11px;color:#94A3B8;align-items:center;gap:6px"><span style="display:inline-flex;gap:1px"><span style="animation:tdot 1.4s infinite;font-size:16px;font-weight:900;color:#1DBF73">.</span><span style="animation:tdot 1.4s infinite .2s;font-size:16px;font-weight:900;color:#1DBF73">.</span><span style="animation:tdot 1.4s infinite .4s;font-size:16px;font-weight:900;color:#1DBF73">.</span></span> Client is typing</div><div id="cr-action-bar'+sfx+'"></div>';
   h+='<div class="cr-input" id="cr-bar'+sfx+'"><label class="cr-att" title="Attach"><input type="file" accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps" style="display:none" onchange="sendAdminImage(\''+esc(chatEmail)+'\',this,'+isMob+')"/><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></label>';
   h+='<textarea class="cr-inp" id="cr-inp'+sfx+'" placeholder="Type a message..." rows="1" oninput="adAutoGrow(this);adBroadcastTyping()"></textarea>';
   h+='<button class="cr-mic" onclick="adToggleRec('+isMob+')" title="Voice note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>';
