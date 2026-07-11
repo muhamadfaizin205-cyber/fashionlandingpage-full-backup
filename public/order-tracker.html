@@ -154,20 +154,21 @@ async function doLogin(){
 function startApp(){
   sb=window.supabase.createClient(SB_URL,SB_KEY);
   renderApp();loadOrders();loadMessages();setupRealtime();
-  // Polling fallback: check new messages every 3s (in case realtime fails)
-  setInterval(function(){if(email)pollNewMessages()},3000);
+  // Poll every 3s — guaranteed message delivery
+  setInterval(pollMessages,3000);
+  // Setup typing
+  setupTypingListener();
 }
 
-async function pollNewMessages(){
+async function pollMessages(){
+  if(!email)return;
   try{
-    var lastId=messages.length>0?messages[messages.length-1].id:null;
     var r=await fetch('/api/messages?email='+encodeURIComponent(email),{headers:{'x-user-email':email}});
     var d=await r.json();
     if(d.success&&d.messages){
-      var newMsgs=d.messages.filter(function(m){return!messages.find(function(x){return x.id===m.id||x.id==='temp-'+m.id})});
-      if(newMsgs.length>0){
-        // Remove temp messages that match new real ones
-        messages=messages.filter(function(x){return!x.id||!x.id.startsWith('temp-')});
+      // Compare: if server has different count than local (excluding temp), update
+      var realLocal=messages.filter(function(m){return !m.id||!String(m.id).startsWith('temp-')});
+      if(d.messages.length!==realLocal.length){
         messages=d.messages;
         renderMessages();scrollChat();
       }

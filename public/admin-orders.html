@@ -507,6 +507,18 @@ function startApp(){
   loadOrders();
   loadConversations();
   loadAdminProfile();
+  // Poll chat messages every 3s (fallback if realtime fails)
+  setInterval(function(){
+    if(chatEmail){
+      fetch('/api/messages?email='+encodeURIComponent(chatEmail),{headers:{'x-admin-hash':adminHash}})
+        .then(function(r){return r.json()})
+        .then(function(d){
+          if(d.messages&&d.messages.length!==chatMsgs.length){
+            chatMsgs=d.messages;renderChatRoom();loadConversations();
+          }
+        }).catch(function(){});
+    }
+  },3000);
   sb.channel('admin-orders-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe();
   sb.channel('admin-msgs-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},(payload)=>{
     if(payload.eventType==='INSERT'&&payload.new){
