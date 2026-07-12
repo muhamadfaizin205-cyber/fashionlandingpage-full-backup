@@ -2,7 +2,7 @@
 // Actions: "brief" (public, for order wizard) | "article" (admin-only)
 
 const ADMIN_HASH = '2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0';
-const BRIEF_GROQ_KEY = process.env.GROQ_BRIEF_KEY || process.env.GROQ_API_KEY || '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';
+const BRIEF_GROQ_KEY = process.env.GROQ_BRIEF_KEY || process.env.GROQ_API_KEY || '';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
