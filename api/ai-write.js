@@ -2,7 +2,6 @@
 // Actions: "brief" (public, for order wizard) | "article" (admin-only)
 
 const ADMIN_HASH = '2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0';
-const BRIEF_GROQ_KEY = process.env.GROQ_BRIEF_KEY || process.env.GROQ_API_KEY || '';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -25,12 +24,15 @@ export default async function handler(req, res) {
   return handleArticle(req, res);
 }
 
-// ── Brief Generator (Groq LPU — fast inference) ─────────────
+// ── Brief Generator (Google Gemini — fast & free) ─────────────
 async function handleBrief(req, res) {
   const { brandName, serviceType, concept, colors, references } = req.body || {};
   if (!concept && !colors && !references) {
     return res.status(400).json({ error: 'At least one field required' });
   }
+
+  const apiKey = process.env.GOOGLE_AI_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'AI not configured' });
 
   const svcLabel = serviceType === 'clothing' ? 'Clothing Design' : 'Logo Brand Design';
   const userContext = [
@@ -63,21 +65,16 @@ DOS AND DONTS: Write 3-4 specific guidelines in full sentence form.
 Write at least 400 words. Be specific, opinionated, and actionable.`;
 
   try {
-    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${BRIEF_GROQ_KEY}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2000,
-        temperature: 0.7,
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.7 },
       }),
     });
-    const data = await groqRes.json();
-    const text = data?.choices?.[0]?.message?.content ?? '';
+    const data = await geminiRes.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     if (!text) {
       return res.status(500).json({ error: data?.error?.message || 'Empty AI response' });
     }
