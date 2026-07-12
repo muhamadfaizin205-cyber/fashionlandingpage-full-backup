@@ -489,6 +489,27 @@ function MyOrdersPage({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── AI Brief Loading Progress ──────────────────────────────
+function AiBriefProgress() {
+  const messages = [
+    "Analyzing your brand...",
+    "Crafting design direction...",
+    "Building color palette...",
+    "Writing technical specs...",
+    "Finalizing your brief...",
+  ];
+  const [idx, setIdx] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const t1 = setInterval(() => setIdx(i => (i + 1) % messages.length), 2500);
+    const t2 = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => { clearInterval(t1); clearInterval(t2); };
+  }, []);
+
+  return <span>{messages[idx]} ({seconds}s)</span>;
+}
+
 // ─── GigCard component (Fiverr-style) ───────────────────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
@@ -1334,7 +1355,7 @@ function Step4({
               >
                 {phase === "loading" ? (
                   <>
-                    <span className="ai-spinner" /> Generating brief...
+                    <span className="ai-spinner" /> <AiBriefProgress />
                   </>
                 ) : (
                   <>✨ Generate Brief Now</>

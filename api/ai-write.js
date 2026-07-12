@@ -24,14 +24,14 @@ export default async function handler(req, res) {
   return handleArticle(req, res);
 }
 
-// ── Brief Generator (Google Gemini — fast & free) ─────────────
+// ── Brief Generator (Aivene AI — OpenAI-compatible) ─────────────
 async function handleBrief(req, res) {
   const { brandName, serviceType, concept, colors, references } = req.body || {};
   if (!concept && !colors && !references) {
     return res.status(400).json({ error: 'At least one field required' });
   }
 
-  const apiKey = process.env.GOOGLE_AI_KEY;
+  const apiKey = process.env.AIVENE_API_KEY || 'isk-UfIoX34J0X9qwdWFlkZdACkdZoXwiJYLM7Uc4Fsm';
   if (!apiKey) return res.status(500).json({ error: 'AI not configured' });
 
   const svcLabel = serviceType === 'clothing' ? 'Clothing Design' : 'Logo Brand Design';
@@ -65,16 +65,21 @@ DOS AND DONTS: Write 3-4 specific guidelines in full sentence form.
 Write at least 400 words. Be specific, opinionated, and actionable.`;
 
   try {
-    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const aiRes = await fetch('https://api.aivene.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 2000, temperature: 0.7 },
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2000,
+        temperature: 0.7,
       }),
     });
-    const data = await geminiRes.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const data = await aiRes.json();
+    const text = data?.choices?.[0]?.message?.content ?? '';
     if (!text) {
       return res.status(500).json({ error: data?.error?.message || 'Empty AI response' });
     }
