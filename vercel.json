@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/auto-article",
-      "schedule": "0 9 * * *"
+      "schedule": "0 9 */2 * *"
     }
   ],
   "redirects": [

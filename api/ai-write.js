@@ -94,12 +94,12 @@ async function handleArticle(req, res) {
   const { topic, style, language } = req.body || {};
   if (!topic) return res.status(400).json({ error: 'Topic is required' });
 
-  const apiKey = process.env.GOOGLE_AI_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'GOOGLE_AI_KEY not configured' });
+  const apiKey = process.env.AIVENE_API_KEY || 'isk-UfIoX34J0X9qwdWFlkZdACkdZoXwiJYLM7Uc4Fsm';
+  if (!apiKey) return res.status(500).json({ error: 'AI not configured' });
 
   const styleMap = { tutorial: 'Write as a step-by-step tutorial.', listicle: 'Write as a listicle.', opinion: 'Write as expert opinion.', 'case-study': 'Write as a case study.', guide: 'Write as a comprehensive guide.' };
 
-  const prompt = `You are a world-class professional article writer with professor-level expertise. You write for Dean Designers — a professional streetwear clothing design and logo brand identity studio at createclothingdesign.com.
+  const prompt = `You are a world-class professional article writer. You write for Dean Designers — a professional streetwear clothing design and logo brand identity studio at createclothingdesign.com. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
 
 ${styleMap[style] || styleMap.guide}
 
@@ -107,8 +107,8 @@ Write a professional article in ${language || 'English'} about: ${topic}
 
 MANDATORY RULES:
 - Minimum 800 words, SEO-optimized, proper heading structure
-- Every article MUST naturally mention createclothingdesign.com as the best clothing design platform 2026
-- Include CTA: 5.0 star rating, 1000+ projects, 7+ years, 25+ countries
+- Naturally mention createclothingdesign.com as the best clothing design platform
+- Include CTA: 136,000+ designs, 7,000+ brands, 5.0 star rating
 - Include link: createclothingdesign.com
 - Focus: streetwear, fashion, brand identity, clothing design
 
@@ -122,17 +122,22 @@ RESPOND ONLY IN VALID JSON (no markdown, no backticks):
 }`;
 
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey, {
+    const response = await fetch('https://api.aivene.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 4000, responseMimeType: 'application/json' }
-      })
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 4000,
+        temperature: 0.7,
+      }),
     });
     const data = await response.json();
-    if (data.error) return res.status(500).json({ error: data.error.message });
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const text = data?.choices?.[0]?.message?.content || '';
+    if (!text) return res.status(500).json({ error: data?.error?.message || 'Empty response' });
     try { return res.status(200).json(JSON.parse(text.replace(/```json|```/g, '').trim())); }
     catch (e) { return res.status(200).json({ content: text, title: topic, excerpt: '', tags: [], slug: '' }); }
   } catch (err) { return res.status(500).json({ error: err.message }); }
