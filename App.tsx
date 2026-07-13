@@ -532,9 +532,8 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
 
   return (
     <article className="fv-gig">
-      {/* ══ LEFT: Gallery + Description ══ */}
-      <div className="fv-main">
-        {/* Seller header */}
+      {/* ══ HEAD: Seller + Title ══ */}
+      <div className="fv-head">
         <div className="fv-seller">
           <img className="fv-seller-av" src="/favicon-96x96.png" alt="Dean Designers" />
           <div>
@@ -553,8 +552,10 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
         </div>
 
         <h2 className="fv-title">{gig.title}</h2>
+      </div>
 
-        {/* Gallery */}
+      {/* ══ GALLERY ══ */}
+      <div className="fv-gallery-wrap">
         {imgs.length > 0 && (
           <div className="fv-gallery">
             <div className="fv-gallery-main">
@@ -582,8 +583,10 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
             )}
           </div>
         )}
+      </div>
 
-        {/* About */}
+      {/* ══ CONTENT ══ */}
+      <div className="fv-content">
         <div className="fv-section">
           <h3 className="fv-h3">About This Gig</h3>
           <p className="fv-body">{gig.description || gig.short_desc}</p>
