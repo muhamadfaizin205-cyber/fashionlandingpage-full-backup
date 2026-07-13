@@ -27,6 +27,12 @@ export default async function handler(req, res) {
     { loc: `${BASE_URL}/`, changefreq: 'weekly', priority: '1.0', lastmod: TODAY },
     { loc: `${BASE_URL}/gigs`, changefreq: 'weekly', priority: '0.9', lastmod: TODAY },
     { loc: `${BASE_URL}/articles`, changefreq: 'daily', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/streetwear-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/logo-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/tshirt-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/hoodie-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/clothing-brand-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
+    { loc: `${BASE_URL}/merch-design`, changefreq: 'monthly', priority: '0.9', lastmod: TODAY },
   ];
 
   const articleUrls = articles

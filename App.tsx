@@ -3143,9 +3143,12 @@ export default function App() {
             <div className="footer-col">
               <h3 className="footer-heading">Services</h3>
               <nav>
-                <a href="https://www.createclothingdesign.com" className="footer-link">Custom Clothing Design</a>
-                <a href="https://www.createclothingdesign.com" className="footer-link">Streetwear Graphics</a>
-                <a href="https://www.createclothingdesign.com" className="footer-link">Logo & Brand Identity</a>
+                <a href="/streetwear-design" className="footer-link">Streetwear Design</a>
+                <a href="/tshirt-design" className="footer-link">T-Shirt Design</a>
+                <a href="/hoodie-design" className="footer-link">Hoodie Design</a>
+                <a href="/logo-design" className="footer-link">Logo Design</a>
+                <a href="/clothing-brand-design" className="footer-link">Brand Package</a>
+                <a href="/merch-design" className="footer-link">Merch Design</a>
                 <a href="https://www.createclothingdesign.com/articles" className="footer-link">Articles & Insights</a>
               </nav>
             </div>

@@ -8,25 +8,78 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "query", "key": "q" }],
+      "has": [
+        {
+          "type": "query",
+          "key": "q"
+        }
+      ],
       "destination": "/:path*",
       "permanent": true
     }
   ],
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/articles/:slug", "destination": "/api/article-ssr?slug=:slug" },
-    { "source": "/articles", "destination": "/index.html" },
-    { "source": "/gigs", "destination": "/index.html" },
-    { "source": "/my-orders", "destination": "/index.html" }
+    {
+      "source": "/streetwear-design",
+      "destination": "/lp/streetwear-design.html"
+    },
+    {
+      "source": "/logo-design",
+      "destination": "/lp/logo-design.html"
+    },
+    {
+      "source": "/tshirt-design",
+      "destination": "/lp/tshirt-design.html"
+    },
+    {
+      "source": "/hoodie-design",
+      "destination": "/lp/hoodie-design.html"
+    },
+    {
+      "source": "/clothing-brand-design",
+      "destination": "/lp/clothing-brand-design.html"
+    },
+    {
+      "source": "/merch-design",
+      "destination": "/lp/merch-design.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/articles/:slug",
+      "destination": "/api/article-ssr?slug=:slug"
+    },
+    {
+      "source": "/articles",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/gigs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/my-orders",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
   ]
