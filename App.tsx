@@ -510,10 +510,11 @@ function AiBriefProgress() {
   return <span>{messages[idx]} ({seconds}s)</span>;
 }
 
-// ─── GigCard component (Fiverr-style) ───────────────────────
+// ─── GigCard component (Fiverr-style full layout) ───────────
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
   const [slideIdx, setSlideIdx] = useState(0);
+  const [faqOpen, setFaqOpen] = useState<number|null>(null);
   const imgs = (gig.gallery_urls && gig.gallery_urls.length > 0) ? gig.gallery_urls.slice(0,5) : (gig.cover_url ? [gig.cover_url] : []);
 
   const tier = activeTab === "basic"
@@ -522,70 +523,140 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
     ? { price: gig.standard_price, delivery: gig.standard_delivery, revisions: gig.standard_revisions, features: gig.standard_features, desc: gig.standard_desc }
     : { price: gig.premium_price, delivery: gig.premium_delivery, revisions: gig.premium_revisions, features: gig.premium_features, desc: gig.premium_desc };
 
-  const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(gig.rating) ? "★" : "☆").join("");
+  const faqs = [
+    { q: "Do I own the design and commercial rights?", a: "Yes. Every package includes source files and full commercial rights. You own the artwork outright and can print it with any manufacturer, in any quantity, forever. No licensing fees, no royalties." },
+    { q: "What file formats will I receive?", a: "Source files (PSD or AI), vector files (SVG, EPS), print-ready high-resolution PNG with transparency, PDF, and realistic mockups — prepared for your printing method." },
+    { q: "Can you match a specific style or reference?", a: "Absolutely. Share reference images, mood boards, or brands you admire in your brief. Dean builds around your direction, not a template." },
+    { q: "What if I need changes after delivery?", a: "Revisions are included in every package. Standard includes 8 revisions, Premium is unlimited until the design is exactly right." },
+  ];
 
   return (
-    <article className="gig-card">
-      {imgs.length > 0 ? (
-        <div className="gig-gallery">
-          <div className="gig-gallery-track" style={{transform:`translateX(-${slideIdx*100}%)`}}>
-            {imgs.map((src, i) => (
-              <img key={i} src={src} alt={i===0 ? gig.title : ""} className="gig-gallery-slide" />
-            ))}
+    <article className="fv-gig">
+      {/* ══ LEFT: Gallery + Description ══ */}
+      <div className="fv-main">
+        {/* Seller header */}
+        <div className="fv-seller">
+          <img className="fv-seller-av" src="/favicon-96x96.png" alt="Dean Designers" />
+          <div>
+            <div className="fv-seller-row">
+              <span className="fv-seller-name">Dean Designers</span>
+              <span className="fv-seller-badge">Top Rated</span>
+            </div>
+            <div className="fv-seller-meta">
+              <span className="fv-stars">★★★★★</span>
+              <b>{Number(gig.rating).toFixed(1)}</b>
+              <span className="fv-muted">({gig.review_count.toLocaleString()})</span>
+              <span className="fv-dot">·</span>
+              <span className="fv-muted">{gig.orders_count.toLocaleString()}+ orders</span>
+            </div>
           </div>
-          {imgs.length > 1 && (
-            <>
-              <button className="gig-gallery-btn gig-gallery-prev" onClick={() => setSlideIdx(i => (i - 1 + imgs.length) % imgs.length)}>‹</button>
-              <button className="gig-gallery-btn gig-gallery-next" onClick={() => setSlideIdx(i => (i + 1) % imgs.length)}>›</button>
-              <div className="gig-gallery-dots">
-                {imgs.map((_, i) => <span key={i} className={`gig-gallery-dot ${i===slideIdx?"active":""}`} />)}
-              </div>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="gig-cover-placeholder"><i className="ri-palette-line" style={{fontSize:48,color:"rgba(29,191,115,0.3)"}} /></div>
-      )}
-      <div className="gig-body">
-        <div className="gig-seller">
-          <img className="gig-seller-avatar" src="/favicon-96x96.png" alt="Dean Designers" />
-          <div className="gig-seller-info">
-            <span className="gig-seller-name">Dean Designers</span>
-            <span className="gig-seller-level">Top Rated Seller</span>
-          </div>
-        </div>
-        <h3 className="gig-title">{gig.title}</h3>
-        <p className="gig-short-desc">{gig.short_desc}</p>
-        <div className="gig-rating">
-          <span className="gig-stars">{stars}</span>
-          <span className="gig-rating-num">{gig.rating.toFixed(1)}</span>
-          <span className="gig-review-count">({gig.review_count})</span>
-          <span className="gig-orders">{gig.orders_count}+ orders</span>
         </div>
 
-        {/* Pricing tabs */}
-        <div className="gig-tabs">
-          <button className={`gig-tab ${activeTab==="basic"?"active":""}`} onClick={()=>setActiveTab("basic")}>Basic</button>
-          <button className={`gig-tab ${activeTab==="standard"?"active":""}`} onClick={()=>setActiveTab("standard")}>Standard</button>
-          <button className={`gig-tab ${activeTab==="premium"?"active":""}`} onClick={()=>setActiveTab("premium")}>Premium</button>
-        </div>
-        <div className="gig-tier">
-          <div className="gig-tier-price">${tier.price}<span>/concept</span></div>
-          <p className="gig-tier-desc">{tier.desc}</p>
-          <div className="gig-tier-meta">
-            <span><i className="ri-time-line" /> {tier.delivery}-day delivery</span>
-            <span><i className="ri-refresh-line" /> {tier.revisions}</span>
+        <h2 className="fv-title">{gig.title}</h2>
+
+        {/* Gallery */}
+        {imgs.length > 0 && (
+          <div className="fv-gallery">
+            <div className="fv-gallery-main">
+              <img src={imgs[slideIdx]} alt={gig.title} />
+              {imgs.length > 1 && (
+                <>
+                  <button className="fv-nav fv-nav-l" onClick={() => setSlideIdx(i => (i - 1 + imgs.length) % imgs.length)} aria-label="Previous">
+                    <i className="ri-arrow-left-s-line" />
+                  </button>
+                  <button className="fv-nav fv-nav-r" onClick={() => setSlideIdx(i => (i + 1) % imgs.length)} aria-label="Next">
+                    <i className="ri-arrow-right-s-line" />
+                  </button>
+                  <span className="fv-counter">{slideIdx + 1} / {imgs.length}</span>
+                </>
+              )}
+            </div>
+            {imgs.length > 1 && (
+              <div className="fv-thumbs">
+                {imgs.map((src, i) => (
+                  <button key={i} className={`fv-thumb ${i === slideIdx ? "active" : ""}`} onClick={() => setSlideIdx(i)}>
+                    <img src={src} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <ul className="gig-tier-features">
-            {(typeof tier.features === "string" ? JSON.parse(tier.features) : tier.features).map((f: string, i: number) => (
-              <li key={i}><i className="ri-check-line" /> {f}</li>
-            ))}
-          </ul>
+        )}
+
+        {/* About */}
+        <div className="fv-section">
+          <h3 className="fv-h3">About This Gig</h3>
+          <p className="fv-body">{gig.description || gig.short_desc}</p>
         </div>
-        <button className="gig-order-btn" onClick={() => onOrder(gig)}>
-          Continue →
-        </button>
+
+        {/* What you get */}
+        <div className="fv-section">
+          <h3 className="fv-h3">What You Get</h3>
+          <div className="fv-grid2">
+            <div className="fv-point"><i className="ri-file-copy-2-line" /><div><b>Source Files</b><span>PSD, AI — fully editable, layered</span></div></div>
+            <div className="fv-point"><i className="ri-printer-line" /><div><b>Print-Ready</b><span>300 DPI, correct color separations</span></div></div>
+            <div className="fv-point"><i className="ri-copyright-line" /><div><b>Full Rights</b><span>Own it outright, print anywhere</span></div></div>
+            <div className="fv-point"><i className="ri-image-2-line" /><div><b>Realistic Mockups</b><span>See it on an actual garment</span></div></div>
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="fv-section">
+          <h3 className="fv-h3">FAQ</h3>
+          <div className="fv-faq">
+            {faqs.map((f, i) => (
+              <div key={i} className="fv-faq-item">
+                <button className="fv-faq-q" onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
+                  <span>{f.q}</span>
+                  <i className={faqOpen === i ? "ri-subtract-line" : "ri-add-line"} />
+                </button>
+                {faqOpen === i && <p className="fv-faq-a">{f.a}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* ══ RIGHT: Sticky pricing box ══ */}
+      <aside className="fv-side">
+        <div className="fv-box">
+          <div className="fv-tabs">
+            {(["basic","standard","premium"] as const).map(t => (
+              <button key={t} className={`fv-tab ${activeTab === t ? "active" : ""}`} onClick={() => setActiveTab(t)}>
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          <div className="fv-box-body">
+            <div className="fv-price-row">
+              <span className="fv-price">${tier.price}</span>
+              <span className="fv-price-unit">/concept</span>
+            </div>
+
+            <p className="fv-tier-desc">{tier.desc}</p>
+
+            <div className="fv-meta-row">
+              <span><i className="ri-time-line" /> {tier.delivery}-day delivery</span>
+              <span><i className="ri-refresh-line" /> {tier.revisions}</span>
+            </div>
+
+            <ul className="fv-feats">
+              {(tier.features || []).map((f, i) => (
+                <li key={i}><i className="ri-check-line" />{f}</li>
+              ))}
+            </ul>
+
+            <button className="fv-cta" onClick={() => onOrder(gig)}>
+              Continue <i className="ri-arrow-right-line" />
+            </button>
+
+            <a className="fv-contact" href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer">
+              <i className="ri-whatsapp-line" /> Contact Designer
+            </a>
+          </div>
+        </div>
+      </aside>
     </article>
   );
 }
