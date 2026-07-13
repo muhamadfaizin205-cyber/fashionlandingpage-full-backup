@@ -3484,24 +3484,84 @@ html {
 .fv-seller-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
 .fv-seller-name { font-size: 15px; font-weight: 700; color: #222325; }
 .fv-seller-badge {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: linear-gradient(135deg, #FFD97D 0%, #E8B54A 50%, #C99A3B 100%);
-  color: #4A3410;
+  gap: 5px;
+  padding: 4px 11px 4px 8px;
+  border-radius: 5px;
   font-size: 10px;
   font-weight: 800;
-  padding: 3px 9px 3px 7px;
-  border-radius: 4px;
-  letter-spacing: .3px;
+  letter-spacing: .4px;
   text-transform: uppercase;
-  box-shadow: 0 1px 3px rgba(201, 154, 59, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.35);
   white-space: nowrap;
+  overflow: hidden;
+  color: #3D2A08;
+  background:
+    linear-gradient(160deg,
+      #FFF3C4 0%,
+      #FFDD7A 18%,
+      #E3B248 42%,
+      #C08F2E 58%,
+      #E6BC5C 78%,
+      #FFE9A3 100%);
+  border: 1px solid #B8862B;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    inset 0 -1px 0 rgba(120,80,10,.35),
+    0 1px 2px rgba(120,80,10,.28),
+    0 2px 6px rgba(184,134,43,.3);
+  text-shadow: 0 1px 0 rgba(255,255,255,.4);
+}
+.fv-seller-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255,255,255,.7) 50%,
+    transparent 100%);
+  transform: skewX(-20deg);
+  animation: goldShine 3.5s ease-in-out infinite;
+}
+@keyframes goldShine {
+  0%, 65% { left: -60%; }
+  100%    { left: 130%; }
 }
 .fv-seller-badge i {
-  font-size: 11px;
+  font-size: 12px;
   color: #6B4A14;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.45));
+  position: relative;
+  z-index: 1;
+}
+.fv-seller-badge span,
+.fv-seller-badge {
+  z-index: 0;
+}
+
+/* Description body with proper line breaks */
+.fv-body p { font-size: 15px; line-height: 1.75; color: #62646A; margin-bottom: 10px; }
+.fv-body p:last-child { margin-bottom: 0; }
+.fv-body-label { font-weight: 700 !important; color: #222325 !important; margin-top: 14px !important; }
+.fv-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #404145;
+  padding: 4px 0;
+}
+.fv-bullet i {
+  color: var(--green);
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 .fv-seller-meta { display: flex; align-items: center; gap: 5px; font-size: 13px; }
 .fv-stars { color: #FFB33E; font-size: 12px; letter-spacing: -1px; }

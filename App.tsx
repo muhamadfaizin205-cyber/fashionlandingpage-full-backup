@@ -591,7 +591,22 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
       <div className="fv-content">
         <div className="fv-section">
           <h3 className="fv-h3">About This Gig</h3>
-          <p className="fv-body">{gig.description || gig.short_desc}</p>
+          <div className="fv-body">
+            {(gig.description || gig.short_desc || "")
+              .replace(/\\n/g, "\n")
+              .split("\n")
+              .filter(l => l.trim())
+              .map((line, i) => {
+                const t = line.trim();
+                if (t.startsWith("•") || t.startsWith("-")) {
+                  return <div key={i} className="fv-bullet"><i className="ri-check-line" />{t.replace(/^[•-]\s*/, "")}</div>;
+                }
+                if (t.endsWith(":")) {
+                  return <p key={i} className="fv-body-label">{t}</p>;
+                }
+                return <p key={i}>{t}</p>;
+              })}
+          </div>
         </div>
 
         {/* What you get */}
