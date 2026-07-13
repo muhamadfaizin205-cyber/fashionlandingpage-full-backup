@@ -3,6 +3,9 @@
 // Googlebot gets full article content + meta tags + JSON-LD
 // Regular users get redirected to the SPA
 
+import fs from 'fs';
+import path from 'path';
+
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
 const BASE_URL = 'https://www.createclothingdesign.com';
@@ -18,9 +21,6 @@ export default async function handler(req, res) {
 
   // Only serve SSR to bots — regular users get the SPA
   if (!BOT_UA.test(ua)) {
-    // Serve the SPA by reading index.html
-    const fs = require('fs');
-    const path = require('path');
     try {
       const indexPath = path.join(process.cwd(), 'dist', 'index.html');
       const fallbackPath = path.join(process.cwd(), 'index.html');
