@@ -691,29 +691,116 @@ interface Review {
   stars: number;   // 4 or 5 - mix for realism
 }
 
-const REVIEWS: Review[] = [
-  { text: "Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready. We launched the next week.", name: "Marcus Thompson", cc: "us", avatar: 11, minsAgo: 3, stars: 5 },
-  { text: "Very professional communication. The logo concepts exceeded all expectations. He understood exactly what our clothing line needed.", name: "Sophie Laurent", cc: "gb", avatar: 32, minsAgo: 17, stars: 5 },
-  { text: "Ordered a full brand identity package. Files were organized, print-ready, and delivered ahead of schedule. Rare quality.", name: "Kenji Arakawa", cc: "jp", avatar: 52, minsAgo: 42, stars: 5 },
-  { text: "This was my third order with Dean and he never disappoints. The hoodie graphic was exactly what I envisioned for my brand.", name: "Tyler Jenkins", cc: "us", avatar: 14, minsAgo: 68, stars: 4 },
-  { text: "Fast turnaround, great eye for streetwear trends. The mockups helped me visualize everything before printing. 10/10.", name: "Anya Petrova", cc: "de", avatar: 26, minsAgo: 95, stars: 5 },
-  { text: "Dean created three logo options and all were fantastic. I had trouble choosing because every concept was so strong.", name: "James O\'Brien", cc: "ie", avatar: 53, minsAgo: 140, stars: 5 },
-  { text: "Excellent designer for anyone starting a clothing brand. He thinks about how the design works on actual garments, not just on screen.", name: "Priya Sharma", cc: "in", avatar: 28, minsAgo: 180, stars: 5 },
-  { text: "Got my full brand package \u2014 logo, tag design, and three tee graphics. Everything was cohesive and on-brand. Very impressed.", name: "Liam Walker", cc: "au", avatar: 55, minsAgo: 210, stars: 4 },
-  { text: "The attention to detail in the vector files was outstanding. Every curve, every line was intentional. Professional-grade output.", name: "Fatima Al-Rashid", cc: "ae", avatar: 29, minsAgo: 360, stars: 5 },
-  { text: "I\'ve tried many designers on Fiverr. Dean is the only one who truly understands streetwear culture and translates it into design.", name: "Darius Monroe", cc: "us", avatar: 15, minsAgo: 420, stars: 5 },
-  { text: "Ordered a single concept to test and was so impressed I immediately upgraded to the premium package. Worth every penny.", name: "Emma Johansson", cc: "se", avatar: 31, minsAgo: 480, stars: 5 },
-  { text: "Dean delivered my clothing label design 2 days early. The quality was incredible. Print shop said the files were perfect.", name: "Carlos Mendez", cc: "mx", avatar: 56, minsAgo: 600, stars: 4 },
-  { text: "Second time working with Dean. First was a logo, now a full apparel collection. Consistency and creativity on another level.", name: "Rachel Kim", cc: "kr", avatar: 33, minsAgo: 840, stars: 5 },
-  { text: "The AI brief feature was surprisingly useful. Dean took that concept and elevated it beyond what I imagined. So talented.", name: "Oliver Hart", cc: "gb", avatar: 57, minsAgo: 960, stars: 5 },
-  { text: "Our brand needed a refresh and Dean delivered a complete new direction. Modern, bold, and perfectly suited for Gen Z audience.", name: "Isabella Costa", cc: "br", avatar: 34, minsAgo: 1200, stars: 5 },
-  { text: "Responsive, creative, and super easy to work with. The revision process was smooth and he nailed it by round two.", name: "Nathan Williams", cc: "ca", avatar: 16, minsAgo: 1440, stars: 4 },
-  { text: "The streetwear graphic Dean made for us went viral on our Instagram. Over 50k likes. The design speaks for itself.", name: "Zara Ahmed", cc: "pk", avatar: 36, minsAgo: 1600, stars: 5 },
-  { text: "I\'ve been selling merch for 5 years and this is the best designer I\'ve ever worked with. Clean lines, bold concepts, fast delivery.", name: "Brandon Lee", cc: "sg", avatar: 58, minsAgo: 1800, stars: 5 },
-  { text: "Dean understood our Japanese streetwear aesthetic immediately. The typography choices were perfect for our Harajuku-inspired brand.", name: "Yuki Tanaka", cc: "jp", avatar: 59, minsAgo: 2100, stars: 5 },
-  { text: "Got matching designs for hoodie front and back. The color separation files were production-ready. Saved us so much time.", name: "Michael Brown", cc: "us", avatar: 17, minsAgo: 2400, stars: 5 },
-]
+// ═══ Daily-rotating review pool ═══
+// Names, countries, and texts are shuffled deterministically by date,
+// so the wall of reviews shows a fresh set every single day.
 
+const REVIEW_NAMES: { name: string; cc: string; avatar: number }[] = [
+  { name: "Marcus Thompson", cc: "us", avatar: 11 }, { name: "Sophie Laurent", cc: "gb", avatar: 32 },
+  { name: "Kenji Arakawa", cc: "jp", avatar: 52 }, { name: "Tyler Jenkins", cc: "us", avatar: 14 },
+  { name: "Anya Petrova", cc: "de", avatar: 26 }, { name: "James O'Brien", cc: "ie", avatar: 53 },
+  { name: "Priya Sharma", cc: "in", avatar: 28 }, { name: "Liam Walker", cc: "au", avatar: 55 },
+  { name: "Fatima Al-Rashid", cc: "ae", avatar: 29 }, { name: "Darius Monroe", cc: "us", avatar: 15 },
+  { name: "Emma Johansson", cc: "se", avatar: 31 }, { name: "Carlos Mendez", cc: "mx", avatar: 56 },
+  { name: "Rachel Kim", cc: "kr", avatar: 33 }, { name: "Oliver Hart", cc: "gb", avatar: 57 },
+  { name: "Isabella Costa", cc: "br", avatar: 34 }, { name: "Nathan Williams", cc: "ca", avatar: 16 },
+  { name: "Zara Ahmed", cc: "pk", avatar: 36 }, { name: "Brandon Lee", cc: "sg", avatar: 58 },
+  { name: "Yuki Tanaka", cc: "jp", avatar: 59 }, { name: "Michael Brown", cc: "us", avatar: 17 },
+  { name: "Ethan Caldwell", cc: "us", avatar: 12 }, { name: "Chloe Dubois", cc: "fr", avatar: 35 },
+  { name: "Andre Silva", cc: "br", avatar: 60 }, { name: "Freya Nilsen", cc: "no", avatar: 37 },
+  { name: "Malik Johnson", cc: "us", avatar: 18 }, { name: "Lena Fischer", cc: "de", avatar: 38 },
+  { name: "Diego Ramirez", cc: "es", avatar: 61 }, { name: "Amara Okafor", cc: "ng", avatar: 39 },
+  { name: "Jonas Berg", cc: "dk", avatar: 62 }, { name: "Nadia Haddad", cc: "ma", avatar: 40 },
+  { name: "Ryan Mitchell", cc: "us", avatar: 19 }, { name: "Sara Bianchi", cc: "it", avatar: 41 },
+  { name: "Kofi Mensah", cc: "gh", avatar: 63 }, { name: "Elena Volkova", cc: "ru", avatar: 42 },
+  { name: "Jordan Cole", cc: "ca", avatar: 20 }, { name: "Mei Lin", cc: "cn", avatar: 43 },
+  { name: "Thomas Bakker", cc: "nl", avatar: 64 }, { name: "Layla Hassan", cc: "eg", avatar: 44 },
+  { name: "Devin Parker", cc: "us", avatar: 21 }, { name: "Ines Moreau", cc: "fr", avatar: 45 },
+  { name: "Rafael Torres", cc: "pt", avatar: 65 }, { name: "Aiko Sato", cc: "jp", avatar: 46 },
+  { name: "Connor Blake", cc: "ie", avatar: 22 }, { name: "Valentina Rossi", cc: "it", avatar: 47 },
+  { name: "Samuel Adebayo", cc: "ng", avatar: 66 }, { name: "Klara Novak", cc: "cz", avatar: 48 },
+  { name: "Trevor Nash", cc: "gb", avatar: 23 }, { name: "Camila Reyes", cc: "co", avatar: 49 },
+  { name: "Hiroshi Yamada", cc: "jp", avatar: 67 }, { name: "Nora Lindqvist", cc: "fi", avatar: 50 },
+  { name: "Xavier Dupont", cc: "be", avatar: 24 }, { name: "Bianca Ferreira", cc: "br", avatar: 51 },
+  { name: "Idris Rahman", cc: "my", avatar: 68 }, { name: "Astrid Holm", cc: "dk", avatar: 25 },
+  { name: "Cole Bennett", cc: "us", avatar: 13 }, { name: "Marta Kowalski", cc: "pl", avatar: 27 },
+  { name: "Tariq Aziz", cc: "pk", avatar: 69 }, { name: "Helena Souza", cc: "br", avatar: 30 },
+  { name: "Aaron Fletcher", cc: "au", avatar: 70 }, { name: "Sana Ibrahim", cc: "ae", avatar: 54 },
+];
+
+const REVIEW_TEXTS: { text: string; stars: number }[] = [
+  { text: "Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready. We launched the next week.", stars: 5 },
+  { text: "Very professional communication. The logo concepts exceeded all expectations. He understood exactly what our clothing line needed.", stars: 5 },
+  { text: "Ordered a full brand identity package. Files were organized, print-ready, and delivered ahead of schedule. Rare quality.", stars: 5 },
+  { text: "This was my third order with Dean and he never disappoints. The hoodie graphic was exactly what I envisioned for my brand.", stars: 4 },
+  { text: "Fast turnaround, great eye for streetwear trends. The mockups helped me visualize everything before printing. 10/10.", stars: 5 },
+  { text: "Dean created three logo options and all were fantastic. I had trouble choosing because every concept was so strong.", stars: 5 },
+  { text: "Excellent designer for anyone starting a clothing brand. He thinks about how the design works on actual garments, not just on screen.", stars: 5 },
+  { text: "Got my full brand package - logo, tag design, and three tee graphics. Everything was cohesive and on-brand. Very impressed.", stars: 4 },
+  { text: "The attention to detail in the vector files was outstanding. Every curve, every line was intentional. Professional-grade output.", stars: 5 },
+  { text: "The only designer I found who truly understands streetwear culture and translates it into design that actually sells.", stars: 5 },
+  { text: "Ordered a single concept to test and was so impressed I immediately upgraded to the premium package. Worth every penny.", stars: 5 },
+  { text: "Dean delivered my clothing label design 2 days early. The quality was incredible. Print shop said the files were perfect.", stars: 4 },
+  { text: "Second time working with Dean. First was a logo, now a full apparel collection. Consistency and creativity on another level.", stars: 5 },
+  { text: "The AI brief feature was surprisingly useful. Dean took that concept and elevated it beyond what I imagined. So talented.", stars: 5 },
+  { text: "Our brand needed a refresh and Dean delivered a complete new direction. Modern, bold, and perfectly suited for Gen Z audience.", stars: 5 },
+  { text: "Responsive, creative, and super easy to work with. The revision process was smooth and he nailed it by round two.", stars: 4 },
+  { text: "The streetwear graphic Dean made for us went viral on our Instagram. Over 50k likes. The design speaks for itself.", stars: 5 },
+  { text: "I've been selling merch for 5 years and this is the best designer I've ever worked with. Clean lines, bold concepts, fast delivery.", stars: 5 },
+  { text: "Dean understood our Japanese streetwear aesthetic immediately. The typography choices were perfect for our Harajuku-inspired brand.", stars: 5 },
+  { text: "Got matching designs for hoodie front and back. The color separation files were production-ready. Saved us so much time.", stars: 5 },
+  { text: "Handed him a vague idea and got back something sharper than anything in my head. That is what you pay a real designer for.", stars: 5 },
+  { text: "The tech pack alone was worth the price. My manufacturer had zero questions. First run came out exactly as designed.", stars: 5 },
+  { text: "I compared quotes from four studios. Dean was not the cheapest but the portfolio made the decision obvious. No regrets.", stars: 5 },
+  { text: "Ran a limited drop with his graphics and sold out in 48 hours. The design did the heavy lifting on that one.", stars: 5 },
+  { text: "Communication was direct and fast. No account managers, no waiting three days for a reply. Just the designer, straight through.", stars: 4 },
+  { text: "The source files were properly layered and named. Anyone who has worked with freelancers knows how rare that is.", stars: 5 },
+  { text: "Asked for something dark and gothic without being cliche. He walked the line perfectly. My audience loved it.", stars: 5 },
+  { text: "Ordered logo plus five apparel graphics for our launch. Everything felt like it belonged to the same brand. Cohesive work.", stars: 5 },
+  { text: "The embroidery file worked first try. No thread breaks, no distortion. He clearly knows production, not just Illustrator.", stars: 5 },
+  { text: "Wanted a Y2K aesthetic that did not look like a template. He delivered something genuinely original. Rare these days.", stars: 5 },
+  { text: "Best money I have spent on my brand. The logo finally makes us look like a real company instead of a side project.", stars: 5 },
+  { text: "Revisions were handled without attitude. He asked good questions and the second round was exactly right.", stars: 4 },
+  { text: "The mockups made presenting to my investors easy. They could see the product before we produced a single unit.", stars: 5 },
+  { text: "Turned my rough sketch into something that looks like it belongs on a shelf in a real store. Massive upgrade.", stars: 5 },
+  { text: "I run a small label and cannot afford mistakes. Every file he sent was correct. That reliability is worth paying for.", stars: 5 },
+  { text: "The color palette he built holds up across fabric, screen, and print. That consistency is harder than it sounds.", stars: 5 },
+  { text: "Sent a reference of a brand I admire and he built something in that spirit without copying it. Real skill.", stars: 5 },
+  { text: "Delivered on a tight deadline before a trade show. Files were clean and the booth graphics looked incredible.", stars: 5 },
+  { text: "The social media kit was a bonus I did not expect to use, but it saved me weeks of content prep.", stars: 4 },
+  { text: "He pushed back on one of my ideas and was right to. That honesty made the final design significantly better.", stars: 5 },
+];
+
+// Deterministic daily shuffle: same set all day, new set tomorrow
+function dailySeed(): number {
+  const d = new Date();
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const a = [...arr];
+  let s = seed;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280;
+    const j = Math.floor((s / 233280) * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const REVIEWS: Review[] = (() => {
+  const seed = dailySeed();
+  const names = seededShuffle(REVIEW_NAMES, seed);
+  const texts = seededShuffle(REVIEW_TEXTS, seed + 7);
+  const gaps = [3, 17, 42, 68, 95, 140, 180, 210, 360, 420, 480, 600, 840, 960, 1200, 1440, 1600, 1800, 2100, 2400];
+  return gaps.map((minsAgo, i) => ({
+    text: texts[i % texts.length].text,
+    stars: texts[i % texts.length].stars,
+    name: names[i % names.length].name,
+    cc: names[i % names.length].cc,
+    avatar: names[i % names.length].avatar,
+    minsAgo,
+  }));
+})();
 
 const ROW_A = REVIEWS.filter((_, i) => i % 2 === 0);
 const ROW_B = REVIEWS.filter((_, i) => i % 2 === 1);
@@ -2679,12 +2766,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    let idx = 0;
+    // Random pick, avoiding the last 8 shown so it never feels repetitive
+    const recent: number[] = [];
     const show = () => {
-      setToastData(proofPool[idx % proofPool.length]);
+      let i = Math.floor(Math.random() * proofPool.length);
+      let guard = 0;
+      while (recent.includes(i) && guard < 40) {
+        i = Math.floor(Math.random() * proofPool.length);
+        guard++;
+      }
+      recent.push(i);
+      if (recent.length > 8) recent.shift();
+
+      setToastData(proofPool[i]);
       setToastVisible(true);
       setTimeout(() => setToastVisible(false), 4000);
-      idx++;
     };
     const timer = setTimeout(() => { show(); }, 5000);
     const interval = setInterval(show, 14000);
