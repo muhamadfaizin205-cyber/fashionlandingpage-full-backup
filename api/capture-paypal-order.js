@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       // 5. Save order to Supabase with VERIFIED amount from PayPal
       if (clientOrderData && capturedAmount > 0) {
         try {
-          // SECURITY (P2 fix): strip any client-supplied price — only PayPal's captured amount is trusted
+          // SECURITY (P2 fix): strip any client-supplied price - only PayPal's captured amount is trusted
           const { price: _clientPrice, ...safeOrderData } = clientOrderData;
 
           // A1 FIX: Generate 6-char access code for secure order tracker login
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
           const orderRow = {
             ...safeOrderData,
-            price: capturedAmount, // ONLY from PayPal — never from client
+            price: capturedAmount, // ONLY from PayPal - never from client
             paid_via: 'paypal',
             paypal_order_id: orderID,
             paypal_transaction_id: paypalTransactionId,
@@ -103,7 +103,7 @@ export default async function handler(req, res) {
           });
         } catch (dbErr) {
           console.error('[PayPal] DB save failed:', dbErr.message);
-          // Payment succeeded but DB save failed — still return success
+          // Payment succeeded but DB save failed - still return success
           res.status(200).json({
             status: 'COMPLETED',
             id: captureData.id,

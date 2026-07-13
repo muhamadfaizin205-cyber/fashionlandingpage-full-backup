@@ -267,7 +267,7 @@ function useDbPackages() {
   return { clothingPkgs, logoPkgs };
 }
 
-// ─── Default Gigs (hardcoded fallback — DB overrides when available) ──
+// ─── Default Gigs (hardcoded fallback - DB overrides when available) ──
 const DEFAULT_GIGS: Gig[] = [
   {
     id: "gig-clothing",
@@ -525,7 +525,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
 
   const faqs = [
     { q: "Do I own the design and commercial rights?", a: "Yes. Every package includes source files and full commercial rights. You own the artwork outright and can print it with any manufacturer, in any quantity, forever. No licensing fees, no royalties." },
-    { q: "What file formats will I receive?", a: "Source files (PSD or AI), vector files (SVG, EPS), print-ready high-resolution PNG with transparency, PDF, and realistic mockups — prepared for your printing method." },
+    { q: "What file formats will I receive?", a: "Source files (PSD or AI), vector files (SVG, EPS), print-ready high-resolution PNG with transparency, PDF, and realistic mockups - prepared for your printing method." },
     { q: "Can you match a specific style or reference?", a: "Absolutely. Share reference images, mood boards, or brands you admire in your brief. Dean builds around your direction, not a template." },
     { q: "What if I need changes after delivery?", a: "Revisions are included in every package. Standard includes 8 revisions, Premium is unlimited until the design is exactly right." },
   ];
@@ -613,7 +613,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
         <div className="fv-section">
           <h3 className="fv-h3">What You Get</h3>
           <div className="fv-grid2">
-            <div className="fv-point"><i className="ri-file-copy-2-line" /><div><b>Source Files</b><span>PSD, AI — fully editable, layered</span></div></div>
+            <div className="fv-point"><i className="ri-file-copy-2-line" /><div><b>Source Files</b><span>PSD, AI - fully editable, layered</span></div></div>
             <div className="fv-point"><i className="ri-printer-line" /><div><b>Print-Ready</b><span>300 DPI, correct color separations</span></div></div>
             <div className="fv-point"><i className="ri-copyright-line" /><div><b>Full Rights</b><span>Own it outright, print anywhere</span></div></div>
             <div className="fv-point"><i className="ri-image-2-line" /><div><b>Realistic Mockups</b><span>See it on an actual garment</span></div></div>
@@ -681,14 +681,14 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   );
 }
 
-// ─── Testimonials — auto-scrolling carousel ─────────────────
+// ─── Testimonials - auto-scrolling carousel ─────────────────
 interface Review {
   text: string;
   name: string;
   cc: string;      // ISO 3166 lowercase for flag image
   avatar: number;  // 1-70 for pravatar.cc
   minsAgo: number;
-  stars: number;   // 4 or 5 — mix for realism
+  stars: number;   // 4 or 5 - mix for realism
 }
 
 const REVIEWS: Review[] = [
@@ -863,7 +863,7 @@ function buildWAMessage(
     `🏷️ Brand Name: ${state.brandName}`,
     `📧 Email: ${state.email}`,
     contactLines,
-    `📦 Package: ${pkg.badge} — ${pkg.name}`,
+    `📦 Package: ${pkg.badge} - ${pkg.name}`,
     `💡 Concepts: ${state.qty} Concept(s)`,
     `⏱️ Delivery: ${pkg.delivery}`,
     `🔄 Revisions: ${pkg.revisions}`,
@@ -923,16 +923,16 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
   1: {
     icon: "ri-palette-line", title: "Choose Service", color: "#1DBF73",
     tips: [
-      "Clothing Design — t-shirts, hoodies, jerseys, streetwear, all apparel",
-      "Logo Brand Design — logos, icons, full brand identity",
+      "Clothing Design - t-shirts, hoodies, jerseys, streetwear, all apparel",
+      "Logo Brand Design - logos, icons, full brand identity",
     ],
   },
   2: {
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
     tips: [
-      "Email — your order confirmation and login link will be sent here",
-      "WhatsApp — designer contacts you here if needed",
-      "Instagram — helps designer understand your brand style",
+      "Email - your order confirmation and login link will be sent here",
+      "WhatsApp - designer contacts you here if needed",
+      "Instagram - helps designer understand your brand style",
     ],
   },
   3: {
@@ -953,9 +953,9 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
   5: {
     icon: "ri-box-3-line", title: "Package", color: "#EC4899",
     tips: [
-      "Basic — simple design, limited revisions",
-      "Standard — detailed design + mockup, more revisions",
-      "Premium — full package, unlimited revisions, priority",
+      "Basic - simple design, limited revisions",
+      "Standard - detailed design + mockup, more revisions",
+      "Premium - full package, unlimited revisions, priority",
     ],
   },
   6: {
@@ -1725,7 +1725,7 @@ function PayPalGuide() {
   );
 }
 
-// ─── PayPal Checkout Buttons (SERVER-SIDE price — P1 fix) ──
+// ─── PayPal Checkout Buttons (SERVER-SIDE price - P1 fix) ──
 function PayPalCheckout({
   finalPrice,
   description,
@@ -1810,7 +1810,7 @@ function Step6({
   const svcLabel = state.service === "clothing" ? "Clothing Design" : "Logo Brand Design";
   const { final: finalPrice, discount, pct: discPct } = calcPrice(pkg, state);
   const [paymentDone, setPaymentDone] = useState(false);
-  const description = `Dean Designers — ${svcLabel} (${pkg.name}, ${state.qty} concept(s))`;
+  const description = `Dean Designers - ${svcLabel} (${pkg.name}, ${state.qty} concept(s))`;
 
   const emailData = {
     service:      svcLabel,
@@ -1846,7 +1846,7 @@ function Step6({
     priority:      "normal",
   };
 
-  // ── Success screen — auto-redirect to order tracker ─────
+  // ── Success screen - auto-redirect to order tracker ─────
   useEffect(() => {
     if (paymentDone) {
       // Save customer email for auto-login
@@ -1865,7 +1865,7 @@ function Step6({
           <div className="success-check">✓</div>
           <h2 className="success-title">Payment Confirmed!</h2>
           <p className="success-sub">
-            US${finalPrice} received — your order is secured.
+            US${finalPrice} received - your order is secured.
           </p>
 
           <div className="redirect-notice">
@@ -1990,7 +1990,7 @@ function Step6({
 
         <div className="confirm-divider" />
 
-        {/* ── How It Works — Premium Education Card ── */}
+        {/* ── How It Works - Premium Education Card ── */}
         <div className="hiw-card">
           <div className="hiw-header">
             <div className="hiw-icon-wrap">
@@ -2025,7 +2025,7 @@ function Step6({
               </div>
               <div className="hiw-text">
                 <strong>Review &amp; revisions</strong>
-                <span>Receive drafts, give feedback — {pkg.revisions} included</span>
+                <span>Receive drafts, give feedback - {pkg.revisions} included</span>
               </div>
             </div>
             <div className="hiw-connector" />
@@ -2149,7 +2149,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
         </div>
 
         <div style={{maxWidth:740,margin:"0 auto",padding:"48px 24px 100px"}}>
-          {/* Tags row — single line, clean pills */}
+          {/* Tags row - single line, clean pills */}
           {selected.tags?.length > 0 && (
             <div style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",marginBottom:20,paddingBottom:4,scrollbarWidth:"none"}}>
               {selected.tags.map((t: string, i: number) => (
@@ -2240,7 +2240,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <p style={{fontSize:15,color:"#6B7280",maxWidth:480}}>Expert guides, trends, and behind-the-scenes from our streetwear design studio</p>
         </div>
 
-        {/* Tag filter — single horizontal scroll row, no wrapping chaos */}
+        {/* Tag filter - single horizontal scroll row, no wrapping chaos */}
         {allTags.length > 0 && (
           <div style={{marginBottom:32}}>
             <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none",WebkitOverflowScrolling:"touch" as any}}>
@@ -2289,7 +2289,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                   </div>
                   <h2 style={{fontSize:22,fontWeight:800,lineHeight:1.25,color:"#111827",marginBottom:10,margin:"0 0 10px"}}>{filtered[0].title}</h2>
                   {filtered[0].excerpt && <p style={{fontSize:13.5,color:"#6B7280",lineHeight:1.65,marginBottom:18,margin:"0 0 18px"}}>{filtered[0].excerpt.substring(0,140)}{filtered[0].excerpt.length > 140 ? "..." : ""}</p>}
-                  {/* Tags in featured — clean row */}
+                  {/* Tags in featured - clean row */}
                   {filtered[0].tags?.length > 0 && (
                     <div style={{display:"flex",gap:4,flexWrap:"nowrap",overflowX:"auto",marginBottom:18,scrollbarWidth:"none"}}>
                       {filtered[0].tags.slice(0,3).map((t: string, i: number) => (
@@ -2311,7 +2311,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                   style={{background:"#fff",borderRadius:10,overflow:"hidden",border:"1px solid #F0F0F0",cursor:"pointer",transition:"all .2s",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",display:"flex",flexDirection:"column"}}
                   onMouseOver={(e)=>{(e.currentTarget as HTMLElement).style.transform="translateY(-3px)";(e.currentTarget as HTMLElement).style.boxShadow="0 8px 24px rgba(0,0,0,0.08)";(e.currentTarget as HTMLElement).style.borderColor="#E5E7EB";}}
                   onMouseOut={(e)=>{(e.currentTarget as HTMLElement).style.transform="";(e.currentTarget as HTMLElement).style.boxShadow="0 1px 3px rgba(0,0,0,0.04)";(e.currentTarget as HTMLElement).style.borderColor="#F0F0F0";}}>
-                  {/* Thumbnail — aspect-ratio 16:9, never crops unexpectedly */}
+                  {/* Thumbnail - aspect-ratio 16:9, never crops unexpectedly */}
                   <div style={{position:"relative",aspectRatio:"16/9",overflow:"hidden",flexShrink:0}}>
                     {a.cover_image
                       ? <img src={a.cover_image} alt={a.title} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",transition:"transform .3s"}}
@@ -2323,7 +2323,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
                     }
                   </div>
                   <div style={{padding:"16px 18px 20px",flex:1,display:"flex",flexDirection:"column"}}>
-                    {/* Tags — single row, scroll not wrap */}
+                    {/* Tags - single row, scroll not wrap */}
                     {a.tags?.length > 0 && (
                       <div style={{display:"flex",gap:4,overflowX:"auto",marginBottom:10,paddingBottom:2,scrollbarWidth:"none",flexWrap:"nowrap"}}>
                         {a.tags.slice(0,3).map((t: string, i: number) => (
@@ -2364,28 +2364,28 @@ function OrderGuide() {
       num: "02",
       icon: "ri-box-3-line",
       title: "Pilih Paket & Jumlah Konsep",
-      desc: "Choose from 3 packages: Basic (simple design, limited revisions), Standard (detailed design + mockup, more revisions), or Premium (full package, unlimited revisions, priority). Also select how many concepts you want — 2 concepts means you get 2 different design variations to choose from. Price is calculated automatically as package × concepts.",
+      desc: "Choose from 3 packages: Basic (simple design, limited revisions), Standard (detailed design + mockup, more revisions), or Premium (full package, unlimited revisions, priority). Also select how many concepts you want - 2 concepts means you get 2 different design variations to choose from. Price is calculated automatically as package × concepts.",
       color: "#3B82F6",
     },
     {
       num: "03",
       icon: "ri-edit-line",
       title: "Isi Brief Desain",
-      desc: "This is the most important step! Describe your design in detail: brand name, concept/theme (e.g. Japanese streetwear, vintage, minimal), colors you want, any text or copy that must appear, and reference images. You can upload reference images directly from your phone or laptop. The more detail you provide, the more accurate the result — fewer revisions needed.",
+      desc: "This is the most important step! Describe your design in detail: brand name, concept/theme (e.g. Japanese streetwear, vintage, minimal), colors you want, any text or copy that must appear, and reference images. You can upload reference images directly from your phone or laptop. The more detail you provide, the more accurate the result - fewer revisions needed.",
       color: "#F59E0B",
     },
     {
       num: "04",
       icon: "ri-user-line",
       title: "Isi Data Kontak",
-      desc: "Enter: (1) Active email — this is your Order Tracker login and where your confirmation will be sent. (2) WhatsApp number — for quick communication if your designer needs clarification. (3) Instagram (optional) — helps your designer understand your brand style. Make sure your email is correct.",
+      desc: "Enter: (1) Active email - this is your Order Tracker login and where your confirmation will be sent. (2) WhatsApp number - for quick communication if your designer needs clarification. (3) Instagram (optional) - helps your designer understand your brand style. Make sure your email is correct.",
       color: "#8B5CF6",
     },
     {
       num: "05",
       icon: "ri-bank-card-line",
       title: "Secure Payment via PayPal",
-      desc: "Click the PayPal button to pay. You can pay with: (1) Your PayPal account, or (2) Visa/Mastercard debit or credit card — no PayPal account needed. Price shown is the final amount in USD. No hidden fees. Payment is processed securely through PayPal — your card details never touch our servers.",
+      desc: "Click the PayPal button to pay. You can pay with: (1) Your PayPal account, or (2) Visa/Mastercard debit or credit card - no PayPal account needed. Price shown is the final amount in USD. No hidden fees. Payment is processed securely through PayPal - your card details never touch our servers.",
       color: "#EC4899",
     },
     {
@@ -2399,14 +2399,14 @@ function OrderGuide() {
       num: "07",
       icon: "ri-chat-3-line",
       title: "Track Progress & Chat with Your Designer",
-      desc: "Open the Order Tracker → enter your email → you're in. From your dashboard you can: (1) Track order status in real time (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat directly with your designer — text, images, voice notes, (3) Request revisions by describing the changes you want. You'll get notified every time your designer sends an update.",
+      desc: "Open the Order Tracker → enter your email → you're in. From your dashboard you can: (1) Track order status in real time (New → In Progress → Review → Revision → Completed → Delivered), (2) Chat directly with your designer - text, images, voice notes, (3) Request revisions by describing the changes you want. You'll get notified every time your designer sends an update.",
       color: "#F97316",
     },
     {
       num: "08",
       icon: "ri-download-line",
       title: "Terima & Download File Final",
-      desc: "Once your design is approved and all revisions are complete, your designer will deliver the final files in production-ready formats: vector files (AI/EPS/SVG), print-ready PDF, transparent PNG, and a mockup preview. Order status changes to \"Delivered\". Download all files directly from your Order Tracker — stored permanently, accessible anytime with your email.",
+      desc: "Once your design is approved and all revisions are complete, your designer will deliver the final files in production-ready formats: vector files (AI/EPS/SVG), print-ready PDF, transparent PNG, and a mockup preview. Order status changes to \"Delivered\". Download all files directly from your Order Tracker - stored permanently, accessible anytime with your email.",
       color: "#1DBF73",
     },
   ];
@@ -2503,7 +2503,7 @@ function FAQSection() {
     },
     {
       q: "What if I don't like the designs?",
-      a: "We have a 100% money-back guarantee. If you're not satisfied with the work after revisions, you can request a full refund — no questions asked. Most clients love their first draft, but we'll keep refining until it's exactly what you envisioned.",
+      a: "We have a 100% money-back guarantee. If you're not satisfied with the work after revisions, you can request a full refund - no questions asked. Most clients love their first draft, but we'll keep refining until it's exactly what you envisioned.",
     },
     {
       q: "How many revisions do I get?",
@@ -2511,7 +2511,7 @@ function FAQSection() {
     },
     {
       q: "When will I receive my designs?",
-      a: "Delivery times depend on your package: Basic is 3 days, Standard is 5 days, and Premium is 7 days. Your designer starts within 24 hours of payment, and you can track progress in real-time on your order dashboard. Rush orders are available — message us for details.",
+      a: "Delivery times depend on your package: Basic is 3 days, Standard is 5 days, and Premium is 7 days. Your designer starts within 24 hours of payment, and you can track progress in real-time on your order dashboard. Rush orders are available - message us for details.",
     },
     {
       q: "What file formats will I get?",
@@ -2523,7 +2523,7 @@ function FAQSection() {
     },
     {
       q: "Is my payment secure?",
-      a: "Yes — we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
+      a: "Yes - we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
     },
     {
       q: "What if I need changes after delivery?",
@@ -2535,7 +2535,7 @@ function FAQSection() {
     },
     {
       q: "Do you sign an NDA?",
-      a: "Yes, on request for Premium clients. All projects are kept strictly confidential by default — your brand, designs, and brief are never shared, displayed, or used in our portfolio without your written permission.",
+      a: "Yes, on request for Premium clients. All projects are kept strictly confidential by default - your brand, designs, and brief are never shared, displayed, or used in our portfolio without your written permission.",
     },
     {
       q: "What's your refund policy?",
@@ -2594,7 +2594,7 @@ export default function App() {
   const { clothingPkgs, logoPkgs } = useDbPackages();
   const { gigs } = useGigs();
 
-  // Handle gig order — pre-select service and scroll to wizard
+  // Handle gig order - pre-select service and scroll to wizard
   const handleGigOrder = (gig: Gig) => {
     // Switch to homepage, set service, and enter wizard at step 2 (brand info)
     setWizardState(p => ({ ...p, service: gig.service_type as "clothing" | "logo" }));
@@ -2640,7 +2640,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // Large pool — randomize each session so customers never see same names
+  // Large pool - randomize each session so customers never see same names
   const proofPool = React.useMemo(() => {
     const names = [
       "Alex R.","James K.","Yuki T.","Sophie M.","Carlos D.","Emma L.","Liam W.","Aisha N.",
@@ -2752,16 +2752,16 @@ export default function App() {
   // ── Dynamic page title for SEO ──
   useEffect(() => {
     const titles: Record<string, string> = {
-      home: "Create Clothing Design | Streetwear & Logo — Dean Designers",
-      gigs: "Our Gigs — Streetwear & Logo Design Services | Dean Designers",
-      articles: "Articles & Insights — Dean Designers",
-      orders: "My Orders — Dean Designers",
+      home: "Create Clothing Design | Streetwear & Logo - Dean Designers",
+      gigs: "Our Gigs - Streetwear & Logo Design Services | Dean Designers",
+      articles: "Articles & Insights - Dean Designers",
+      orders: "My Orders - Dean Designers",
     };
     document.title = titles[currentPage] || titles.home;
     // Dynamic meta description
     const descs: Record<string, string> = {
-      home: "Create clothing design with Dean Designers — professional custom streetwear & logo design studio. 136,000+ designs, 7,000+ brands served since 2018.",
-      gigs: "Browse our design gigs — custom streetwear clothing design and professional logo & brand identity packages. Starting from $50.",
+      home: "Create clothing design with Dean Designers - professional custom streetwear & logo design studio. 136,000+ designs, 7,000+ brands served since 2018.",
+      gigs: "Browse our design gigs - custom streetwear clothing design and professional logo & brand identity packages. Starting from $50.",
       articles: "Design tips, streetwear trends, and branding insights from Dean Designers.",
       orders: "Track your order status and chat with your designer at Dean Designers.",
     };
@@ -2921,12 +2921,12 @@ export default function App() {
         <ArticlesFullPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
       )}
 
-      {/* ══ MY ORDERS PAGE — customer order tracker ══ */}
+      {/* ══ MY ORDERS PAGE - customer order tracker ══ */}
       {currentPage === "orders" && (
         <MyOrdersPage onBack={() => { setCurrentPage("home"); window.scrollTo(0,0); }} />
       )}
 
-      {/* ══ GIGS PAGE — Fiverr-style service listings ══ */}
+      {/* ══ GIGS PAGE - Fiverr-style service listings ══ */}
       {currentPage === "gigs" && (
         <section className="gigs-page">
           <div className="gigs-page-header">
@@ -2934,7 +2934,7 @@ export default function App() {
               ← Back
             </button>
             <h1 className="gigs-page-title">Our Gigs</h1>
-            <p className="gigs-page-subtitle">Professional design services — choose a gig to create clothing design, logo, or brand identity</p>
+            <p className="gigs-page-subtitle">Professional design services - choose a gig to create clothing design, logo, or brand identity</p>
           </div>
           {gigs.length === 0 ? (
             <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
@@ -2951,11 +2951,11 @@ export default function App() {
         </section>
       )}
 
-      {/* HERO + FEATURE BAR — only visible on Step 1 AND home page */}
+      {/* HERO + FEATURE BAR - only visible on Step 1 AND home page */}
       {currentPage === "home" && step === 1 && (
         <>
           <section className="hero hero-yt-section s0" id="home">
-            {/* Local video background — no controls ever */}
+            {/* Local video background - no controls ever */}
             <video
               ref={heroVideoRef}
               className="hero-video"
@@ -2972,7 +2972,7 @@ export default function App() {
 
             {/* Minimal content */}
             <div className="hero-content">
-              <h1 className="hero-h1">Create Clothing Design — Professional Streetwear & Logo Design Studio</h1>
+              <h1 className="hero-h1">Create Clothing Design - Professional Streetwear & Logo Design Studio</h1>
               <p className="hero-sub">Custom streetwear graphics, brand identity & logo design. 136,000+ designs · 7,000+ brands · Since 2018.</p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
@@ -3068,7 +3068,7 @@ export default function App() {
               </div>
               <div style={{textAlign:"left",maxWidth:600,margin:"0 auto"}}>
                 <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
-                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail — organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
+                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail - organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
                 </p>
                 <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
                   <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
@@ -3185,14 +3185,14 @@ export default function App() {
                   <i className="ri-shield-check-line" style={{fontSize:22}} />
                 </div>
                 <strong>100% Money-Back Guarantee</strong>
-                <p>Not satisfied? Get a full refund — no questions asked. Your investment is protected.</p>
+                <p>Not satisfied? Get a full refund - no questions asked. Your investment is protected.</p>
               </div>
               <div className="g-card">
                 <div className="g-icon">
                   <i className="ri-lock-line" style={{fontSize:22}} />
                 </div>
                 <strong>Secure PayPal Payment</strong>
-                <p>Encrypted checkout via PayPal. Pay with card, PayPal balance, or bank — buyer protection included.</p>
+                <p>Encrypted checkout via PayPal. Pay with card, PayPal balance, or bank - buyer protection included.</p>
               </div>
               <div className="g-card">
                 <div className="g-icon">
@@ -3253,7 +3253,7 @@ export default function App() {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} Dean Designers — createclothingdesign.com · Professional Streetwear & Logo Design Studio</p>
+            <p>© {new Date().getFullYear()} Dean Designers - createclothingdesign.com · Professional Streetwear & Logo Design Studio</p>
           </div>
         </footer>
       )}

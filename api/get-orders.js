@@ -1,5 +1,5 @@
 // Vercel Serverless: /api/get-orders.js
-// D1 FIX: Server-side order lookup — replaces direct anon Supabase queries
+// D1 FIX: Server-side order lookup - replaces direct anon Supabase queries
 // Supports: customer (by email) and admin (by password hash)
 
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';

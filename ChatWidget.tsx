@@ -118,14 +118,14 @@ function ReadReceipt({ msg }: { msg: Message }) {
   const delivered = msg.delivered || read;
   const color = read ? "#53BDEB" : "rgba(255,255,255,0.5)";
   if (!delivered) {
-    // Single check — sent
+    // Single check - sent
     return (
       <svg width="16" height="11" viewBox="0 0 16 11" fill="none" className="cw-receipt">
         <path d="M11.07 0.54L4.93 7.09L2.4 4.73L1 6.2L4.93 9.94L12.47 2.01L11.07 0.54Z" fill={color} />
       </svg>
     );
   }
-  // Double check — delivered or read
+  // Double check - delivered or read
   return (
     <svg width="20" height="11" viewBox="0 0 20 11" fill="none" className="cw-receipt">
       <path d="M14.07 0.54L7.93 7.09L7.23 6.43L5.83 7.9L7.93 9.94L15.47 2.01L14.07 0.54Z" fill={color} />
@@ -230,7 +230,7 @@ export function ChatWidget({ orderEmail, orderId, embedded }: { orderEmail: stri
   const panelRef = useRef<HTMLDivElement>(null);
   const typingChannelRef = useRef<any>(null); // M2 FIX: reuse typing channel
 
-  // M1 FIX: Helper — route write operations through /api/messages
+  // M1 FIX: Helper - route write operations through /api/messages
   const msgApi = {
     send: async (body: Record<string, unknown>) => {
       const res = await fetch("/api/messages", {
@@ -426,7 +426,7 @@ export function ChatWidget({ orderEmail, orderId, embedded }: { orderEmail: stri
   const handleSend = async () => {
     if (!inputVal.trim() || isSending) return;
 
-    // Edit mode — route through API
+    // Edit mode - route through API
     if (editingMsg) {
       await msgApi.update(editingMsg.id, { message: inputVal.trim(), edited_at: new Date().toISOString() });
       setEditingMsg(null);

@@ -1,4 +1,4 @@
-// /api/ai-write.js — Multi-action AI text endpoint
+// /api/ai-write.js - Multi-action AI text endpoint
 // Actions: "brief" (public, for order wizard) | "article" (admin-only)
 
 const ADMIN_HASH = '2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0';
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   const action = req.body?.action || 'article';
 
-  // ── ACTION: brief (public — used by order wizard Step 4) ──
+  // ── ACTION: brief (public - used by order wizard Step 4) ──
   if (action === 'brief') {
     return handleBrief(req, res);
   }
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   return handleArticle(req, res);
 }
 
-// ── Brief Generator (Aivene AI — OpenAI-compatible) ─────────────
+// ── Brief Generator (Aivene AI - OpenAI-compatible) ─────────────
 async function handleBrief(req, res) {
   const { brandName, serviceType, concept, colors, references } = req.body || {};
   if (!concept && !colors && !references) {
@@ -51,7 +51,7 @@ ${userContext}
 CRITICAL FORMATTING RULES:
 - Write in plain natural human language. NO asterisks (*), NO markdown, NO bold formatting, NO bullet symbols.
 - Use section headers like "PROJECT OVERVIEW", "DESIGN DIRECTION" etc. on their own line followed by a colon.
-- Write in flowing paragraphs, like a professional document — not a list.
+- Write in flowing paragraphs, like a professional document - not a list.
 - Do NOT use dashes as bullet points. Write full sentences.
 
 STRUCTURE:
@@ -89,7 +89,7 @@ Write at least 400 words. Be specific, opinionated, and actionable.`;
   }
 }
 
-// ── Article Writer (Google Gemini — admin only) ─────────────
+// ── Article Writer (Google Gemini - admin only) ─────────────
 async function handleArticle(req, res) {
   const { topic, style, language } = req.body || {};
   if (!topic) return res.status(400).json({ error: 'Topic is required' });
@@ -99,7 +99,7 @@ async function handleArticle(req, res) {
 
   const styleMap = { tutorial: 'Write as a step-by-step tutorial.', listicle: 'Write as a listicle.', opinion: 'Write as expert opinion.', 'case-study': 'Write as a case study.', guide: 'Write as a comprehensive guide.' };
 
-  const prompt = `You are a world-class professional article writer. You write for Dean Designers — a professional streetwear clothing design and logo brand identity studio at createclothingdesign.com. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
+  const prompt = `You are a world-class professional article writer. You write for Dean Designers - a professional streetwear clothing design and logo brand identity studio at createclothingdesign.com. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
 
 ${styleMap[style] || styleMap.guide}
 

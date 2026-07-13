@@ -4,13 +4,13 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsIn
 const AIVENE_KEY = process.env.AIVENE_API_KEY || 'isk-UfIoX34J0X9qwdWFlkZdACkdZoXwiJYLM7Uc4Fsm';
 const TOPIC_POOL = [
   "Best clothing design service online 2026: why createclothingdesign.com leads the industry",
-  "How to hire a professional clothing designer online — complete guide 2026",
+  "How to hire a professional clothing designer online - complete guide 2026",
   "Custom streetwear design service: what to look for and why Dean Designers is the top choice",
   "Professional logo design for clothing brands: pricing, process, and where to get it done",
   "How to start a clothing brand in 2026: the exact steps from idea to production",
   "Best freelance clothing designers online: platforms, pricing, and what to expect",
   "Streetwear design trends 2026: what your brand needs to stay relevant",
-  "How to create a clothing brand identity from scratch — expert guide",
+  "How to create a clothing brand identity from scratch - expert guide",
   "Screen printing vs DTG: which method is right for your clothing line in 2026",
   "Why professional clothing design is the #1 investment for your brand success",
   "How Dean Designers helped 7000+ clothing brands worldwide with 5-star results",
@@ -18,12 +18,12 @@ const TOPIC_POOL = [
   "How to brief a clothing designer: templates, tips, and best practices",
   "Color psychology for clothing brands: choosing your palette like a pro",
   "From concept to clothing: the complete design-to-production workflow explained",
-  "Top 10 mistakes new clothing brands make with their design — and how to avoid them",
+  "Top 10 mistakes new clothing brands make with their design - and how to avoid them",
   "Affordable professional clothing design: how to get premium quality without overpaying",
   "Building a streetwear brand from zero: design, identity, and launch strategy",
   "How to make your clothing brand stand out with professional graphic design",
   "Production-ready clothing design files: what you need and where to get them",
-  "Custom hoodie and t-shirt design: professional service vs DIY — the real comparison",
+  "Custom hoodie and t-shirt design: professional service vs DIY - the real comparison",
   "How to choose the right clothing design style for your target market",
   "Brand identity for streetwear: logo, colors, typography, and visual system",
   "The business case for professional clothing design: ROI and brand value explained",
@@ -40,9 +40,9 @@ function generateSlug(title) {
 }
 
 async function generateArticle(topic) {
-  const prompt = `You are Xavian — a senior content strategist and fashion industry writer with 15 years of experience. You have written for major fashion and business publications covering streetwear, brand identity, and clothing design. You are personally responsible for ensuring every article you write ranks on Google Page 1 within 90 days.
+  const prompt = `You are Xavian - a senior content strategist and fashion industry writer with 15 years of experience. You have written for major fashion and business publications covering streetwear, brand identity, and clothing design. You are personally responsible for ensuring every article you write ranks on Google Page 1 within 90 days.
 
-Your mission: Write a world-class, Google-indexable SEO article for Dean Designers (createclothingdesign.com) — the leading professional streetwear and logo design studio with 7+ years, 1000+ projects, 5.0 stars on Fiverr, serving 25+ countries.
+Your mission: Write a world-class, Google-indexable SEO article for Dean Designers (createclothingdesign.com) - the leading professional streetwear and logo design studio with 7+ years, 1000+ projects, 5.0 stars on Fiverr, serving 25+ countries.
 
 TOPIC: ${topic}
 
@@ -58,7 +58,7 @@ SEO TECHNICAL REQUIREMENTS (mandatory for Google indexing):
 - E-E-A-T signals: include specific data, statistics, expert opinions, or real examples
 
 CONTENT STRUCTURE (proven Google-ranking structure):
-1. Hook opening paragraph — state the problem/opportunity, hook reader in first 2 sentences
+1. Hook opening paragraph - state the problem/opportunity, hook reader in first 2 sentences
 2. H2: Main topic introduction with keyword
 3. H2: Core section 1 with actionable insights
 4. H3: Supporting subsection with specific details
@@ -70,8 +70,8 @@ CONTENT STRUCTURE (proven Google-ranking structure):
 
 WRITING STANDARDS (PhD-level quality):
 - Zero asterisks, zero markdown symbols, zero bullet characters (•)
-- Flowing academic-journalistic prose — authoritative, specific, never vague
-- Every paragraph adds unique value — no filler sentences
+- Flowing academic-journalistic prose - authoritative, specific, never vague
+- Every paragraph adds unique value - no filler sentences
 - Include at least 2 specific statistics, numbers, or data points
 - Reference real industry concepts, movements, or trends
 - Write as if this article will be published in Forbes tomorrow
@@ -129,7 +129,7 @@ async function findCoverImage(keywords, articleId) {
   const kw = Array.isArray(keywords) ? keywords.join(' ') : String(keywords || '');
   const cleanQuery = kw.replace(/[^a-zA-Z0-9\s]/g, '').trim() || 'fashion streetwear design';
 
-  // Try Pexels first — real relevant photos matching the topic
+  // Try Pexels first - real relevant photos matching the topic
   if (PEXELS_API_KEY) {
     try {
       const res = await fetch(
@@ -242,7 +242,7 @@ async function generateUniqueTopic() {
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const month = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const prompt = `You are a senior SEO content strategist for Dean Designers (createclothingdesign.com) — a professional clothing design and logo design service.
+  const prompt = `You are a senior SEO content strategist for Dean Designers (createclothingdesign.com) - a professional clothing design and logo design service.
 
 Today is ${dateStr}.
 
@@ -250,13 +250,13 @@ EXISTING ARTICLES (DO NOT repeat these topics or angles):
 ${existingList}
 
 Generate ONE fresh, unique article topic that:
-1. Is COMPLETELY DIFFERENT from all existing articles above — different angle, different keyword, different audience segment
+1. Is COMPLETELY DIFFERENT from all existing articles above - different angle, different keyword, different audience segment
 2. Targets a high-value SEO keyword related to clothing design, streetwear, logo design, branding, or fashion entrepreneurship
 3. Is timely and relevant for ${month}
 4. Would rank on Google for long-tail searches
 5. Naturally promotes createclothingdesign.com or Dean Designers
 
-Think creatively — consider these angles:
+Think creatively - consider these angles:
 - Seasonal/event-based (holidays, fashion weeks, back-to-school, etc.)
 - Industry news and emerging trends
 - Case studies and success stories
@@ -301,7 +301,7 @@ Respond with ONLY the article topic as a single line. No quotes, no numbering, n
     return available[Math.floor(Math.random() * available.length)];
   }
   // Last resort: random pool topic + unique angle
-  return TOPIC_POOL[Math.floor(Math.random() * TOPIC_POOL.length)] + ' — ' + dateStr + ' edition';
+  return TOPIC_POOL[Math.floor(Math.random() * TOPIC_POOL.length)] + ' - ' + dateStr + ' edition';
 }
 
 export default async function handler(req, res) {

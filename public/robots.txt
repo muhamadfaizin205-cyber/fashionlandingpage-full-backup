@@ -1,4 +1,4 @@
-# Dean Designers — createclothingdesign.com
+# Dean Designers - createclothingdesign.com
 # All search engines and AI bots welcome
 
 User-agent: *
@@ -12,7 +12,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# AI Bots — explicitly allowed
+# AI Bots - explicitly allowed
 User-agent: GPTBot
 Allow: /
 User-agent: ChatGPT-User

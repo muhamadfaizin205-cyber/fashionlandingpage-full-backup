@@ -1,5 +1,5 @@
 // Vercel Serverless: /api/messages.js
-// D2 FIX: Server-side messages API — replaces direct anon Supabase queries
+// D2 FIX: Server-side messages API - replaces direct anon Supabase queries
 // Supports: GET (read), POST (send), PATCH (update/mark-read), DELETE
 
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';

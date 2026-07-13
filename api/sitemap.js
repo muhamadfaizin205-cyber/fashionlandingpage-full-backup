@@ -1,4 +1,4 @@
-// Dynamic sitemap generator — fetches all published articles from Supabase
+// Dynamic sitemap generator - fetches all published articles from Supabase
 // and returns a complete sitemap.xml including article URLs
 // Google will crawl this at /api/sitemap and get fresh URLs every time
 

@@ -1,5 +1,5 @@
 // Vercel Serverless: /api/create-paypal-order.js
-// SERVER-SIDE price calculation — client CANNOT manipulate the amount
+// SERVER-SIDE price calculation - client CANNOT manipulate the amount
 
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
@@ -18,7 +18,7 @@ const FALLBACK_PACKAGES = {
   ],
 };
 
-// Same discount logic as App.tsx calcPrice() — single source of truth
+// Same discount logic as App.tsx calcPrice() - single source of truth
 function calcPrice(basePrice, qty, service) {
   const raw = basePrice * qty;
   if (service !== 'logo') return { raw, final: raw, discount: 0 };
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid service type' });
   }
 
-  // SERVER-SIDE price lookup — client cannot influence this
+  // SERVER-SIDE price lookup - client cannot influence this
   const basePrice = await getPackagePrice(packageId, service);
   if (!basePrice || basePrice <= 0) {
     return res.status(400).json({ error: 'Package not found or inactive' });

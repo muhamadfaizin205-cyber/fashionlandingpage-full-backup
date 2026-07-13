@@ -1,7 +1,7 @@
 {
   "name": "Dean Designers Admin",
   "short_name": "DD Admin",
-  "description": "Admin panel for Dean Designers — manage orders, chat, gigs",
+  "description": "Admin panel for Dean Designers - manage orders, chat, gigs",
   "start_url": "/admin-orders.html",
   "scope": "/",
   "display": "standalone",

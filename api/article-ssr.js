@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const slug = req.query.slug;
   const ua = req.headers['user-agent'] || '';
 
-  // Only serve SSR to bots — regular users get the SPA
+  // Only serve SSR to bots - regular users get the SPA
   if (!BOT_UA.test(ua)) {
     try {
       const indexPath = path.join(process.cwd(), 'dist', 'index.html');
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>${title} — Dean Designers</title>
+<title>${title} - Dean Designers</title>
 <meta name="description" content="${excerpt}">
 <meta name="author" content="${author}">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -116,7 +116,7 @@ ${a.cover_image ? `<img src="${esc(a.cover_image)}" alt="${title}" width="1200" 
 <article>${a.content}</article>
 </main>
 <footer>
-<p>© Dean Designers — Professional Streetwear & Logo Design Studio</p>
+<p>© Dean Designers - Professional Streetwear & Logo Design Studio</p>
 <p><a href="${BASE_URL}">createclothingdesign.com</a> · <a href="${BASE_URL}/articles">More Articles</a></p>
 </footer>
 </body>

@@ -1,5 +1,5 @@
 /* ================================================================
-   DEAN DESIGNERS — Fiverr-Inspired Light Theme
+   DEAN DESIGNERS - Fiverr-Inspired Light Theme
    Palette : White + Fiverr Green (#1DBF73) + Dark Text
    Type    : DM Sans (body) · Plus Jakarta Sans (display) · DM Mono (labels)
    ================================================================ */
@@ -134,7 +134,7 @@ body {
 .drawer-divider{height:1px;background:rgba(0,0,0,0.06);margin:12px 8px}
 
 /* ════════════════════════════════
-   HERO — Video Background
+   HERO - Video Background
    ════════════════════════════════ */
 .hero {
   position: relative;
@@ -308,7 +308,7 @@ body {
 .hero-cta:hover .hero-cta-arrow { transform: translateX(5px); }
 
 /* ════════════════════════════════
-   HERO — YouTube Video Background
+   HERO - YouTube Video Background
    ════════════════════════════════ */
 .hero-yt-section {
   min-height: 100vh;
@@ -333,7 +333,7 @@ body {
   min-width: 56.25vh;     /* 100vh * 9/16 fallback for very wide screens */
   pointer-events: none;
 }
-/* Transparent layer above iframe — blocks all YouTube controls/clicks */
+/* Transparent layer above iframe - blocks all YouTube controls/clicks */
 .hero-yt-block {
   position: absolute;
   inset: 0;
@@ -385,7 +385,7 @@ body {
 }
 
 /* ════════════════════════════════
-   TESTIMONIALS — Auto-scrolling Marquee
+   TESTIMONIALS - Auto-scrolling Marquee
    ════════════════════════════════ */
 .testimonials {
   padding: 80px 0 48px;
@@ -612,7 +612,7 @@ body {
 }
 
 /* ════════════════════════════════
-   STEP 1 — Service Cards (interactive)
+   STEP 1 - Service Cards (interactive)
    ════════════════════════════════ */
 .service-grid {
   display: grid;
@@ -774,7 +774,7 @@ body {
 
 
 /* ════════════════════════════════
-   STEP 2 — Text Input
+   STEP 2 - Text Input
    ════════════════════════════════ */
 .step-input {
   width: 100%;
@@ -796,7 +796,7 @@ body {
 }
 
 /* ════════════════════════════════
-   STEP 3 — Qty Counter
+   STEP 3 - Qty Counter
    ════════════════════════════════ */
 .qty-counter-wrap {
   display: flex;
@@ -857,7 +857,7 @@ body {
 }
 
 /* ════════════════════════════════
-   STEP 4 — AI Brief Panel
+   STEP 4 - AI Brief Panel
    ════════════════════════════════ */
 .brief-mode-tabs {
   display: flex;
@@ -991,7 +991,7 @@ textarea.brief-ta:focus {
 }
 
 /* ════════════════════════════════
-   STEP 5 — Summary + Packages
+   STEP 5 - Summary + Packages
    ════════════════════════════════ */
 .summary-box {
   background: var(--card);
@@ -1162,7 +1162,7 @@ textarea.brief-ta:focus {
   line-height: 1.5;
 }
 .feat-list li::before {
-  content: "—";
+  content: "-";
   position: absolute;
   left: 0;
   color: var(--dim);
@@ -1279,7 +1279,7 @@ textarea.brief-ta:focus {
 }
 
 /* ════════════════════════════════
-   STEP 6 — Order Confirmation
+   STEP 6 - Order Confirmation
    ════════════════════════════════ */
 .confirm-box {
   background: var(--card);
@@ -1519,7 +1519,7 @@ textarea.brief-ta:focus {
   background: var(--border);
 }
 
-/* Ordered list steps — clean, no breaking */
+/* Ordered list steps - clean, no breaking */
 .pp-steps {
   list-style: none;
   counter-reset: pp;
@@ -2032,7 +2032,7 @@ textarea.brief-ta:focus {
 }
 
 /* ════════════════════════════════
-   HOW IT WORKS — PREMIUM CARD
+   HOW IT WORKS - PREMIUM CARD
    ════════════════════════════════ */
 .hiw-card {
   background: linear-gradient(135deg, #f8fdfb 0%, #f1faf5 100%);
@@ -2652,7 +2652,7 @@ textarea.brief-ta:focus {
 }
 
 /* ════════════════════════════════════════════════════════════
-   RESPONSIVE OVERHAUL — Desktop Enhancement
+   RESPONSIVE OVERHAUL - Desktop Enhancement
    ════════════════════════════════════════════════════════════ */
 
 /* ── Tablet (768px - 1024px) ── */
@@ -2678,12 +2678,12 @@ textarea.brief-ta:focus {
     margin: 0 auto;
   }
   
-  /* Confirm step — wider */
+  /* Confirm step - wider */
   .confirm-wrap {
     max-width: 680px;
   }
 
-  /* Hero — bigger text */
+  /* Hero - bigger text */
   .hero-content {
     padding: 72px 40px 56px;
   }
@@ -2711,7 +2711,7 @@ textarea.brief-ta:focus {
     padding: 72px 40px 100px;
   }
 
-  /* Hero — cinematic */
+  /* Hero - cinematic */
   .hero {
     min-height: 600px;
   }
@@ -2732,7 +2732,7 @@ textarea.brief-ta:focus {
     font-size: 16px;
   }
 
-  /* Step headers — bigger on desktop */
+  /* Step headers - bigger on desktop */
   .step-header {
     margin-bottom: 40px;
   }
@@ -2744,7 +2744,7 @@ textarea.brief-ta:focus {
     margin-top: 10px;
   }
 
-  /* Service cards — bigger with hover effects */
+  /* Service cards - bigger with hover effects */
   .service-grid {
     max-width: 700px;
     gap: 20px;
@@ -2758,7 +2758,7 @@ textarea.brief-ta:focus {
     box-shadow: 0 12px 32px rgba(0,0,0,0.08);
   }
 
-  /* Package grid — refined desktop */
+  /* Package grid - refined desktop */
   .pkg-grid {
     gap: 16px;
     max-width: 900px;
@@ -2775,7 +2775,7 @@ textarea.brief-ta:focus {
     font-size: 36px;
   }
 
-  /* Confirm step — 2-column layout */
+  /* Confirm step - 2-column layout */
   .confirm-wrap {
     max-width: 780px;
   }
@@ -2798,7 +2798,7 @@ textarea.brief-ta:focus {
     padding: 40px 36px;
   }
 
-  /* Testimonials — wider scroll area */
+  /* Testimonials - wider scroll area */
   .testimonials {
     padding: 72px 0 40px;
   }
@@ -2807,13 +2807,13 @@ textarea.brief-ta:focus {
     padding: 22px;
   }
 
-  /* Trust stats — better spacing */
+  /* Trust stats - better spacing */
   .trust-bar {
     padding: 18px 40px;
     gap: 40px;
   }
 
-  /* FAQ — wider */
+  /* FAQ - wider */
   .faq-inner {
     max-width: 880px;
   }
@@ -2825,7 +2825,7 @@ textarea.brief-ta:focus {
     font-size: 16px;
   }
 
-  /* Guarantee cards — grid */
+  /* Guarantee cards - grid */
   .guarantee-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -2840,7 +2840,7 @@ textarea.brief-ta:focus {
     box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   }
 
-  /* Buttons — bigger on desktop */
+  /* Buttons - bigger on desktop */
   .btn-next {
     padding: 16px 28px;
     font-size: 15px;
@@ -2984,7 +2984,7 @@ html {
 }
 
 /* ════════════════════════════════
-   CHAT WIDGET — Modern Full-Feature
+   CHAT WIDGET - Modern Full-Feature
    ════════════════════════════════ */
 
 /* ── FAB Button ── */

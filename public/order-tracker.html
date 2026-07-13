@@ -178,7 +178,7 @@ async function doLogin(){
 function startApp(){
   sb=window.supabase.createClient(SB_URL,SB_KEY);
   renderApp();loadOrders();loadMessages();setupRealtime();
-  // Poll every 3s — guaranteed message delivery
+  // Poll every 3s - guaranteed message delivery
   setInterval(pollMessages,3000);
   // Setup typing
   setupTypingListener();

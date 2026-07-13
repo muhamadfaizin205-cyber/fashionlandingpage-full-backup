@@ -1,4 +1,4 @@
-// C5 FIX: Admin-only endpoint — requires x-admin-hash header
+// C5 FIX: Admin-only endpoint - requires x-admin-hash header
 const ADMIN_HASH = '2d72f552e5a25f4f0643facba66e69718da62369b01ce5782128f867f77e60a0';
 
 export default async function handler(req, res) {
@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Auth check — admin only
+  // Auth check - admin only
   if (req.headers['x-admin-hash'] !== ADMIN_HASH) {
     return res.status(403).json({ error: 'Admin access required' });
   }

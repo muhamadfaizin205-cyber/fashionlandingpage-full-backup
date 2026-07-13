@@ -33,7 +33,7 @@ a{color:inherit;text-decoration:none}
 .login-btn:hover{background:#17A863}
 .login-error{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:8px 12px;font-size:12px;color:#DC2626;margin-top:10px;display:none}
 
-/* ═══ MODERN LAYOUT — Icon Sidebar + Content + Chat Panel ═══ */
+/* ═══ MODERN LAYOUT - Icon Sidebar + Content + Chat Panel ═══ */
 .app{display:flex;min-height:100vh;background:#0F1117}
 /* Dark icon sidebar */
 .sidebar{width:200px;background:#161921;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:60;padding:20px 12px;border-right:1px solid rgba(255,255,255,0.06)}
@@ -527,11 +527,11 @@ function startApp(){
       if(chatMsgs.find(function(x){return x.id===m.id})) return;
       // Skip our own sent messages (already added optimistically)
       if(m.sender_type==='admin') { loadConversations(); return; }
-      // New client message — append without full reload
+      // New client message - append without full reload
       if(m.sender_type==='client'){
         playReceiveSound();
         var notifBody=m.voice_url?'🎤 Sent a voice message':m.image_url?'🖼️ Sent an image':(m.message||'New message');
-        showAdminNotification('New message from client — '+m.order_email,notifBody);
+        showAdminNotification('New message from client - '+m.order_email,notifBody);
       }
       loadConversations();
       if(chatEmail&&m.order_email===chatEmail){
@@ -835,7 +835,7 @@ function openDetail(id){
   selId=id;const o=orders.find(x=>x.id===id);if(!o)return;
   // Also open chat for this client + auto-open chat panel
   if(o.email){chatEmail=o.email;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs()}
-  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'—')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'—')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'—')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
+  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'-')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'-')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'-')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
   document.getElementById('modal').classList.add('open');
   if(o.email)renderBriefAdmin(o.email).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
 }
@@ -865,7 +865,7 @@ function mmCopy(btn,text){
     var origBorder=btn.style.borderColor||'';
     var origColor=btn.style.color;
 
-    // Success state — green checkmark + Copied!
+    // Success state - green checkmark + Copied!
     btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
     btn.style.background='#1DBF73';
     btn.style.color='#fff';
@@ -1110,7 +1110,7 @@ function subscribePicksRealtime(){
       if(!payload.new)return;
       // Only react to today's picks
       if(payload.new.pick_date!==today)return;
-      // New pick arrived — add to mmPicks if not already there
+      // New pick arrived - add to mmPicks if not already there
       if(!mmPicks.find(function(p){return p.id===payload.new.id})){
         mmPicks.push(payload.new);
       }
@@ -1119,7 +1119,7 @@ function subscribePicksRealtime(){
         var msg=payload.new.manager_message||mmPicks[0].manager_message||'';
         renderMarketingPicks(msg);
       }else if(document.getElementById('marketing-area')&&mmPicks.length===1){
-        // First pick arrived — re-render to show something immediately
+        // First pick arrived - re-render to show something immediately
         renderMarketingPicks(payload.new.manager_message||'');
       }
     })
@@ -1161,7 +1161,7 @@ async function renderMarketingPicks(managerMsg){
   var todayLabel=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   var h='';
-  // Manager message — speech bubble with attitude
+  // Manager message - speech bubble with attitude
   h+='<div style="background:linear-gradient(135deg,#1F2937,#111827);border-radius:16px;padding:22px 24px;margin-bottom:20px;position:relative;border-left:5px solid #DC2626">';
   h+='<div style="display:flex;align-items:flex-start;gap:14px">';
   h+='<div style="width:42px;height:42px;background:#DC2626;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 0 4px rgba(220,38,38,0.2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg></div>';
@@ -1318,7 +1318,7 @@ function subscribeHotelRealtime(){
 var editingHotelId=null;
 var selectedHotelId=null;
 
-// 4.1 Pricing Algorithm — base_price priority: reddoorz > superior > double, minus 10000
+// 4.1 Pricing Algorithm - base_price priority: reddoorz > superior > double, minus 10000
 function hotelBasePrice(h){
   if(h.price_reddoorz!=null && h.price_reddoorz!=='')return Number(h.price_reddoorz);
   if(h.price_superior!=null && h.price_superior!=='')return Number(h.price_superior);
@@ -1346,7 +1346,7 @@ function fmtIDR(n){
   if(n==null||isNaN(n))return '-';
   return Number(n).toLocaleString('id-ID');
 }
-// 4.3 Template Structure — matches the exact promo format/spacing used for marketplace listings
+// 4.3 Template Structure - matches the exact promo format/spacing used for marketplace listings
 function hotelTemplate(h){
   var title=hotelDynamicTitle(h);
   var price=hotelFinalPrice(h);
@@ -1940,17 +1940,17 @@ function renderAIAgentView(){
 
   h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
   h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Total Articles</div>';
-  h+='<div id="stat-total" style="font-size:28px;font-weight:800;color:#8B5CF6">—</div>';
+  h+='<div id="stat-total" style="font-size:28px;font-weight:800;color:#8B5CF6">-</div>';
   h+='<div style="font-size:11px;color:var(--txt3)">AI published</div></div>';
 
   h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
   h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Today</div>';
-  h+='<div id="stat-today" style="font-size:28px;font-weight:800;color:#1DBF73">—</div>';
+  h+='<div id="stat-today" style="font-size:28px;font-weight:800;color:#1DBF73">-</div>';
   h+='<div style="font-size:11px;color:var(--txt3)">Published</div></div>';
 
   h+='<div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04)">';
   h+='<div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Last Run</div>';
-  h+='<div id="stat-last" style="font-size:13px;font-weight:700;color:var(--txt)">—</div>';
+  h+='<div id="stat-last" style="font-size:13px;font-weight:700;color:var(--txt)">-</div>';
   h+='<div style="font-size:11px;color:var(--txt3)">Auto schedule</div></div>';
   h+='</div>';
 
@@ -1984,7 +1984,7 @@ function renderAIAgentView(){
   h+='<div style="font-size:12px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Schedule</div>';
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
   h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-  h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">Daily — 16:00 WIB (09:00 UTC)</span></div>';
+  h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">Daily - 16:00 WIB (09:00 UTC)</span></div>';
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
   h+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
   h+='<span style="font-size:13px;color:var(--txt2);font-weight:500">2 articles per run with AI images</span></div>';

@@ -1,4 +1,4 @@
-// Service Worker for Dean Designers — handles Web Push notifications
+// Service Worker for Dean Designers - handles Web Push notifications
 self.addEventListener('install', (e) => { self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
 
