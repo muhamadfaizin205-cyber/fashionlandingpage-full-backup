@@ -695,38 +695,64 @@ interface Review {
 // Names, countries, and texts are shuffled deterministically by date,
 // so the wall of reviews shows a fresh set every single day.
 
-const REVIEW_NAMES: { name: string; cc: string; avatar: number }[] = [
-  { name: "Marcus Thompson", cc: "us", avatar: 11 }, { name: "Sophie Laurent", cc: "gb", avatar: 32 },
-  { name: "Kenji Arakawa", cc: "jp", avatar: 52 }, { name: "Tyler Jenkins", cc: "us", avatar: 14 },
-  { name: "Anya Petrova", cc: "de", avatar: 26 }, { name: "James O'Brien", cc: "ie", avatar: 53 },
-  { name: "Priya Sharma", cc: "in", avatar: 28 }, { name: "Liam Walker", cc: "au", avatar: 55 },
-  { name: "Fatima Al-Rashid", cc: "ae", avatar: 29 }, { name: "Darius Monroe", cc: "us", avatar: 15 },
-  { name: "Emma Johansson", cc: "se", avatar: 31 }, { name: "Carlos Mendez", cc: "mx", avatar: 56 },
-  { name: "Rachel Kim", cc: "kr", avatar: 33 }, { name: "Oliver Hart", cc: "gb", avatar: 57 },
-  { name: "Isabella Costa", cc: "br", avatar: 34 }, { name: "Nathan Williams", cc: "ca", avatar: 16 },
-  { name: "Zara Ahmed", cc: "pk", avatar: 36 }, { name: "Brandon Lee", cc: "sg", avatar: 58 },
-  { name: "Yuki Tanaka", cc: "jp", avatar: 59 }, { name: "Michael Brown", cc: "us", avatar: 17 },
-  { name: "Ethan Caldwell", cc: "us", avatar: 12 }, { name: "Chloe Dubois", cc: "fr", avatar: 35 },
-  { name: "Andre Silva", cc: "br", avatar: 60 }, { name: "Freya Nilsen", cc: "no", avatar: 37 },
-  { name: "Malik Johnson", cc: "us", avatar: 18 }, { name: "Lena Fischer", cc: "de", avatar: 38 },
-  { name: "Diego Ramirez", cc: "es", avatar: 61 }, { name: "Amara Okafor", cc: "ng", avatar: 39 },
-  { name: "Jonas Berg", cc: "dk", avatar: 62 }, { name: "Nadia Haddad", cc: "ma", avatar: 40 },
-  { name: "Ryan Mitchell", cc: "us", avatar: 19 }, { name: "Sara Bianchi", cc: "it", avatar: 41 },
-  { name: "Kofi Mensah", cc: "gh", avatar: 63 }, { name: "Elena Volkova", cc: "ru", avatar: 42 },
-  { name: "Jordan Cole", cc: "ca", avatar: 20 }, { name: "Mei Lin", cc: "cn", avatar: 43 },
-  { name: "Thomas Bakker", cc: "nl", avatar: 64 }, { name: "Layla Hassan", cc: "eg", avatar: 44 },
-  { name: "Devin Parker", cc: "us", avatar: 21 }, { name: "Ines Moreau", cc: "fr", avatar: 45 },
-  { name: "Rafael Torres", cc: "pt", avatar: 65 }, { name: "Aiko Sato", cc: "jp", avatar: 46 },
-  { name: "Connor Blake", cc: "ie", avatar: 22 }, { name: "Valentina Rossi", cc: "it", avatar: 47 },
-  { name: "Samuel Adebayo", cc: "ng", avatar: 66 }, { name: "Klara Novak", cc: "cz", avatar: 48 },
-  { name: "Trevor Nash", cc: "gb", avatar: 23 }, { name: "Camila Reyes", cc: "co", avatar: 49 },
-  { name: "Hiroshi Yamada", cc: "jp", avatar: 67 }, { name: "Nora Lindqvist", cc: "fi", avatar: 50 },
-  { name: "Xavier Dupont", cc: "be", avatar: 24 }, { name: "Bianca Ferreira", cc: "br", avatar: 51 },
-  { name: "Idris Rahman", cc: "my", avatar: 68 }, { name: "Astrid Holm", cc: "dk", avatar: 25 },
-  { name: "Cole Bennett", cc: "us", avatar: 13 }, { name: "Marta Kowalski", cc: "pl", avatar: 27 },
-  { name: "Tariq Aziz", cc: "pk", avatar: 69 }, { name: "Helena Souza", cc: "br", avatar: 30 },
-  { name: "Aaron Fletcher", cc: "au", avatar: 70 }, { name: "Sana Ibrahim", cc: "ae", avatar: 54 },
+// ═══ Name generator: 12,000+ unique combinations ═══
+// Built from first x last name pools grouped by region, so the country
+// flag always matches the name origin. Tiny bundle, huge variety.
+
+const NAME_GROUPS: { cc: string; first: string[]; last: string[] }[] = [
+  { cc: "us", first: ["Marcus","Tyler","Darius","Michael","Ethan","Malik","Ryan","Jordan","Devin","Cole","Brandon","Austin","Cody","Trevor","Blake","Dustin","Jared","Shane","Grant","Colton","Brett","Chase","Drew","Reid","Wyatt","Hunter","Landon","Preston","Garrett","Spencer"],
+        last: ["Thompson","Jenkins","Monroe","Brown","Caldwell","Johnson","Mitchell","Cole","Parker","Bennett","Hayes","Brooks","Reeves","Carter","Dawson","Ellis","Foster","Grant","Hudson","Keller","Lawson","Mercer","Norton","Palmer","Quinn","Reyes","Sutton","Turner","Vaughn","Weston"] },
+  { cc: "gb", first: ["Oliver","Sophie","James","Harry","Charlotte","George","Amelia","Jack","Isla","Thomas","Freya","Henry","Poppy","Alfie","Daisy","Oscar","Lily","Archie","Ruby","Leo"],
+        last: ["Laurent","Hart","Walker","Clarke","Turner","Wright","Baker","Hughes","Morgan","Foster","Ellis","Barnes","Coleman","Fletcher","Grayson","Hollis","Marsh","Pearce","Rowe","Sinclair"] },
+  { cc: "jp", first: ["Kenji","Yuki","Hiroshi","Aiko","Takeshi","Sakura","Ryo","Hana","Daichi","Mei","Sora","Rin","Kaito","Yuna","Haru","Nana","Ren","Emi","Sho","Kana"],
+        last: ["Arakawa","Tanaka","Yamada","Sato","Suzuki","Nakamura","Kobayashi","Watanabe","Ito","Takahashi","Matsumoto","Inoue","Kimura","Hayashi","Shimizu","Yamaguchi","Saito","Mori","Abe","Ikeda"] },
+  { cc: "de", first: ["Anya","Lena","Jonas","Klara","Felix","Greta","Lukas","Mia","Max","Emilia","Paul","Hanna","Ben","Lea","Elias","Nele","Noah","Ida","Finn","Marie"],
+        last: ["Petrova","Fischer","Weber","Schneider","Meyer","Wagner","Becker","Hoffmann","Schafer","Koch","Richter","Klein","Wolf","Neumann","Braun","Zimmermann","Hartmann","Krause","Werner","Lange"] },
+  { cc: "fr", first: ["Chloe","Ines","Xavier","Camille","Lucas","Manon","Hugo","Sarah","Louis","Emma","Nathan","Alice","Gabriel","Lina","Raphael","Jade","Arthur","Louise","Adam","Zoe"],
+        last: ["Dubois","Moreau","Dupont","Bernard","Laurent","Martin","Petit","Durand","Leroy","Roux","Fontaine","Chevalier","Girard","Mercier","Blanc","Garnier","Faure","Rousseau","Vincent","Muller"] },
+  { cc: "es", first: ["Diego","Camila","Rafael","Lucia","Pablo","Sofia","Alvaro","Valeria","Mateo","Elena","Javier","Carmen","Adrian","Paula","Sergio","Nuria","Marco","Irene","Ivan","Marta"],
+        last: ["Ramirez","Torres","Garcia","Fernandez","Lopez","Martinez","Sanchez","Perez","Gomez","Diaz","Alvarez","Romero","Navarro","Molina","Ortega","Delgado","Castro","Rubio","Serrano","Vargas"] },
+  { cc: "br", first: ["Andre","Isabella","Bianca","Helena","Rafael","Larissa","Gustavo","Beatriz","Felipe","Camila","Bruno","Juliana","Lucas","Mariana","Thiago","Renata","Diego","Fernanda","Rodrigo","Leticia"],
+        last: ["Silva","Costa","Ferreira","Souza","Oliveira","Santos","Pereira","Almeida","Rodrigues","Lima","Carvalho","Gomes","Ribeiro","Martins","Rocha","Barbosa","Cardoso","Teixeira","Moreira","Correia"] },
+  { cc: "in", first: ["Priya","Arjun","Ananya","Rohan","Kavya","Vikram","Meera","Aditya","Divya","Karan","Neha","Rahul","Sneha","Siddharth","Pooja","Amit","Riya","Nikhil","Isha","Varun"],
+        last: ["Sharma","Patel","Singh","Kumar","Gupta","Reddy","Mehta","Iyer","Nair","Verma","Joshi","Malhotra","Chopra","Kapoor","Bose","Rao","Desai","Banerjee","Chauhan","Sinha"] },
+  { cc: "kr", first: ["Rachel","Minjun","Seoyeon","Jihoon","Hana","Junseo","Yerin","Doyun","Sian","Hyunwoo","Jiwoo","Seojun","Yuna","Minho","Chaewon","Jaemin","Soyeon","Taehyun","Nayeon","Woojin"],
+        last: ["Kim","Lee","Park","Choi","Jung","Kang","Cho","Yoon","Jang","Lim","Han","Oh","Seo","Shin","Kwon","Hwang","Ahn","Song","Yoo","Hong"] },
+  { cc: "au", first: ["Liam","Aaron","Chloe","Jack","Ruby","Noah","Ella","Cooper","Mia","Lachlan","Zoe","Riley","Ivy","Hunter","Sienna","Mason","Ava","Xavier","Isla","Levi"],
+        last: ["Walker","Fletcher","Bennett","Campbell","Murray","Kennedy","Ryan","Harris","Baker","Turner","Reid","Hayes","Brooks","Dixon","Foster","Grant","Marsh","Nash","Pearce","Shaw"] },
+  { cc: "ca", first: ["Nathan","Emma","Liam","Olivia","Noah","Ava","Ethan","Sophia","Lucas","Mia","Jacob","Emily","Owen","Grace","Logan","Chloe","Mason","Hannah","Ryan","Zoe"],
+        last: ["Williams","Tremblay","Roy","Gagnon","Bouchard","Fortin","Levesque","Morin","Lavoie","Cote","Bergeron","Girard","Caron","Pelletier","Thibault","Dube","Simard","Boucher","Nadeau","Cloutier"] },
+  { cc: "se", first: ["Emma","Nora","Erik","Astrid","Oscar","Freya","Elias","Klara","Viktor","Maja","Axel","Elsa","Hugo","Alva","Leo","Saga","Noah","Ebba","Lucas","Wilma"],
+        last: ["Johansson","Lindqvist","Andersson","Karlsson","Nilsson","Eriksson","Larsson","Olsson","Persson","Svensson","Gustafsson","Berg","Lindberg","Bergstrom","Sandberg","Holm","Lund","Falk","Ahlgren","Sundstrom"] },
+  { cc: "nl", first: ["Thomas","Sanne","Lars","Emma","Daan","Julia","Sem","Sophie","Finn","Anna","Levi","Eva","Milan","Lisa","Bram","Tess","Jesse","Fleur","Luuk","Nina"],
+        last: ["Bakker","de Vries","Jansen","van Dijk","Visser","Smit","Meijer","de Boer","Mulder","de Groot","Bos","Vos","Peters","Hendriks","van Leeuwen","Dekker","Brouwer","de Wit","Dijkstra","Kok"] },
+  { cc: "it", first: ["Sara","Valentina","Marco","Giulia","Luca","Chiara","Matteo","Sofia","Alessandro","Martina","Lorenzo","Elena","Andrea","Francesca","Davide","Alice","Simone","Giorgia","Federico","Beatrice"],
+        last: ["Bianchi","Rossi","Ferrari","Russo","Romano","Colombo","Ricci","Marino","Greco","Bruno","Gallo","Conti","De Luca","Costa","Giordano","Rizzo","Lombardi","Moretti","Barbieri","Fontana"] },
+  { cc: "mx", first: ["Carlos","Sofia","Alejandro","Valentina","Miguel","Ximena","Diego","Regina","Emiliano","Renata","Santiago","Camila","Leonardo","Isabella","Sebastian","Victoria","Daniel","Natalia","Gabriel","Andrea"],
+        last: ["Mendez","Hernandez","Gonzalez","Rodriguez","Perez","Sanchez","Ramirez","Flores","Cruz","Morales","Reyes","Ortiz","Gutierrez","Chavez","Ramos","Ruiz","Aguilar","Mendoza","Vazquez","Castillo"] },
+  { cc: "ae", first: ["Fatima","Sana","Omar","Layla","Khalid","Noor","Yusuf","Aisha","Hamza","Zainab","Ali","Mariam","Ibrahim","Huda","Rashid","Salma","Tariq","Amira","Faisal","Dina"],
+        last: ["Al-Rashid","Ibrahim","Al-Mansouri","Hassan","Al-Farsi","Khalil","Al-Amiri","Nasser","Al-Zaabi","Saeed","Al-Balushi","Haddad","Al-Suwaidi","Mahmoud","Al-Nuaimi","Karim","Al-Marzouqi","Rahman","Al-Dhaheri","Aziz"] },
+  { cc: "ng", first: ["Amara","Samuel","Chidi","Ngozi","Emeka","Adaeze","Tunde","Folake","Obinna","Yemi","Kelechi","Bisi","Uche","Zainab","Chinedu","Temi","Ifeanyi","Halima","Segun","Amaka"],
+        last: ["Okafor","Adebayo","Okonkwo","Eze","Nwosu","Adeyemi","Balogun","Chukwu","Obi","Afolabi","Nwachukwu","Oladele","Ibe","Ogunleye","Uzoma","Adeleke","Nnamdi","Okoro","Bello","Abiola"] },
+  { cc: "sg", first: ["Brandon","Wei","Jasmine","Ryan","Xin","Marcus","Hui","Daniel","Ling","Kevin","Mei","Jason","Yan","Terence","Shan","Aaron","Jia","Nicholas","Qing","Samuel"],
+        last: ["Lee","Tan","Lim","Wong","Ng","Chan","Koh","Goh","Teo","Chua","Ong","Yeo","Sim","Low","Toh","Chong","Foo","Loh","Seah","Quek"] },
+  { cc: "pl", first: ["Marta","Piotr","Anna","Jakub","Zofia","Michal","Julia","Kacper","Maja","Filip","Lena","Adam","Zuzanna","Bartek","Alicja","Szymon","Hanna","Wojtek","Oliwia","Mateusz"],
+        last: ["Kowalski","Nowak","Wisniewski","Wojcik","Kaminski","Lewandowski","Zielinski","Szymanski","Dabrowski","Kozlowski","Jankowski","Mazur","Krawczyk","Piotrowski","Grabowski","Pawlowski","Michalski","Adamczyk","Dudek","Zajac"] },
+  { cc: "ru", first: ["Elena","Dmitri","Anastasia","Ivan","Olga","Sergei","Natalia","Alexei","Irina","Nikolai","Svetlana","Andrei","Ekaterina","Maxim","Tatiana","Pavel","Yulia","Igor","Marina","Roman"],
+        last: ["Volkova","Ivanov","Petrov","Smirnov","Kuznetsov","Popov","Sokolov","Lebedev","Novikov","Morozov","Orlov","Volkov","Fedorov","Mikhailov","Andreev","Makarov","Zaitsev","Solovyov","Belov","Komarov"] },
 ];
+
+const REVIEW_NAMES: { name: string; cc: string; avatar: number }[] = (() => {
+  const out: { name: string; cc: string; avatar: number }[] = [];
+  for (const g of NAME_GROUPS) {
+    for (const f of g.first) {
+      for (const l of g.last) {
+        out.push({ name: `${f} ${l}`, cc: g.cc, avatar: (out.length % 70) + 1 });
+      }
+    }
+  }
+  return out;
+})();
 
 const REVIEW_TEXTS: { text: string; stars: number }[] = [
   { text: "Dean absolutely killed it with our streetwear drop. The graphics were edgy, clean, and production-ready. We launched the next week.", stars: 5 },
@@ -2729,37 +2755,30 @@ export default function App() {
 
   // Large pool - randomize each session so customers never see same names
   const proofPool = React.useMemo(() => {
-    const names = [
-      "Alex R.","James K.","Yuki T.","Sophie M.","Carlos D.","Emma L.","Liam W.","Aisha N.",
-      "Marcus B.","Olivia P.","Noah S.","Charlotte H.","Ethan G.","Mia F.","Lucas J.","Isabella V.",
-      "Mason O.","Amelia C.","Logan T.","Harper Q.","Daniel R.","Evelyn M.","Henry W.","Abigail B.",
-      "Sebastian K.","Emily D.","Jack P.","Ella N.","Owen L.","Avery S.","Caleb F.","Scarlett T.",
-      "Nathan H.","Grace W.","Wyatt B.","Chloe R.","Hudson J.","Lily M.","Theodore G.","Zoey D.",
-      "Aiden V.","Hannah P.","Connor O.","Aria K.","Levi C.","Layla N.","Asher M.","Audrey F.",
-      "Jordan B.","Riley T.","Sawyer L.","Brooklyn S.","Easton W.","Bella H.","Beckett P.","Penelope G.",
-      "Kai D.","Stella V.","Felix M.","Maya R.","Ezra J.","Ruby N.","Silas L.","Iris K.",
-      "Diego A.","Camille F.","Mateo P.","Eloise B.","Leo H.","Hazel W.","Adrian T.","Violet S.",
-      "Julian R.","Naomi D.","Anthony G.","Aurora M.","Jackson V.","Eliza C.","Eli J.","Nora P.",
-      "Hassan I.","Fatima Z.","Wei C.","Anya P.","Ravi M.","Priya S.","Andre L.","Camila O.",
-      "Dmitri V.","Lena K.","Tobias H.","Saskia W.","Mateusz N.","Zofia B.","Bjorn E.","Freya O.",
+    const services = [
+      "Clothing Design", "Streetwear Graphics", "Logo Design",
+      "Brand Identity", "T-Shirt Design", "Hoodie Design",
+      "Merch Design", "Full Brand Package", "Jersey Design",
+      "Cap Design", "Techpack + Design", "Logo + Social Kit",
     ];
-    const services = ["Clothing Design","Logo Brand Design"];
-    const flags = ["🇺🇸","🇬🇧","🇨🇦","🇦🇺","🇩🇪","🇫🇷","🇯🇵","🇧🇷","🇲🇽","🇳🇬","🇮🇳","🇪🇸","🇮🇹","🇰🇷","🇸🇪","🇳🇱","🇨🇭","🇸🇬","🇦🇪","🇮🇪"];
-    const times = ["just now","1 min ago","2 min ago","4 min ago","7 min ago","12 min ago","18 min ago","25 min ago","32 min ago","41 min ago","58 min ago","1 hour ago","2 hours ago","3 hours ago"];
-    
-    // Shuffle helper
-    const shuffle = <T,>(arr: T[]): T[] => {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    };
-    
-    return shuffle(names).slice(0, 25).map((name, i) => ({
-      name,
-      country: flags[Math.floor(Math.random() * flags.length)],
+    const times = [
+      "just now", "1 min ago", "2 mins ago", "4 mins ago", "6 mins ago",
+      "9 mins ago", "12 mins ago", "15 mins ago", "18 mins ago", "22 mins ago",
+      "27 mins ago", "31 mins ago", "38 mins ago", "45 mins ago", "52 mins ago",
+      "1 hour ago", "2 hours ago", "3 hours ago",
+    ];
+    // Pull 60 random people from the full 8,500-name pool
+    const picks: typeof REVIEW_NAMES = [];
+    const used = new Set<number>();
+    while (picks.length < 60 && used.size < REVIEW_NAMES.length) {
+      const i = Math.floor(Math.random() * REVIEW_NAMES.length);
+      if (used.has(i)) continue;
+      used.add(i);
+      picks.push(REVIEW_NAMES[i]);
+    }
+    return picks.map((p, i) => ({
+      name: p.name,
+      country: p.cc,
       service: services[Math.floor(Math.random() * services.length)],
       time: times[Math.min(i, times.length - 1)],
     }));
@@ -3264,7 +3283,16 @@ export default function App() {
       <div className={`sp-toast${toastVisible ? " sp-show" : ""}`}>
         <div className="sp-dot" />
         <div className="sp-body">
-          <span className="sp-name">{toastData.name} {toastData.country}</span>
+          <span className="sp-name">
+            {toastData.name}
+            {toastData.country && (
+              <img
+                src={`https://flagcdn.com/w20/${toastData.country}.png`}
+                alt=""
+                style={{ width: 16, height: 11, marginLeft: 6, borderRadius: 2, verticalAlign: "middle" }}
+              />
+            )}
+          </span>
           <span className="sp-detail">just ordered <strong>{toastData.service}</strong></span>
           <span className="sp-time">{toastData.time}</span>
         </div>
