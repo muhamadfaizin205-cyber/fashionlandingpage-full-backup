@@ -3484,9 +3484,24 @@ html {
 .fv-seller-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
 .fv-seller-name { font-size: 15px; font-weight: 700; color: #222325; }
 .fv-seller-badge {
-  background: #F0FDF4; color: var(--green);
-  font-size: 10px; font-weight: 700; padding: 2px 7px;
-  border-radius: 4px; letter-spacing: .2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #FFD97D 0%, #E8B54A 50%, #C99A3B 100%);
+  color: #4A3410;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px 3px 7px;
+  border-radius: 4px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(201, 154, 59, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+.fv-seller-badge i {
+  font-size: 11px;
+  color: #6B4A14;
 }
 .fv-seller-meta { display: flex; align-items: center; gap: 5px; font-size: 13px; }
 .fv-stars { color: #FFB33E; font-size: 12px; letter-spacing: -1px; }

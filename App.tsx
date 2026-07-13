@@ -539,7 +539,9 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
           <div>
             <div className="fv-seller-row">
               <span className="fv-seller-name">Dean Designers</span>
-              <span className="fv-seller-badge">Top Rated</span>
+              <span className="fv-seller-badge">
+                <i className="ri-vip-crown-fill" /> Top Rated Seller
+              </span>
             </div>
             <div className="fv-seller-meta">
               <span className="fv-stars">★★★★★</span>
