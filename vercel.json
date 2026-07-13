@@ -57,7 +57,7 @@
     },
     {
       "source": "/gigs",
-      "destination": "/index.html"
+      "destination": "/api/gigs-ssr"
     },
     {
       "source": "/my-orders",
