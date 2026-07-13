@@ -2807,9 +2807,6 @@ export default function App() {
               <a className="drawer-item" href="#wizard" onClick={() => setDrawerOpen(false)}>
                 <i className="ri-box-3-line" style={{fontSize:18}} />Services
               </a>
-              <a className="drawer-item" href="#about" onClick={() => setDrawerOpen(false)}>
-                <i className="ri-user-line" style={{fontSize:18}} />Portfolio
-              </a>
               <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); setDrawerOpen(false); window.scrollTo(0,0); }}>
                 <i className="ri-store-2-line" style={{fontSize:18}} />Gigs
               </a>
