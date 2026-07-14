@@ -3129,16 +3129,16 @@ export default function App() {
               </h1>
               <p className="hero-sub">
                 <span className="hero-sub-l1">Original artwork, production-ready files, full commercial rights.</span>
-                <span className="hero-sub-price">From <b>$50</b> per design · Delivered in 3 days</span>
+                <span className="hero-sub-price">From <b>$50</b> · No fees · No tax · 3-day delivery</span>
               </p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); track("cta_hero_click"); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
               </button>
               <div className="hero-trust">
-                <span><i className="ri-shield-check-line" /> Money-back guarantee</span>
+                <span><i className="ri-price-tag-3-line" /> No fees, no tax added</span>
                 <span><i className="ri-file-copy-2-line" /> Source files included</span>
-                <span><i className="ri-time-line" /> 3-day delivery</span>
+                <span><i className="ri-shield-check-line" /> Money-back guarantee</span>
               </div>
             </div>
 
@@ -3266,16 +3266,50 @@ export default function App() {
             </div>
           </section>
 
-          {/* ══ Guarantee banner (Fiverr Pro pattern) ══ */}
+          {/* ══ Price transparency banner ══ */}
           <section className="fv-banner">
             <div className="fv-banner-logo">Dean <span>Designers.</span></div>
-            <h2 className="fv-banner-title">Work directly with the designer, not a marketplace</h2>
+            <h2 className="fv-banner-title">The price you see is the price you pay</h2>
+
+            <div className="fv-price-proof">
+              <div className="fv-pp-title">
+                <i className="ri-receipt-line" /> Your $80 order, itemised
+              </div>
+              <div className="fv-pp-row">
+                <span>Standard clothing design</span>
+                <span>$80.00</span>
+              </div>
+              <div className="fv-pp-row">
+                <span>Service fee</span>
+                <span><span className="fv-pp-strike">$4.40</span><span className="fv-pp-zero">$0.00</span></span>
+              </div>
+              <div className="fv-pp-row">
+                <span>Platform commission</span>
+                <span><span className="fv-pp-strike">$16.00</span><span className="fv-pp-zero">$0.00</span></span>
+              </div>
+              <div className="fv-pp-row">
+                <span>Tax &amp; processing</span>
+                <span><span className="fv-pp-zero">$0.00</span></span>
+              </div>
+              <div className="fv-pp-row total">
+                <span>You pay</span>
+                <span className="fv-pp-total-val">$80.00</span>
+              </div>
+              <p className="fv-pp-note">
+                Marketplaces add a buyer service fee and take a commission from the designer,
+                which gets priced back into what you pay. Ordering here removes both.
+              </p>
+            </div>
+
             <ul className="fv-banner-list">
-              <li>No platform fees, no middlemen, no 20% cut</li>
-              <li>Talk to Dean directly on WhatsApp, brief to delivery</li>
-              <li>Source files and full commercial rights in every package</li>
-              <li>Print with any manufacturer, any quantity, forever</li>
+              <li><b>Zero fees.</b> No service charge, no processing fee, no hidden line items at checkout</li>
+              <li><b>Zero tax added.</b> The listed price is the final price, in USD</li>
+              <li><b>No middleman.</b> Talk to Dean directly on WhatsApp, from brief to final file</li>
+              <li><b>You own everything.</b> Source files and full commercial rights in every package</li>
+              <li><b>Print anywhere, forever.</b> Any manufacturer, any quantity, no royalties</li>
+              <li><b>Money back if it is wrong.</b> 100% refund, no argument</li>
             </ul>
+
             <button
               className="fv-btn-light"
               onClick={(e) => { e.preventDefault(); track("cta_banner_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); }}
@@ -3283,7 +3317,7 @@ export default function App() {
               Start your order
             </button>
             <p className="fv-banner-note">
-              <i className="ri-shield-check-line" /> 100% money-back guarantee
+              <i className="ri-shield-check-line" /> Paid securely via PayPal. Refund guaranteed.
             </p>
           </section>
 
