@@ -3092,10 +3092,13 @@ export default function App() {
               <div className="hero-badge">
                 <i className="ri-star-fill" /> 5.0 rating · 136,000+ designs delivered
               </div>
-              <h1 className="hero-h1">Custom Clothing &amp; Logo Design<br/>Made For Your Brand</h1>
+              <h1 className="hero-h1">
+                <span className="hero-h1-l1">Custom Clothing &amp; Logo Design</span>
+                <span className="hero-h1-l2">Made For Your Brand</span>
+              </h1>
               <p className="hero-sub">
-                Original artwork, production-ready files, full commercial rights.
-                <br/><strong>From $50 per design. Delivered in 3 days.</strong>
+                <span className="hero-sub-l1">Original artwork, production-ready files, full commercial rights.</span>
+                <span className="hero-sub-price">From <b>$50</b> per design · Delivered in 3 days</span>
               </p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
