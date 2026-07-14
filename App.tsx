@@ -2707,12 +2707,12 @@ function FAQSection() {
 // ─── Main App ──────────────────────────────────────────────
 // ─── Service cards (Fiverr-style horizontal scroll) ─────────
 const SERVICE_CARDS = [
-  { slug: "streetwear-design",     eyebrow: "Streetwear",   line1: "Streetwear", line2: "Design",          price: 50,  tone: "t-ink" },
-  { slug: "tshirt-design",         eyebrow: "Apparel",      line1: "T-Shirt",    line2: "Design",          price: 50,  tone: "t-plum" },
-  { slug: "hoodie-design",         eyebrow: "Apparel",      line1: "Hoodie",     line2: "Design",          price: 50,  tone: "t-forest" },
-  { slug: "logo-design",           eyebrow: "Identity",     line1: "Logo &",     line2: "Brand Identity",  price: 80,  tone: "t-clay" },
-  { slug: "clothing-brand-design", eyebrow: "Full Package", line1: "Complete",   line2: "Brand Kit",       price: 200, tone: "t-teal" },
-  { slug: "merch-design",          eyebrow: "Creators",     line1: "Merch",      line2: "Design",          price: 50,  tone: "t-wine" },
+  { slug: "streetwear-design",     eyebrow: "Streetwear",   line1: "Streetwear", line2: "Design",         price: 50,  tone: "t-ink",    img: "/clothing-1.jpg" },
+  { slug: "tshirt-design",         eyebrow: "Apparel",      line1: "T-Shirt",    line2: "Design",         price: 50,  tone: "t-plum",   img: "/clothing-2.png" },
+  { slug: "hoodie-design",         eyebrow: "Apparel",      line1: "Hoodie",     line2: "Design",         price: 50,  tone: "t-forest", img: "/clothing-3.png" },
+  { slug: "logo-design",           eyebrow: "Identity",     line1: "Logo &",     line2: "Brand Identity", price: 80,  tone: "t-clay",   img: "/logo-1.png" },
+  { slug: "clothing-brand-design", eyebrow: "Full Package", line1: "Complete",   line2: "Brand Kit",      price: 200, tone: "t-teal",   img: "/logo-2.png" },
+  { slug: "merch-design",          eyebrow: "Creators",     line1: "Merch",      line2: "Design",         price: 50,  tone: "t-wine",   img: "/clothing-1.jpg" },
 ];
 
 const FEATURE_ITEMS = [
@@ -3235,6 +3235,8 @@ export default function App() {
                   className={"fv-svc-card " + s.tone}
                   onClick={() => track("service_card_click", 0, { slug: s.slug })}
                 >
+                  <img className="fv-svc-img" src={s.img} alt="" loading="lazy" aria-hidden="true" />
+                  <span className="fv-svc-shade" />
                   <span className="fv-svc-eyebrow">{s.eyebrow}</span>
                   <h3 className="fv-svc-title">{s.line1}<br/>{s.line2}</h3>
                   <span className="fv-svc-price">from ${s.price}</span>
