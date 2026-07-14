@@ -119,43 +119,11 @@ body {
 }
 .nav-logo:hover { opacity: .85; }
 
-.nav-logo-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: linear-gradient(140deg, #22D67F 0%, #1DBF73 45%, #14915A 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 15px;
-  flex-shrink: 0;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.35),
-    0 2px 8px rgba(29,191,115,.32);
-}
 
-.nav-logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-  gap: 2px;
-}
-.nav-logo-name {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -.3px;
-  color: #14161C;
-}
-.nav-logo-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: 8.5px;
-  font-weight: 500;
-  letter-spacing: 2.2px;
-  color: #9BA0AB;
-  text-transform: uppercase;
-}
+
+
+
+
 
 /* ── Profile ── */
 .nav-profile {
@@ -189,15 +157,9 @@ body {
 @media (max-width: 640px) {
   .nav-wrap { height: 58px; padding: 0 14px; gap: 8px; }
   .nav-hamburger, .nav-profile { width: 37px; height: 37px; border-radius: 10px; }
-  .nav-logo-mark { width: 27px; height: 27px; border-radius: 8px; font-size: 13px; }
-  .nav-logo-name { font-size: 13.5px; }
-  .nav-logo-sub { font-size: 7.5px; letter-spacing: 1.8px; }
-  .nav-logo { gap: 7px; }
 }
 
 @media (max-width: 360px) {
-  .nav-logo-sub { display: none; }
-  .nav-logo-name { font-size: 13px; }
 }
 
 /* Drawer */
@@ -4047,4 +4009,113 @@ html {
   .hero-h1 { font-size: 26px; letter-spacing: -.6px; }
   .hero-badge { font-size: 10px; padding: 6px 11px; }
   .hero-trust span { font-size: 11px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   3D METALLIC LOGO WORDMARK
+   ═══════════════════════════════════════════════════════════ */
+.nav-logo {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.nav-logo-3d {
+  position: relative;
+  display: inline-block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  /* Metallic gradient fill */
+  background: linear-gradient(
+    177deg,
+    #FFFFFF 0%,
+    #F2F4F7 14%,
+    #C9CFD8 30%,
+    #8A93A1 44%,
+    #5C6472 52%,
+    #8A93A1 60%,
+    #C9CFD8 72%,
+    #EEF1F5 86%,
+    #FFFFFF 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  /* Depth: stacked shadows create the extruded 3D edge */
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.9))
+    drop-shadow(0 1.5px 0 rgba(120,128,142,.55))
+    drop-shadow(0 2.5px 1px rgba(60,66,78,.4))
+    drop-shadow(0 4px 6px rgba(20,24,32,.25));
+
+  transition: filter .25s ease;
+}
+
+/* The engraved back-layer that sells the 3D */
+.nav-logo-3d::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: none;
+  -webkit-text-fill-color: #2A2F3A;
+  color: #2A2F3A;
+  transform: translateY(2px);
+  filter: blur(.4px);
+  opacity: .35;
+}
+
+/* Moving specular highlight */
+.nav-logo-3d::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255,255,255,.95) 47%,
+    rgba(255,255,255,1) 50%,
+    rgba(255,255,255,.95) 53%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  background-position: 180% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  pointer-events: none;
+  animation: logoShine 4.5s ease-in-out infinite;
+}
+
+@keyframes logoShine {
+  0%, 55%  { background-position: 180% 0; }
+  85%, 100% { background-position: -80% 0; }
+}
+
+.nav-logo:hover .nav-logo-3d {
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,1))
+    drop-shadow(0 2px 0 rgba(120,128,142,.6))
+    drop-shadow(0 3.5px 2px rgba(60,66,78,.45))
+    drop-shadow(0 6px 10px rgba(20,24,32,.3));
+}
+
+@media (max-width: 640px) {
+  .nav-logo-3d { font-size: 16px; letter-spacing: 1.1px; }
+}
+@media (max-width: 380px) {
+  .nav-logo-3d { font-size: 14px; letter-spacing: .8px; }
 }
