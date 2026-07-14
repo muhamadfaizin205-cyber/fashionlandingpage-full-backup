@@ -3830,15 +3830,17 @@ html {
 
 .fv-svc-card {
   position: relative;
-  min-width: 210px;
+  flex: 0 0 208px;
+  width: 208px;
+  max-width: 208px;
+  box-sizing: border-box;
   border-radius: 8px;
-  padding: 18px 16px 16px;
+  padding: 16px 14px 14px;
   color: #fff;
   text-decoration: none;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   overflow: hidden;
   transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease;
 }
@@ -3849,21 +3851,24 @@ html {
 
 .fv-svc-title {
   font-family: 'Inter', sans-serif;
-  font-size: 18px;
+  font-size: 16.5px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.28;
   letter-spacing: -.3px;
-  margin: 0 0 14px;
+  margin: 0 0 13px;
   color: #fff;
+  min-height: 42px;
 }
 
 /* Framed image, like Fiverr's popular-services cards */
 .fv-svc-frame {
+  width: 100%;
+  height: 148px;
   border-radius: 6px;
   overflow: hidden;
-  aspect-ratio: 1 / 1;
   background: rgba(255,255,255,.06);
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 .fv-svc-frame img {
   width: 100%;
@@ -4501,8 +4506,20 @@ html {
 
 /* Mobile: service cards */
 @media (max-width: 640px) {
-  .fv-svc-card { min-width: 178px; padding: 15px 13px 13px; }
-  .fv-svc-title { font-size: 16px; margin-bottom: 12px; }
+  .fv-svc-card {
+    flex: 0 0 165px;
+    width: 165px;
+    max-width: 165px;
+    padding: 14px 12px 12px;
+  }
+  .fv-svc-title { font-size: 15px; margin-bottom: 11px; min-height: 38px; }
+  .fv-svc-frame { height: 118px; margin-bottom: 10px; }
   .fv-svc-price { font-size: 12.5px; }
   .fv-sec-title { font-size: 22px; letter-spacing: -.5px; }
+  .fv-cards-scroll { padding-left: 18px; padding-right: 18px; gap: 12px; }
+}
+
+/* Sticky CTA must not cover the last section on mobile */
+@media (max-width: 768px) {
+  body { padding-bottom: 64px; }
 }
