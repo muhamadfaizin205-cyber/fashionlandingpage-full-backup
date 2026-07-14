@@ -2989,7 +2989,13 @@ export default function App() {
             <i className="ri-menu-line" style={{fontSize:20}} />
           </button>
           <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
-            DEAN DESIGNERS
+            <span className="nav-logo-mark">
+              <i className="ri-scissors-cut-line" />
+            </span>
+            <span className="nav-logo-text">
+              <span className="nav-logo-name">DEAN</span>
+              <span className="nav-logo-sub">DESIGNERS</span>
+            </span>
           </a>
           <a href="/order-tracker.html" className="nav-profile" title="My Orders">
             <i className="ri-user-line" style={{fontSize:18}} />
