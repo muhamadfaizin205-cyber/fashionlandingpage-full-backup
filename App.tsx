@@ -1182,7 +1182,7 @@ function Step1({
         <h2 className="step-question">
           Choose Your <span>Service</span>
         </h2>
-        <p className="step-hint">Select one to get started</p>
+        <p className="step-hint">Takes 2 minutes. No account needed.</p>
       </div>
       <div className="service-grid">
         <div
@@ -1198,6 +1198,7 @@ function Step1({
             <div className="service-sub">
               T-shirts, jackets, hoodies &amp; apparel design
             </div>
+            <div className="service-price">From <strong>$50</strong> / design</div>
           </div>
           <div className="svc-arrow">{service === "clothing" ? "✓" : "→"}</div>
         </div>
@@ -1212,6 +1213,7 @@ function Step1({
           <div className="svc-body">
             <div className="service-name">Logo Brand Design</div>
             <div className="service-sub">Professional brand visual identity</div>
+            <div className="service-price">From <strong>$80</strong> / logo</div>
           </div>
           <div className="svc-arrow">{service === "logo" ? "✓" : "→"}</div>
         </div>
@@ -3087,12 +3089,23 @@ export default function App() {
 
             {/* Minimal content */}
             <div className="hero-content">
-              <h1 className="hero-h1">Create Clothing Design - Professional Streetwear & Logo Design Studio</h1>
-              <p className="hero-sub">Custom streetwear graphics, brand identity & logo design. 136,000+ designs · 7,000+ brands · Since 2018.</p>
+              <div className="hero-badge">
+                <i className="ri-star-fill" /> 5.0 rating · 136,000+ designs delivered
+              </div>
+              <h1 className="hero-h1">Custom Clothing &amp; Logo Design<br/>Made For Your Brand</h1>
+              <p className="hero-sub">
+                Original artwork, production-ready files, full commercial rights.
+                <br/><strong>From $50 per design. Delivered in 3 days.</strong>
+              </p>
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
               </button>
+              <div className="hero-trust">
+                <span><i className="ri-shield-check-line" /> Money-back guarantee</span>
+                <span><i className="ri-file-copy-2-line" /> Source files included</span>
+                <span><i className="ri-time-line" /> 3-day delivery</span>
+              </div>
             </div>
 
             {/* Scroll hint */}
@@ -3161,39 +3174,7 @@ export default function App() {
           <Testimonials />
 
           {/* ── ABOUT SECTION ── */}
-          <section className="about-section s2" id="about" style={{padding:"60px 20px",background:"linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 50%,#E0F2F1 100%)"}}>
-            <div style={{maxWidth:800,margin:"0 auto",textAlign:"center"}}>
-              <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
-              <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
-              <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
-                Professional studio to create clothing design and brand identity. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
-              </p>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
-                {[
-                  {num:"136,000+",label:"Projects Completed"},
-                  {num:"5.0★",label:"Fiverr Rating"},
-                  {num:"25+",label:"Countries Served"},
-                  {num:"7+",label:"Years Experience"}
-                ].map((s,i)=>(
-                  <div key={i} style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(10px)",borderRadius:18,padding:"20px 14px",border:"1px solid rgba(255,255,255,0.5)",boxShadow:"0 4px 16px rgba(0,0,0,0.04)",transition:"all .2s"}}>
-                    <div style={{fontSize:26,fontWeight:800,color:"#1DBF73",marginBottom:4}}>{s.num}</div>
-                    <div style={{fontSize:11,color:"#64748B",fontWeight:600}}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{textAlign:"left",maxWidth:600,margin:"0 auto"}}>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
-                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail - organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
-                </p>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
-                  <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
-                </p>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569"}}>
-                  <strong>AI-powered workflow.</strong> Our design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes every time.
-                </p>
-              </div>
-            </div>
-          </section>
+
 
                   </>
       )}
@@ -3276,6 +3257,40 @@ export default function App() {
           </div>
         </div>
       </section>
+
+          <section className="about-section s2" id="about" style={{padding:"60px 20px",background:"linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 50%,#E0F2F1 100%)"}}>
+            <div style={{maxWidth:800,margin:"0 auto",textAlign:"center"}}>
+              <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
+              <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
+              <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
+                Professional studio to create clothing design and brand identity. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
+              </p>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
+                {[
+                  {num:"136,000+",label:"Projects Completed"},
+                  {num:"5.0★",label:"Fiverr Rating"},
+                  {num:"25+",label:"Countries Served"},
+                  {num:"7+",label:"Years Experience"}
+                ].map((s,i)=>(
+                  <div key={i} style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(10px)",borderRadius:18,padding:"20px 14px",border:"1px solid rgba(255,255,255,0.5)",boxShadow:"0 4px 16px rgba(0,0,0,0.04)",transition:"all .2s"}}>
+                    <div style={{fontSize:26,fontWeight:800,color:"#1DBF73",marginBottom:4}}>{s.num}</div>
+                    <div style={{fontSize:11,color:"#64748B",fontWeight:600}}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{textAlign:"left",maxWidth:600,margin:"0 auto"}}>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail - organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
+                </p>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+                  <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
+                </p>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#475569"}}>
+                  <strong>AI-powered workflow.</strong> Our design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes every time.
+                </p>
+              </div>
+            </div>
+          </section>
 
       {toast && <div className="toast">{toast}</div>}
 

@@ -3723,3 +3723,86 @@ html {
   .fv-nav { opacity: 1; width: 32px; height: 32px; }
   .fv-thumb { width: 58px; height: 40px; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CONVERSION-OPTIMIZED HERO
+   ═══════════════════════════════════════════════════════════ */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.14);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.22);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+.hero-badge i { color: #FFB33E; font-size: 14px; }
+
+.hero-h1 {
+  font-size: 44px !important;
+  line-height: 1.15 !important;
+  letter-spacing: -1px !important;
+  margin-bottom: 16px !important;
+  /* was visually hidden for SEO - now it IS the headline */
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  overflow: visible !important;
+  color: #fff !important;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+}
+.hero-sub {
+  font-size: 17px !important;
+  line-height: 1.6;
+  margin-bottom: 26px !important;
+  color: rgba(255,255,255,.9);
+}
+.hero-sub strong {
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+.hero-trust {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.hero-trust span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.85);
+}
+.hero-trust i { color: var(--green); font-size: 15px; }
+
+@media (max-width: 640px) {
+  .hero-h1 { font-size: 30px !important; }
+  .hero-sub { font-size: 15px !important; }
+  .hero-sub strong { font-size: 16px; }
+  .hero-trust { gap: 12px; }
+  .hero-trust span { font-size: 12px; }
+  .hero-badge { font-size: 11px; padding: 6px 11px; }
+}
+
+/* Price on service cards */
+.service-price {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
+}
+.service-price strong {
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+}
