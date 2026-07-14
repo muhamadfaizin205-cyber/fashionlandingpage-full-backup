@@ -4523,3 +4523,92 @@ html {
 @media (max-width: 768px) {
   body { padding-bottom: 64px; }
 }
+
+
+/* ═══ Price education: two-column comparison ═══ */
+.fv-pp-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.fv-pp-col {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.fv-pp-col-head {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 12px;
+}
+.fv-pp-col-head-good { color: #1DBF73; }
+
+.fv-pp-steps {
+  list-style: none;
+  counter-reset: pp;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+.fv-pp-steps li {
+  counter-increment: pp;
+  position: relative;
+  padding-left: 28px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.8);
+}
+.fv-pp-steps li::before {
+  content: counter(pp);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fv-pp-outcome {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: 11px 12px;
+  border-radius: 8px;
+  margin-top: auto;
+}
+.fv-pp-outcome i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.fv-pp-outcome-bad {
+  background: rgba(248,113,113,.1);
+  color: #FCA5A5;
+}
+.fv-pp-outcome-good {
+  background: rgba(29,191,115,.12);
+  color: #6EE7B0;
+}
+
+@media (max-width: 640px) {
+  .fv-pp-compare { grid-template-columns: 1fr; gap: 12px; }
+  .fv-pp-steps li { font-size: 13px; }
+  .fv-pp-outcome { font-size: 12px; }
+}

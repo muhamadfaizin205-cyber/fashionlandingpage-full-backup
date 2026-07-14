@@ -3300,32 +3300,36 @@ export default function App() {
 
             <div className="fv-price-proof">
               <div className="fv-pp-title">
-                <i className="ri-receipt-line" /> Your $80 order, itemised
+                <i className="ri-information-line" /> How pricing usually works
               </div>
-              <div className="fv-pp-row">
-                <span>Standard clothing design</span>
-                <span>$80.00</span>
+
+              <div className="fv-pp-compare">
+                <div className="fv-pp-col">
+                  <div className="fv-pp-col-head">On a marketplace</div>
+                  <ol className="fv-pp-steps">
+                    <li>The designer sets a rate</li>
+                    <li>The platform takes a commission from that rate, so the designer raises it to absorb the cut</li>
+                    <li>A buyer service fee is added on top at checkout</li>
+                    <li>Currency conversion and processing may be added</li>
+                  </ol>
+                  <div className="fv-pp-outcome fv-pp-outcome-bad">
+                    <i className="ri-arrow-right-up-line" />
+                    You pay more than the listed price, and the designer receives less than it
+                  </div>
+                </div>
+
+                <div className="fv-pp-col">
+                  <div className="fv-pp-col-head fv-pp-col-head-good">Ordering here</div>
+                  <ol className="fv-pp-steps">
+                    <li>Dean sets the price</li>
+                    <li>You pay that price</li>
+                  </ol>
+                  <div className="fv-pp-outcome fv-pp-outcome-good">
+                    <i className="ri-checkbox-circle-line" />
+                    No commission to absorb, so nothing is priced back into your total. No service fee. No tax added.
+                  </div>
+                </div>
               </div>
-              <div className="fv-pp-row">
-                <span>Service fee</span>
-                <span><span className="fv-pp-strike">$4.40</span><span className="fv-pp-zero">$0.00</span></span>
-              </div>
-              <div className="fv-pp-row">
-                <span>Platform commission</span>
-                <span><span className="fv-pp-strike">$16.00</span><span className="fv-pp-zero">$0.00</span></span>
-              </div>
-              <div className="fv-pp-row">
-                <span>Tax &amp; processing</span>
-                <span><span className="fv-pp-zero">$0.00</span></span>
-              </div>
-              <div className="fv-pp-row total">
-                <span>You pay</span>
-                <span className="fv-pp-total-val">$80.00</span>
-              </div>
-              <p className="fv-pp-note">
-                Marketplaces add a buyer service fee and take a commission from the designer,
-                which gets priced back into what you pay. Ordering here removes both.
-              </p>
             </div>
 
             <ul className="fv-banner-list">
