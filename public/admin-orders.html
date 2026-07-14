@@ -712,7 +712,7 @@ function renderCurrentView(){
   else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='gigs')renderGigsView();
-  else if(currentView==='analytics')renderAnalyticsView();
+  else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
   if(sbIcons&&!document.getElementById('agent-nav-btn')){
@@ -2835,9 +2835,85 @@ var FUNNEL = [
   { key:'payment_completed',label:'PAID',                  step:7 },
 ];
 
-async function renderAnalyticsView(){
+
+// ═══ Realtime analytics ═══
+var _anCh=null, _anTimer=null, _anLive=0;
+
+function startAnalyticsRealtime(){
+  stopAnalyticsRealtime();
+  if(!sb) return;
+
+  // Live push on every new event
+  _anCh = sb.channel('analytics-live-'+Date.now())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'visitor_events'},function(p){
+      _anLive++;
+      flashLiveBadge(p.new);
+      // Debounce the full re-render so a burst of events does not thrash
+      clearTimeout(window._anDebounce);
+      window._anDebounce=setTimeout(function(){
+        if(currentView==='analytics') renderAnalyticsView(true);
+      },1200);
+    })
+    .subscribe();
+
+  // Safety net: refresh every 10s even if realtime drops
+  _anTimer = setInterval(function(){
+    if(currentView==='analytics') renderAnalyticsView(true);
+  }, 10000);
+
+  // Live "who is on the site right now" ticker
+  setInterval(updateLiveNow, 5000);
+  updateLiveNow();
+}
+
+function stopAnalyticsRealtime(){
+  if(_anCh){ _anCh.unsubscribe(); _anCh=null; }
+  if(_anTimer){ clearInterval(_anTimer); _anTimer=null; }
+}
+
+// Pulse a badge when an event lands
+function flashLiveBadge(ev){
+  var b=document.getElementById('an-live-badge');
+  if(!b) return;
+  b.style.background='rgba(29,191,115,.25)';
+  b.style.borderColor='rgba(29,191,115,.5)';
+  setTimeout(function(){
+    b.style.background='rgba(29,191,115,.1)';
+    b.style.borderColor='rgba(29,191,115,.25)';
+  },500);
+
+  var feed=document.getElementById('an-live-feed');
+  if(feed && ev){
+    var LBL={page_view:'landed on the site',cta_hero_click:'clicked Start Order',step_service:'chose a service',step_brand:'entered brand name',step_qty:'chose quantity',step_brief:'started the brief',step_package:'picked a package',step_payment:'reached payment',payment_completed:'PAID',exit:'left'};
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid rgba(255,255,255,.05);font-size:12.5px;color:#CBD5E1;opacity:0;transform:translateY(-4px);transition:all .3s';
+    var isPaid=ev.event==='payment_completed';
+    row.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:'+(isPaid?'#1DBF73':'#60A5FA')+';flex-shrink:0"></span>'+
+      '<span style="color:#94A3B8">'+esc((ev.device||'?'))+' visitor</span>'+
+      '<span style="color:'+(isPaid?'#1DBF73':'#E2E8F0')+';font-weight:'+(isPaid?'700':'500')+'">'+(LBL[ev.event]||esc(ev.event))+'</span>'+
+      '<span style="margin-left:auto;color:#64748B;font-size:11px">now</span>';
+    feed.insertBefore(row, feed.firstChild);
+    requestAnimationFrame(function(){ row.style.opacity='1'; row.style.transform='translateY(0)'; });
+    while(feed.children.length>12) feed.removeChild(feed.lastChild);
+  }
+}
+
+// Count sessions active in the last 2 minutes
+async function updateLiveNow(){
+  if(!sb || currentView!=='analytics') return;
+  var since=new Date(Date.now()-120000).toISOString();
+  var r=await sb.from('visitor_sessions').select('session_id,max_step,device').gte('last_seen',since);
+  var el=document.getElementById('an-live-count');
+  var dot=document.getElementById('an-live-dot');
+  if(!el) return;
+  var n=(r.data||[]).length;
+  el.textContent=n;
+  if(dot) dot.style.background = n>0 ? '#1DBF73' : '#475569';
+}
+
+async function renderAnalyticsView(silent){
   var el=document.getElementById('analytics-area'); if(!el)return;
-  el.innerHTML='<div style="padding:40px;text-align:center;color:var(--txt3)">Loading...</div>';
+  if(!silent) el.innerHTML='<div style="padding:40px;text-align:center;color:var(--txt3)">Loading...</div>';
 
   var days=parseInt((document.getElementById('an-range')||{}).value||'7');
   var since=new Date(Date.now()-days*864e5).toISOString();
@@ -2897,6 +2973,19 @@ async function renderAnalyticsView(){
 
   // ═══ BUILD UI ═══
   var h='';
+
+  // Live bar
+  h+='<div style="display:flex;gap:16px;align-items:stretch;margin-bottom:20px;flex-wrap:wrap">'+
+     '<div id="an-live-badge" style="display:flex;align-items:center;gap:10px;background:rgba(29,191,115,.1);border:1px solid rgba(29,191,115,.25);border-radius:12px;padding:14px 18px;transition:all .4s;min-width:190px">'+
+       '<span id="an-live-dot" style="width:9px;height:9px;border-radius:50%;background:#1DBF73;box-shadow:0 0 0 3px rgba(29,191,115,.2);animation:pulse 1.8s infinite"></span>'+
+       '<div><div style="font-size:22px;font-weight:800;color:#F1F5F9;line-height:1"><span id="an-live-count">0</span></div>'+
+       '<div style="font-size:11px;color:#94A3B8;margin-top:2px">on the site right now</div></div>'+
+     '</div>'+
+     '<div style="flex:1;min-width:260px;background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 16px;max-height:150px;overflow-y:auto">'+
+       '<div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Live activity</div>'+
+       '<div id="an-live-feed"></div>'+
+     '</div>'+
+     '</div>';
 
   // Top stats
   h+='<div class="stats" style="margin-bottom:24px">'+

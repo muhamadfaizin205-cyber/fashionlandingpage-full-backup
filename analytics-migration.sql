@@ -61,3 +61,9 @@ create policy "anon update sessions" on visitor_sessions
 drop policy if exists "anon read sessions" on visitor_sessions;
 create policy "anon read sessions" on visitor_sessions
   for select to anon using (true);
+
+-- ═══════════════════════════════════════════════════════════
+-- ENABLE REALTIME (required for the live admin dashboard)
+-- ═══════════════════════════════════════════════════════════
+alter publication supabase_realtime add table visitor_events;
+alter publication supabase_realtime add table visitor_sessions;

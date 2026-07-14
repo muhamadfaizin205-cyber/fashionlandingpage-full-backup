@@ -100,6 +100,18 @@ export function initAnalytics() {
 
   track("page_view", 0, { path: window.location.pathname });
 
+  // Heartbeat: keeps "on the site right now" accurate in the admin panel.
+  // Touches the session row every 30s while the tab is visible.
+  setInterval(() => {
+    if (document.hidden) return;
+    try {
+      sb.from("visitor_sessions")
+        .update({ last_seen: new Date().toISOString(), duration_sec: sessionAge() })
+        .eq("session_id", getSessionId())
+        .then(() => {});
+    } catch {}
+  }, 30000);
+
   // Record the exit point
   const onLeave = () => {
     try {
