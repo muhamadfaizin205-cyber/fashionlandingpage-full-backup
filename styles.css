@@ -4016,8 +4016,10 @@ html {
 
 
 
+
+
 /* ═══════════════════════════════════════════════════════════
-   OLD ENGLISH GOLD 3D LOGO
+   LUXURY GOLD LOGO - Bodoni
    ═══════════════════════════════════════════════════════════ */
 .nav-logo {
   justify-self: center;
@@ -4031,70 +4033,71 @@ html {
 .nav-logo-3d {
   position: relative;
   display: inline-block;
-  font-family: 'UnifrakturCook', 'Old English Text MT', serif;
+  font-family: 'Bodoni Moda', 'Didot', 'Playfair Display', serif;
   font-weight: 700;
-  font-size: 26px;
-  letter-spacing: .5px;
-  line-height: 1.1;
+  font-size: 22px;
+  letter-spacing: 3.5px;
+  line-height: 1.15;
   white-space: nowrap;
+  text-transform: uppercase;
+  font-optical-sizing: auto;
 
-  /* Gold gradient face */
+  /* Polished gold */
   background: linear-gradient(
     176deg,
-    #FFF6D6 0%,
-    #FFE9A0 12%,
-    #F5CE5E 26%,
-    #D9A833 42%,
-    #B8862B 54%,
-    #D9A833 64%,
-    #F0C85A 78%,
-    #FFE9A0 90%,
-    #FFF8E0 100%
+    #FFFBEA 0%,
+    #FFF0BC 10%,
+    #F7D779 24%,
+    #E0B44A 38%,
+    #C69430 50%,
+    #E0B44A 62%,
+    #F5D373 76%,
+    #FFF0BC 90%,
+    #FFFCF0 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
 
-  /* Bronze extrusion + drop shadow */
+  /* Refined bronze edge - subtle, not chunky */
   filter:
-    drop-shadow(0 1px 0 #8A6420)
-    drop-shadow(0 2px 0 #755518)
-    drop-shadow(0 3px 0 #5E4413)
-    drop-shadow(0 4px 2px rgba(60,44,10,.4))
-    drop-shadow(0 6px 8px rgba(40,30,6,.3))
-    drop-shadow(0 10px 18px rgba(30,22,4,.22));
+    drop-shadow(0 1px 0 #9A7226)
+    drop-shadow(0 2px 0 #7E5B1B)
+    drop-shadow(0 2.5px 1.5px rgba(70,50,12,.35))
+    drop-shadow(0 5px 8px rgba(45,32,6,.24))
+    drop-shadow(0 9px 18px rgba(35,25,4,.16));
 
-  transition: filter .3s ease, transform .3s ease;
+  transition: filter .35s ease, transform .35s ease, letter-spacing .35s ease;
 }
 
-/* Dark engraved back-face */
+/* Engraved back-face */
 .nav-logo-3d::before {
   content: attr(data-text);
   position: absolute;
   inset: 0;
   z-index: -1;
   background: none;
-  -webkit-text-fill-color: #4A3410;
-  color: #4A3410;
-  transform: translateY(3px);
-  opacity: .5;
-  filter: blur(.5px);
+  -webkit-text-fill-color: #59421A;
+  color: #59421A;
+  transform: translateY(2px);
+  opacity: .42;
+  filter: blur(.4px);
 }
 
-/* Specular gold sweep */
+/* Specular sweep */
 .nav-logo-3d::after {
   content: attr(data-text);
   position: absolute;
   inset: 0;
   z-index: 2;
   background: linear-gradient(
-    103deg,
-    transparent 40%,
-    rgba(255,255,255,.55) 46%,
-    rgba(255,255,255,.95) 50%,
-    rgba(255,255,255,.55) 54%,
-    transparent 60%
+    104deg,
+    transparent 41%,
+    rgba(255,255,255,.5) 47%,
+    rgba(255,255,255,.92) 50%,
+    rgba(255,255,255,.5) 53%,
+    transparent 59%
   );
   background-size: 300% 100%;
   background-position: 200% 0;
@@ -4103,38 +4106,39 @@ html {
   -webkit-text-fill-color: transparent;
   color: transparent;
   pointer-events: none;
-  animation: goldSweep 5s ease-in-out infinite;
+  animation: goldSweep 5.5s ease-in-out infinite;
 }
 
 @keyframes goldSweep {
-  0%, 62%   { background-position: 200% 0; }
-  92%, 100% { background-position: -100% 0; }
+  0%, 64%   { background-position: 200% 0; }
+  93%, 100% { background-position: -100% 0; }
 }
 
 .nav-logo:hover .nav-logo-3d {
   transform: translateY(-1px);
+  letter-spacing: 4.2px;
   filter:
-    drop-shadow(0 1px 0 #8A6420)
-    drop-shadow(0 2px 0 #755518)
-    drop-shadow(0 3px 0 #5E4413)
-    drop-shadow(0 4px 0 #4A3410)
-    drop-shadow(0 5px 3px rgba(60,44,10,.45))
-    drop-shadow(0 8px 12px rgba(40,30,6,.35))
-    drop-shadow(0 14px 24px rgba(30,22,4,.26));
+    drop-shadow(0 1px 0 #9A7226)
+    drop-shadow(0 2px 0 #7E5B1B)
+    drop-shadow(0 3px 0 #674A15)
+    drop-shadow(0 4px 2px rgba(70,50,12,.4))
+    drop-shadow(0 7px 12px rgba(45,32,6,.3))
+    drop-shadow(0 13px 26px rgba(35,25,4,.2));
 }
 
 @media (max-width: 640px) {
   .nav-logo-3d {
-    font-size: 21px;
-    letter-spacing: .3px;
+    font-size: 17px;
+    letter-spacing: 2.4px;
     filter:
-      drop-shadow(0 1px 0 #8A6420)
-      drop-shadow(0 2px 0 #6B4E16)
-      drop-shadow(0 3px 1px rgba(60,44,10,.4))
-      drop-shadow(0 5px 6px rgba(40,30,6,.28))
-      drop-shadow(0 8px 14px rgba(30,22,4,.2));
+      drop-shadow(0 1px 0 #9A7226)
+      drop-shadow(0 1.5px 0 #7E5B1B)
+      drop-shadow(0 2px 1px rgba(70,50,12,.32))
+      drop-shadow(0 4px 6px rgba(45,32,6,.22))
+      drop-shadow(0 7px 13px rgba(35,25,4,.14));
   }
+  .nav-logo:hover .nav-logo-3d { letter-spacing: 2.4px; }
 }
 @media (max-width: 380px) {
-  .nav-logo-3d { font-size: 18px; }
+  .nav-logo-3d { font-size: 14.5px; letter-spacing: 1.8px; }
 }
