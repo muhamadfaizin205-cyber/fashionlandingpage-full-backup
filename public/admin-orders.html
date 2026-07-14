@@ -2902,12 +2902,18 @@ function flashLiveBadge(ev){
 async function updateLiveNow(){
   if(!sb || currentView!=='analytics') return;
   var since=new Date(Date.now()-120000).toISOString();
-  var r=await sb.from('visitor_sessions').select('session_id,max_step,device').gte('last_seen',since);
+  // Count unique PEOPLE active in the last 2 minutes, not tabs
+  var r=await sb.from('visitor_events').select('session_id,meta').gte('created_at',since);
+  var set={};
+  (r.data||[]).forEach(function(e){
+    var id=e.session_id;
+    try{ if(e.meta && e.meta.visitor_id) id=e.meta.visitor_id; }catch(x){}
+    set[id]=1;
+  });
+  var n=Object.keys(set).length;
   var el=document.getElementById('an-live-count');
   var dot=document.getElementById('an-live-dot');
-  if(!el) return;
-  var n=(r.data||[]).length;
-  el.textContent=n;
+  if(el) el.textContent=n;
   if(dot) dot.style.background = n>0 ? '#1DBF73' : '#475569';
 }
 
@@ -2951,14 +2957,23 @@ async function renderAnalyticsView(silent){
     return;
   }
 
-  // ── Funnel counts: unique sessions that reached each event ──
+  // ── Funnel counts: unique PEOPLE that reached each event ──
+  // Prefer visitor_id (survives tabs) and fall back to session_id.
+  function who(e){
+    try { return (e.meta && e.meta.visitor_id) ? e.meta.visitor_id : e.session_id; }
+    catch(x){ return e.session_id; }
+  }
   var counts={};
   FUNNEL.forEach(function(f){
     var set={};
-    events.forEach(function(e){ if(e.event===f.key) set[e.session_id]=1; });
+    events.forEach(function(e){ if(e.event===f.key) set[who(e)]=1; });
     counts[f.key]=Object.keys(set).length;
   });
-  var top=counts['page_view']||sessions.length;
+  // Total unique people = anyone who fired any event
+  var allPeople={};
+  events.forEach(function(e){ allPeople[who(e)]=1; });
+  var top=Object.keys(allPeople).length || sessions.length;
+  counts['page_view']=top;
 
   // ── Where do they die? ──
   var exits={};

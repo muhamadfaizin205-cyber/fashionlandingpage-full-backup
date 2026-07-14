@@ -11,17 +11,57 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── Session identity ──
+// visitor_id : permanent, survives tabs and days (localStorage)
+// session_id : rolls over after 30 min of inactivity (industry standard)
+
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+function newId(prefix: string): string {
+  return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function getVisitorId(): string {
+  try {
+    let vid = localStorage.getItem("dd_vid");
+    if (!vid) {
+      vid = newId("v_");
+      localStorage.setItem("dd_vid", vid);
+    }
+    return vid;
+  } catch {
+    return "v_anon";
+  }
+}
+
 function getSessionId(): string {
   try {
-    let id = sessionStorage.getItem("dd_sid");
-    if (!id) {
-      id = "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-      sessionStorage.setItem("dd_sid", id);
-      sessionStorage.setItem("dd_start", String(Date.now()));
+    const now = Date.now();
+    const sid = localStorage.getItem("dd_sid");
+    const last = Number(localStorage.getItem("dd_last") || 0);
+
+    // Same session if the last activity was under 30 minutes ago
+    if (sid && last && now - last < SESSION_TIMEOUT) {
+      localStorage.setItem("dd_last", String(now));
+      return sid;
     }
-    return id;
+
+    // Otherwise start a fresh session
+    const fresh = newId("s_");
+    localStorage.setItem("dd_sid", fresh);
+    localStorage.setItem("dd_last", String(now));
+    localStorage.setItem("dd_start", String(now));
+    return fresh;
   } catch {
     return "s_anon";
+  }
+}
+
+function sessionAge(): number {
+  try {
+    const start = Number(localStorage.getItem("dd_start") || Date.now());
+    return Math.max(0, Math.round((Date.now() - start) / 1000));
+  } catch {
+    return 0;
   }
 }
 
@@ -41,17 +81,9 @@ function getUtm(): string {
   }
 }
 
-function sessionAge(): number {
-  try {
-    const start = Number(sessionStorage.getItem("dd_start") || Date.now());
-    return Math.round((Date.now() - start) / 1000);
-  } catch {
-    return 0;
-  }
-}
-
 let maxStep = 0;
 let eventCount = 0;
+let initialised = false;
 
 // ── Public API ──
 export async function track(event: string, step?: number, meta: Record<string, any> = {}) {
@@ -63,7 +95,7 @@ export async function track(event: string, step?: number, meta: Record<string, a
     session_id: sid,
     event,
     step: step ?? null,
-    meta,
+    meta: { ...meta, visitor_id: getVisitorId() },
     referrer: document.referrer || "direct",
     utm_source: getUtm(),
     device: getDevice(),
@@ -97,8 +129,23 @@ export async function track(event: string, step?: number, meta: Record<string, a
 // ── Auto-fire on load + on leave ──
 export function initAnalytics() {
   if (typeof window === "undefined") return;
+  if (initialised) return;          // never fire twice in one page load
+  initialised = true;
 
-  track("page_view", 0, { path: window.location.pathname });
+  // Only count a page_view once per session, not on every reload
+  const sid = getSessionId();
+  let alreadySeen = false;
+  try {
+    alreadySeen = localStorage.getItem("dd_pv") === sid;
+    if (!alreadySeen) localStorage.setItem("dd_pv", sid);
+  } catch {}
+
+  if (!alreadySeen) {
+    track("page_view", 0, { path: window.location.pathname });
+  } else {
+    // Still touch the session so "on the site right now" stays accurate
+    track("return_view", 0, { path: window.location.pathname });
+  }
 
   // Heartbeat: keeps "on the site right now" accurate in the admin panel.
   // Touches the session row every 30s while the tab is visible.
