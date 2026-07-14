@@ -4,6 +4,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import emailjs from "@emailjs/browser";
 import { createClient } from "@supabase/supabase-js";
 import { ChatWidget } from "./ChatWidget";
+import { track, initAnalytics } from "./analytics";
 
 // ─── PayPal Client ID ─────────────────────────────────────
 const PAYPAL_CLIENT_ID =
@@ -1964,6 +1965,7 @@ function Step6({
   // ── Success screen - auto-redirect to order tracker ─────
   useEffect(() => {
     if (paymentDone) {
+      track("payment_completed", 6, { service: state.service, qty: state.qty });
       // Save customer email for auto-login
       try { localStorage.setItem("dd_customer_email", state.email.toLowerCase()); } catch {}
       const timer = setTimeout(() => {
@@ -2866,6 +2868,18 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  // ── Analytics ──
+  useEffect(() => { initAnalytics(); }, []);
+
+  // ── Track wizard step changes ──
+  useEffect(() => {
+    const names: Record<number, string> = {
+      1: "step_service", 2: "step_brand", 3: "step_qty",
+      4: "step_brief", 5: "step_package", 6: "step_payment",
+    };
+    if (names[step]) track(names[step], step);
+  }, [step]);
+
   // ── Dynamic page title for SEO ──
   useEffect(() => {
     const titles: Record<string, string> = {
@@ -3100,7 +3114,7 @@ export default function App() {
                 <span className="hero-sub-l1">Original artwork, production-ready files, full commercial rights.</span>
                 <span className="hero-sub-price">From <b>$50</b> per design · Delivered in 3 days</span>
               </p>
-              <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
+              <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); track("cta_hero_click"); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
                 Start Your Order
                 <span className="hero-cta-arrow">→</span>
               </button>

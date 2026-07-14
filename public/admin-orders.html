@@ -700,6 +700,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Articles</h1><div class="page-actions"><button class="btn-primary" onclick="openAIWriter()" style="background:linear-gradient(135deg,#8B5CF6,#6366F1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> AI Write</button><button class="btn-primary" onclick="openArticleEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Article</button></div></div><div id="articles-area"></div></div>';
   } else if(currentView==='ai-agent'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title" style="display:flex;align-items:center;gap:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Article Agent</h1></div><div id="ai-agent-area"></div></div>';
+  } else if(currentView==='analytics'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Visitor Funnel</h1><div class="page-actions"><select id="an-range" class="msel" onchange="renderAnalyticsView()" style="max-width:140px"><option value="1">Last 24 hours</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option></select></div></div><div id="analytics-area"></div></div>';
   } else if(currentView==='gigs'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Gigs</h1><div class="page-actions"><button class="btn-primary" onclick="openGigEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Gig</button></div></div><div id="gigs-area"></div></div>';
   }
@@ -710,6 +712,7 @@ function renderCurrentView(){
   else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='gigs')renderGigsView();
+  else if(currentView==='analytics')renderAnalyticsView();
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
   if(sbIcons&&!document.getElementById('agent-nav-btn')){
@@ -723,6 +726,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('agent-nav-btn')){
     document.getElementById('agent-nav-btn').className='sb-ic'+(currentView==='ai-agent'?' active':'');
+  }
+  // Inject Analytics nav button
+  if(sbIcons&&!document.getElementById('analytics-nav-btn')){
+    var anBtn=document.createElement('button');
+    anBtn.id='analytics-nav-btn';
+    anBtn.className='sb-ic';
+    anBtn.title='Analytics';
+    anBtn.onclick=function(){switchView('analytics')};
+    anBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>Funnel<span class="sb-ic-tip">Visitor Funnel</span>';
+    sbIcons.appendChild(anBtn);
+  }
+  if(document.getElementById('analytics-nav-btn')){
+    document.getElementById('analytics-nav-btn').className='sb-ic'+(currentView==='analytics'?' active':'');
   }
   // Inject Gigs nav button
   if(sbIcons&&!document.getElementById('gigs-nav-btn')){
@@ -2803,6 +2819,228 @@ async function saveGig(id){
   closeGigEditor();renderGigsView();
 }
 function safeJSON(s){try{return JSON.parse(s)}catch(e){return s.split(',').map(function(x){return x.trim()}).filter(Boolean)}}
+
+// ═══════════════════════════════════════════════════════════
+// VISITOR FUNNEL ANALYTICS
+// ═══════════════════════════════════════════════════════════
+var FUNNEL = [
+  { key:'page_view',        label:'Landed on site',        step:0 },
+  { key:'cta_hero_click',   label:'Clicked "Start Order"', step:0 },
+  { key:'step_service',     label:'1. Chose service',      step:1 },
+  { key:'step_brand',       label:'2. Entered brand name', step:2 },
+  { key:'step_qty',         label:'3. Chose quantity',     step:3 },
+  { key:'step_brief',       label:'4. Wrote the brief',    step:4 },
+  { key:'step_package',     label:'5. Picked a package',   step:5 },
+  { key:'step_payment',     label:'6. Reached payment',    step:6 },
+  { key:'payment_completed',label:'PAID',                  step:7 },
+];
+
+async function renderAnalyticsView(){
+  var el=document.getElementById('analytics-area'); if(!el)return;
+  el.innerHTML='<div style="padding:40px;text-align:center;color:var(--txt3)">Loading...</div>';
+
+  var days=parseInt((document.getElementById('an-range')||{}).value||'7');
+  var since=new Date(Date.now()-days*864e5).toISOString();
+
+  var ev=await sb.from('visitor_events').select('*').gte('created_at',since).order('created_at',{ascending:false}).limit(5000);
+  var ss=await sb.from('visitor_sessions').select('*').gte('last_seen',since).order('last_seen',{ascending:false}).limit(2000);
+
+  if(ev.error||ss.error){
+    el.innerHTML='<div style="padding:40px;text-align:center;color:#F87171">Analytics tables not found.<br><br><span style="color:var(--txt3);font-size:13px">Run <b>analytics-migration.sql</b> in your Supabase SQL Editor first.</span></div>';
+    return;
+  }
+
+  var events=ev.data||[], sessions=ss.data||[];
+
+  if(sessions.length===0){
+    el.innerHTML='<div style="padding:60px;text-align:center;color:var(--txt3)"><p style="font-size:15px;margin-bottom:6px">No visitor data yet.</p><p style="font-size:13px">Data will appear here as people visit the site.</p></div>';
+    return;
+  }
+
+  // ── Funnel counts: unique sessions that reached each event ──
+  var counts={};
+  FUNNEL.forEach(function(f){
+    var set={};
+    events.forEach(function(e){ if(e.event===f.key) set[e.session_id]=1; });
+    counts[f.key]=Object.keys(set).length;
+  });
+  var top=counts['page_view']||sessions.length;
+
+  // ── Where do they die? ──
+  var exits={};
+  sessions.forEach(function(s){
+    var k=s.max_step||0;
+    exits[k]=(exits[k]||0)+1;
+  });
+
+  var converted=sessions.filter(function(s){return s.converted}).length;
+  var convRate=top>0?((converted/top)*100).toFixed(1):'0.0';
+  var avgDur=sessions.length?Math.round(sessions.reduce(function(a,s){return a+(s.duration_sec||0)},0)/sessions.length):0;
+  var bounced=sessions.filter(function(s){return (s.max_step||0)===0 && (s.duration_sec||0)<15}).length;
+  var bounceRate=sessions.length?((bounced/sessions.length)*100).toFixed(0):'0';
+
+  // ── Devices ──
+  var dev={};
+  sessions.forEach(function(s){ var d=s.device||'unknown'; dev[d]=(dev[d]||0)+1; });
+
+  // ── Traffic sources ──
+  var src={};
+  sessions.forEach(function(s){
+    var r=s.utm_source||s.referrer||'direct';
+    if(r.indexOf('facebook')>=0||r.indexOf('meta_ads')>=0||r.indexOf('fbclid')>=0) r='Meta Ads';
+    else if(r.indexOf('google')>=0) r='Google';
+    else if(r.indexOf('instagram')>=0) r='Instagram';
+    else if(r==='direct'||r==='') r='Direct';
+    else { try{ r=new URL(r).hostname.replace('www.','') }catch(e){} }
+    src[r]=(src[r]||0)+1;
+  });
+
+  // ═══ BUILD UI ═══
+  var h='';
+
+  // Top stats
+  h+='<div class="stats" style="margin-bottom:24px">'+
+     '<div class="stat"><div class="stat-val">'+top+'</div><div class="stat-label">Visitors</div></div>'+
+     '<div class="stat"><div class="stat-val" style="color:'+(converted>0?'#1DBF73':'#F87171')+'">'+converted+'</div><div class="stat-label">Orders</div></div>'+
+     '<div class="stat"><div class="stat-val" style="color:'+(parseFloat(convRate)>=1?'#1DBF73':'#FBBF24')+'">'+convRate+'%</div><div class="stat-label">Conversion Rate</div></div>'+
+     '<div class="stat"><div class="stat-val">'+Math.floor(avgDur/60)+'m '+(avgDur%60)+'s</div><div class="stat-label">Avg. Time on Site</div></div>'+
+     '<div class="stat"><div class="stat-val" style="color:'+(parseInt(bounceRate)>60?'#F87171':'#94A3B8')+'">'+bounceRate+'%</div><div class="stat-label">Bounced (&lt;15s)</div></div>'+
+     '</div>';
+
+  // ── FUNNEL ──
+  h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;margin-bottom:20px">';
+  h+='<h3 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#F1F5F9">Conversion Funnel</h3>';
+  h+='<p style="font-size:12px;color:#64748B;margin:0 0 18px">Where visitors drop off. The biggest red number is your problem.</p>';
+
+  var prev=top;
+  FUNNEL.forEach(function(f,i){
+    var n=counts[f.key]||0;
+    var pct=top>0?(n/top*100):0;
+    var dropN=prev-n;
+    var dropPct=prev>0?(dropN/prev*100):0;
+    var bad=dropPct>=50 && i>0 && prev>0;
+
+    h+='<div style="margin-bottom:12px">'+
+       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">'+
+         '<span style="font-size:13px;font-weight:600;color:'+(f.key==='payment_completed'?'#1DBF73':'#E2E8F0')+'">'+f.label+'</span>'+
+         '<span style="font-size:12px;color:#94A3B8"><b style="color:#F1F5F9;font-size:14px">'+n+'</b> &nbsp;('+pct.toFixed(0)+'%)</span>'+
+       '</div>'+
+       '<div style="height:9px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden">'+
+         '<div style="height:100%;width:'+Math.max(pct,0.5)+'%;background:'+(f.key==='payment_completed'?'#1DBF73':'linear-gradient(90deg,#1DBF73,#3B82F6)')+';border-radius:5px;transition:width .4s"></div>'+
+       '</div>';
+
+    if(i>0 && dropN>0){
+      h+='<div style="font-size:11px;color:'+(bad?'#F87171':'#64748B')+';margin-top:4px;font-weight:'+(bad?'700':'400')+'">'+
+         (bad?'\u26A0 ':'')+'\u2193 '+dropN+' left here ('+dropPct.toFixed(0)+'% drop)'+
+         '</div>';
+    }
+    h+='</div>';
+    prev=n;
+  });
+  h+='</div>';
+
+  // ── DIAGNOSIS ──
+  var worstIdx=-1, worstDrop=0;
+  var p2=top;
+  FUNNEL.forEach(function(f,i){
+    var n=counts[f.key]||0;
+    if(i>0 && p2>0){
+      var d=(p2-n)/p2*100;
+      if(d>worstDrop && p2>=3){ worstDrop=d; worstIdx=i; }
+    }
+    p2=n;
+  });
+
+  h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;margin-bottom:20px">';
+  h+='<h3 style="font-size:15px;font-weight:700;margin:0 0 14px;color:#F1F5F9">Diagnosis</h3>';
+
+  if(top<20){
+    h+='<div style="padding:14px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:13px;color:#BFDBFE;line-height:1.6">'+
+       '<b>Not enough data yet.</b><br>You have '+top+' visitors. Wait for at least 50-100 before drawing conclusions - anything less is noise, not signal.</div>';
+  } else if(worstIdx>0 && worstDrop>=40){
+    var f=FUNNEL[worstIdx];
+    var advice={
+      'cta_hero_click':'Visitors land but never click the button. This means the offer is not clear or not compelling in the first 5 seconds. Check: is the headline specific? Is the price visible? Does the ad promise match what they see?',
+      'step_service':'They click the CTA but never pick a service. The two options may be confusing, or the page may be scrolling somewhere unexpected. Test the button on mobile.',
+      'step_brand':'They pick a service but abandon at the brand name field. Some visitors do not have a brand name yet. Consider making this optional or adding "Not sure yet? Skip this."',
+      'step_qty':'They stall at quantity. The pricing may be unclear at this step. Show the running total live as they change quantity.',
+      'step_brief':'The brief is killing your conversions. Writing a design brief is real work and most people will not do it on a first visit. Make it skippable - let them order and send the brief later via WhatsApp.',
+      'step_package':'They see the packages and leave. This is a price objection. Either the price is too high for this audience, or the value is not clear enough at the point of decision.',
+      'step_payment':'They reach payment and abandon. This is a trust problem, not a price problem - they already accepted the price. Add: money-back guarantee near the button, secure-payment badges, and a visible way to contact you before paying.',
+    };
+    h+='<div style="padding:14px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:8px;margin-bottom:12px">'+
+       '<div style="font-size:13px;font-weight:700;color:#FCA5A5;margin-bottom:6px">Biggest leak: '+f.label+' ('+worstDrop.toFixed(0)+'% drop)</div>'+
+       '<div style="font-size:13px;color:#CBD5E1;line-height:1.65">'+(advice[f.key]||'Investigate this step.')+'</div>'+
+       '</div>';
+  } else if(converted>0){
+    h+='<div style="padding:14px;background:rgba(29,191,115,.08);border:1px solid rgba(29,191,115,.25);border-radius:8px;font-size:13px;color:#A7F3D0;line-height:1.6">'+
+       '<b>Funnel is healthy.</b> No single step is losing more than 40% of visitors. Focus on getting more traffic.</div>';
+  } else {
+    h+='<div style="padding:14px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;font-size:13px;color:#FDE68A;line-height:1.6">'+
+       'Visitors are moving through the funnel but nobody has paid yet. If people are reaching the payment step and stopping, the issue is trust - not price.</div>';
+  }
+  h+='</div>';
+
+  // ── SOURCES + DEVICES ──
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">';
+
+  h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px">'+
+     '<h3 style="font-size:14px;font-weight:700;margin:0 0 12px;color:#F1F5F9">Traffic Source</h3>';
+  Object.keys(src).sort(function(a,b){return src[b]-src[a]}).slice(0,6).forEach(function(k){
+    var pct=(src[k]/sessions.length*100).toFixed(0);
+    h+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:#CBD5E1">'+
+       '<span>'+esc(k)+'</span><span style="color:#94A3B8"><b style="color:#F1F5F9">'+src[k]+'</b> ('+pct+'%)</span></div>';
+  });
+  h+='</div>';
+
+  h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px">'+
+     '<h3 style="font-size:14px;font-weight:700;margin:0 0 12px;color:#F1F5F9">Device</h3>';
+  Object.keys(dev).sort(function(a,b){return dev[b]-dev[a]}).forEach(function(k){
+    var pct=(dev[k]/sessions.length*100).toFixed(0);
+    h+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:#CBD5E1">'+
+       '<span style="text-transform:capitalize">'+esc(k)+'</span><span style="color:#94A3B8"><b style="color:#F1F5F9">'+dev[k]+'</b> ('+pct+'%)</span></div>';
+  });
+  h+='</div>';
+  h+='</div>';
+
+  // ── RECENT SESSIONS ──
+  h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px">';
+  h+='<h3 style="font-size:14px;font-weight:700;margin:0 0 12px;color:#F1F5F9">Recent Visitors</h3>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
+  h+='<tr style="color:#64748B;text-align:left"><th style="padding:6px 8px;font-weight:600">When</th><th style="padding:6px 8px;font-weight:600">Source</th><th style="padding:6px 8px;font-weight:600">Device</th><th style="padding:6px 8px;font-weight:600">Got to</th><th style="padding:6px 8px;font-weight:600">Time</th><th style="padding:6px 8px;font-weight:600">Result</th></tr>';
+
+  var STEPN={0:'Just landed',1:'Service',2:'Brand name',3:'Quantity',4:'Brief',5:'Package',6:'Payment',7:'PAID'};
+  sessions.slice(0,30).forEach(function(s){
+    var ago=timeAgoShort(s.last_seen);
+    var srcv=s.utm_source||s.referrer||'direct';
+    if(srcv.indexOf('facebook')>=0||srcv.indexOf('meta_ads')>=0) srcv='Meta Ads';
+    else if(srcv.indexOf('google')>=0) srcv='Google';
+    else if(srcv==='direct'||srcv==='') srcv='Direct';
+    else { try{ srcv=new URL(srcv).hostname.replace('www.','') }catch(e){} }
+    var st=s.max_step||0;
+    var dur=s.duration_sec||0;
+    h+='<tr style="border-top:1px solid rgba(255,255,255,.05);color:#CBD5E1">'+
+       '<td style="padding:8px">'+ago+'</td>'+
+       '<td style="padding:8px">'+esc(srcv)+'</td>'+
+       '<td style="padding:8px;text-transform:capitalize">'+esc(s.device||'-')+'</td>'+
+       '<td style="padding:8px"><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:'+(st>=6?'rgba(29,191,115,.12)':st>=4?'rgba(96,165,250,.12)':'rgba(255,255,255,.06)')+';color:'+(st>=6?'#1DBF73':st>=4?'#60A5FA':'#94A3B8')+'">'+(STEPN[st]||st)+'</span></td>'+
+       '<td style="padding:8px;color:'+(dur<15?'#F87171':'#94A3B8')+'">'+Math.floor(dur/60)+'m '+(dur%60)+'s</td>'+
+       '<td style="padding:8px">'+(s.converted?'<span style="color:#1DBF73;font-weight:700">Ordered</span>':'<span style="color:#64748B">Left</span>')+'</td>'+
+       '</tr>';
+  });
+  h+='</table></div></div>';
+
+  el.innerHTML=h;
+}
+
+function timeAgoShort(d){
+  var s=Math.floor((Date.now()-new Date(d).getTime())/1000);
+  if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
 </script>
 </body>
 </html>
