@@ -2705,6 +2705,23 @@ function FAQSection() {
 }
 
 // ─── Main App ──────────────────────────────────────────────
+// ─── Service cards (Fiverr-style horizontal scroll) ─────────
+const SERVICE_CARDS = [
+  { slug: "streetwear-design",     eyebrow: "Streetwear",   line1: "Streetwear", line2: "Design",          price: 50,  tone: "t-ink" },
+  { slug: "tshirt-design",         eyebrow: "Apparel",      line1: "T-Shirt",    line2: "Design",          price: 50,  tone: "t-plum" },
+  { slug: "hoodie-design",         eyebrow: "Apparel",      line1: "Hoodie",     line2: "Design",          price: 50,  tone: "t-forest" },
+  { slug: "logo-design",           eyebrow: "Identity",     line1: "Logo &",     line2: "Brand Identity",  price: 80,  tone: "t-clay" },
+  { slug: "clothing-brand-design", eyebrow: "Full Package", line1: "Complete",   line2: "Brand Kit",       price: 200, tone: "t-teal" },
+  { slug: "merch-design",          eyebrow: "Creators",     line1: "Merch",      line2: "Design",          price: 50,  tone: "t-wine" },
+];
+
+const FEATURE_ITEMS = [
+  { icon: "ri-file-copy-2-line",   title: "Source files included",   sub: "PSD and AI, fully layered and editable" },
+  { icon: "ri-printer-line",       title: "Production-ready output", sub: "300 DPI with correct color separations" },
+  { icon: "ri-copyright-line",     title: "Full commercial rights",  sub: "Own it outright, no royalties, no limits" },
+  { icon: "ri-emotion-happy-line", title: "Only pay when happy",     sub: "100% money-back guarantee on every order" },
+];
+
 export default function App() {
 
   // ── Dynamic packages from DB (fallback to hardcoded) ────
@@ -3187,6 +3204,88 @@ export default function App() {
               </div>
             </div>
           </div>
+
+
+          {/* ══ Trusted By strip (Fiverr pattern) ══ */}
+          <div className="fv-trusted">
+            <div className="fv-trusted-inner">
+              <span className="fv-trusted-lbl">Trusted by brands from</span>
+              <b>United States</b>
+              <b>United Kingdom</b>
+              <b>Japan</b>
+              <b>Germany</b>
+              <b>Australia</b>
+              <b>Canada</b>
+              <b>Brazil</b>
+              <b>Singapore</b>
+            </div>
+          </div>
+
+          {/* ══ Services - horizontal scroll cards (Fiverr pattern) ══ */}
+          <section className="fv-services" id="services-cards">
+            <div className="fv-sec-head">
+              <h2 className="fv-sec-title">What we design</h2>
+              <p className="fv-sec-sub">Original artwork for your brand. Production-ready files included.</p>
+            </div>
+            <div className="fv-cards-scroll">
+              {SERVICE_CARDS.map((s) => (
+                <a
+                  key={s.slug}
+                  href={"/" + s.slug}
+                  className={"fv-svc-card " + s.tone}
+                  onClick={() => track("service_card_click", 0, { slug: s.slug })}
+                >
+                  <span className="fv-svc-eyebrow">{s.eyebrow}</span>
+                  <h3 className="fv-svc-title">{s.line1}<br/>{s.line2}</h3>
+                  <span className="fv-svc-price">from ${s.price}</span>
+                  <span className="fv-svc-arrow"><i className="ri-arrow-right-line" /></span>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          {/* ══ Features grid 2x2 (Fiverr pattern) ══ */}
+          <section className="fv-features">
+            <div className="fv-feat-head">
+              <h2 className="fv-sec-title">Make it all happen with one designer</h2>
+              <button
+                className="fv-btn-dark"
+                onClick={(e) => { e.preventDefault(); track("cta_features_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); }}
+              >
+                Start your order
+              </button>
+            </div>
+            <div className="fv-feat-grid">
+              {FEATURE_ITEMS.map((f, i) => (
+                <div className="fv-feat-item" key={i}>
+                  <div className="fv-feat-icon"><i className={f.icon} /></div>
+                  <h4>{f.title}</h4>
+                  <p>{f.sub}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ══ Guarantee banner (Fiverr Pro pattern) ══ */}
+          <section className="fv-banner">
+            <div className="fv-banner-logo">Dean <span>Designers.</span></div>
+            <h2 className="fv-banner-title">Work directly with the designer, not a marketplace</h2>
+            <ul className="fv-banner-list">
+              <li>No platform fees, no middlemen, no 20% cut</li>
+              <li>Talk to Dean directly on WhatsApp, brief to delivery</li>
+              <li>Source files and full commercial rights in every package</li>
+              <li>Print with any manufacturer, any quantity, forever</li>
+            </ul>
+            <button
+              className="fv-btn-light"
+              onClick={(e) => { e.preventDefault(); track("cta_banner_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); }}
+            >
+              Start your order
+            </button>
+            <p className="fv-banner-note">
+              <i className="ri-shield-check-line" /> 100% money-back guarantee
+            </p>
+          </section>
 
           <Testimonials />
 
