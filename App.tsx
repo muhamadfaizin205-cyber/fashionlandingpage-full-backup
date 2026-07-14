@@ -3016,15 +3016,30 @@ export default function App() {
       {/* ── NAVBAR with Hamburger ── */}
       <nav className="navbar">
         <div className="nav-wrap">
-          <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
-            <i className="ri-menu-line" style={{fontSize:20}} />
-          </button>
-          <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
-            <span className="nav-logo-3d" data-text="DEAN DESIGNERS">DEAN DESIGNERS</span>
-          </a>
-          <a href="/order-tracker.html" className="nav-profile" title="My Orders">
-            <i className="ri-user-line" style={{fontSize:18}} />
-          </a>
+          <div className="nav-left">
+            <button className="nav-hamburger" onClick={() => setDrawerOpen(true)} aria-label="Menu">
+              <i className="ri-menu-line" style={{fontSize:19}} />
+            </button>
+            <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
+              <span className="nav-logo-3d" data-text="DEAN DESIGNERS">DEAN DESIGNERS</span>
+            </a>
+          </div>
+
+          <div className="nav-right">
+            <a className="nav-act" href="/gigs" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); window.scrollTo(0,0); }}>
+              Services
+            </a>
+            <a className="nav-act" href="/order-tracker.html">
+              My Orders
+            </a>
+            <span className="nav-sep" />
+            <button
+              className="nav-cta"
+              onClick={() => { track("cta_nav_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); else { setCurrentPage("home"); } }}
+            >
+              Order now
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -3120,25 +3135,36 @@ export default function App() {
 
             {/* Minimal content */}
             <div className="hero-content">
-              <div className="hero-badge">
-                <i className="ri-star-fill" /> 5.0 rating · 136,000+ designs delivered
-              </div>
               <h1 className="hero-h1">
-                <span className="hero-h1-l1">Custom Clothing &amp; Logo Design</span>
-                <span className="hero-h1-l2">Made For Your Brand</span>
+                <span className="hero-h1-l1">Custom clothing design</span>
+                <span className="hero-h1-l2">made for your brand</span>
               </h1>
-              <p className="hero-sub">
-                <span className="hero-sub-l1">Original artwork, production-ready files, full commercial rights.</span>
-                <span className="hero-sub-price">From <b>$50</b> · No fees · No tax · 3-day delivery</span>
-              </p>
+
+              <p className="hero-sub">Original artwork. Production-ready files. From $50.</p>
+
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); track("cta_hero_click"); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
-                Start Your Order
-                <span className="hero-cta-arrow">→</span>
+                Start your order
               </button>
+
+              <div className="hero-tags">
+                {SERVICE_CARDS.slice(0, 4).map((s) => (
+                  <a
+                    key={s.slug}
+                    href={"/" + s.slug}
+                    className="hero-tag"
+                    onClick={() => track("hero_tag_click", 0, { slug: s.slug })}
+                  >
+                    {s.line1} {s.line2} <i className="ri-arrow-right-line" />
+                  </a>
+                ))}
+              </div>
+
               <div className="hero-trust">
-                <span><i className="ri-price-tag-3-line" /> No fees, no tax added</span>
-                <span><i className="ri-file-copy-2-line" /> Source files included</span>
-                <span><i className="ri-shield-check-line" /> Money-back guarantee</span>
+                <span className="hero-trust-lbl">Trusted by:</span>
+                <b>7,000+ brands</b>
+                <b>136K+ designs</b>
+                <b>5.0 rating</b>
+                <b>No fees, no tax</b>
               </div>
             </div>
 
@@ -3235,12 +3261,11 @@ export default function App() {
                   className={"fv-svc-card " + s.tone}
                   onClick={() => track("service_card_click", 0, { slug: s.slug })}
                 >
-                  <img className="fv-svc-img" src={s.img} alt="" loading="lazy" aria-hidden="true" />
-                  <span className="fv-svc-shade" />
-                  <span className="fv-svc-eyebrow">{s.eyebrow}</span>
                   <h3 className="fv-svc-title">{s.line1}<br/>{s.line2}</h3>
+                  <div className="fv-svc-frame">
+                    <img src={s.img} alt="" loading="lazy" aria-hidden="true" />
+                  </div>
                   <span className="fv-svc-price">from ${s.price}</span>
-                  <span className="fv-svc-arrow"><i className="ri-arrow-right-line" /></span>
                 </a>
               ))}
             </div>
