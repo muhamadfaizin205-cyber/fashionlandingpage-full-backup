@@ -1075,7 +1075,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
   6: {
     icon: "ri-bank-card-line", title: "Payment", color: "#14B8A6",
     tips: [
-      "Pay with PayPal or debit/credit card (Visa, Mastercard)",
+      "Pay securely with your PayPal account — cards linked to your PayPal work too",
       "After payment you'll receive a confirmation email with your login link",
       "Use email + code to track order, chat with designer, download files",
     ],
@@ -2073,8 +2073,6 @@ function Step6({
             <span>Secure Payment</span>
             <div className="stripe-badges">
               <span className="pay-logo pay-pp"><span>Pay</span><span>Pal</span></span>
-              <span className="pay-logo pay-visa">VISA</span>
-              <span className="pay-logo pay-mc"><span className="mc-dot mc-red" /><span className="mc-dot mc-yellow" /></span>
             </div>
           </div>
           <PayPalScriptProvider options={{
@@ -2082,8 +2080,11 @@ function Step6({
             currency: "USD",
             locale: "en_US",
             components: "buttons",
-            disableFunding: "paylater,venmo,sepa",
-            enableFunding: "card",
+            // PayPal-only mode: card funding is unreliable for this merchant
+            // account (Guest Checkout rejects most cross-border cards). Users
+            // pay with their PayPal account instead — the "New to PayPal?"
+            // guide below walks first-timers through signup.
+            disableFunding: "paylater,venmo,sepa,card,credit",
           }}>
             <PayPalCheckout
               finalPrice={finalPrice}
@@ -2502,7 +2503,7 @@ function OrderGuide() {
       num: "05",
       icon: "ri-bank-card-line",
       title: "Secure Payment via PayPal",
-      desc: "Click the PayPal button to pay. You can pay with: (1) Your PayPal account, or (2) Visa/Mastercard debit or credit card - no PayPal account needed. Price shown is the final amount in USD. No hidden fees. Payment is processed securely through PayPal - your card details never touch our servers.",
+      desc: "Click the PayPal button to pay. Sign in to your PayPal account (or create a free one — takes 2 minutes) and complete checkout. Cards linked to your PayPal account (Visa, Mastercard, Amex, debit) all work. Price shown is the final amount in USD. No hidden fees. Payment is processed securely through PayPal - your card details never touch our servers.",
       color: "#EC4899",
     },
     {
@@ -2640,7 +2641,7 @@ function FAQSection() {
     },
     {
       q: "Is my payment secure?",
-      a: "Yes - we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You can pay with credit/debit card, PayPal balance, or your bank account. Your card details never touch our servers.",
+      a: "Yes - we use PayPal for all transactions, which means bank-level encryption, buyer protection, and zero risk to you. You'll pay through your PayPal account (or create a free one at checkout in 2 minutes) — cards, bank accounts, and PayPal balance are all supported inside PayPal. Your card details never touch our servers.",
     },
     {
       q: "What if I need changes after delivery?",
