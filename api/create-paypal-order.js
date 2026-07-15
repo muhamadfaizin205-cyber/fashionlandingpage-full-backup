@@ -70,29 +70,55 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'PayPal secret not configured. Add PAYPAL_SECRET_KEY in Vercel env vars.' });
   }
 
-  const { packageId, service, qty, description = 'Dean Designers Order' } = req.body ?? {};
+  const {
+    mode,
+    amount: invoiceAmount,
+    packageId,
+    service,
+    qty,
+    description = 'Dean Designers Order',
+  } = req.body ?? {};
 
-  // Validate inputs
-  if (!packageId || !service || !qty) {
-    return res.status(400).json({ error: 'Missing required fields: packageId, service, qty' });
-  }
-  const quantity = Math.max(1, Math.min(20, parseInt(qty) || 1));
-  if (!['clothing', 'logo'].includes(service)) {
-    return res.status(400).json({ error: 'Invalid service type' });
-  }
+  // ─────────────────────────────────────────────────────────────
+  // Compute finalPrice + custom_id in one of two modes:
+  //   1. "invoice" — used by /card-payment.html for manual amounts
+  //   2. package   — used by the 6-step wizard in App.tsx
+  // ─────────────────────────────────────────────────────────────
+  let finalPrice;
+  let customIdPayload;
 
-  // SERVER-SIDE price lookup - client cannot influence this
-  const basePrice = await getPackagePrice(packageId, service);
-  if (!basePrice || basePrice <= 0) {
-    return res.status(400).json({ error: 'Package not found or inactive' });
-  }
+  if (mode === 'invoice') {
+    const amt = Number(invoiceAmount);
+    if (!isFinite(amt) || amt < 1 || amt > 10000) {
+      return res.status(400).json({ error: 'Invoice amount must be between $1 and $10000' });
+    }
+    finalPrice = Number(amt.toFixed(2));
+    customIdPayload = { mode: 'invoice', amount: finalPrice };
+    console.log(`[PayPal] Creating INVOICE order: $${finalPrice} desc="${description}"`);
+  } else {
+    // Package-based flow (order wizard)
+    if (!packageId || !service || !qty) {
+      return res.status(400).json({ error: 'Missing required fields: packageId, service, qty' });
+    }
+    const quantity = Math.max(1, Math.min(20, parseInt(qty) || 1));
+    if (!['clothing', 'logo'].includes(service)) {
+      return res.status(400).json({ error: 'Invalid service type' });
+    }
 
-  const { final: finalPrice } = calcPrice(basePrice, quantity, service);
-  if (finalPrice <= 0) {
-    return res.status(400).json({ error: 'Calculated price is invalid' });
-  }
+    // SERVER-SIDE price lookup - client cannot influence this
+    const basePrice = await getPackagePrice(packageId, service);
+    if (!basePrice || basePrice <= 0) {
+      return res.status(400).json({ error: 'Package not found or inactive' });
+    }
 
-  console.log(`[PayPal] Creating order: pkg=${packageId} svc=${service} qty=${quantity} base=$${basePrice} final=$${finalPrice}`);
+    const { final: calculated } = calcPrice(basePrice, quantity, service);
+    if (calculated <= 0) {
+      return res.status(400).json({ error: 'Calculated price is invalid' });
+    }
+    finalPrice = calculated;
+    customIdPayload = { packageId, service, qty: quantity, basePrice, finalPrice };
+    console.log(`[PayPal] Creating order: pkg=${packageId} svc=${service} qty=${quantity} base=$${basePrice} final=$${finalPrice}`);
+  }
 
   try {
     // 1. Get PayPal access token
@@ -124,8 +150,8 @@ export default async function handler(req, res) {
             currency_code: 'USD',
             value: String(Number(finalPrice).toFixed(2)),
           },
-          description: `${description} (${quantity} concept(s))`,
-          custom_id: JSON.stringify({ packageId, service, qty: quantity, basePrice, finalPrice }),
+          description: mode === 'invoice' ? description : `${description} (${customIdPayload.qty} concept(s))`,
+          custom_id: JSON.stringify(customIdPayload),
         }],
         application_context: {
           shipping_preference: 'NO_SHIPPING',
@@ -138,15 +164,21 @@ export default async function handler(req, res) {
 
     if (orderData.id) {
       console.log('[PayPal] Order created:', orderData.id, `$${finalPrice}`);
-      res.status(200).json({
-        id: orderData.id,
-        serverPrice: finalPrice,
-        basePrice,
-        qty: quantity,
-      });
+      const payload = { id: orderData.id, serverPrice: finalPrice };
+      if (mode !== 'invoice') {
+        payload.basePrice = customIdPayload.basePrice;
+        payload.qty = customIdPayload.qty;
+      }
+      res.status(200).json(payload);
     } else {
+      // Surface PayPal's real error to the caller — critical for debugging card declines.
       console.error('[PayPal] Order error:', JSON.stringify(orderData));
-      res.status(500).json({ error: orderData.details?.[0]?.description || 'Failed to create order' });
+      const detail = orderData.details?.[0];
+      res.status(400).json({
+        error: detail?.description || orderData.message || 'Failed to create order',
+        code: detail?.issue || orderData.name || 'CREATE_ORDER_FAILED',
+        debug_id: orderData.debug_id,
+      });
     }
   } catch (err) {
     console.error('[PayPal] Error:', err.message);

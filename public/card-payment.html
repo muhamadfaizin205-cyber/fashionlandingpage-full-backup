@@ -366,6 +366,100 @@ body {
   letter-spacing: 0.3px;
 }
 
+/* ── Card Fields (Advanced Checkout) ── */
+.cf-wrap { display: none; flex-direction: column; gap: 14px; }
+.cf-field { display: flex; flex-direction: column; gap: 6px; }
+.cf-field label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--txt3);
+  text-transform: uppercase;
+}
+.cf-input {
+  background: #f8fafc;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 0 14px;
+  height: 48px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex; align-items: center;
+}
+.cf-input.cf-focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,87,255,0.08); background: #fff; }
+.cf-input.cf-invalid { border-color: #dc2626; background: #fef2f2; }
+.cf-input iframe { width: 100% !important; height: 100% !important; }
+.cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cf-submit {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff; border: none; border-radius: 12px;
+  padding: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(0,87,255,0.2);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.cf-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,87,255,0.28); }
+.cf-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.cf-submit .spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.cf-submit.loading .spinner { display: inline-block; }
+.cf-submit.loading .cf-label-text { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Divider between card form and PayPal buttons */
+.pay-divider {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--txt3);
+  text-transform: uppercase;
+}
+.pay-divider::before, .pay-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Loading state while creating order */
+.loading-order {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  font-size: 13px;
+  color: var(--txt2);
+}
+.loading-order .spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Error code line under error message */
+.error-code {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--txt3);
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
 /* Amount form */
 .amount-form { display: flex; flex-direction: column; gap: 14px; }
 .af-label {
@@ -448,11 +542,52 @@ body {
         </div>
       </div>
 
-      <!-- PayPal Buttons -->
+      <!-- Amount entry form (when no ?amount= in URL) -->
+      <div id="amount-form-slot"></div>
+
+      <!-- Loading (while creating server-side order) -->
+      <div class="loading-order" id="loading-order">
+        <span class="spinner"></span>
+        <span>Preparing secure payment...</span>
+      </div>
+
+      <!-- PayPal Card Fields (embedded card form) -->
+      <form class="cf-wrap" id="card-fields-form">
+        <div class="cf-field">
+          <label>Cardholder Name</label>
+          <div id="card-name-field" class="cf-input"></div>
+        </div>
+        <div class="cf-field">
+          <label>Card Number</label>
+          <div id="card-number-field" class="cf-input"></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Expiry (MM / YY)</label>
+            <div id="card-expiry-field" class="cf-input"></div>
+          </div>
+          <div class="cf-field">
+            <label>CVV</label>
+            <div id="card-cvv-field" class="cf-input"></div>
+          </div>
+        </div>
+        <button type="button" id="card-submit-btn" class="cf-submit">
+          <span class="spinner"></span>
+          <span class="cf-label-text">Pay Securely</span>
+        </button>
+      </form>
+
+      <!-- Divider between card form and PayPal buttons -->
+      <div class="pay-divider" id="pay-divider">or pay with</div>
+
+      <!-- PayPal Buttons (always available as fallback) -->
       <div id="paypal-buttons"></div>
 
       <!-- Error -->
-      <div class="error-msg" id="error-msg"></div>
+      <div class="error-msg" id="error-msg">
+        <div id="error-text"></div>
+        <div class="error-code" id="error-code"></div>
+      </div>
 
       <!-- Trust -->
       <div class="trust-bar">
@@ -480,27 +615,90 @@ body {
   <div class="page-footer">USA International Payment · Secure Global Transactions · Powered by PayPal</div>
 </div>
 
-<!-- PayPal SDK -->
-<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&disable-funding=paylater&enable-funding=card"></script>
+<!--
+  PayPal SDK
+
+  Loaded with:
+    - components=buttons,card-fields  → enables the embedded Advanced Card Payments form
+    - enable-funding=card,venmo       → keeps the black card button as a fallback + Venmo
+    - disable-funding=paylater,credit → paylater/credit are US-only and cause noise abroad
+
+  The client-id below is the PUBLIC (live) merchant client id. The paired PAYPAL_SECRET_KEY
+  lives ONLY in Vercel env vars and is used by /api/create-paypal-order.js server-side.
+-->
+<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&components=buttons,card-fields&enable-funding=card,venmo&disable-funding=paylater,credit"></script>
 <script>
-  // Generate reference ID
-  var refId = 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
-  document.getElementById('ref-id').textContent = 'Ref: ' + refId;
+(function () {
+  'use strict';
 
-  var params = new URLSearchParams(window.location.search);
+  // ── DOM refs ────────────────────────────────────────────────
+  var refId = 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+  var refEl        = document.getElementById('ref-id');
+  var displayAmtEl = document.getElementById('display-amount');
+  var statusTextEl = document.getElementById('status-text');
+  var statusDotEl  = document.querySelector('.ct-status-dot');
+  var amountSlot   = document.getElementById('amount-form-slot');
+  var loadingEl    = document.getElementById('loading-order');
+  var cardFormEl   = document.getElementById('card-fields-form');
+  var dividerEl    = document.getElementById('pay-divider');
+  var buttonsEl    = document.getElementById('paypal-buttons');
+  var errorMsgEl   = document.getElementById('error-msg');
+  var errorTextEl  = document.getElementById('error-text');
+  var errorCodeEl  = document.getElementById('error-code');
+  var cardSubmitBtn= document.getElementById('card-submit-btn');
+  var cardTopEl    = document.querySelector('.card-top');
+  var methodsEl    = document.querySelector('.methods');
+  var trustBarEl   = document.querySelector('.trust-bar');
+
+  refEl.textContent = 'Ref: ' + refId;
+
+  // ── URL params ──────────────────────────────────────────────
+  var params    = new URLSearchParams(window.location.search);
   var urlAmount = params.get('amount');
-  var desc = params.get('desc') || 'International Payment';
-  var service = params.get('service');
-  var pkg = params.get('pkg');
-  var brand = params.get('brand');
+  var desc      = params.get('desc') || 'International Payment';
+  var svc       = params.get('service');
+  var pkg       = params.get('pkg');
+  var brand     = params.get('brand');
 
-  if (service || pkg || brand) {
+  if (svc || pkg || brand) {
     document.getElementById('order-info').style.display = 'flex';
-    if (service) document.getElementById('info-service').textContent = service;
-    if (pkg) document.getElementById('info-package').textContent = pkg;
-    if (brand) document.getElementById('info-brand').textContent = brand;
+    if (svc)   document.getElementById('info-service').textContent  = svc;
+    if (pkg)   document.getElementById('info-package').textContent  = pkg;
+    if (brand) document.getElementById('info-brand').textContent    = brand;
   }
 
+  // ── UI helpers ──────────────────────────────────────────────
+  function showError(text, code) {
+    errorTextEl.textContent = text || 'Payment could not be completed.';
+    errorCodeEl.textContent = code ? ('Code: ' + code) : '';
+    errorMsgEl.style.display = 'block';
+  }
+  function hideError() { errorMsgEl.style.display = 'none'; }
+
+  function setStatus(text, dotColor) {
+    statusTextEl.textContent = text;
+    if (dotColor) statusDotEl.style.background = dotColor;
+  }
+
+  function showSuccess(amount, txId) {
+    cardTopEl.style.background = 'linear-gradient(135deg, #059669, #047857)';
+    statusDotEl.style.cssText = 'background:#10B981;animation:none';
+    setStatus('Payment complete');
+    cardFormEl.style.display = 'none';
+    dividerEl.style.display  = 'none';
+    buttonsEl.innerHTML =
+      '<div class="success-box">' +
+        '<div class="success-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+        '<div class="success-title">Payment Confirmed</div>' +
+        '<div class="success-sub">$' + amount + ' USD has been received and processed successfully.</div>' +
+        '<div class="success-ref">' + (txId || refId) + '</div>' +
+      '</div>';
+    if (methodsEl)  methodsEl.style.display  = 'none';
+    if (trustBarEl) trustBarEl.style.display = 'none';
+    hideError();
+  }
+
+  // ── Entry ───────────────────────────────────────────────────
   if (urlAmount && parseFloat(urlAmount) > 0) {
     startPayment(parseFloat(urlAmount).toFixed(2));
   } else {
@@ -508,73 +706,228 @@ body {
   }
 
   function showAmountForm() {
-    document.getElementById('paypal-buttons').innerHTML =
+    amountSlot.innerHTML =
       '<div class="amount-form">' +
         '<label class="af-label">Enter Payment Amount (USD)</label>' +
         '<div class="af-input-wrap">' +
           '<span class="af-prefix">$</span>' +
           '<input type="number" id="amount-input" class="af-input" placeholder="0.00" min="1" step="0.01" autofocus />' +
         '</div>' +
-        '<button class="af-btn" onclick="handleAmountSubmit()">Proceed to Secure Payment →</button>' +
+        '<button type="button" class="af-btn" id="amount-submit-btn">Proceed to Secure Payment →</button>' +
       '</div>';
+    document.getElementById('amount-submit-btn').addEventListener('click', function () {
+      var val = parseFloat(document.getElementById('amount-input').value);
+      if (!val || val < 1) {
+        showError('Please enter a valid amount (minimum $1.00 USD)');
+        return;
+      }
+      hideError();
+      amountSlot.innerHTML = '';
+      startPayment(val.toFixed(2));
+    });
   }
 
-  function handleAmountSubmit() {
-    var val = parseFloat(document.getElementById('amount-input').value);
-    if (!val || val < 1) {
-      var el = document.getElementById('error-msg');
-      el.textContent = 'Please enter a valid amount (minimum $1.00 USD)';
-      el.style.display = 'block';
-      return;
-    }
-    document.getElementById('error-msg').style.display = 'none';
-    startPayment(val.toFixed(2));
+  // ── Order creation (server-side) ────────────────────────────
+  //   Every card charge starts by asking OUR server to create a
+  //   PayPal order. This means the amount is authenticated by PayPal
+  //   against our server's request, not typed by the browser.
+  function createServerOrder(amount) {
+    return fetch('/api/create-paypal-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'invoice', amount: Number(amount), description: desc }),
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok || !j.id) {
+          var msg  = j.error || 'Could not create payment order';
+          var code = j.code  || ('HTTP_' + r.status);
+          throw { message: msg, code: code, debug_id: j.debug_id };
+        }
+        return j.id; // PayPal order id
+      });
+    });
   }
 
+  function captureServerOrder(orderId) {
+    return fetch('/api/capture-paypal-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderID: orderId }),
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) {
+          throw { message: j.error || 'Capture failed', code: 'CAPTURE_HTTP_' + r.status };
+        }
+        if (j.status !== 'COMPLETED') {
+          // PayPal returned a non-completed status (DECLINED, FAILED, etc.)
+          var d = j.details || {};
+          var name = d.name || j.status || 'PAYMENT_FAILED';
+          var msg  = (d.details && d.details[0] && d.details[0].description) || d.message || 'Payment was declined.';
+          throw { message: msg, code: name, debug_id: d.debug_id };
+        }
+        return j;
+      });
+    });
+  }
+
+  // ── Main payment flow ───────────────────────────────────────
   function startPayment(amount) {
-    document.getElementById('display-amount').textContent = amount;
-    document.getElementById('status-text').textContent = 'Awaiting payment';
-    document.querySelector('.ct-status-dot').style.background = '#facc15';
-    document.getElementById('paypal-buttons').innerHTML = '';
+    displayAmtEl.textContent = amount;
+    setStatus('Awaiting payment', '#facc15');
+    hideError();
 
-    paypal.Buttons({
-      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 50 },
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          intent: 'CAPTURE',
-          purchase_units: [{ amount: { value: amount, currency_code: 'USD' }, description: desc }],
-          application_context: { shipping_preference: 'NO_SHIPPING', user_action: 'PAY_NOW' },
+    // Try Card Fields first. If not eligible, hide the form + divider
+    // and show only the PayPal buttons.
+    var cfEligible = typeof paypal.CardFields === 'function';
+    var cfInstance = null;
+
+    if (cfEligible) {
+      try {
+        cfInstance = paypal.CardFields({
+          createOrder: function () { return createServerOrder(amount); },
+          onApprove:   function (data) { finalizePayment(data.orderID, amount); },
+          onError:     function (err) {
+            console.error('[CardFields] onError', err);
+            var msg  = (err && err.message) || 'Card was declined by the issuer.';
+            var code = (err && err.code) || (err && err.name) || 'CARD_DECLINED';
+            showError(friendlyCardMessage(msg, code), code);
+            setCardBtnLoading(false);
+          },
         });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function() {
-          document.querySelector('.card-top').style.background = 'linear-gradient(135deg, #059669, #047857)';
-          document.querySelector('.ct-status-dot').style.cssText = 'background:#10B981;animation:none';
-          document.getElementById('status-text').textContent = 'Payment complete';
-          document.getElementById('paypal-buttons').innerHTML =
-            '<div class="success-box">' +
-              '<div class="success-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
-              '<div class="success-title">Payment Confirmed</div>' +
-              '<div class="success-sub">$' + amount + ' USD has been received and processed successfully.</div>' +
-              '<div class="success-ref">' + refId + '</div>' +
-            '</div>';
-          document.querySelector('.trust-bar').style.display = 'none';
-          document.querySelector('.methods').style.display = 'none';
-          if (document.getElementById('error-msg')) document.getElementById('error-msg').style.display = 'none';
+        cfEligible = cfInstance.isEligible();
+      } catch (e) {
+        console.warn('[CardFields] init failed', e);
+        cfEligible = false;
+      }
+    }
+
+    if (cfEligible) {
+      // Mount the four card sub-fields into their container divs.
+      cardFormEl.style.display = 'flex';
+      dividerEl.style.display  = 'flex';
+      var styleObj = {
+        input: {
+          'font-family': "'Inter', -apple-system, sans-serif",
+          'font-size':   '15px',
+          'font-weight': '500',
+          'color':       '#0f172a',
+          'padding':     '0',
+        },
+        '.invalid': { 'color': '#dc2626' },
+        ':focus':   { 'color': '#0f172a' },
+      };
+      var fields = [
+        { fn: 'NameField',   sel: '#card-name-field',   placeholder: 'Full name on card' },
+        { fn: 'NumberField', sel: '#card-number-field', placeholder: '1234 5678 9012 3456' },
+        { fn: 'ExpiryField', sel: '#card-expiry-field', placeholder: 'MM / YY' },
+        { fn: 'CVVField',    sel: '#card-cvv-field',    placeholder: 'CVV' },
+      ];
+      fields.forEach(function (f) {
+        try {
+          cfInstance[f.fn]({
+            style: styleObj,
+            placeholder: f.placeholder,
+            inputEvents: {
+              onFocus: function () { document.querySelector(f.sel).classList.add('cf-focus'); },
+              onBlur:  function () { document.querySelector(f.sel).classList.remove('cf-focus'); },
+              onChange:function (ev) {
+                var el = document.querySelector(f.sel);
+                if (ev && ev.fields) {
+                  // PayPal reports validity per-field; toggle invalid state on our container.
+                  var anyInvalid = Object.keys(ev.fields).some(function (k) {
+                    return ev.fields[k] && ev.fields[k].isValid === false && ev.fields[k].isPotentiallyValid === false;
+                  });
+                  el.classList.toggle('cf-invalid', !!anyInvalid);
+                }
+              },
+            },
+          }).render(f.sel);
+        } catch (e) {
+          console.warn('[CardFields]', f.fn, 'render failed', e);
+        }
+      });
+
+      cardSubmitBtn.addEventListener('click', function () {
+        hideError();
+        setCardBtnLoading(true);
+        cfInstance.submit().then(function () {
+          // Success flow is handled in onApprove above (which calls finalizePayment).
+          // Nothing to do here; submit() resolves after onApprove has captured.
+        }).catch(function (err) {
+          console.error('[CardFields] submit rejected', err);
+          setCardBtnLoading(false);
+          var msg  = (err && err.message) || 'Card was declined. Please check the details and try again.';
+          var code = (err && err.code) || 'CARD_SUBMIT_FAILED';
+          showError(friendlyCardMessage(msg, code), code);
         });
-      },
-      onError: function() {
-        var el = document.getElementById('error-msg');
-        el.textContent = 'Transaction declined. Please verify your card details or try an alternative payment method.';
-        el.style.display = 'block';
-      },
-      onCancel: function() {
-        var el = document.getElementById('error-msg');
-        el.textContent = 'Transaction cancelled. You may retry at any time.';
-        el.style.display = 'block';
-      },
-    }).render('#paypal-buttons');
+      });
+    } else {
+      // Card Fields not eligible on this merchant account — hide the embedded form.
+      cardFormEl.style.display = 'none';
+      dividerEl.style.display  = 'none';
+      console.warn('[CardFields] Not eligible on this merchant account. Falling back to PayPal Buttons with card funding.');
+    }
+
+    // Always render the PayPal Buttons (they include a black card button
+    // via enable-funding=card, which works even without Advanced Card approval).
+    renderButtons(amount);
   }
+
+  function setCardBtnLoading(on) {
+    if (on) {
+      cardSubmitBtn.classList.add('loading');
+      cardSubmitBtn.disabled = true;
+      cardSubmitBtn.querySelector('.cf-label-text').textContent = 'Processing...';
+    } else {
+      cardSubmitBtn.classList.remove('loading');
+      cardSubmitBtn.disabled = false;
+      cardSubmitBtn.querySelector('.cf-label-text').textContent = 'Pay Securely';
+    }
+  }
+
+  function renderButtons(amount) {
+    buttonsEl.innerHTML = '';
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 48 },
+      createOrder: function () { return createServerOrder(amount); },
+      onApprove: function (data) { return finalizePayment(data.orderID, amount); },
+      onError: function (err) {
+        console.error('[Buttons] onError', err);
+        showError('Payment could not be completed. Please try a different card or funding source.', 'BUTTON_ERROR');
+      },
+      onCancel: function () {
+        showError('Transaction cancelled. You may retry at any time.', 'USER_CANCELLED');
+      },
+    }).render('#paypal-buttons').catch(function (e) {
+      console.error('[Buttons] render failed', e);
+    });
+  }
+
+  function finalizePayment(orderId, amount) {
+    setStatus('Verifying payment...', '#facc15');
+    return captureServerOrder(orderId).then(function (result) {
+      var txId = result.transactionId || result.id || orderId;
+      showSuccess(amount, txId);
+    }).catch(function (err) {
+      console.error('[Capture] failed', err);
+      setCardBtnLoading(false);
+      showError(friendlyCardMessage(err.message, err.code), err.code || 'CAPTURE_FAILED');
+    });
+  }
+
+  // ── Human-readable messages for common PayPal error codes ───
+  function friendlyCardMessage(msg, code) {
+    if (!code) return msg;
+    var c = String(code).toUpperCase();
+    if (c.indexOf('INSTRUMENT_DECLINED')    !== -1) return 'Your card was declined by the issuer. Try another card or use PayPal below.';
+    if (c.indexOf('PAYER_ACTION_REQUIRED')  !== -1) return 'Your bank needs to verify this payment. Please complete the verification, or try another card.';
+    if (c.indexOf('CARD_BRAND_NOT_SUPPORTED')!== -1) return 'That card brand is not accepted. Please use Visa, Mastercard, or Amex.';
+    if (c.indexOf('CURRENCY_NOT_SUPPORTED') !== -1) return 'This currency is not supported for card payments. Please try PayPal below.';
+    if (c.indexOf('COUNTRY_NOT_SUPPORTED')  !== -1) return 'Cards from your country are not accepted directly. Please pay with PayPal below.';
+    if (c.indexOf('DECLINED')               !== -1) return 'The payment was declined. Please check your card details or try PayPal below.';
+    return msg || 'Payment could not be completed.';
+  }
+})();
 </script>
 </body>
 </html>

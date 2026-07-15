@@ -1,6 +1,8 @@
 // Vercel Serverless: /api/capture-paypal-order.js
 // Captures PayPal order AND verifies the captured amount matches server expectation
 
+import { randomBytes } from 'crypto';
+
 const SUPABASE_URL = 'https://zqawpdspxdcmofnmrbku.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTY5MTQxNiwiZXhwIjoyMDk3MjY3NDE2fQ.zX6eUF2DNd046VZkW8g4ik5T24a5VWyi0_MI2SKD2gM';
 
@@ -66,7 +68,8 @@ export default async function handler(req, res) {
           const { price: _clientPrice, ...safeOrderData } = clientOrderData;
 
           // A1 FIX: Generate 6-char access code for secure order tracker login
-          const accessCode = require('crypto').randomBytes(3).toString('hex').toUpperCase(); // e.g. "A3F2B1"
+          // (uses top-level ESM `import { randomBytes } from 'crypto'` — never require() in /api)
+          const accessCode = randomBytes(3).toString('hex').toUpperCase(); // e.g. "A3F2B1"
 
           const orderRow = {
             ...safeOrderData,
