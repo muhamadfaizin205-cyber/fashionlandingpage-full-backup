@@ -347,6 +347,77 @@ function useGigs() {
   return { gigs, loading };
 }
 
+// ─── "What we design" service cards (homepage) ─────────────
+// The 5-6 tone-colored cards below the hero. Content lives in the
+// `service_cards` Supabase table (see service-cards-migration.sql) and
+// is editable from the admin panel > Cards. The hook subscribes to
+// realtime changes so an admin edit shows up on every open homepage
+// tab within a second.
+//
+// DEFAULT_SERVICE_CARDS is a hardcoded fallback used when Supabase is
+// unreachable, when the table is empty (fresh install), or during the
+// brief interval before the fetch resolves. This is the SAME shape and
+// values that used to live inline in the render, so behavior is
+// identical if the DB layer fails.
+type ServiceCard = {
+  id?: string;
+  slug: string;
+  line1: string;
+  line2: string;
+  price: number;
+  tone: string;   // one of the .t-* tone classes: t-ink | t-plum | t-forest | t-clay | t-teal | t-wine
+  img: string;    // public URL — either a /public asset or a Supabase Storage URL
+};
+
+const DEFAULT_SERVICE_CARDS: ServiceCard[] = [
+  { slug: "streetwear-design",     line1: "Streetwear", line2: "Design",         price: 50,  tone: "t-ink",    img: "/clothing-1.jpg" },
+  { slug: "tshirt-design",         line1: "T-Shirt",    line2: "Design",         price: 50,  tone: "t-plum",   img: "/clothing-2.png" },
+  { slug: "hoodie-design",         line1: "Hoodie",     line2: "Design",         price: 50,  tone: "t-forest", img: "/clothing-3.png" },
+  { slug: "logo-design",           line1: "Logo &",     line2: "Brand Identity", price: 80,  tone: "t-clay",   img: "/logo-1.png"     },
+  { slug: "clothing-brand-design", line1: "Complete",   line2: "Brand Kit",      price: 200, tone: "t-teal",   img: "/logo-2.png"     },
+  { slug: "merch-design",          line1: "Merch",      line2: "Design",         price: 50,  tone: "t-wine",   img: "/clothing-1.jpg" },
+];
+
+function useServiceCards() {
+  const [cards, setCards] = useState<ServiceCard[]>(DEFAULT_SERVICE_CARDS);
+
+  const load = () => {
+    if (!supabase) return;
+    supabase
+      .from("service_cards")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then((r: any) => {
+        if (r.error || !r.data || r.data.length === 0) return; // keep defaults on failure/empty
+        const rows: ServiceCard[] = r.data.map((row: any) => ({
+          id: row.id,
+          slug: row.slug || "",
+          line1: row.line1 || "",
+          line2: row.line2 || "",
+          price: Number(row.price) || 0,
+          tone: row.tone || "t-ink",
+          img: row.img_url || "",
+        }));
+        setCards(rows);
+      });
+  };
+
+  useEffect(() => {
+    load();
+    if (!supabase) return;
+    const channel = supabase
+      .channel("service-cards-realtime-" + Date.now())
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_cards" }, () => {
+        load();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return cards;
+}
+
 // ─── My Orders Page (customer-facing order tracker) ─────────
 function MyOrdersPage({ onBack }: { onBack: () => void }) {
   const [customerEmail, setCustomerEmail] = useState(() => {
@@ -2713,15 +2784,6 @@ function FAQSection() {
 
 // ─── Main App ──────────────────────────────────────────────
 // ─── Service cards (Fiverr-style horizontal scroll) ─────────
-const SERVICE_CARDS = [
-  { slug: "streetwear-design",     eyebrow: "Streetwear",   line1: "Streetwear", line2: "Design",         price: 50,  tone: "t-ink",    img: "/clothing-1.jpg" },
-  { slug: "tshirt-design",         eyebrow: "Apparel",      line1: "T-Shirt",    line2: "Design",         price: 50,  tone: "t-plum",   img: "/clothing-2.png" },
-  { slug: "hoodie-design",         eyebrow: "Apparel",      line1: "Hoodie",     line2: "Design",         price: 50,  tone: "t-forest", img: "/clothing-3.png" },
-  { slug: "logo-design",           eyebrow: "Identity",     line1: "Logo &",     line2: "Brand Identity", price: 80,  tone: "t-clay",   img: "/logo-1.png" },
-  { slug: "clothing-brand-design", eyebrow: "Full Package", line1: "Complete",   line2: "Brand Kit",      price: 200, tone: "t-teal",   img: "/logo-2.png" },
-  { slug: "merch-design",          eyebrow: "Creators",     line1: "Merch",      line2: "Design",         price: 50,  tone: "t-wine",   img: "/clothing-1.jpg" },
-];
-
 const FEATURE_ITEMS = [
   { icon: "ri-file-copy-2-line",   title: "Source files included",   sub: "PSD and AI, fully layered and editable" },
   { icon: "ri-printer-line",       title: "Production-ready output", sub: "300 DPI with correct color separations" },
@@ -2734,6 +2796,7 @@ export default function App() {
   // ── Dynamic packages from DB (fallback to hardcoded) ────
   const { clothingPkgs, logoPkgs } = useDbPackages();
   const { gigs } = useGigs();
+  const serviceCards = useServiceCards();
 
   // Handle gig order - pre-select service and scroll to wizard
   const handleGigOrder = (gig: Gig) => {
@@ -3154,7 +3217,7 @@ export default function App() {
               </button>
 
               <div className="hero-tags">
-                {SERVICE_CARDS.slice(0, 4).map((s) => (
+                {serviceCards.slice(0, 4).map((s) => (
                   <a
                     key={s.slug}
                     href={"/" + s.slug}
@@ -3261,7 +3324,7 @@ export default function App() {
               <p className="fv-sec-sub">Original artwork for your brand. Production-ready files included.</p>
             </div>
             <div className="fv-cards-scroll">
-              {SERVICE_CARDS.map((s) => (
+              {serviceCards.map((s) => (
                 <a
                   key={s.slug}
                   href={"/" + s.slug}

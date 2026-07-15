@@ -629,6 +629,7 @@ function renderApp(){
       '<div class="md-item '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Articles</div>'+
         '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
       '<div class="md-item '+(currentView==='gigs'?'active':'')+'" onclick="switchView(\'gigs\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Gigs</div>'+
+      '<div class="md-item '+(currentView==='cards'?'active':'')+'" onclick="switchView(\'cards\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Homepage Cards</div>'+
       '<div class="md-divider"></div>'+
       '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -704,6 +705,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Visitor Funnel</h1><div class="page-actions"><select id="an-range" class="msel" onchange="renderAnalyticsView()" style="max-width:140px"><option value="1">Last 24 hours</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option></select></div></div><div id="analytics-area"></div></div>';
   } else if(currentView==='gigs'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Gigs</h1><div class="page-actions"><button class="btn-primary" onclick="openGigEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Gig</button></div></div><div id="gigs-area"></div></div>';
+  } else if(currentView==='cards'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Homepage Cards</h1><div class="page-actions"><button class="btn-ghost" onclick="renderCardsView()">↻ Refresh</button><button class="btn-primary" onclick="openCardEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Card</button></div></div><div style="font-size:13px;color:var(--txt3);margin:-8px 0 18px;max-width:640px">These are the "What we design" tone-colored cards on the homepage. Changes appear on every open homepage tab within a second (realtime).</div><div id="cards-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -712,6 +715,7 @@ function renderCurrentView(){
   else if(currentView==='articles')renderArticlesView();
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='gigs')renderGigsView();
+  else if(currentView==='cards')renderCardsView();
   else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
@@ -752,6 +756,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('gigs-nav-btn')){
     document.getElementById('gigs-nav-btn').className='sb-ic'+(currentView==='gigs'?' active':'');
+  }
+  // Inject Cards nav button
+  if(sbIcons&&!document.getElementById('cards-nav-btn')){
+    var cardsBtn=document.createElement('button');
+    cardsBtn.id='cards-nav-btn';
+    cardsBtn.className='sb-ic';
+    cardsBtn.title='Homepage Cards';
+    cardsBtn.onclick=function(){switchView('cards')};
+    cardsBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Cards<span class="sb-ic-tip">Homepage Cards</span>';
+    sbIcons.appendChild(cardsBtn);
+  }
+  if(document.getElementById('cards-nav-btn')){
+    document.getElementById('cards-nav-btn').className='sb-ic'+(currentView==='cards'?' active':'');
   }
 }
 
@@ -2819,6 +2836,333 @@ async function saveGig(id){
   closeGigEditor();renderGigsView();
 }
 function safeJSON(s){try{return JSON.parse(s)}catch(e){return s.split(',').map(function(x){return x.trim()}).filter(Boolean)}}
+
+// ═══════════════════════════════════════════════════════════
+// HOMEPAGE CARDS ("What we design" section)
+// Table: service_cards  |  Storage path: uploads/service-cards/*
+// The homepage subscribes to postgres_changes on this table, so any
+// insert/update/delete here shows up on every open homepage tab within
+// ~1 second.
+// ═══════════════════════════════════════════════════════════
+var allCards=[];
+
+// Available tone classes must match the .fv-svc-card.t-* CSS in styles.css
+var CARD_TONES=[
+  {v:'t-ink',    label:'Ink',    hex:'#1A1D24'},
+  {v:'t-plum',   label:'Plum',   hex:'#4A2545'},
+  {v:'t-forest', label:'Forest', hex:'#14432A'},
+  {v:'t-clay',   label:'Clay',   hex:'#6A4A2B'},
+  {v:'t-teal',   label:'Teal',   hex:'#0A4A40'},
+  {v:'t-wine',   label:'Wine',   hex:'#5C2233'},
+];
+
+// Slugs that already have vercel.json rewrites → static SEO landing pages.
+// Free-text is still allowed; this list just makes the common picks one click.
+var CARD_SLUG_SUGGESTIONS=[
+  'streetwear-design',
+  'tshirt-design',
+  'hoodie-design',
+  'logo-design',
+  'clothing-brand-design',
+  'merch-design',
+];
+
+async function loadCards(){
+  if(!sb) return allCards;
+  var r=await sb.from('service_cards').select('*').order('sort_order',{ascending:true});
+  if(!r.error && r.data) allCards=r.data;
+  return allCards;
+}
+
+async function renderCardsView(){
+  var el=document.getElementById('cards-area'); if(!el) return;
+  el.innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3)">Loading...</div>';
+  await loadCards();
+  if(allCards.length===0){
+    el.innerHTML='<div style="text-align:center;padding:60px;color:var(--txt3);border:1px dashed var(--border);border-radius:14px">'+
+      '<p style="margin:0 0 8px;font-size:14px">No homepage cards yet.</p>'+
+      '<p style="margin:0 0 16px;font-size:12px">Click <b>New Card</b> above to create one, or run <code>service-cards-migration.sql</code> in Supabase SQL Editor to seed the 6 defaults.</p>'+
+    '</div>';
+    return;
+  }
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">';
+  allCards.forEach(function(c, idx){
+    var active=c.is_active;
+    var tone=CARD_TONES.find(function(t){return t.v===c.tone})||CARD_TONES[0];
+    var img=c.img_url||'';
+    // Live preview: matches the real .fv-svc-card layout
+    h+='<div style="background:var(--card);border-radius:14px;border:1px solid '+(active?'var(--border)':'#FECACA')+';overflow:hidden;display:flex;flex-direction:column">'+
+      // Preview
+      '<div style="background:'+tone.hex+';padding:14px 14px 12px;color:#fff;display:flex;flex-direction:column;min-height:230px">'+
+        '<h3 style="font-family:Inter,system-ui,sans-serif;font-size:15px;font-weight:600;line-height:1.28;margin:0 0 10px;letter-spacing:-.3px">'+esc(c.line1||'')+'<br>'+esc(c.line2||'')+'</h3>'+
+        (img?'<div style="width:100%;height:130px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.06);margin-bottom:10px"><img src="'+esc(img)+'" style="width:100%;height:100%;object-fit:cover;display:block"></div>':'<div style="width:100%;height:130px;border-radius:6px;background:rgba(255,255,255,.08);margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:11px">No image</div>')+
+        '<span style="font-family:Inter,system-ui,sans-serif;font-size:12.5px;color:rgba(255,255,255,.72);margin-top:auto">from $'+Number(c.price||0)+'</span>'+
+      '</div>'+
+      // Meta + actions
+      '<div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px">'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:'+(active?'var(--green-bg)':'#FEF2F2')+';color:'+(active?'var(--green)':'#DC2626')+'">'+(active?'LIVE':'HIDDEN')+'</span>'+
+          '<span style="font-size:11px;color:var(--txt3);font-family:monospace">'+esc(c.slug||'')+'</span>'+
+          '<span style="font-size:11px;color:var(--txt3);margin-left:auto">#'+(c.sort_order||0)+'</span>'+
+        '</div>'+
+        '<div style="display:flex;gap:6px;align-items:center">'+
+          '<button class="btn-ghost" onclick="moveCardOrder(\''+c.id+'\',-1)" title="Move up" style="font-size:14px;padding:6px 8px;line-height:1"'+(idx===0?' disabled':'')+'>↑</button>'+
+          '<button class="btn-ghost" onclick="moveCardOrder(\''+c.id+'\',1)" title="Move down" style="font-size:14px;padding:6px 8px;line-height:1"'+(idx===allCards.length-1?' disabled':'')+'>↓</button>'+
+          '<button class="btn-ghost" onclick="openCardEditor(\''+c.id+'\')" style="flex:1;font-size:12px;padding:8px">✏️ Edit</button>'+
+          '<button class="btn-ghost" onclick="toggleCardActive(\''+c.id+'\','+(!active)+')" style="font-size:12px;padding:8px">'+(active?'⏸':'▶')+'</button>'+
+          '<button class="btn-ghost" onclick="deleteCard(\''+c.id+'\')" style="font-size:12px;padding:8px;color:#DC2626">🗑</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+async function toggleCardActive(id,val){
+  if(!sb) return;
+  await sb.from('service_cards').update({is_active:val}).eq('id',id);
+  renderCardsView();
+}
+
+async function deleteCard(id){
+  if(!confirm('Delete this card from the homepage?\n\nThis cannot be undone.')) return;
+  if(!sb) return;
+  await sb.from('service_cards').delete().eq('id',id);
+  renderCardsView();
+}
+
+// Swap sort_order with the neighbor in the given direction. Simpler than
+// drag-drop and matches the arrow buttons in the list view.
+async function moveCardOrder(id,dir){
+  if(!sb) return;
+  var idx=allCards.findIndex(function(c){return c.id===id});
+  var swapIdx=idx+dir;
+  if(idx<0||swapIdx<0||swapIdx>=allCards.length) return;
+  var a=allCards[idx], b=allCards[swapIdx];
+  var soA=a.sort_order||0, soB=b.sort_order||0;
+  // If they happen to be equal, force a delta so the swap is visible.
+  if(soA===soB){ soA=idx*10; soB=swapIdx*10; }
+  await Promise.all([
+    sb.from('service_cards').update({sort_order:soB}).eq('id',a.id),
+    sb.from('service_cards').update({sort_order:soA}).eq('id',b.id),
+  ]);
+  renderCardsView();
+}
+
+function closeCardEditor(){
+  var m=document.getElementById('card-modal'); if(m) m.remove();
+  window._cardEditImg=null;
+  window._cardEditId=null;
+}
+
+function openCardEditor(id){
+  var card=id?allCards.find(function(c){return c.id===id}):null;
+  var isNew=!card;
+  if(!card) card={
+    slug:'', line1:'', line2:'', price:50, tone:'t-ink', img_url:'', sort_order:(allCards.length+1)*10, is_active:true,
+  };
+  window._cardEditId=id||null;
+  window._cardEditImg=card.img_url||'';
+
+  var old=document.getElementById('card-modal'); if(old) old.remove();
+  var modal=document.createElement('div'); modal.id='card-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);padding:20px';
+
+  var toneOptions=CARD_TONES.map(function(t){
+    var checked=t.v===card.tone;
+    return '<label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">'+
+      '<input type="radio" name="ce-tone" value="'+t.v+'"'+(checked?' checked':'')+' style="display:none" onchange="updateCardPreview()">'+
+      '<div class="ce-tone-swatch" data-tone="'+t.v+'" style="width:40px;height:40px;border-radius:10px;background:'+t.hex+';border:2px solid '+(checked?'#fff':'transparent')+';box-shadow:0 0 0 2px '+(checked?t.hex:'transparent')+',0 2px 6px rgba(0,0,0,0.3);transition:all .15s"></div>'+
+      '<span style="font-size:10px;color:#94A3B8">'+t.label+'</span>'+
+    '</label>';
+  }).join('');
+
+  var slugSuggest=CARD_SLUG_SUGGESTIONS.map(function(s){return '<option value="'+s+'">'}).join('');
+
+  modal.innerHTML='<div style="background:#1E293B;border-radius:16px;color:#F1F5F9;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:24px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">'+
+      '<h2 style="font-size:18px;font-weight:800;margin:0">'+(isNew?'New Homepage Card':'Edit Homepage Card')+'</h2>'+
+      '<button onclick="closeCardEditor()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">×</button>'+
+    '</div>'+
+
+    // Live preview (mirrors the real card exactly)
+    '<div style="background:#0F172A;border-radius:12px;padding:16px;margin-bottom:18px">'+
+      '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94A3B8;margin-bottom:10px">Live preview</div>'+
+      '<div id="ce-preview-wrap" style="display:flex;justify-content:center">'+
+        '<div id="ce-preview" style="width:208px;padding:16px 14px 14px;border-radius:8px;background:'+((CARD_TONES.find(function(t){return t.v===card.tone})||CARD_TONES[0]).hex)+';color:#fff;display:flex;flex-direction:column">'+
+          '<h3 id="ce-preview-title" style="font-family:Inter,system-ui,sans-serif;font-size:16.5px;font-weight:600;line-height:1.28;margin:0 0 13px;letter-spacing:-.3px;min-height:42px">'+esc(card.line1||'Line 1')+'<br>'+esc(card.line2||'Line 2')+'</h3>'+
+          '<div id="ce-preview-frame" style="width:100%;height:148px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.08);margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:11px">'+
+            (card.img_url?'<img src="'+esc(card.img_url)+'" style="width:100%;height:100%;object-fit:cover">':'No image')+
+          '</div>'+
+          '<span id="ce-preview-price" style="font-family:Inter,system-ui,sans-serif;font-size:13.5px;color:rgba(255,255,255,.72);margin-top:auto">from $'+Number(card.price||0)+'</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    // Form
+    '<div style="display:flex;flex-direction:column;gap:14px">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        '<label style="font-size:12px;font-weight:600;color:#CBD5E1">Line 1<input id="ce-line1" class="login-input" value="'+esc(card.line1||'')+'" oninput="updateCardPreview()" placeholder="e.g. Streetwear"></label>'+
+        '<label style="font-size:12px;font-weight:600;color:#CBD5E1">Line 2<input id="ce-line2" class="login-input" value="'+esc(card.line2||'')+'" oninput="updateCardPreview()" placeholder="e.g. Design"></label>'+
+      '</div>'+
+
+      '<label style="font-size:12px;font-weight:600;color:#CBD5E1">'+
+        'Slug <span style="color:#94A3B8;font-weight:500">— becomes /this-value when clicked</span>'+
+        '<input id="ce-slug" class="login-input" list="ce-slug-suggest" value="'+esc(card.slug||'')+'" placeholder="e.g. streetwear-design">'+
+        '<datalist id="ce-slug-suggest">'+slugSuggest+'</datalist>'+
+      '</label>'+
+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        '<label style="font-size:12px;font-weight:600;color:#CBD5E1">Price (USD)<input id="ce-price" class="login-input" type="number" min="0" value="'+Number(card.price||0)+'" oninput="updateCardPreview()"></label>'+
+        '<label style="font-size:12px;font-weight:600;color:#CBD5E1">Sort order<input id="ce-sort" class="login-input" type="number" value="'+Number(card.sort_order||0)+'"></label>'+
+      '</div>'+
+
+      // Tone picker
+      '<div>'+
+        '<div style="font-size:12px;font-weight:600;color:#CBD5E1;margin-bottom:8px">Background tone</div>'+
+        '<div style="display:flex;gap:14px;flex-wrap:wrap">'+toneOptions+'</div>'+
+      '</div>'+
+
+      // Image upload
+      '<div style="background:#0F172A;border-radius:10px;padding:14px">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+
+          '<div style="font-size:13px;font-weight:700;color:#F1F5F9">Card image</div>'+
+          '<div style="font-size:11px;color:#94A3B8">recommended 800×600 or larger, cropped to fill the frame</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:12px;align-items:flex-start">'+
+          '<div id="ce-img-thumb" style="width:120px;height:90px;border-radius:8px;overflow:hidden;background:#334155;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#64748B;font-size:10px">'+
+            (card.img_url?'<img src="'+esc(card.img_url)+'" style="width:100%;height:100%;object-fit:cover">':'no image')+
+          '</div>'+
+          '<div style="flex:1;display:flex;flex-direction:column;gap:6px">'+
+            '<label style="cursor:pointer">'+
+              '<span class="btn-primary" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:8px 12px">'+
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'+
+                (card.img_url?'Replace image':'Upload image')+
+              '</span>'+
+              '<input type="file" id="ce-img-input" accept="image/*" onchange="uploadCardImage()" style="display:none">'+
+            '</label>'+
+            (card.img_url?'<button onclick="removeCardImage()" style="align-self:flex-start;background:none;border:none;color:#F87171;font-size:11px;cursor:pointer;padding:2px 0">Remove current image</button>':'')+
+            '<div id="ce-img-hint" style="font-size:11px;color:#94A3B8;line-height:1.5">Displayed cropped to fill a 208×148 area, so a wide 4:3 shot works best. Original file is stored full-size.</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+
+    '</div>'+
+
+    // Actions
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #334155">'+
+      '<button class="btn-ghost" onclick="closeCardEditor()">Cancel</button>'+
+      '<button class="btn-primary" onclick="saveCard('+(id?'\''+id+'\'':'null')+')">'+(isNew?'Create Card':'Save Changes')+'</button>'+
+    '</div>'+
+  '</div>';
+
+  document.body.appendChild(modal);
+
+  // Radio-swatch highlight state on click
+  modal.querySelectorAll('input[name="ce-tone"]').forEach(function(inp){
+    inp.addEventListener('change', function(){
+      modal.querySelectorAll('.ce-tone-swatch').forEach(function(sw){
+        var isSel=(sw.getAttribute('data-tone')===inp.value);
+        sw.style.borderColor=isSel?'#fff':'transparent';
+        sw.style.boxShadow='0 0 0 2px '+(isSel?sw.style.background:'transparent')+',0 2px 6px rgba(0,0,0,0.3)';
+      });
+      updateCardPreview();
+    });
+  });
+}
+
+// Refreshes the live preview inside the modal without redrawing the whole thing
+function updateCardPreview(){
+  var l1=document.getElementById('ce-line1'); var l2=document.getElementById('ce-line2');
+  var pr=document.getElementById('ce-price');
+  var toneInp=document.querySelector('input[name="ce-tone"]:checked');
+  if(!l1||!l2||!pr) return;
+  var titleEl=document.getElementById('ce-preview-title');
+  var priceEl=document.getElementById('ce-preview-price');
+  var previewEl=document.getElementById('ce-preview');
+  titleEl.innerHTML=esc(l1.value||'Line 1')+'<br>'+esc(l2.value||'Line 2');
+  priceEl.textContent='from $'+(Number(pr.value)||0);
+  if(toneInp){
+    var t=CARD_TONES.find(function(x){return x.v===toneInp.value})||CARD_TONES[0];
+    previewEl.style.background=t.hex;
+  }
+}
+
+async function uploadCardImage(){
+  var input=document.getElementById('ce-img-input');
+  if(!input||!input.files||!input.files[0]||!sb) return;
+  var file=input.files[0];
+  // Basic size guard so an admin doesn't upload a 15MB DSLR original by mistake
+  if(file.size > 5*1024*1024){
+    if(!confirm('This image is '+(file.size/1024/1024).toFixed(1)+'MB. Upload anyway? (recommended: under 2MB for fast page loads)')) return;
+  }
+  var path='service-cards/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'_');
+  var r=await sb.storage.from('uploads').upload(path,file);
+  if(r.error){ alert('Upload failed: '+r.error.message); return; }
+  var url=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+  window._cardEditImg=url;
+  // Repaint the modal so preview + thumbnail update
+  var card=allCards.find(function(c){return c.id===window._cardEditId})||{slug:'',line1:'',line2:'',price:50,tone:'t-ink',sort_order:0,is_active:true};
+  // Preserve the values the admin has already typed by grabbing them before repaint
+  var draft={
+    id: window._cardEditId,
+    slug: document.getElementById('ce-slug').value,
+    line1: document.getElementById('ce-line1').value,
+    line2: document.getElementById('ce-line2').value,
+    price: Number(document.getElementById('ce-price').value)||0,
+    sort_order: Number(document.getElementById('ce-sort').value)||0,
+    tone: (document.querySelector('input[name="ce-tone"]:checked')||{value:card.tone}).value,
+    img_url: url,
+    is_active: card.is_active,
+  };
+  // Merge draft over the loaded card so re-opening shows the in-progress state
+  if(window._cardEditId){
+    var idx=allCards.findIndex(function(c){return c.id===window._cardEditId});
+    if(idx>=0) allCards[idx]=Object.assign({},allCards[idx],draft);
+  }
+  openCardEditor(window._cardEditId);
+}
+
+function removeCardImage(){
+  window._cardEditImg='';
+  var idx=window._cardEditId?allCards.findIndex(function(c){return c.id===window._cardEditId}):-1;
+  if(idx>=0) allCards[idx].img_url='';
+  openCardEditor(window._cardEditId);
+}
+
+async function saveCard(id){
+  if(!sb) return;
+  var data={
+    slug:      document.getElementById('ce-slug').value.trim(),
+    line1:     document.getElementById('ce-line1').value.trim(),
+    line2:     document.getElementById('ce-line2').value.trim(),
+    price:     Number(document.getElementById('ce-price').value)||0,
+    sort_order:Number(document.getElementById('ce-sort').value)||0,
+    tone:      (document.querySelector('input[name="ce-tone"]:checked')||{value:'t-ink'}).value,
+    img_url:   window._cardEditImg||'',
+  };
+  if(!data.slug){ alert('Slug is required (this becomes the URL /'+'{slug}' + ' when the card is clicked).'); return; }
+  if(!data.line1 && !data.line2){ alert('At least one line of the title is required.'); return; }
+
+  var err;
+  if(id){
+    err=(await sb.from('service_cards').update(data).eq('id',id)).error;
+  } else {
+    data.is_active=true;
+    err=(await sb.from('service_cards').insert(data)).error;
+  }
+  if(err){
+    if(String(err.message||'').toLowerCase().indexOf('duplicate')>=0 || err.code==='23505'){
+      alert('That slug is already used by another card. Each card needs a unique slug.');
+    } else {
+      alert('Error saving card: '+err.message);
+    }
+    return;
+  }
+  closeCardEditor();
+  renderCardsView();
+}
 
 // ═══════════════════════════════════════════════════════════
 // VISITOR FUNNEL ANALYTICS
