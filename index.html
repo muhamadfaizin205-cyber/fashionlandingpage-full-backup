@@ -29,6 +29,46 @@
     <link rel="dns-prefetch" href="https://i.pravatar.cc" />
     <link rel="dns-prefetch" href="https://flagcdn.com" />
 
+    <!-- ══════ SEO boot styles ══════
+         Styles for the static HTML that renders inside #root BEFORE React
+         mounts. This content is what non-JS crawlers (GPTBot, ClaudeBot,
+         PerplexityBot, most AI search) read to understand the site. It
+         must be a real visible element — hiding it with display:none
+         causes Google to discount the content as low-signal / spammy.
+         React clears #root on mount via createRoot(...).render(<App/>),
+         so real users see this for ~100-300ms before the interactive
+         app replaces it. System fonts so it paints without waiting on
+         Google Fonts. -->
+    <style>
+      .seo-boot {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #0f172a;
+        line-height: 1.55;
+      }
+      .seo-boot h1 { font-size: 32px; font-weight: 800; margin: 0 0 12px; letter-spacing: -0.01em; }
+      .seo-boot h2 { font-size: 22px; font-weight: 700; margin: 28px 0 10px; letter-spacing: -0.005em; }
+      .seo-boot h3 { font-size: 17px; font-weight: 700; margin: 20px 0 8px; }
+      .seo-boot p  { margin: 0 0 12px; color: #334155; }
+      .seo-boot ul, .seo-boot ol { padding-left: 22px; margin: 0 0 14px; color: #334155; }
+      .seo-boot li { margin: 6px 0; }
+      .seo-boot a  { color: #0057ff; text-decoration: none; }
+      .seo-boot strong { color: #0f172a; }
+      .seo-boot table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+      .seo-boot th, .seo-boot td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; vertical-align: top; }
+      .seo-boot th { background: #f8fafc; font-weight: 700; }
+      .seo-boot blockquote { border-left: 3px solid #cbd5e1; padding: 4px 0 4px 14px; margin: 12px 0; color: #475569; font-style: italic; }
+      .seo-boot footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; }
+      .seo-boot footer p { color: #64748b; margin: 4px 0; }
+      @media (max-width: 640px) {
+        .seo-boot { padding: 20px 16px 32px; }
+        .seo-boot h1 { font-size: 26px; }
+        .seo-boot h2 { font-size: 19px; }
+      }
+    </style>
+
     <!-- ══════ SEO Meta Tags ══════ -->
     <title>Create Clothing Design | Streetwear & Logo - Dean Designers</title>
     <meta name="description" content="Create clothing design with Dean Designers - professional custom streetwear & logo design studio founded by Dean, a renowned designer in the US. 136,000+ designs completed, 7,000+ brands served since 2018. Production-ready files in 2-5 days. From $50/concept." />
@@ -356,18 +396,23 @@
 
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/main.tsx"></script>
-
     <!-- ══════════════════════════════════════════════════════
-         NOSCRIPT FALLBACK - Konten statis untuk Google & AI bots.
-         Karena React SPA render via JavaScript, bots yang tidak
-         menjalankan JS tetap bisa membaca konten di bawah ini.
-         Pengunjung biasa TIDAK melihat ini (browser mereka punya JS).
-         ══════════════════════════════════════════════════════ -->
+         #root holds a full static HTML rendering of the homepage
+         as its initial content. This is what non-JS crawlers
+         (GPTBot, ClaudeBot, PerplexityBot, and Google's first
+         crawl pass) see. React clears #root on mount via
+         createRoot(...).render(<App/>), so real users see this
+         content for ~100-300ms as a "boot" state and then get
+         the interactive app.
 
-    <!-- SEO Content: visible to Google on initial HTML crawl, hidden by React after mount -->
-    <div id="seo-fallback" style="display:none" aria-hidden="true">
+         CRITICAL: do NOT wrap this in style="display:none" or
+         aria-hidden="true". Google explicitly discounts content
+         hidden via display:none and treats it as low-signal.
+         The whole point of this block is that crawlers read it
+         as real page content.
+         ══════════════════════════════════════════════════════ -->
+    <div id="root">
+      <div class="seo-boot">
 
         <h1>Create Clothing Design - Professional Custom Streetwear & Logo Design Studio</h1>
         <p><strong>Create clothing design</strong> online with <strong>Dean Designers</strong> at CreateClothingDesign.com - an active professional graphic design studio specializing in custom streetwear clothing design, t-shirt graphics, hoodie design, and logo brand identity. Whether you want to <strong>create clothing design</strong> for your new brand or upgrade an existing line, Dean Designers delivers production-ready files in 2-5 days.</p>
@@ -473,7 +518,10 @@
           <p>Keywords: create clothing design, custom streetwear design, clothing brand designer, logo design for clothing, streetwear graphic designer, apparel design service, t-shirt design service, hoodie design, merch design, freelance clothing designer</p>
         </footer>
       </div>
-    <!-- /seo-fallback -->
+    <!-- /seo-boot -->
+    </div>
+    <!-- /root -->
+    <script type="module" src="/main.tsx"></script>
   </body>
 </html>
 

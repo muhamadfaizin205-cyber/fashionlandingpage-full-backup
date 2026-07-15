@@ -1,60 +1,97 @@
 # Dean Designers - createclothingdesign.com
-# All search engines and AI bots welcome
+# All search engines and AI bots welcome.
+# Homepage HTML contains a full static fallback of the site content
+# so crawlers that do not execute JavaScript still receive the same
+# information as an interactive visitor.
 
+# Default rules for every crawler
 User-agent: *
 Allow: /
+Disallow: /keywords.txt
+Disallow: /api/
 
-# Google
+# Google family
 User-agent: Googlebot
 Allow: /
+Disallow: /keywords.txt
+Disallow: /api/
+
 User-agent: Googlebot-Image
 Allow: /
+
 User-agent: Google-Extended
 Allow: /
 
-# AI Bots - explicitly allowed
-User-agent: GPTBot
-Allow: /
-User-agent: ChatGPT-User
-Allow: /
-User-agent: ClaudeBot
-Allow: /
-User-agent: Claude-Web
-Allow: /
-User-agent: PerplexityBot
-Allow: /
+# Other major search engines
 User-agent: Bingbot
 Allow: /
+
 User-agent: Applebot
 Allow: /
+
 User-agent: Applebot-Extended
 Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# AI crawlers - explicitly allowed so answers cite this site directly
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
 User-agent: xAI-Bot
 Allow: /
+
 User-agent: Amazonbot
 Allow: /
+
 User-agent: Cohere-ai
 Allow: /
+
 User-agent: CCBot
 Allow: /
+
 User-agent: YouBot
 Allow: /
+
 User-agent: Diffbot
 Allow: /
+
 User-agent: FacebookBot
 Allow: /
+
 User-agent: Bytespider
 Allow: /
+
 User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: MistralAI-User
 Allow: /
 
 # Sitemap
 Sitemap: https://www.createclothingdesign.com/sitemap.xml
-
-# Block keyword file from search engines (internal reference only)
-User-agent: Googlebot
-Disallow: /keywords.txt
-
-# AI context file
-LLMs.txt: https://www.createclothingdesign.com/llms.txt
-
