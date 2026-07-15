@@ -620,13 +620,16 @@ body {
 
   Loaded with:
     - components=buttons,card-fields  → enables the embedded Advanced Card Payments form
-    - enable-funding=card,venmo       → keeps the black card button as a fallback + Venmo
-    - disable-funding=paylater,credit → paylater/credit are US-only and cause noise abroad
+    - enable-funding=card             → keeps the black card button as a fallback
+    - disable-funding=paylater        → paylater is US-only and adds noise for intl. traffic
+
+  We intentionally do NOT enable venmo here — it requires a separately-approved
+  merchant funding source and throws a config error otherwise.
 
   The client-id below is the PUBLIC (live) merchant client id. The paired PAYPAL_SECRET_KEY
   lives ONLY in Vercel env vars and is used by /api/create-paypal-order.js server-side.
 -->
-<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&components=buttons,card-fields&enable-funding=card,venmo&disable-funding=paylater,credit"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&components=buttons,card-fields&enable-funding=card&disable-funding=paylater"></script>
 <script>
 (function () {
   'use strict';
@@ -787,11 +790,10 @@ body {
           createOrder: function () { return createServerOrder(amount); },
           onApprove:   function (data) { finalizePayment(data.orderID, amount); },
           onError:     function (err) {
-            console.error('[CardFields] onError', err);
-            var msg  = (err && err.message) || 'Card was declined by the issuer.';
-            var code = (err && err.code) || (err && err.name) || 'CARD_DECLINED';
-            showError(friendlyCardMessage(msg, code), code);
+            console.error('[CardFields] onError raw:', err);
+            try { console.error('[CardFields] onError json:', JSON.stringify(err, Object.getOwnPropertyNames(err))); } catch (_e) {}
             setCardBtnLoading(false);
+            reportPaypalError(err, 'CARD_DECLINED');
           },
         });
         cfEligible = cfInstance.isEligible();
@@ -854,11 +856,10 @@ body {
           // Success flow is handled in onApprove above (which calls finalizePayment).
           // Nothing to do here; submit() resolves after onApprove has captured.
         }).catch(function (err) {
-          console.error('[CardFields] submit rejected', err);
+          console.error('[CardFields] submit rejected raw:', err);
+          try { console.error('[CardFields] submit rejected json:', JSON.stringify(err, Object.getOwnPropertyNames(err))); } catch (_e) {}
           setCardBtnLoading(false);
-          var msg  = (err && err.message) || 'Card was declined. Please check the details and try again.';
-          var code = (err && err.code) || 'CARD_SUBMIT_FAILED';
-          showError(friendlyCardMessage(msg, code), code);
+          reportPaypalError(err, 'CARD_SUBMIT_FAILED');
         });
       });
     } else {
@@ -889,18 +890,76 @@ body {
     buttonsEl.innerHTML = '';
     paypal.Buttons({
       style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 48 },
-      createOrder: function () { return createServerOrder(amount); },
-      onApprove: function (data) { return finalizePayment(data.orderID, amount); },
+      // NOTE: Buttons use CLIENT-SIDE order creation on purpose.
+      // This mirrors the old (working) flow and keeps the fallback path
+      // functional even if the server-side /api/create-paypal-order is
+      // misconfigured (missing PAYPAL_SECRET_KEY etc.). For this manual
+      // invoice page the amount is already visible in the URL, so there
+      // is no additional security benefit to routing it through the server.
+      // Card Fields (above) still use the server-side flow, which is
+      // required by PayPal for Advanced Card Payments.
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          intent: 'CAPTURE',
+          purchase_units: [{
+            amount: { value: amount, currency_code: 'USD' },
+            description: desc,
+          }],
+          application_context: { shipping_preference: 'NO_SHIPPING', user_action: 'PAY_NOW' },
+        });
+      },
+      onApprove: function (data, actions) {
+        setStatus('Verifying payment...', '#facc15');
+        return actions.order.capture().then(function (captureData) {
+          var cap = captureData &&
+                    captureData.purchase_units &&
+                    captureData.purchase_units[0] &&
+                    captureData.purchase_units[0].payments &&
+                    captureData.purchase_units[0].payments.captures &&
+                    captureData.purchase_units[0].payments.captures[0];
+          var txId = (cap && cap.id) || data.orderID;
+          showSuccess(amount, txId);
+        }).catch(function (err) {
+          console.error('[Buttons] capture failed', err);
+          reportPaypalError(err, 'CAPTURE_FAILED');
+        });
+      },
       onError: function (err) {
-        console.error('[Buttons] onError', err);
-        showError('Payment could not be completed. Please try a different card or funding source.', 'BUTTON_ERROR');
+        // Show the REAL error, not a generic string. Every previous
+        // "BUTTON_ERROR" report lost the actual PayPal diagnostic here.
+        console.error('[Buttons] onError raw:', err);
+        try { console.error('[Buttons] onError json:', JSON.stringify(err, Object.getOwnPropertyNames(err))); } catch (_e) {}
+        reportPaypalError(err, 'BUTTON_ERROR');
       },
       onCancel: function () {
         showError('Transaction cancelled. You may retry at any time.', 'USER_CANCELLED');
       },
     }).render('#paypal-buttons').catch(function (e) {
       console.error('[Buttons] render failed', e);
+      reportPaypalError(e, 'BUTTON_RENDER_FAILED');
     });
+  }
+
+  // Extract the most useful diagnostic bits from whatever PayPal (or our
+  // server) hands us and display them so we can actually debug failures.
+  function reportPaypalError(err, fallbackCode) {
+    var msg  = 'Payment could not be completed.';
+    var code = fallbackCode || 'PAYMENT_ERROR';
+    var dbg  = null;
+
+    if (err) {
+      if (typeof err === 'string') {
+        msg = err;
+      } else {
+        // Common shapes: Error object, PayPal SDK error, our thrown {message,code,debug_id}
+        msg  = err.message || (err.details && err.details[0] && err.details[0].description) || msg;
+        code = err.code    || err.name || (err.details && err.details[0] && err.details[0].issue) || code;
+        dbg  = err.debug_id || (err.data && err.data.debug_id) || null;
+      }
+    }
+
+    var friendly = friendlyCardMessage(msg, code);
+    showError(friendly, dbg ? (code + ' · debug_id: ' + dbg) : code);
   }
 
   function finalizePayment(orderId, amount) {
