@@ -460,6 +460,110 @@ body {
   letter-spacing: 0.5px;
 }
 
+.methods-note {
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--txt2);
+  letter-spacing: 0.1px;
+}
+
+/* ── New to PayPal? — collapsible setup guide ── */
+.paypal-help {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+.ph-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--primary-light);
+  border: none;
+  border-bottom: 1px solid var(--primary-border);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.ph-toggle:hover { background: #e6efff; }
+.ph-toggle .ph-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ph-toggle .ph-title { flex: 1; letter-spacing: 0.1px; }
+.ph-toggle .ph-arrow {
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.25s ease;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.ph-toggle.open .ph-arrow { transform: rotate(180deg); }
+
+.ph-body { padding: 16px 18px 18px; }
+.ph-steps {
+  list-style: none;
+  display: flex; flex-direction: column;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 0;
+}
+.ph-steps li {
+  display: flex; align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--txt);
+}
+.ph-steps li b {
+  font-weight: 700;
+  color: var(--txt);
+  display: block;
+  margin-bottom: 2px;
+}
+.ph-steps li div { flex: 1; }
+.ph-steps li a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,87,255,0.25);
+}
+.ph-steps li a:hover { border-bottom-color: var(--primary); }
+.ph-num {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.ph-note {
+  display: flex; align-items: flex-start;
+  gap: 8px;
+  padding: 11px 12px;
+  background: var(--green-light);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #065f46;
+}
+.ph-note svg { flex-shrink: 0; margin-top: 1px; color: var(--green); }
+
 /* Amount form */
 .amount-form { display: flex; flex-direction: column; gap: 14px; }
 .af-label {
@@ -531,17 +635,6 @@ body {
         <div class="order-row"><span class="order-label">Client</span><span class="order-value" id="info-brand"></span></div>
       </div>
 
-      <!-- Accepted methods -->
-      <div class="methods">
-        <div class="methods-label">Accepted Payment Methods</div>
-        <div class="methods-icons">
-          <span class="m-icon m-pp"><span class="pp-pay">Pay</span><span class="pp-pal">Pal</span></span>
-          <span class="m-icon m-visa">VISA</span>
-          <span class="m-icon m-mc"><svg width="32" height="20" viewBox="0 0 32 20"><circle cx="11" cy="10" r="9" fill="#EB001B"/><circle cx="21" cy="10" r="9" fill="#F79E1B"/><path d="M16 2.8A9 9 0 0 1 19.4 10 9 9 0 0 1 16 17.2 9 9 0 0 1 12.6 10 9 9 0 0 1 16 2.8z" fill="#FF5F00"/></svg></span>
-          <span class="m-icon m-amex">AMEX</span>
-        </div>
-      </div>
-
       <!-- Amount entry form (when no ?amount= in URL) -->
       <div id="amount-form-slot"></div>
 
@@ -551,37 +644,75 @@ body {
         <span>Preparing secure payment...</span>
       </div>
 
-      <!-- PayPal Card Fields (embedded card form) -->
-      <form class="cf-wrap" id="card-fields-form">
-        <div class="cf-field">
-          <label>Cardholder Name</label>
-          <div id="card-name-field" class="cf-input"></div>
+      <!-- Accepted methods (shown when payment UI is active) -->
+      <div class="methods" id="methods-block">
+        <div class="methods-label">Accepted Payment Methods</div>
+        <div class="methods-icons">
+          <span class="m-icon m-pp"><span class="pp-pay">Pay</span><span class="pp-pal">Pal</span></span>
+          <span class="m-icon m-visa">VISA</span>
+          <span class="m-icon m-mc"><svg width="32" height="20" viewBox="0 0 32 20"><circle cx="11" cy="10" r="9" fill="#EB001B"/><circle cx="21" cy="10" r="9" fill="#F79E1B"/><path d="M16 2.8A9 9 0 0 1 19.4 10 9 9 0 0 1 16 17.2 9 9 0 0 1 12.6 10 9 9 0 0 1 16 2.8z" fill="#FF5F00"/></svg></span>
+          <span class="m-icon m-amex">AMEX</span>
         </div>
-        <div class="cf-field">
-          <label>Card Number</label>
-          <div id="card-number-field" class="cf-input"></div>
-        </div>
-        <div class="cf-row">
-          <div class="cf-field">
-            <label>Expiry (MM / YY)</label>
-            <div id="card-expiry-field" class="cf-input"></div>
-          </div>
-          <div class="cf-field">
-            <label>CVV</label>
-            <div id="card-cvv-field" class="cf-input"></div>
-          </div>
-        </div>
-        <button type="button" id="card-submit-btn" class="cf-submit">
-          <span class="spinner"></span>
-          <span class="cf-label-text">Pay Securely</span>
-        </button>
-      </form>
+        <div class="methods-note">All cards accepted through your PayPal account — Visa, Mastercard, Amex, and debit cards from most countries.</div>
+      </div>
 
-      <!-- Divider between card form and PayPal buttons -->
-      <div class="pay-divider" id="pay-divider">or pay with</div>
-
-      <!-- PayPal Buttons (always available as fallback) -->
+      <!-- PayPal Buttons -->
       <div id="paypal-buttons"></div>
+
+      <!-- New to PayPal? Guide -->
+      <div class="paypal-help" id="paypal-help">
+        <button type="button" class="ph-toggle" id="ph-toggle" aria-expanded="false">
+          <span class="ph-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </span>
+          <span class="ph-title">New to PayPal? Set up in 2 minutes</span>
+          <span class="ph-arrow" id="ph-arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </button>
+        <div class="ph-body" id="ph-body" hidden>
+          <ol class="ph-steps">
+            <li>
+              <span class="ph-num">1</span>
+              <div>
+                <b>Create a free account.</b>
+                Go to <a href="https://www.paypal.com/signup" target="_blank" rel="noopener">paypal.com/signup</a> and choose <b>Personal Account</b>.
+              </div>
+            </li>
+            <li>
+              <span class="ph-num">2</span>
+              <div>
+                <b>Verify your email.</b>
+                Check your inbox and click the link PayPal sends you.
+              </div>
+            </li>
+            <li>
+              <span class="ph-num">3</span>
+              <div>
+                <b>Link a card or bank.</b>
+                Add your Visa, Mastercard, Amex, or debit card. PayPal accepts most cards worldwide.
+              </div>
+            </li>
+            <li>
+              <span class="ph-num">4</span>
+              <div>
+                <b>Come back and pay.</b>
+                Return to this page, tap <b>Pay with PayPal</b>, and sign in with your new account.
+              </div>
+            </li>
+          </ol>
+          <div class="ph-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Your card details stay with PayPal — we never see them. Every payment is covered by PayPal Buyer Protection.</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Error -->
       <div class="error-msg" id="error-msg">
@@ -616,20 +747,21 @@ body {
 </div>
 
 <!--
-  PayPal SDK
+  PayPal SDK — PayPal-only mode
 
-  Loaded with:
-    - components=buttons,card-fields  → enables the embedded Advanced Card Payments form
-    - enable-funding=card             → keeps the black card button as a fallback
-    - disable-funding=paylater        → paylater is US-only and adds noise for intl. traffic
+  We disable card funding entirely. Rationale: Guest Checkout (the "Debit or Credit
+  Card" flow) has been rejecting nearly every card on this merchant account. Rather
+  than showing users a button that fails, we hide it and guide new users to sign
+  up for a free PayPal account instead — where they can add any card and it works
+  reliably. See the "New to PayPal?" panel below the button.
 
-  We intentionally do NOT enable venmo here — it requires a separately-approved
-  merchant funding source and throws a config error otherwise.
+  components=buttons        — only PayPal Buttons; no Card Fields (not eligible anyway)
+  disable-funding=card,credit,paylater,venmo — ONLY the yellow PayPal button renders
 
   The client-id below is the PUBLIC (live) merchant client id. The paired PAYPAL_SECRET_KEY
   lives ONLY in Vercel env vars and is used by /api/create-paypal-order.js server-side.
 -->
-<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&components=buttons,card-fields&enable-funding=card&disable-funding=paylater"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AfcPNwHZ0YCT-hTcym1lb_QtzX9NWgrOjX8wT2B6JYm0ssv4gpvtiDe5gOtaLlxMTxXNfPob1Le4Jena&currency=USD&locale=en_US&components=buttons&disable-funding=card,credit,paylater,venmo"></script>
 <script>
 (function () {
   'use strict';
@@ -650,8 +782,27 @@ body {
   var errorCodeEl  = document.getElementById('error-code');
   var cardSubmitBtn= document.getElementById('card-submit-btn');
   var cardTopEl    = document.querySelector('.card-top');
-  var methodsEl    = document.querySelector('.methods');
+  var methodsEl    = document.getElementById('methods-block');
   var trustBarEl   = document.querySelector('.trust-bar');
+  var helpEl       = document.getElementById('paypal-help');
+  var helpToggle   = document.getElementById('ph-toggle');
+  var helpBody     = document.getElementById('ph-body');
+
+  // Wire up the "New to PayPal?" collapsible guide.
+  if (helpToggle && helpBody) {
+    helpToggle.addEventListener('click', function () {
+      var open = !helpBody.hasAttribute('hidden');
+      if (open) {
+        helpBody.setAttribute('hidden', '');
+        helpToggle.classList.remove('open');
+        helpToggle.setAttribute('aria-expanded', 'false');
+      } else {
+        helpBody.removeAttribute('hidden');
+        helpToggle.classList.add('open');
+        helpToggle.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
 
   refEl.textContent = 'Ref: ' + refId;
 
@@ -698,6 +849,7 @@ body {
       '</div>';
     if (methodsEl)  methodsEl.style.display  = 'none';
     if (trustBarEl) trustBarEl.style.display = 'none';
+    if (helpEl)     helpEl.style.display     = 'none';
     hideError();
   }
 
