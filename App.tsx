@@ -974,7 +974,7 @@ function buildWAMessage(
     "I'd like to place a design order:",
     "",
     `🎨 Service: ${svcLabel}`,
-    `🏷️ Brand Name: ${state.brandName}`,
+    `🏷️ Brand Name: ${state.brandName.trim() || "(To be decided)"}`,
     `📧 Email: ${state.email}`,
     contactLines,
     `📦 Package: ${pkg.badge} - ${pkg.name}`,
@@ -1261,16 +1261,22 @@ function Step2({
       {/* Brand Name + Email: side by side on desktop */}
       <div className="step2-form-grid">
         <div>
-          <label className="field-label">Brand Name</label>
+          <label className="field-label">
+            Brand Name <span className="field-optional">— optional</span>
+          </label>
           <input
             className="step-input"
             type="text"
-            placeholder="e.g. KINARA, VORTEX, ASPHALT..."
+            placeholder="Not sure yet? Leave this blank"
             value={brandName}
             onChange={(e) => onChangeBrand(e.target.value)}
             maxLength={60}
             autoFocus
           />
+          <p className="field-hint">
+            <i className="ri-lightbulb-line" style={{ fontSize: 13, color: "#F59E0B" }} />
+            Don&rsquo;t have a name locked in yet? Skip this — your designer can suggest options based on your brief.
+          </p>
         </div>
         <div>
           <label className="field-label">Email (for file delivery)</label>
@@ -1711,7 +1717,7 @@ function Step5({
         </div>
         <div className="summary-item">
           <div className="summary-lbl">Brand Name</div>
-          <div className="summary-val">{state.brandName}</div>
+          <div className="summary-val">{state.brandName.trim() || <span style={{ color: "var(--txt3)", fontStyle: "italic" }}>To be decided</span>}</div>
         </div>
         <div className="summary-item">
           <div className="summary-lbl">Concepts</div>
@@ -2038,7 +2044,7 @@ function Step6({
           </div>
           <div className="confirm-row">
             <span className="confirm-lbl"><span className="ic">●</span> Brand Name</span>
-            <span className="confirm-val">{state.brandName}</span>
+            <span className="confirm-val">{state.brandName.trim() || <span style={{ color: "var(--txt3)", fontStyle: "italic" }}>To be decided</span>}</span>
           </div>
           <div className="confirm-row">
             <span className="confirm-lbl"><span className="ic">●</span> Concepts</span>
@@ -2982,10 +2988,10 @@ export default function App() {
     goTo(2, "forward");
   };
   const handleNextStep2 = () => {
-    if (wizardState.brandName.trim().length < 2) {
-      showToast("Brand name must be at least 2 characters");
-      return;
-    }
+    // NOTE: brand name is intentionally OPTIONAL — the funnel analytics
+    // showed ~90% of visitors dropping off here because they hadn't picked
+    // a brand name yet. We now let them continue with an empty brand and
+    // show a "(To be decided)" fallback in the summary/confirm/email views.
     if (!wizardState.email.trim() || !/\S+@\S+\.\S+/.test(wizardState.email)) {
       showToast("Please enter a valid email address");
       return;
