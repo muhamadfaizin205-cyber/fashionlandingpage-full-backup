@@ -375,6 +375,60 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(29,191,115,0.5)}70%{box-shadow:0 0 0 6px rgba(29,191,115,0)}100%{box-shadow:0 0 0 0 rgba(29,191,115,0)}}
 @keyframes tdot{0%,60%,100%{opacity:.2}30%{opacity:1}}
 
+/* ═══ KANBAN (admin) ═══ */
+.kb-col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.kb-card-pri{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:5px;margin-bottom:8px}
+.kb-pri-high{background:rgba(239,68,68,0.15);color:#F87171}
+.kb-pri-medium{background:rgba(245,158,11,0.15);color:#FBBF24}
+.kb-pri-low{background:rgba(34,197,94,0.15);color:#4ADE80}
+.kb-card-review{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:auto}
+.kb-review-approved{background:rgba(34,197,94,0.15);color:#4ADE80}
+.kb-review-revision{background:rgba(245,158,11,0.15);color:#FBBF24}
+
+.kba-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.62);display:flex;align-items:center;justify-content:center;padding:20px}
+.kba-panel{background:#0F1117;border:1px solid var(--border);border-radius:18px;width:100%;max-width:1100px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.kba-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0}
+.kba-title{font-size:17px;font-weight:800;color:var(--txt)}
+.kba-sub{font-size:12px;color:var(--txt3);margin-top:2px}
+.kba-close{background:var(--bg);border:none;border-radius:8px;width:32px;height:32px;font-size:20px;color:var(--txt2);cursor:pointer;flex-shrink:0}
+.kba-board{display:flex;gap:14px;padding:18px 22px;overflow-x:auto;flex:1}
+.kba-col{flex:0 0 250px;width:250px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;flex-direction:column;transition:background .15s,border-color .15s}
+.kba-col-over{background:rgba(29,191,115,0.06);border-color:var(--green)}
+.kba-col-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 2px}
+.kba-col-title{font-size:13px;font-weight:700;color:var(--txt)}
+.kba-col-count{font-size:11px;color:var(--txt3);background:rgba(255,255,255,0.05);border-radius:20px;padding:1px 8px;margin-left:auto}
+.kba-col-body{display:flex;flex-direction:column;gap:10px;min-height:60px;flex:1}
+.kba-empty{font-size:11px;color:var(--txt3);text-align:center;padding:20px 8px;border:1px dashed var(--border);border-radius:10px}
+.kba-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:11px;padding:11px;cursor:grab;transition:border-color .15s}
+.kba-card:hover{border-color:rgba(255,255,255,0.22)}
+.kba-card:active{cursor:grabbing}
+.kba-card-title{font-size:13px;font-weight:600;color:var(--txt);line-height:1.35;margin-bottom:5px}
+.kba-card-desc{font-size:11.5px;color:var(--txt2);line-height:1.5;margin-bottom:7px}
+.kba-card-img{width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:7px;display:block}
+.kba-card-foot{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt3)}
+.kba-card-foot i{font-size:12px}
+
+.kba-sheet{background:#111827;border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px}
+.kba-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.kba-lbl{display:block;font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:12px}
+.kba-lbl input,.kba-lbl select,.kba-lbl textarea{margin-top:5px}
+.kb-fb-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px}
+.kb-fb-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;max-height:220px;overflow-y:auto}
+.kb-fb-item{display:flex;flex-direction:column;gap:4px;max-width:85%}
+.kb-fb-item.me{align-self:flex-end;align-items:flex-end}
+.kb-fb-bubble{padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5}
+.kb-fb-item.me .kb-fb-bubble{background:var(--green);color:#fff;border-bottom-right-radius:4px}
+.kb-fb-item.them .kb-fb-bubble{background:rgba(255,255,255,0.06);color:var(--txt);border-bottom-left-radius:4px}
+.kb-fb-img{max-width:170px;border-radius:10px;cursor:pointer}
+.kb-fb-time{font-size:10px;color:var(--txt3)}
+.kb-fb-kind{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px}
+.kb-fb-empty{font-size:12px;color:var(--txt3);text-align:center;padding:12px}
+.kb-fb-input{display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--border);padding-top:12px}
+.kb-fb-input textarea{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:rgba(255,255,255,0.04);color:var(--txt);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:40px}
+.kb-fb-input textarea:focus{border-color:var(--green)}
+.kb-fb-send{width:40px;height:40px;border-radius:10px;background:var(--green);color:#fff;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+@media(max-width:768px){.kba-col{flex:0 0 78vw;width:78vw}}
+
 </style>
 </head>
 <body>
@@ -868,12 +922,228 @@ function openDetail(id){
   selId=id;const o=orders.find(x=>x.id===id);if(!o)return;
   // Also open chat for this client + auto-open chat panel
   if(o.email){chatEmail=o.email;if(!chatPanelOpen)toggleChatPanel();loadChatMsgs()}
-  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'-')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'-')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'-')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
+  document.getElementById('modal').innerHTML='<div class="modal"><div class="modal-head"><div class="modal-title">'+esc(o.brand_name)+'</div><div class="modal-x" onclick="closeModal()">×</div></div><div class="modal-body"><div class="mg"><div class="mf hl"><div class="mf-l">Total Paid</div><div class="mf-v">$'+Number(o.price||0).toFixed(2)+'</div></div><div class="mf"><div class="mf-l">Service</div><div class="mf-v">'+esc(o.service)+'</div></div><div class="mf"><div class="mf-l">Package</div><div class="mf-v">'+esc(o.package_name||'')+'</div></div><div class="mf"><div class="mf-l">Concepts</div><div class="mf-v">'+(o.qty||1)+'</div></div><div class="mf"><div class="mf-l">Delivery</div><div class="mf-v">'+esc(o.delivery||'-')+'</div></div><div class="mf"><div class="mf-l">Email</div><div class="mf-v">'+esc(o.email||'-')+'</div></div><div class="mf"><div class="mf-l">WhatsApp</div><div class="mf-v">'+esc(o.whatsapp||'-')+'</div></div></div>'+(o.brief?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Design Brief</div><div class="mbrief">'+esc(o.brief)+'</div>':'')+(o.brief_images&&o.brief_images.length?'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:6px;margin-top:8px">Reference Images</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">'+o.brief_images.map(function(url){return'<a href="'+esc(url)+'" target="_blank" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(url)+'" style="width:100%;height:100%;object-fit:cover"/></a>'}).join('')+'</div>':'')+'<div id="brief-admin-area"></div>'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase">Progress Board (Kanban)</span><button class="btn-ghost" style="font-size:11px;padding:6px 10px" onclick="openKanbanAdmin(\''+o.id+'\')">Manage Board →</button></div><div id="kb-admin-mini" style="margin-bottom:16px"></div>'+'<div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;margin-bottom:4px">Admin Notes</div><textarea class="mnotes" id="m-notes">'+esc(o.notes||'')+'</textarea></div><div class="modal-foot"><select class="msel" id="m-status">'+SF.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+SL[s]+'</option>').join('')+'</select><select class="msel" id="m-priority"><option value="low" '+(o.priority==='low'?'selected':'')+'>Low</option><option value="normal" '+(o.priority==='normal'?'selected':'')+'>Normal</option><option value="high" '+(o.priority==='high'?'selected':'')+'>High</option></select><button class="mbtn mbtn-g" onclick="saveOrder(\''+o.id+'\')">Save</button><button class="mbtn mbtn-r" onclick="deleteOrder(\''+o.id+'\')">Delete</button></div></div>';
   document.getElementById('modal').classList.add('open');
   if(o.email)renderBriefAdmin(o.email).then(function(h){var el=document.getElementById('brief-admin-area');if(el)el.innerHTML=h});
+  renderKanbanMini(o.id);
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');selId=null;renderOrders()}
+
+// ═══════════════════════════════════════════════════════════
+// KANBAN — admin side (create/edit/delete cards, drag columns)
+// ═══════════════════════════════════════════════════════════
+var KB_COLS=[
+  {key:'backlog', title:'Backlog',     dot:'#94A3B8'},
+  {key:'todo',    title:'To Do',       dot:'#60A5FA'},
+  {key:'progress',title:'In Progress', dot:'#FBBF24'},
+  {key:'done',    title:'Done',        dot:'#4ADE80'},
+];
+var akbCards=[],akbFeedback=[],akbOrderId=null,akbCh=null,akbDragId=null,akbCardImg='';
+
+// Small preview inside the order modal
+async function renderKanbanMini(orderId){
+  var el=document.getElementById('kb-admin-mini');if(!el||!sb)return;
+  var r=await sb.from('kanban_cards').select('column_key').eq('order_id',orderId);
+  var cards=r.data||[];
+  if(!cards.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--txt3);padding:12px;border:1px dashed var(--border);border-radius:10px;text-align:center">No progress cards yet. Click "Manage Board" to add the first stage.</div>';
+    return;
+  }
+  el.innerHTML='<div style="display:flex;gap:8px">'+KB_COLS.map(function(c){
+    var n=cards.filter(function(x){return (x.column_key||'backlog')===c.key}).length;
+    return '<div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:'+c.dot+';margin:0 auto 5px"></div><div style="font-size:16px;font-weight:800;color:var(--txt)">'+n+'</div><div style="font-size:9px;color:var(--txt3)">'+c.title+'</div></div>';
+  }).join('')+'</div>';
+}
+
+function openKanbanAdmin(orderId){
+  akbOrderId=orderId;akbCardImg='';
+  var o=orders.find(function(x){return x.id===orderId});
+  var brand=o?(o.brand_name||o.email||'Order'):'Order';
+  var host=document.getElementById('kanban-admin-host');
+  if(!host){host=document.createElement('div');host.id='kanban-admin-host';document.body.appendChild(host);}
+  host.innerHTML='<div class="kba-overlay" onclick="if(event.target===this)closeKanbanAdmin()">'+
+    '<div class="kba-panel">'+
+      '<div class="kba-head"><div><div class="kba-title">Progress Board</div><div class="kba-sub">'+esc(brand)+'</div></div>'+
+        '<div style="display:flex;gap:8px"><button class="btn-primary" style="font-size:12px" onclick="openAkbCardEditor()">+ Add Card</button>'+
+        '<button class="kba-close" onclick="closeKanbanAdmin()">×</button></div>'+
+      '</div>'+
+      '<div class="kba-board" id="kba-board"><div style="padding:40px;color:var(--txt3);text-align:center;width:100%">Loading...</div></div>'+
+    '</div>'+
+  '</div>';
+  akbLoad();akbSetupRealtime();
+}
+function closeKanbanAdmin(){
+  var host=document.getElementById('kanban-admin-host');if(host)host.innerHTML='';
+  if(akbCh&&sb){sb.removeChannel(akbCh);akbCh=null;}
+  if(selId)renderKanbanMini(selId);
+}
+
+async function akbLoad(){
+  if(!sb||!akbOrderId)return;
+  var c=await sb.from('kanban_cards').select('*').eq('order_id',akbOrderId).order('position',{ascending:true});
+  akbCards=c.data||[];
+  var f=await sb.from('kanban_feedback').select('*').eq('order_id',akbOrderId).order('created_at',{ascending:true});
+  akbFeedback=f.data||[];
+  akbRenderBoard();
+}
+
+function akbRenderBoard(){
+  var board=document.getElementById('kba-board');if(!board)return;
+  board.innerHTML=KB_COLS.map(function(col){
+    var cards=akbCards.filter(function(c){return (c.column_key||'backlog')===col.key});
+    var cardsHTML=cards.map(akbCardHTML).join('');
+    return '<div class="kba-col" data-col="'+col.key+'" ondragover="akbDragOver(event)" ondragleave="akbDragLeave(event)" ondrop="akbDrop(event,\''+col.key+'\')">'+
+      '<div class="kba-col-head"><span class="kb-col-dot" style="background:'+col.dot+'"></span><span class="kba-col-title">'+col.title+'</span><span class="kba-col-count">'+cards.length+'</span></div>'+
+      '<div class="kba-col-body">'+(cardsHTML||'<div class="kba-empty">Drop cards here</div>')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function akbCardHTML(c){
+  var fbCount=akbFeedback.filter(function(f){return f.card_id===c.id}).length;
+  var newFb=akbFeedback.filter(function(f){return f.card_id===c.id&&f.author==='customer'}).length;
+  var pri=c.priority?'<span class="kb-card-pri kb-pri-'+c.priority+'">'+c.priority+'</span>':'';
+  var img=c.image_url?'<img class="kba-card-img" src="'+esc(c.image_url)+'">':'';
+  var review='';
+  if(c.review_state==='approved')review='<span class="kb-card-review kb-review-approved">✓ Approved</span>';
+  else if(c.review_state==='revision')review='<span class="kb-card-review kb-review-revision">↻ Revision</span>';
+  return '<div class="kba-card" draggable="true" ondragstart="akbDragStart(event,\''+c.id+'\')" ondragend="akbDragEnd(event)" onclick="openAkbCardEditor(\''+c.id+'\')">'+
+    pri+
+    '<div class="kba-card-title">'+esc(c.title||'Untitled')+'</div>'+
+    (c.description?'<div class="kba-card-desc">'+esc(c.description).substring(0,80)+(c.description.length>80?'...':'')+'</div>':'')+
+    img+
+    '<div class="kba-card-foot"><span><i class="ri-chat-1-line"></i> '+fbCount+(newFb?' <b style="color:#4ADE80">('+newFb+' from client)</b>':'')+'</span>'+review+'</div>'+
+  '</div>';
+}
+
+// ── Drag & drop ──
+function akbDragStart(e,id){akbDragId=id;e.dataTransfer.effectAllowed='move';setTimeout(function(){var el=e.target;if(el)el.style.opacity='0.4';},0);}
+function akbDragEnd(e){if(e.target)e.target.style.opacity='1';akbDragId=null;document.querySelectorAll('.kba-col').forEach(function(c){c.classList.remove('kba-col-over')});}
+function akbDragOver(e){e.preventDefault();e.currentTarget.classList.add('kba-col-over');e.dataTransfer.dropEffect='move';}
+function akbDragLeave(e){e.currentTarget.classList.remove('kba-col-over');}
+async function akbDrop(e,colKey){
+  e.preventDefault();
+  e.currentTarget.classList.remove('kba-col-over');
+  if(!akbDragId||!sb)return;
+  var card=akbCards.find(function(c){return c.id===akbDragId});
+  if(!card||card.column_key===colKey){akbDragId=null;return;}
+  // Optimistic move
+  card.column_key=colKey;
+  var maxPos=Math.max(0,...akbCards.filter(function(c){return c.column_key===colKey}).map(function(c){return c.position||0}));
+  card.position=maxPos+1;
+  akbRenderBoard();
+  await sb.from('kanban_cards').update({column_key:colKey,position:card.position}).eq('id',akbDragId);
+  akbDragId=null;
+}
+
+// ── Card editor ──
+function openAkbCardEditor(id){
+  var card=id?akbCards.find(function(c){return c.id===id}):null;
+  var isNew=!card;
+  akbCardImg=card?(card.image_url||''):'';
+  window._akbEditId=id||null;
+  var host=document.getElementById('kanban-editor-host');
+  if(!host){host=document.createElement('div');host.id='kanban-editor-host';document.body.appendChild(host);}
+  var colOpts=KB_COLS.map(function(c){return '<option value="'+c.key+'"'+((card&&card.column_key===c.key)||(!card&&c.key==='backlog')?' selected':'')+'>'+c.title+'</option>';}).join('');
+  var priOpts=['','low','medium','high'].map(function(p){return '<option value="'+p+'"'+((card&&card.priority===p)?' selected':'')+'>'+(p?p.charAt(0).toUpperCase()+p.slice(1):'None')+'</option>';}).join('');
+  var fbs=card?akbFeedback.filter(function(f){return f.card_id===card.id}):[];
+  var fbHTML=fbs.length?fbs.map(function(f){
+    var me=f.author==='admin';
+    var t=new Date(f.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var kind=f.kind==='approved'?'<span class="kb-fb-kind kb-review-approved">✓ Approved</span> ':(f.kind==='revision'?'<span class="kb-fb-kind kb-review-revision">↻ Revision</span> ':'');
+    var inner='';
+    if(f.image_url)inner+='<img class="kb-fb-img" src="'+esc(f.image_url)+'" onclick="window.open(\''+esc(f.image_url)+'\')">';
+    if(f.body||kind)inner+='<div class="kb-fb-bubble">'+kind+esc(f.body||'')+'</div>';
+    return '<div class="kb-fb-item '+(me?'me':'them')+'">'+inner+'<span class="kb-fb-time">'+(me?'You':'Client')+' · '+t+'</span></div>';
+  }).join(''):'<div class="kb-fb-empty">No feedback yet.</div>';
+
+  host.innerHTML='<div class="kba-overlay" style="z-index:320" onclick="if(event.target===this)closeAkbEditor()">'+
+    '<div class="kba-sheet">'+
+      '<div class="kba-sheet-head"><div class="kba-title">'+(isNew?'New Card':'Edit Card')+'</div><button class="kba-close" onclick="closeAkbEditor()">×</button></div>'+
+      '<label class="kba-lbl">Title<input class="login-input" id="akb-title" value="'+esc(card?card.title:'')+'" placeholder="e.g. Logo concept v1"></label>'+
+      '<label class="kba-lbl">Description<textarea class="login-input" id="akb-desc" rows="3" style="resize:vertical" placeholder="What this stage covers...">'+esc(card?card.description:'')+'</textarea></label>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        '<label class="kba-lbl">Column<select class="login-input" id="akb-col">'+colOpts+'</select></label>'+
+        '<label class="kba-lbl">Priority<select class="login-input" id="akb-pri">'+priOpts+'</select></label>'+
+      '</div>'+
+      '<div class="kba-lbl">Preview image (optional)'+
+        '<div style="display:flex;gap:10px;align-items:center;margin-top:6px">'+
+          '<div id="akb-img-thumb" style="width:90px;height:64px;border-radius:8px;background:#0F172A;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#475569;font-size:9px">'+(akbCardImg?'<img src="'+esc(akbCardImg)+'" style="width:100%;height:100%;object-fit:cover">':'none')+'</div>'+
+          '<label style="cursor:pointer"><span class="btn-ghost" style="font-size:12px;padding:8px 12px">Upload</span><input type="file" id="akb-img" accept="image/*" style="display:none" onchange="akbUploadImg()"></label>'+
+          (akbCardImg?'<button class="btn-ghost" style="font-size:11px;color:#F87171" onclick="akbRemoveImg()">Remove</button>':'')+
+        '</div>'+
+      '</div>'+
+      (card?'<div class="kba-fb-section"><div class="kb-fb-label" style="margin-top:14px">Client Feedback</div><div class="kb-fb-list">'+fbHTML+'</div>'+
+        '<div class="kb-fb-input"><textarea id="akb-reply" rows="1" placeholder="Reply to client..."></textarea><button class="kb-fb-send" onclick="akbReply()"><i class="ri-send-plane-2-fill" style="font-size:18px"></i></button></div></div>':'')+
+      '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">'+
+        (card?'<button class="btn-ghost" style="color:#F87171;margin-right:auto" onclick="akbDeleteCard(\''+card.id+'\')">Delete</button>':'')+
+        '<button class="btn-ghost" onclick="closeAkbEditor()">Cancel</button>'+
+        '<button class="btn-primary" onclick="akbSaveCard('+(id?'\''+id+'\'':'null')+')">'+(isNew?'Create':'Save')+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function closeAkbEditor(){var h=document.getElementById('kanban-editor-host');if(h)h.innerHTML='';akbCardImg='';}
+
+async function akbUploadImg(){
+  var input=document.getElementById('akb-img');if(!input||!input.files||!input.files[0]||!sb)return;
+  var file=input.files[0];
+  var path='kanban/card-'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'_');
+  var thumb=document.getElementById('akb-img-thumb');if(thumb)thumb.innerHTML='...';
+  var r=await sb.storage.from('uploads').upload(path,file);
+  if(r.error){alert('Upload failed: '+r.error.message);return;}
+  akbCardImg=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+  if(thumb)thumb.innerHTML='<img src="'+esc(akbCardImg)+'" style="width:100%;height:100%;object-fit:cover">';
+}
+function akbRemoveImg(){akbCardImg='';var t=document.getElementById('akb-img-thumb');if(t)t.innerHTML='none';}
+
+async function akbSaveCard(id){
+  if(!sb||!akbOrderId)return;
+  var data={
+    order_id:akbOrderId,
+    title:document.getElementById('akb-title').value.trim(),
+    description:document.getElementById('akb-desc').value.trim(),
+    column_key:document.getElementById('akb-col').value,
+    priority:document.getElementById('akb-pri').value,
+    image_url:akbCardImg||'',
+  };
+  if(!data.title){alert('Title is required');return;}
+  if(id){
+    await sb.from('kanban_cards').update(data).eq('id',id);
+  }else{
+    var maxPos=Math.max(0,...akbCards.filter(function(c){return c.column_key===data.column_key}).map(function(c){return c.position||0}));
+    data.position=maxPos+1;
+    await sb.from('kanban_cards').insert(data);
+  }
+  closeAkbEditor();akbLoad();
+}
+
+async function akbDeleteCard(id){
+  if(!confirm('Delete this card and all its feedback?'))return;
+  if(!sb)return;
+  await sb.from('kanban_feedback').delete().eq('card_id',id);
+  await sb.from('kanban_cards').delete().eq('id',id);
+  closeAkbEditor();akbLoad();
+}
+
+async function akbReply(){
+  if(!sb)return;
+  var ta=document.getElementById('akb-reply');var body=ta?ta.value.trim():'';
+  if(!body||!window._akbEditId)return;
+  ta.value='';
+  await sb.from('kanban_feedback').insert({card_id:window._akbEditId,order_id:akbOrderId,author:'admin',body:body,image_url:'',kind:''});
+  akbLoad().then(function(){openAkbCardEditor(window._akbEditId);});
+}
+
+function akbSetupRealtime(){
+  if(!sb||akbCh||!akbOrderId)return;
+  akbCh=sb.channel('akb:'+akbOrderId)
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_cards',filter:'order_id=eq.'+akbOrderId},function(){akbLoad();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_feedback',filter:'order_id=eq.'+akbOrderId},function(){akbLoad();})
+    .subscribe();
+}
+
 
 async function saveOrder(id){
   await sb.from('orders').update({status:document.getElementById('m-status').value,priority:document.getElementById('m-priority').value,notes:document.getElementById('m-notes').value}).eq('id',id);

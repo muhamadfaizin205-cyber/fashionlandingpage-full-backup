@@ -133,6 +133,88 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   .stats{grid-template-columns:1fr 1fr}
   .ocard-row{flex-direction:column;gap:4px}
 }
+
+/* ═══ KANBAN (customer view — read-only board + feedback) ═══ */
+.kb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.kb-order-pick{display:flex;gap:8px;flex-wrap:wrap}
+.kb-order-chip{padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.kb-order-chip.active{background:rgba(29,191,115,0.12);border-color:var(--g);color:var(--txt)}
+.kb-legend{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px}
+
+.kb-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.kb-col{flex:0 0 270px;width:270px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;max-height:calc(100vh - 220px)}
+.kb-col-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 4px}
+.kb-col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.kb-col-title{font-size:13px;font-weight:700;color:var(--txt)}
+.kb-col-count{font-size:11px;color:var(--txt3);background:rgba(255,255,255,0.05);border-radius:20px;padding:1px 8px;margin-left:auto}
+.kb-col-body{display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;min-height:40px}
+
+.kb-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;transition:all .15s}
+.kb-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-1px)}
+.kb-card-pri{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:5px;margin-bottom:8px}
+.kb-pri-high{background:rgba(239,68,68,0.15);color:#F87171}
+.kb-pri-medium{background:rgba(245,158,11,0.15);color:#FBBF24}
+.kb-pri-low{background:rgba(34,197,94,0.15);color:#4ADE80}
+.kb-card-title{font-size:13.5px;font-weight:600;color:var(--txt);line-height:1.35;margin-bottom:6px}
+.kb-card-desc{font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:8px}
+.kb-card-img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block}
+.kb-card-foot{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--txt3)}
+.kb-card-foot .kb-cf-item{display:flex;align-items:center;gap:4px}
+.kb-card-review{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.kb-review-approved{background:rgba(34,197,94,0.15);color:#4ADE80}
+.kb-review-revision{background:rgba(245,158,11,0.15);color:#FBBF24}
+.kb-col-empty{font-size:11px;color:var(--txt3);text-align:center;padding:18px 8px;border:1px dashed var(--border);border-radius:10px}
+
+.kb-empty-board{text-align:center;padding:60px 20px;color:var(--txt3)}
+.kb-empty-board i{font-size:40px;opacity:.4;display:block;margin-bottom:12px}
+
+/* Card detail + feedback modal */
+.kb-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);padding:20px}
+.kb-sheet{background:#111827;border:1px solid var(--border);border-radius:18px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:22px}
+.kb-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.kb-sheet-title{font-size:18px;font-weight:700;color:var(--txt);line-height:1.3}
+.kb-sheet-close{background:none;border:none;color:var(--txt3);font-size:26px;line-height:1;cursor:pointer;flex-shrink:0}
+.kb-sheet-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.kb-sheet-stage{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(255,255,255,0.06);color:var(--txt2)}
+.kb-sheet-desc{font-size:13.5px;color:var(--txt2);line-height:1.6;margin-bottom:14px;white-space:pre-wrap}
+.kb-sheet-img{width:100%;border-radius:12px;margin-bottom:16px;display:block}
+
+.kb-actions{display:flex;gap:10px;margin-bottom:18px}
+.kb-act-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.kb-act-approve{background:rgba(34,197,94,0.12);color:#4ADE80;border-color:rgba(34,197,94,0.3)}
+.kb-act-approve:hover{background:rgba(34,197,94,0.2)}
+.kb-act-approve.on{background:#22C55E;color:#fff}
+.kb-act-revise{background:rgba(245,158,11,0.12);color:#FBBF24;border-color:rgba(245,158,11,0.3)}
+.kb-act-revise:hover{background:rgba(245,158,11,0.2)}
+.kb-act-revise.on{background:#F59E0B;color:#fff}
+
+.kb-fb-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px}
+.kb-fb-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.kb-fb-item{display:flex;flex-direction:column;gap:4px;max-width:85%}
+.kb-fb-item.me{align-self:flex-end;align-items:flex-end}
+.kb-fb-bubble{padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5}
+.kb-fb-item.me .kb-fb-bubble{background:var(--g);color:#fff;border-bottom-right-radius:4px}
+.kb-fb-item.them .kb-fb-bubble{background:rgba(255,255,255,0.06);color:var(--txt);border-bottom-left-radius:4px}
+.kb-fb-img{max-width:180px;border-radius:10px;cursor:pointer}
+.kb-fb-time{font-size:10px;color:var(--txt3)}
+.kb-fb-kind{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px}
+.kb-fb-empty{font-size:12px;color:var(--txt3);text-align:center;padding:14px}
+
+.kb-fb-input{display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--border);padding-top:14px}
+.kb-fb-input textarea{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:rgba(255,255,255,0.04);color:var(--txt);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:40px}
+.kb-fb-input textarea:focus{border-color:var(--g)}
+.kb-fb-att,.kb-fb-send{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:none}
+.kb-fb-att{background:rgba(255,255,255,0.06);color:var(--txt2)}
+.kb-fb-att:hover{background:rgba(29,191,115,0.12);color:var(--g)}
+.kb-fb-send{background:var(--g);color:#fff}
+.kb-fb-preview{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--txt2)}
+.kb-fb-preview img{width:44px;height:44px;object-fit:cover;border-radius:8px}
+.kb-fb-preview button{background:none;border:none;color:#F87171;cursor:pointer;font-size:12px}
+
+@media(max-width:768px){
+  .kb-col{flex:0 0 82vw;width:82vw;max-height:none}
+  .kb-board{padding-bottom:80px}
+}
 </style>
 </head>
 <body>
@@ -286,6 +368,7 @@ function renderApp(){
       '<div class="side-logo"><img src="/favicon-96x96.png" alt="DD"></div>'+
       '<div class="side-nav">'+
         '<button class="side-btn active" data-v="orders" onclick="switchView(\'orders\')"><i class="ri-inbox-2-line" style="font-size:20px"></i>Orders</button>'+
+        '<button class="side-btn" data-v="progress" onclick="switchView(\'progress\')"><i class="ri-layout-column-line" style="font-size:20px"></i>Progress</button>'+
         '<button class="side-btn" data-v="chat" onclick="switchView(\'chat\')"><i class="ri-chat-3-line" style="font-size:20px"></i>Chat</button>'+
       '</div>'+
       '<div class="side-bottom">'+
@@ -296,6 +379,7 @@ function renderApp(){
     '<div class="mob-bar">'+
       '<div style="display:flex;gap:4px">'+
         '<button class="mob-tab active" data-v="orders" onclick="switchView(\'orders\')"><i class="ri-inbox-2-line"></i> Orders</button>'+
+        '<button class="mob-tab" data-v="progress" onclick="switchView(\'progress\')"><i class="ri-layout-column-line"></i> Progress</button>'+
         '<button class="mob-tab" data-v="chat" onclick="switchView(\'chat\')"><i class="ri-chat-3-line"></i> Chat</button>'+
       '</div>'+
       '<button onclick="logout()" style="font-size:12px;color:var(--txt3)">Sign Out</button>'+
@@ -314,6 +398,7 @@ function renderApp(){
 
 function renderContent(){
   var el=document.getElementById('content');if(!el)return;
+  if(view==='progress'){renderKanban();return;}
   var t=orders.length,a=orders.filter(function(o){return o.status==='working'||o.status==='in_progress'||o.status==='review'}).length;
   var c=orders.filter(function(o){return o.status==='completed'||o.status==='delivered'}).length;
   var SL=window._SL;
@@ -328,6 +413,232 @@ function renderContent(){
         (o.brief?'<div class="ocard-brief">'+esc(o.brief).substring(0,200)+(o.brief.length>200?'...':'')+'</div>':'')+
       '</div>';
     }).join('')+'</div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// KANBAN — customer view (read-only board + per-card feedback)
+// ═══════════════════════════════════════════════════════════
+var KB_COLS=[
+  {key:'backlog', title:'Backlog',      dot:'#94A3B8'},
+  {key:'todo',    title:'To Do',        dot:'#60A5FA'},
+  {key:'progress',title:'In Progress',  dot:'#FBBF24'},
+  {key:'done',    title:'Done',         dot:'#4ADE80'},
+];
+var kbCards=[],kbFeedback=[],kbActiveOrder=null,kbCh=null,kbOpenCardId=null,kbPendingImg='';
+
+function kbCurrentOrder(){
+  if(kbActiveOrder&&orders.find(function(o){return o.id===kbActiveOrder}))return kbActiveOrder;
+  return orders.length?orders[0].id:null;
+}
+
+async function renderKanban(){
+  var el=document.getElementById('content');if(!el)return;
+  if(!orders.length){
+    el.innerHTML='<div class="main-header"><div><div class="main-title">Design Progress</div><div class="main-email">'+esc(email)+'</div></div></div>'+
+      '<div class="kb-empty-board"><i class="ri-inbox-line"></i>No orders yet.</div>';
+    return;
+  }
+  kbActiveOrder=kbCurrentOrder();
+  // Header + order picker (only if >1 order)
+  var picker='';
+  if(orders.length>1){
+    picker='<div class="kb-order-pick">'+orders.map(function(o){
+      var lbl=(o.brand_name&&o.brand_name.trim())?esc(o.brand_name):(o.service==='logo'?'Logo Design':'Clothing Design');
+      return '<div class="kb-order-chip'+(o.id===kbActiveOrder?' active':'')+'" onclick="kbSwitchOrder(\''+o.id+'\')">'+lbl+'</div>';
+    }).join('')+'</div>';
+  }
+  el.innerHTML=
+    '<div class="main-header"><div><div class="main-title">Design Progress</div><div class="main-email">Track each stage of your design. Tap a card to leave feedback.</div></div></div>'+
+    '<div class="kb-head">'+picker+'<div class="kb-legend"><i class="ri-information-line"></i> Your designer moves cards as work progresses</div></div>'+
+    '<div class="kb-board" id="kb-board"><div class="kb-empty-board" style="width:100%"><i class="ri-loader-4-line"></i>Loading board...</div></div>';
+  await kbLoad();
+  kbSetupRealtime();
+}
+
+function kbSwitchOrder(id){kbActiveOrder=id;renderKanban();}
+
+async function kbLoad(){
+  if(!sb){return;}
+  var oid=kbCurrentOrder();if(!oid)return;
+  var c=await sb.from('kanban_cards').select('*').eq('order_id',oid).order('position',{ascending:true});
+  kbCards=(c.data||[]);
+  var f=await sb.from('kanban_feedback').select('*').eq('order_id',oid).order('created_at',{ascending:true});
+  kbFeedback=(f.data||[]);
+  kbRenderBoard();
+}
+
+function kbRenderBoard(){
+  var board=document.getElementById('kb-board');if(!board)return;
+  if(!kbCards.length){
+    board.innerHTML='<div class="kb-empty-board" style="width:100%"><i class="ri-layout-column-line"></i>Your board is being set up.<br>Your designer will add progress cards soon.</div>';
+    return;
+  }
+  board.innerHTML=KB_COLS.map(function(col){
+    var cards=kbCards.filter(function(c){return (c.column_key||'backlog')===col.key});
+    var body=cards.length?cards.map(kbCardHTML).join(''):'<div class="kb-col-empty">No cards</div>';
+    return '<div class="kb-col">'+
+      '<div class="kb-col-head"><span class="kb-col-dot" style="background:'+col.dot+'"></span><span class="kb-col-title">'+col.title+'</span><span class="kb-col-count">'+cards.length+'</span></div>'+
+      '<div class="kb-col-body">'+body+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function kbCardHTML(c){
+  var fbCount=kbFeedback.filter(function(f){return f.card_id===c.id}).length;
+  var pri=c.priority?'<span class="kb-card-pri kb-pri-'+c.priority+'">'+c.priority+'</span>':'';
+  var img=c.image_url?'<img class="kb-card-img" src="'+esc(c.image_url)+'" loading="lazy">':'';
+  var review='';
+  if(c.review_state==='approved')review='<span class="kb-card-review kb-review-approved">✓ Approved</span>';
+  else if(c.review_state==='revision')review='<span class="kb-card-review kb-review-revision">↻ Revision</span>';
+  var desc=c.description?'<div class="kb-card-desc">'+esc(c.description).substring(0,90)+(c.description.length>90?'...':'')+'</div>':'';
+  return '<div class="kb-card" onclick="kbOpenCard(\''+c.id+'\')">'+
+    pri+
+    '<div class="kb-card-title">'+esc(c.title||'Untitled')+'</div>'+
+    desc+img+
+    '<div class="kb-card-foot">'+
+      '<span class="kb-cf-item"><i class="ri-chat-1-line"></i> '+fbCount+'</span>'+
+      (c.image_url?'<span class="kb-cf-item"><i class="ri-image-line"></i> 1</span>':'')+
+      review+
+    '</div>'+
+  '</div>';
+}
+
+function kbOpenCard(id){
+  kbOpenCardId=id;kbPendingImg='';
+  var c=kbCards.find(function(x){return x.id===id});if(!c)return;
+  var col=KB_COLS.find(function(x){return x.key===(c.column_key||'backlog')})||KB_COLS[0];
+  var fbs=kbFeedback.filter(function(f){return f.card_id===id});
+
+  var fbList=fbs.length?fbs.map(function(f){
+    var me=f.author==='customer';
+    var t=new Date(f.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var kind='';
+    if(f.kind==='approved')kind='<span class="kb-fb-kind kb-review-approved">✓ Approved</span> ';
+    else if(f.kind==='revision')kind='<span class="kb-fb-kind kb-review-revision">↻ Revision requested</span> ';
+    var inner='';
+    if(f.image_url)inner+='<img class="kb-fb-img" src="'+esc(f.image_url)+'" onclick="showImgOverlay(\''+esc(f.image_url)+'\')">';
+    if(f.body||kind)inner+='<div class="kb-fb-bubble">'+kind+esc(f.body||'')+'</div>';
+    return '<div class="kb-fb-item '+(me?'me':'them')+'">'+inner+'<span class="kb-fb-time">'+(me?'You':'Designer')+' · '+t+'</span></div>';
+  }).join(''):'<div class="kb-fb-empty">No feedback yet. Share your thoughts below.</div>';
+
+  var m=document.createElement('div');m.className='kb-modal';m.id='kb-modal';
+  m.onclick=function(e){if(e.target===m)kbCloseCard()};
+  m.innerHTML='<div class="kb-sheet">'+
+    '<div class="kb-sheet-head"><div class="kb-sheet-title">'+esc(c.title||'Untitled')+'</div><button class="kb-sheet-close" onclick="kbCloseCard()">×</button></div>'+
+    '<div class="kb-sheet-meta"><span class="kb-sheet-stage">'+col.title+'</span>'+
+      (c.priority?'<span class="kb-card-pri kb-pri-'+c.priority+'" style="margin:0">'+c.priority+'</span>':'')+
+      (c.review_state==='approved'?'<span class="kb-card-review kb-review-approved" style="margin:0">✓ Approved</span>':'')+
+      (c.review_state==='revision'?'<span class="kb-card-review kb-review-revision" style="margin:0">↻ Revision</span>':'')+
+    '</div>'+
+    (c.description?'<div class="kb-sheet-desc">'+esc(c.description)+'</div>':'')+
+    (c.image_url?'<img class="kb-sheet-img" src="'+esc(c.image_url)+'" onclick="showImgOverlay(\''+esc(c.image_url)+'\')">':'')+
+    '<div class="kb-actions">'+
+      '<div class="kb-act-btn kb-act-approve'+(c.review_state==='approved'?' on':'')+'" onclick="kbReview(\''+id+'\',\'approved\')"><i class="ri-check-line"></i> Approve</div>'+
+      '<div class="kb-act-btn kb-act-revise'+(c.review_state==='revision'?' on':'')+'" onclick="kbReview(\''+id+'\',\'revision\')"><i class="ri-refresh-line"></i> Request Revision</div>'+
+    '</div>'+
+    '<div class="kb-fb-label">Feedback</div>'+
+    '<div class="kb-fb-list" id="kb-fb-list">'+fbList+'</div>'+
+    '<div class="kb-fb-preview" id="kb-fb-preview" style="display:none"></div>'+
+    '<input type="file" id="kb-fb-file" accept="image/*" style="display:none" onchange="kbPickImg()">'+
+    '<div class="kb-fb-input">'+
+      '<button class="kb-fb-att" onclick="document.getElementById(\'kb-fb-file\').click()" title="Attach image"><i class="ri-image-add-line" style="font-size:18px"></i></button>'+
+      '<textarea id="kb-fb-text" rows="1" placeholder="Write feedback..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();kbSendFeedback()}"></textarea>'+
+      '<button class="kb-fb-send" onclick="kbSendFeedback()"><i class="ri-send-plane-2-fill" style="font-size:18px"></i></button>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(m);
+}
+
+function kbCloseCard(){var m=document.getElementById('kb-modal');if(m)m.remove();kbOpenCardId=null;kbPendingImg='';}
+
+async function kbPickImg(){
+  var input=document.getElementById('kb-fb-file');
+  if(!input||!input.files||!input.files[0]||!sb)return;
+  var file=input.files[0];
+  var prev=document.getElementById('kb-fb-preview');
+  if(prev){prev.style.display='flex';prev.innerHTML='<i class="ri-loader-4-line"></i> Uploading...';}
+  var path='kanban/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'_');
+  var r=await sb.storage.from('uploads').upload(path,file);
+  if(r.error){if(prev){prev.style.display='none';}alert('Upload failed: '+r.error.message);return;}
+  kbPendingImg=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+  if(prev){prev.innerHTML='<img src="'+esc(kbPendingImg)+'"><span>Image ready</span><button onclick="kbClearImg()">Remove</button>';}
+}
+function kbClearImg(){kbPendingImg='';var p=document.getElementById('kb-fb-preview');if(p){p.style.display='none';p.innerHTML='';}}
+
+async function kbSendFeedback(kind){
+  if(!sb||!kbOpenCardId)return;
+  var ta=document.getElementById('kb-fb-text');
+  var body=ta?ta.value.trim():'';
+  if(!body&&!kbPendingImg&&!kind)return;
+  var oid=kbCurrentOrder();
+  var row={card_id:kbOpenCardId,order_id:oid,author:'customer',body:body,image_url:kbPendingImg||'',kind:kind||''};
+  // Optimistic
+  var temp=Object.assign({id:'temp-'+Date.now(),created_at:new Date().toISOString()},row);
+  kbFeedback.push(temp);
+  if(ta)ta.value='';
+  var savedImg=kbPendingImg;kbClearImg();
+  kbRefreshOpenCard();
+  var r=await sb.from('kanban_feedback').insert(row).select();
+  if(!r.error&&r.data&&r.data[0]){
+    var i=kbFeedback.findIndex(function(f){return f.id===temp.id});
+    if(i>=0)kbFeedback[i]=r.data[0];
+  }
+  kbRenderBoard();kbRefreshOpenCard();
+}
+
+async function kbReview(cardId,state){
+  if(!sb)return;
+  var c=kbCards.find(function(x){return x.id===cardId});if(!c)return;
+  // Toggle off if same state clicked again
+  var newState=(c.review_state===state)?'':state;
+  c.review_state=newState;
+  await sb.from('kanban_cards').update({review_state:newState}).eq('id',cardId);
+  // Log an action feedback row (only when turning ON)
+  if(newState){
+    await kbSendFeedback(newState);
+  } else {
+    kbRenderBoard();
+  }
+  // Re-open to refresh action button state
+  if(kbOpenCardId===cardId)kbOpenCard(cardId);
+}
+
+function kbRefreshOpenCard(){
+  if(!kbOpenCardId)return;
+  var list=document.getElementById('kb-fb-list');if(!list)return;
+  var fbs=kbFeedback.filter(function(f){return f.card_id===kbOpenCardId});
+  if(!fbs.length){list.innerHTML='<div class="kb-fb-empty">No feedback yet. Share your thoughts below.</div>';return;}
+  list.innerHTML=fbs.map(function(f){
+    var me=f.author==='customer';
+    var t=new Date(f.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var kind='';
+    if(f.kind==='approved')kind='<span class="kb-fb-kind kb-review-approved">✓ Approved</span> ';
+    else if(f.kind==='revision')kind='<span class="kb-fb-kind kb-review-revision">↻ Revision requested</span> ';
+    var inner='';
+    if(f.image_url)inner+='<img class="kb-fb-img" src="'+esc(f.image_url)+'" onclick="showImgOverlay(\''+esc(f.image_url)+'\')">';
+    if(f.body||kind)inner+='<div class="kb-fb-bubble">'+kind+esc(f.body||'')+'</div>';
+    return '<div class="kb-fb-item '+(me?'me':'them')+'">'+inner+'<span class="kb-fb-time">'+(me?'You':'Designer')+' · '+t+'</span></div>';
+  }).join('');
+  list.scrollTop=list.scrollHeight;
+}
+
+function kbSetupRealtime(){
+  if(!sb||kbCh)return;
+  var oid=kbCurrentOrder();if(!oid)return;
+  kbCh=sb.channel('kb:'+oid)
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_cards',filter:'order_id=eq.'+oid},function(){
+      kbLoad().then(function(){if(kbOpenCardId)kbOpenCard(kbOpenCardId);});
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_feedback',filter:'order_id=eq.'+oid},function(p){
+      var f=p.new;
+      if(f&&!kbFeedback.find(function(x){return x.id===f.id})){
+        // Avoid dupe of our own optimistic insert
+        var temp=kbFeedback.findIndex(function(x){return String(x.id).startsWith('temp-')&&x.body===f.body&&x.author===f.author});
+        if(temp>=0)kbFeedback[temp]=f;else kbFeedback.push(f);
+        kbRenderBoard();kbRefreshOpenCard();
+      }
+    })
+    .subscribe();
 }
 
 function renderMessages(){
