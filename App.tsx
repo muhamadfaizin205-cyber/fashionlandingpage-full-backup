@@ -2936,6 +2936,28 @@ export default function App() {
     if (typeof window === "undefined") return;
     try { sessionStorage.setItem("dd_checkout_step", String(step)); } catch {}
   }, [step]);
+
+  // ── Sticky mobile CTA visibility ────────────────────────────
+  // Hide the bottom sticky bar while the hero CTA is still on
+  // screen (they compete for the same conversion action). Reveal
+  // it as soon as the hero button scrolls out of view.
+  // Only relevant on step 1 (the marketing homepage) — the sticky
+  // bar isn't rendered on wizard steps.
+  useEffect(() => {
+    if (step !== 1 || typeof window === "undefined") return;
+    let cleanup: (() => void) | undefined;
+    const t = window.setTimeout(() => {
+      const stickyBtn = document.querySelector<HTMLElement>('.sticky-cta');
+      const heroCta   = document.querySelector<HTMLElement>('.hero-cta');
+      if (!stickyBtn || !heroCta || typeof IntersectionObserver === 'undefined') return;
+      const io = new IntersectionObserver(([entry]) => {
+        stickyBtn.classList.toggle('sc-visible', !entry.isIntersecting);
+      }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
+      io.observe(heroCta);
+      cleanup = () => io.disconnect();
+    }, 120);
+    return () => { window.clearTimeout(t); if (cleanup) cleanup(); };
+  }, [step]);
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {

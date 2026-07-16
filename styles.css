@@ -2408,35 +2408,46 @@ textarea.brief-ta:focus {
 .sticky-cta {
   display: none;
 }
+/* Mobile only. The bar starts hidden (translated below the viewport)
+   and is revealed by an IntersectionObserver in App.tsx once the
+   hero CTA has scrolled out of view — so the two never fight for
+   attention at the same time. */
 @media (max-width: 768px) {
   .sticky-cta {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 999;
-    background: var(--green);
+    background: #0F172A;
     color: #fff;
-    padding: 18px 24px;
-    font-family: "DM Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    padding: 16px 24px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
     text-decoration: none;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 -6px 30px rgba(0,0,0,0.22);
     border: none;
+    border-top: 1px solid rgba(255,255,255,.06);
     outline: none;
     cursor: pointer;
-    -webkit-tap-highlight-color: rgba(29,191,115,0.3);
+    -webkit-tap-highlight-color: rgba(255,255,255,0.1);
     touch-action: manipulation;
     user-select: none;
     -webkit-user-select: none;
+    transform: translateY(100%);
+    transition: transform .32s cubic-bezier(.22,1,.36,1), background .18s ease;
   }
-  .sticky-cta:active { background: #16a34a; transform: scale(0.96); }
+  .sticky-cta.sc-visible { transform: translateY(0); }
+  .sticky-cta:active { background: #1E293B; transform: translateY(0) scale(0.98); }
   .sticky-cta::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background 0.1s; }
-  .sticky-cta:active::after { background: rgba(255,255,255,0.15); }
+  .sticky-cta:active::after { background: rgba(255,255,255,0.08); }
 
   /* Push content up so sticky CTA doesn't cover it */
   .wizard-section { padding-bottom: 100px; }
@@ -4360,6 +4371,12 @@ html {
 .nav-links { display: none !important; }
 
 /* ── Hero ── */
+/* ═══════════════════════════════════════════════════════════
+   HERO — Editorial minimalist
+   Design goals: readable text over any video frame, one clear
+   CTA (no green shouting), typographic rhythm through spacing,
+   restrained palette (white + warm amber accent + dark surface).
+   ═══════════════════════════════════════════════════════════ */
 .hero-yt-section {
   position: relative;
   min-height: 620px;
@@ -4373,8 +4390,11 @@ html {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.3) 100%),
-    linear-gradient(180deg, rgba(0,0,0,.25) 0%, transparent 30%, rgba(0,0,0,.5) 100%);
+    /* Left-heavy horizontal gradient: strong dark under the copy,
+       lighter on the right so the video still reads as a photo. */
+    linear-gradient(95deg, rgba(10,15,25,.92) 0%, rgba(10,15,25,.78) 42%, rgba(10,15,25,.55) 72%, rgba(10,15,25,.42) 100%),
+    /* Subtle top+bottom vignette to anchor the edges */
+    linear-gradient(180deg, rgba(0,0,0,.32) 0%, transparent 22%, transparent 72%, rgba(0,0,0,.38) 100%);
 }
 .hero-content {
   position: relative;
@@ -4382,150 +4402,200 @@ html {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 72px 24px 64px;
+  padding: 88px 24px 72px;
   text-align: left;
   display: block;
 }
 
 .hero-h1 {
-  position: static;
-  width: auto; height: auto;
-  clip: auto; overflow: visible; border: 0;
-  margin: 0 0 18px;
+  margin: 0 0 22px;
   padding: 0;
   display: flex;
   flex-direction: column;
   font-family: 'Inter', sans-serif;
-  font-size: 52px;
+  font-size: 54px;
   font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -1.5px;
+  line-height: 1.08;
+  letter-spacing: -1.8px;
   color: #fff;
-  max-width: 660px;
+  max-width: 640px;
 }
-.hero-h1-l1 { display: block; }
-.hero-h1-l2 { display: block; font-weight: 400; color: #fff; }
+.hero-h1-l1 { display: block; color: #fff; }
+/* Warm amber tint on line 2 — a quiet nod to the Dean Designers
+   gold wordmark. Creates typographic hierarchy without adding
+   another loud color. */
+.hero-h1-l2 { display: block; font-weight: 400; color: #E7D2A8; }
 
 .hero-sub {
-  position: static;
-  width: auto; height: auto;
-  clip: auto; overflow: visible; border: 0;
-  margin: 0 0 26px;
+  margin: 0 0 34px;
   padding: 0;
   display: block;
-  max-width: 520px;
+  max-width: 460px;
   font-family: 'Inter', sans-serif;
   font-size: 17px;
   font-weight: 400;
   line-height: 1.55;
   letter-spacing: 0;
   text-transform: none;
-  color: rgba(255,255,255,.82);
+  color: rgba(255,255,255,.72);
 }
 
+/* CTA: solid white surface on a dark hero = maximum contrast with
+   zero color noise. Editorial, not shouty. Previous version was a
+   bright green button that clashed with the sticky green bar. */
 .hero-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #1DBF73;
-  color: #fff;
+  gap: 10px;
+  background: #fff;
+  color: #0F172A;
   border: none;
-  border-radius: 4px;
-  padding: 14px 28px;
+  border-radius: 6px;
+  padding: 16px 30px;
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
   cursor: pointer;
-  box-shadow: none;
-  transition: background .18s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.hero-cta::after {
+  content: "→";
+  font-size: 17px;
+  line-height: 1;
+  transition: transform .2s ease;
 }
 .hero-cta:hover {
-  background: #19A463;
-  transform: none;
-  box-shadow: none;
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.3);
 }
+.hero-cta:hover::after { transform: translateX(4px); }
+.hero-cta:active { transform: translateY(0); }
 
+/* Tags: glassmorphic pills with subtle blur. Feels lightweight
+   against the video instead of stark outlined circles. */
 .hero-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
-  max-width: 680px;
+  gap: 8px;
+  margin-top: 32px;
+  max-width: 640px;
 }
 .hero-tag {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  border: 1px solid rgba(255,255,255,.45);
-  border-radius: 22px;
-  padding: 7px 15px;
+  gap: 6px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 100px;
+  padding: 7px 14px;
   font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
-  font-weight: 400;
-  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.88);
   text-decoration: none;
   white-space: nowrap;
-  transition: background .18s ease, border-color .18s ease;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
 }
 .hero-tag:hover {
   background: rgba(255,255,255,.14);
-  border-color: rgba(255,255,255,.75);
+  border-color: rgba(255,255,255,.38);
+  color: #fff;
 }
-.hero-tag i { font-size: 14px; }
+.hero-tag i { font-size: 13px; opacity: .65; }
 
+/* Trust row: compact editorial ticker. The 4 stats read as a
+   single line separated by a thin · dot. "Trusted by:" is a
+   quiet uppercase label above the stats on desktop and hidden
+   on mobile so the stats can breathe. */
 .hero-trust {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 4px 20px;
   flex-wrap: wrap;
-  margin-top: 44px;
+  margin-top: 52px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  max-width: 640px;
 }
 .hero-trust-lbl {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255,255,255,.6);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.42);
+  width: 100%;
+  margin-bottom: 2px;
 }
 .hero-trust b {
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255,255,255,.9);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,.82);
   white-space: nowrap;
+  position: relative;
+}
+/* Subtle · separator between adjacent stats — created via
+   ::before on siblings so the first item has no leading dot. */
+.hero-trust b + b::before {
+  content: "·";
+  position: absolute;
+  left: -12px;
+  color: rgba(255,255,255,.3);
+  font-weight: 400;
 }
 
 .hero-scroll-hint { display: none; }
 
-/* ── Tablet ── */
+/* Tablet */
 @media (max-width: 900px) {
   .hero-h1 { font-size: 42px; letter-spacing: -1.1px; }
   .nav-act { display: none; }
   .nav-sep { display: none; }
 }
 
-/* ── Mobile ── */
+/* Mobile */
 @media (max-width: 640px) {
   .nav-wrap { height: 58px; padding: 0 16px; }
   .nav-logo-3d { font-size: 15px; letter-spacing: 1.8px; }
   .nav-cta { font-size: 14px; padding: 8px 14px; }
   .nav-right { gap: 10px; }
 
-  .hero-yt-section { min-height: 500px; }
-  .hero-content { padding: 48px 20px 44px; }
+  .hero-yt-section { min-height: 480px; }
+  .hero-content { padding: 52px 20px 40px; }
+
   .hero-h1 {
     font-size: 30px;
-    letter-spacing: -.7px;
-    line-height: 1.18;
+    letter-spacing: -0.6px;
+    line-height: 1.15;
     margin-bottom: 14px;
   }
-  .hero-sub { font-size: 15px; margin-bottom: 22px; }
-  .hero-cta { width: 100%; padding: 14px; font-size: 15px; }
-  .hero-tags { gap: 8px; margin-top: 20px; }
+  .hero-sub { font-size: 15px; margin-bottom: 24px; max-width: 100%; }
+  .hero-cta {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 15px;
+  }
+
+  .hero-tags { gap: 6px; margin-top: 22px; }
   .hero-tag { font-size: 12.5px; padding: 6px 12px; }
-  .hero-trust { gap: 8px 14px; margin-top: 30px; }
-  .hero-trust-lbl { font-size: 12.5px; width: 100%; }
-  .hero-trust b { font-size: 13px; }
+
+  .hero-trust {
+    gap: 4px 14px;
+    margin-top: 32px;
+    padding-top: 18px;
+  }
+  /* Drop the "Trusted by:" label on mobile so the 4 stats can
+     fit two-across without wrapping awkwardly. */
+  .hero-trust-lbl { display: none; }
+  .hero-trust b { font-size: 12px; }
+  .hero-trust b + b::before { left: -9px; }
 }
 
 
