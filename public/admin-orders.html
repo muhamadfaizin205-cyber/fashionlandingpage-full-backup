@@ -396,17 +396,21 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .kba-col-over{background:rgba(29,191,115,0.06);border-color:var(--green)}
 .kba-col-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 2px}
 .kba-col-title{font-size:13px;font-weight:700;color:var(--txt)}
-.kba-col-count{font-size:11px;color:var(--txt3);background:rgba(255,255,255,0.05);border-radius:20px;padding:1px 8px;margin-left:auto}
+.kba-col-count{font-size:11px;color:var(--txt3);background:rgba(255,255,255,0.05);border-radius:20px;padding:1px 8px}
+.kba-col-add{margin-left:auto;width:24px;height:24px;border-radius:7px;border:none;background:rgba(255,255,255,0.05);color:var(--txt2);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.kba-col-add:hover{background:var(--green);color:#fff}
 .kba-col-body{display:flex;flex-direction:column;gap:10px;min-height:60px;flex:1}
-.kba-empty{font-size:11px;color:var(--txt3);text-align:center;padding:20px 8px;border:1px dashed var(--border);border-radius:10px}
-.kba-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:11px;padding:11px;cursor:grab;transition:border-color .15s}
-.kba-card:hover{border-color:rgba(255,255,255,0.22)}
+.kba-empty{font-size:11px;color:var(--txt3);text-align:center;padding:20px 8px;border:1.5px dashed rgba(255,255,255,0.08);border-radius:10px}
+.kba-card{background:#161B26;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;cursor:grab;transition:all .16s;box-shadow:0 1px 3px rgba(0,0,0,0.25)}
+.kba-card:hover{border-color:rgba(255,255,255,0.22);box-shadow:0 6px 16px rgba(0,0,0,0.3);transform:translateY(-1px)}
 .kba-card:active{cursor:grabbing}
-.kba-card-title{font-size:13px;font-weight:600;color:var(--txt);line-height:1.35;margin-bottom:5px}
-.kba-card-desc{font-size:11.5px;color:var(--txt2);line-height:1.5;margin-bottom:7px}
-.kba-card-img{width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:7px;display:block}
-.kba-card-foot{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt3)}
+.kba-card-title{font-size:13.5px;font-weight:600;color:var(--txt);line-height:1.4;margin-bottom:5px;letter-spacing:-.1px}
+.kba-card-desc{font-size:11.5px;color:var(--txt2);line-height:1.5;margin-bottom:8px}
+.kba-card-img{width:100%;height:110px;object-fit:cover;border-radius:9px;margin-bottom:8px;display:block}
+.kba-card-foot{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--txt3);padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)}
+.kba-card-foot span{display:flex;align-items:center;gap:4px}
 .kba-card-foot i{font-size:12px}
+.kba-card-foot .kb-card-review{margin-left:auto}
 
 .kba-sheet{background:#111827;border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px}
 .kba-sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -994,7 +998,8 @@ function akbRenderBoard(){
     var cards=akbCards.filter(function(c){return (c.column_key||'backlog')===col.key});
     var cardsHTML=cards.map(akbCardHTML).join('');
     return '<div class="kba-col" data-col="'+col.key+'" ondragover="akbDragOver(event)" ondragleave="akbDragLeave(event)" ondrop="akbDrop(event,\''+col.key+'\')">'+
-      '<div class="kba-col-head"><span class="kb-col-dot" style="background:'+col.dot+'"></span><span class="kba-col-title">'+col.title+'</span><span class="kba-col-count">'+cards.length+'</span></div>'+
+      '<div class="kba-col-head"><span class="kb-col-dot" style="background:'+col.dot+'"></span><span class="kba-col-title">'+col.title+'</span><span class="kba-col-count">'+cards.length+'</span>'+
+        '<button class="kba-col-add" title="Add card here" onclick="openAkbCardEditor(null,\''+col.key+'\')">+</button></div>'+
       '<div class="kba-col-body">'+(cardsHTML||'<div class="kba-empty">Drop cards here</div>')+'</div>'+
     '</div>';
   }).join('');
@@ -1008,13 +1013,24 @@ function akbCardHTML(c){
   var review='';
   if(c.review_state==='approved')review='<span class="kb-card-review kb-review-approved">✓ Approved</span>';
   else if(c.review_state==='revision')review='<span class="kb-card-review kb-review-revision">↻ Revision</span>';
+  var when=akbTimeAgo(c.updated_at||c.created_at);
   return '<div class="kba-card" draggable="true" ondragstart="akbDragStart(event,\''+c.id+'\')" ondragend="akbDragEnd(event)" onclick="openAkbCardEditor(\''+c.id+'\')">'+
     pri+
     '<div class="kba-card-title">'+esc(c.title||'Untitled')+'</div>'+
     (c.description?'<div class="kba-card-desc">'+esc(c.description).substring(0,80)+(c.description.length>80?'...':'')+'</div>':'')+
     img+
-    '<div class="kba-card-foot"><span><i class="ri-chat-1-line"></i> '+fbCount+(newFb?' <b style="color:#4ADE80">('+newFb+' from client)</b>':'')+'</span>'+review+'</div>'+
+    '<div class="kba-card-foot"><span><i class="ri-chat-1-line"></i> '+fbCount+(newFb?' <b style="color:#4ADE80">('+newFb+' from client)</b>':'')+'</span>'+
+      (when?'<span><i class="ri-time-line"></i> '+when+'</span>':'')+review+'</div>'+
   '</div>';
+}
+
+function akbTimeAgo(d){
+  if(!d)return'';
+  var s=Math.floor((Date.now()-new Date(d).getTime())/1000);
+  if(s<60)return'now';
+  if(s<3600)return Math.floor(s/60)+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'d';
 }
 
 // ── Drag & drop ──
@@ -1038,14 +1054,15 @@ async function akbDrop(e,colKey){
 }
 
 // ── Card editor ──
-function openAkbCardEditor(id){
+function openAkbCardEditor(id,presetCol){
   var card=id?akbCards.find(function(c){return c.id===id}):null;
   var isNew=!card;
   akbCardImg=card?(card.image_url||''):'';
   window._akbEditId=id||null;
+  var defaultCol=presetCol||(card&&card.column_key)||'backlog';
   var host=document.getElementById('kanban-editor-host');
   if(!host){host=document.createElement('div');host.id='kanban-editor-host';document.body.appendChild(host);}
-  var colOpts=KB_COLS.map(function(c){return '<option value="'+c.key+'"'+((card&&card.column_key===c.key)||(!card&&c.key==='backlog')?' selected':'')+'>'+c.title+'</option>';}).join('');
+  var colOpts=KB_COLS.map(function(c){return '<option value="'+c.key+'"'+(c.key===defaultCol?' selected':'')+'>'+c.title+'</option>';}).join('');
   var priOpts=['','low','medium','high'].map(function(p){return '<option value="'+p+'"'+((card&&card.priority===p)?' selected':'')+'>'+(p?p.charAt(0).toUpperCase()+p.slice(1):'None')+'</option>';}).join('');
   var fbs=card?akbFeedback.filter(function(f){return f.card_id===card.id}):[];
   var fbHTML=fbs.length?fbs.map(function(f){

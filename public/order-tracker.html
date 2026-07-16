@@ -135,35 +135,37 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 }
 
 /* ═══ KANBAN (customer view — read-only board + feedback) ═══ */
-.kb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.kb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
 .kb-order-pick{display:flex;gap:8px;flex-wrap:wrap}
-.kb-order-chip{padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.kb-order-chip{padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:12px;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap;font-weight:600}
 .kb-order-chip.active{background:rgba(29,191,115,0.12);border-color:var(--g);color:var(--txt)}
 .kb-legend{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px}
 
-.kb-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
-.kb-col{flex:0 0 270px;width:270px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;max-height:calc(100vh - 220px)}
-.kb-col-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 4px}
-.kb-col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.kb-col-title{font-size:13px;font-weight:700;color:var(--txt)}
-.kb-col-count{font-size:11px;color:var(--txt3);background:rgba(255,255,255,0.05);border-radius:20px;padding:1px 8px;margin-left:auto}
-.kb-col-body{display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;min-height:40px}
+.kb-board{display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.kb-col{flex:0 0 288px;width:288px;background:rgba(255,255,255,0.028);border:1px solid var(--border);border-radius:16px;padding:14px 12px;display:flex;flex-direction:column;max-height:calc(100vh - 230px)}
+.kb-col-head{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding:0 6px}
+.kb-col-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.kb-col-title{font-size:14px;font-weight:700;color:var(--txt);letter-spacing:-.2px}
+.kb-col-count{font-size:12px;font-weight:700;color:var(--txt3);background:rgba(255,255,255,0.06);border-radius:20px;padding:2px 9px;margin-left:6px}
+.kb-col-body{display:flex;flex-direction:column;gap:11px;overflow-y:auto;flex:1;min-height:40px;padding:2px}
 
-.kb-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;transition:all .15s}
-.kb-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-1px)}
-.kb-card-pri{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:5px;margin-bottom:8px}
-.kb-pri-high{background:rgba(239,68,68,0.15);color:#F87171}
-.kb-pri-medium{background:rgba(245,158,11,0.15);color:#FBBF24}
-.kb-pri-low{background:rgba(34,197,94,0.15);color:#4ADE80}
-.kb-card-title{font-size:13.5px;font-weight:600;color:var(--txt);line-height:1.35;margin-bottom:6px}
-.kb-card-desc{font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:8px}
-.kb-card-img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block}
-.kb-card-foot{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--txt3)}
+.kb-card{background:#161B26;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px;cursor:pointer;transition:all .16s;box-shadow:0 1px 3px rgba(0,0,0,0.25)}
+.kb-card:hover{border-color:rgba(255,255,255,0.22);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.3)}
+.kb-card-pri{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-bottom:9px}
+.kb-card-pri::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.kb-pri-high{background:rgba(239,68,68,0.14);color:#F87171}
+.kb-pri-medium{background:rgba(245,158,11,0.14);color:#FBBF24}
+.kb-pri-low{background:rgba(34,197,94,0.14);color:#4ADE80}
+.kb-card-title{font-size:14px;font-weight:600;color:var(--txt);line-height:1.4;margin-bottom:6px;letter-spacing:-.1px}
+.kb-card-desc{font-size:12px;color:var(--txt2);line-height:1.55;margin-bottom:9px}
+.kb-card-img{width:100%;height:130px;object-fit:cover;border-radius:9px;margin-bottom:9px;display:block}
+.kb-card-foot{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--txt3);padding-top:9px;border-top:1px solid rgba(255,255,255,0.05)}
 .kb-card-foot .kb-cf-item{display:flex;align-items:center;gap:4px}
-.kb-card-review{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.kb-card-foot .kb-cf-item i{font-size:13px}
+.kb-card-review{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
 .kb-review-approved{background:rgba(34,197,94,0.15);color:#4ADE80}
 .kb-review-revision{background:rgba(245,158,11,0.15);color:#FBBF24}
-.kb-col-empty{font-size:11px;color:var(--txt3);text-align:center;padding:18px 8px;border:1px dashed var(--border);border-radius:10px}
+.kb-col-empty{font-size:11px;color:var(--txt3);text-align:center;padding:22px 8px;border:1.5px dashed rgba(255,255,255,0.08);border-radius:11px}
 
 .kb-empty-board{text-align:center;padding:60px 20px;color:var(--txt3)}
 .kb-empty-board i{font-size:40px;opacity:.4;display:block;margin-bottom:12px}
@@ -491,6 +493,7 @@ function kbCardHTML(c){
   if(c.review_state==='approved')review='<span class="kb-card-review kb-review-approved">✓ Approved</span>';
   else if(c.review_state==='revision')review='<span class="kb-card-review kb-review-revision">↻ Revision</span>';
   var desc=c.description?'<div class="kb-card-desc">'+esc(c.description).substring(0,90)+(c.description.length>90?'...':'')+'</div>':'';
+  var when=kbTimeAgo(c.updated_at||c.created_at);
   return '<div class="kb-card" onclick="kbOpenCard(\''+c.id+'\')">'+
     pri+
     '<div class="kb-card-title">'+esc(c.title||'Untitled')+'</div>'+
@@ -498,9 +501,19 @@ function kbCardHTML(c){
     '<div class="kb-card-foot">'+
       '<span class="kb-cf-item"><i class="ri-chat-1-line"></i> '+fbCount+'</span>'+
       (c.image_url?'<span class="kb-cf-item"><i class="ri-image-line"></i> 1</span>':'')+
+      (when?'<span class="kb-cf-item"><i class="ri-time-line"></i> '+when+'</span>':'')+
       review+
     '</div>'+
   '</div>';
+}
+
+function kbTimeAgo(d){
+  if(!d)return'';
+  var s=Math.floor((Date.now()-new Date(d).getTime())/1000);
+  if(s<60)return'now';
+  if(s<3600)return Math.floor(s/60)+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'d';
 }
 
 function kbOpenCard(id){
