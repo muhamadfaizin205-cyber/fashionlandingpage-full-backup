@@ -433,6 +433,63 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
 .kb-fb-send{width:40px;height:40px;border-radius:10px;background:var(--green);color:#fff;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
 @media(max-width:768px){.kba-col{flex:0 0 78vw;width:78vw}}
 
+/* ═══ KANBAN FULL-PAGE (light theme — matches reference) ═══ */
+.kbf-wrap{background:#F1F2F7;min-height:100vh;padding:0}
+.kbf-topbar{display:flex;align-items:center;gap:14px;padding:18px 24px;background:#fff;border-bottom:1px solid #E8EAF0;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.kbf-logo{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:800;color:#5B4FE9}
+.kbf-logo-ic{width:30px;height:30px;border-radius:8px;background:#5B4FE9;display:flex;align-items:center;justify-content:center;color:#fff}
+.kbf-proj{position:relative}
+.kbf-proj-sel{appearance:none;-webkit-appearance:none;background:#fff;border:1px solid #E2E4EC;border-radius:9px;padding:9px 34px 9px 14px;font-size:13.5px;font-weight:600;color:#2D3142;cursor:pointer;font-family:inherit;min-width:170px;outline:none}
+.kbf-proj-sel:focus{border-color:#5B4FE9}
+.kbf-proj::after{content:"\25BE";position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#9AA0B4;pointer-events:none;font-size:11px}
+.kbf-search{flex:1;max-width:280px;display:flex;align-items:center;gap:8px;background:#F4F5F9;border:1px solid #EAECF2;border-radius:9px;padding:9px 14px}
+.kbf-search input{border:none;background:none;outline:none;font-size:13px;color:#2D3142;width:100%;font-family:inherit}
+.kbf-search i{color:#9AA0B4;font-size:15px}
+.kbf-topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.kbf-newboard{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #E2E4EC;border-radius:9px;padding:9px 15px;font-size:13px;font-weight:600;color:#2D3142;cursor:pointer;transition:all .15s}
+.kbf-newboard:hover{border-color:#5B4FE9;color:#5B4FE9}
+.kbf-board{display:flex;gap:18px;padding:22px 24px;overflow-x:auto;align-items:flex-start;min-height:calc(100vh - 74px)}
+.kbf-col{flex:0 0 300px;width:300px;background:#EDEEF3;border-radius:14px;padding:14px;display:flex;flex-direction:column;max-height:calc(100vh - 120px)}
+.kbf-col-head{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding:2px 4px}
+.kbf-col-title{font-size:14px;font-weight:700;color:#2D3142}
+.kbf-col-count{font-size:12px;font-weight:600;color:#9AA0B4}
+.kbf-col-actions{margin-left:auto;display:flex;align-items:center;gap:2px}
+.kbf-col-btn{width:26px;height:26px;border-radius:7px;border:none;background:transparent;color:#7A8194;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.kbf-col-btn:hover{background:#E2E3EA;color:#5B4FE9}
+.kbf-col-body{display:flex;flex-direction:column;gap:11px;overflow-y:auto;flex:1;min-height:30px;padding:2px}
+.kbf-card{background:#fff;border-radius:11px;padding:14px;cursor:grab;box-shadow:0 1px 2px rgba(45,49,66,0.06);border:1px solid transparent;transition:box-shadow .15s}
+.kbf-card:hover{box-shadow:0 4px 12px rgba(45,49,66,0.1)}
+.kbf-card:active{cursor:grabbing}
+.kbf-card.dragging{opacity:.4}
+.kbf-pri{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.2px;padding:3px 10px;border-radius:6px;margin-bottom:10px}
+.kbf-pri-high{background:#FEE9E7;color:#E8553D}
+.kbf-pri-medium{background:#FFF3E0;color:#E8991F}
+.kbf-pri-low{background:#E6F7EC;color:#2AA758}
+.kbf-pri-none{background:#EEF0F4;color:#8A90A2}
+.kbf-card-title{font-size:14px;font-weight:600;color:#2D3142;line-height:1.4;margin-bottom:6px}
+.kbf-card-desc{font-size:12.5px;color:#7A8194;line-height:1.55;margin-bottom:11px}
+.kbf-card-img{width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:11px;display:block}
+.kbf-card-foot{display:flex;align-items:center;gap:13px;padding-top:11px;border-top:1px solid #F0F1F5}
+.kbf-cf-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#9AA0B4;font-weight:500}
+.kbf-cf-item i{font-size:14px}
+.kbf-card-review{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.kbf-rev-approved{background:#E6F7EC;color:#2AA758}
+.kbf-rev-revision{background:#FFF3E0;color:#E8991F}
+.kbf-card-date{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#B0B5C4}
+.kbf-newcard{display:flex;align-items:center;gap:7px;padding:11px;margin-top:2px;border-radius:9px;font-size:13px;font-weight:600;color:#8A90A2;cursor:pointer;transition:all .15s;background:transparent}
+.kbf-newcard:hover{background:#E4E5EC;color:#5B4FE9}
+.kbf-empty-col{font-size:12px;color:#B0B5C4;text-align:center;padding:20px 8px}
+.kbf-empty{text-align:center;padding:80px 20px;color:#9AA0B4}
+.kbf-empty i{font-size:48px;opacity:.35;display:block;margin-bottom:14px}
+.kbf-empty h3{font-size:16px;color:#5A607A;margin:0 0 6px}
+.kbf-empty p{font-size:13px;margin:0}
+@media(max-width:900px){
+  .kbf-topbar{padding:14px 16px;gap:10px}
+  .kbf-search{max-width:none;order:5;flex:1 1 100%}
+  .kbf-board{padding:16px;gap:14px}
+  .kbf-col{flex:0 0 84vw;width:84vw}
+}
+
 </style>
 </head>
 <body>
@@ -688,6 +745,7 @@ function renderApp(){
         '<div class="md-item" onclick="switchView(\'ai-agent\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI Agent</div>'+
       '<div class="md-item '+(currentView==='gigs'?'active':'')+'" onclick="switchView(\'gigs\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Gigs</div>'+
       '<div class="md-item '+(currentView==='cards'?'active':'')+'" onclick="switchView(\'cards\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Homepage Cards</div>'+
+      '<div class="md-item '+(currentView==='kanban'?'active':'')+'" onclick="switchView(\'kanban\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="8" rx="1"/></svg>Kanban</div>'+
       '<div class="md-divider"></div>'+
       '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -765,6 +823,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Gigs</h1><div class="page-actions"><button class="btn-primary" onclick="openGigEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Gig</button></div></div><div id="gigs-area"></div></div>';
   } else if(currentView==='cards'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Homepage Cards</h1><div class="page-actions"><button class="btn-ghost" onclick="renderCardsView()">↻ Refresh</button><button class="btn-primary" onclick="openCardEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Card</button></div></div><div style="font-size:13px;color:var(--txt3);margin:-8px 0 18px;max-width:640px">These are the "What we design" tone-colored cards on the homepage. Changes appear on every open homepage tab within a second (realtime).</div><div id="cards-area"></div></div>';
+  } else if(currentView==='kanban'){
+    body='<div class="kbf-wrap" id="kbf-wrap"><div style="padding:60px;text-align:center;color:#94A3B8">Loading board...</div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -774,6 +834,7 @@ function renderCurrentView(){
   else if(currentView==='ai-agent')renderAIAgentView();
   else if(currentView==='gigs')renderGigsView();
   else if(currentView==='cards')renderCardsView();
+  else if(currentView==='kanban')renderKanbanFull();
   else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
@@ -827,6 +888,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('cards-nav-btn')){
     document.getElementById('cards-nav-btn').className='sb-ic'+(currentView==='cards'?' active':'');
+  }
+  // Inject Kanban nav button
+  if(sbIcons&&!document.getElementById('kanban-nav-btn')){
+    var kbBtn=document.createElement('button');
+    kbBtn.id='kanban-nav-btn';
+    kbBtn.className='sb-ic';
+    kbBtn.title='Kanban';
+    kbBtn.onclick=function(){switchView('kanban')};
+    kbBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="8" rx="1"/></svg>Kanban<span class="sb-ic-tip">Kanban Board</span>';
+    sbIcons.appendChild(kbBtn);
+  }
+  if(document.getElementById('kanban-nav-btn')){
+    document.getElementById('kanban-nav-btn').className='sb-ic'+(currentView==='kanban'?' active':'');
   }
 }
 
@@ -1041,6 +1115,132 @@ function akbTimeAgo(d){
   return Math.floor(s/86400)+'d';
 }
 
+// ═══════════════════════════════════════════════════════════
+// KANBAN FULL-PAGE (sidebar menu, light theme, matches reference)
+// Reuses the akb* card editor / drag logic, but renders a full
+// light-theme board with an order (project) picker in the topbar.
+// ═══════════════════════════════════════════════════════════
+var kbfOrderId=null,kbfSearch='';
+
+async function renderKanbanFull(){
+  var wrap=document.getElementById('kbf-wrap');if(!wrap)return;
+  // Pick default order: remembered, else first order
+  if(!kbfOrderId||!orders.find(function(o){return o.id===kbfOrderId})){
+    kbfOrderId=orders.length?orders[0].id:null;
+  }
+  if(!orders.length){
+    wrap.innerHTML='<div class="kbf-empty"><i class="ri-inbox-line"></i><h3>No orders yet</h3><p>Boards appear here once you have orders.</p></div>';
+    return;
+  }
+  akbOrderId=kbfOrderId; // sync with shared akb* logic
+  var projOpts=orders.map(function(o){
+    var lbl=(o.brand_name&&o.brand_name.trim())?o.brand_name:(o.email||'Order');
+    return '<option value="'+o.id+'"'+(o.id===kbfOrderId?' selected':'')+'>'+esc(lbl)+'</option>';
+  }).join('');
+
+  wrap.innerHTML=
+    '<div class="kbf-topbar">'+
+      '<div class="kbf-logo"><span class="kbf-logo-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="8" rx="1"/></svg></span>Kanban</div>'+
+      '<div class="kbf-proj"><select class="kbf-proj-sel" onchange="kbfSwitchOrder(this.value)">'+projOpts+'</select></div>'+
+      '<div class="kbf-search"><i class="ri-search-line"></i><input type="text" placeholder="Search cards..." value="'+esc(kbfSearch)+'" oninput="kbfDoSearch(this.value)"></div>'+
+      '<div class="kbf-topbar-right">'+
+        '<button class="kbf-newboard" onclick="openAkbCardEditorFull(null,\'backlog\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Card</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="kbf-board" id="kbf-board"><div style="padding:40px;color:#9AA0B4">Loading...</div></div>';
+
+  await kbfLoad();
+  kbfSetupRealtime();
+}
+
+function kbfSwitchOrder(id){kbfOrderId=id;akbOrderId=id;renderKanbanFull();}
+function kbfDoSearch(v){kbfSearch=v;kbfRenderBoard();}
+
+async function kbfLoad(){
+  if(!sb||!kbfOrderId)return;
+  var c=await sb.from('kanban_cards').select('*').eq('order_id',kbfOrderId).order('position',{ascending:true});
+  akbCards=c.data||[];
+  var f=await sb.from('kanban_feedback').select('*').eq('order_id',kbfOrderId).order('created_at',{ascending:true});
+  akbFeedback=f.data||[];
+  kbfRenderBoard();
+}
+
+function kbfRenderBoard(){
+  var board=document.getElementById('kbf-board');if(!board)return;
+  var q=kbfSearch.trim().toLowerCase();
+  board.innerHTML=KB_COLS.map(function(col){
+    var cards=akbCards.filter(function(c){return (c.column_key||'backlog')===col.key;});
+    if(q)cards=cards.filter(function(c){return (c.title||'').toLowerCase().indexOf(q)>=0||(c.description||'').toLowerCase().indexOf(q)>=0;});
+    var body=cards.length?cards.map(kbfCardHTML).join(''):'<div class="kbf-empty-col">No cards</div>';
+    return '<div class="kbf-col" data-col="'+col.key+'" ondragover="kbfDragOver(event)" ondragleave="kbfDragLeave(event)" ondrop="kbfDrop(event,\''+col.key+'\')">'+
+      '<div class="kbf-col-head"><span class="kbf-col-title">'+col.title+'</span><span class="kbf-col-count">'+cards.length+'</span>'+
+        '<div class="kbf-col-actions"><button class="kbf-col-btn" title="Add card" onclick="openAkbCardEditorFull(null,\''+col.key+'\')">+</button></div>'+
+      '</div>'+
+      '<div class="kbf-col-body">'+body+'</div>'+
+      '<div class="kbf-newcard" onclick="openAkbCardEditorFull(null,\''+col.key+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</div>'+
+    '</div>';
+  }).join('');
+}
+
+function kbfCardHTML(c){
+  var fbCount=akbFeedback.filter(function(f){return f.card_id===c.id;}).length;
+  var newFb=akbFeedback.filter(function(f){return f.card_id===c.id&&f.author==='customer';}).length;
+  var priClass=c.priority?('kbf-pri-'+c.priority):'kbf-pri-none';
+  var priLabel=c.priority?(c.priority.charAt(0).toUpperCase()+c.priority.slice(1)):'Undefined';
+  var img=c.image_url?'<img class="kbf-card-img" src="'+esc(c.image_url)+'">':'';
+  var desc=c.description?'<div class="kbf-card-desc">'+esc(c.description).substring(0,110)+(c.description.length>110?'...':'')+'</div>':'';
+  var when=akbTimeAgo(c.updated_at||c.created_at);
+  var review='';
+  if(c.review_state==='approved')review='<span class="kbf-card-review kbf-rev-approved">✓ Approved</span>';
+  else if(c.review_state==='revision')review='<span class="kbf-card-review kbf-rev-revision">↻ Revision</span>';
+  return '<div class="kbf-card" draggable="true" ondragstart="kbfDragStart(event,\''+c.id+'\')" ondragend="kbfDragEnd(event)" onclick="openAkbCardEditorFull(\''+c.id+'\')">'+
+    '<span class="kbf-pri '+priClass+'">'+priLabel+'</span>'+
+    '<div class="kbf-card-title">'+esc(c.title||'Untitled')+'</div>'+
+    desc+img+
+    '<div class="kbf-card-foot">'+
+      '<span class="kbf-cf-item"><i class="ri-chat-1-line"></i> '+fbCount+(newFb?' <b style="color:#2AA758">+'+newFb+'</b>':'')+'</span>'+
+      (c.image_url?'<span class="kbf-cf-item"><i class="ri-image-line"></i> 1</span>':'')+
+      (review?review:'<span class="kbf-card-date"><i class="ri-time-line"></i> '+(when||'now')+'</span>')+
+    '</div>'+
+  '</div>';
+}
+
+// Drag/drop for full-page board
+function kbfDragStart(e,id){akbDragId=id;e.dataTransfer.effectAllowed='move';setTimeout(function(){if(e.target)e.target.classList.add('dragging');},0);}
+function kbfDragEnd(e){if(e.target)e.target.classList.remove('dragging');akbDragId=null;}
+function kbfDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function kbfDragLeave(e){}
+async function kbfDrop(e,colKey){
+  e.preventDefault();
+  if(!akbDragId||!sb)return;
+  var card=akbCards.find(function(c){return c.id===akbDragId;});
+  if(!card||card.column_key===colKey){akbDragId=null;return;}
+  card.column_key=colKey;
+  var maxPos=Math.max(0,...akbCards.filter(function(c){return c.column_key===colKey;}).map(function(c){return c.position||0;}));
+  card.position=maxPos+1;
+  kbfRenderBoard();
+  await sb.from('kanban_cards').update({column_key:colKey,position:card.position}).eq('id',akbDragId);
+  akbDragId=null;
+}
+
+// Card editor: reuse the existing dark akb editor modal, but refresh
+// the full-page board (not the mini) after save/delete.
+function openAkbCardEditorFull(id,presetCol){
+  akbOrderId=kbfOrderId;
+  openAkbCardEditor(id,presetCol);
+  // Override the post-action refresh to redraw the full board
+  window._akbRefresh=function(){kbfLoad();};
+}
+
+function kbfSetupRealtime(){
+  if(!sb||!kbfOrderId)return;
+  if(window._kbfCh){sb.removeChannel(window._kbfCh);window._kbfCh=null;}
+  window._kbfCh=sb.channel('kbf:'+kbfOrderId)
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_cards',filter:'order_id=eq.'+kbfOrderId},function(){if(currentView==='kanban')kbfLoad();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'kanban_feedback',filter:'order_id=eq.'+kbfOrderId},function(){if(currentView==='kanban')kbfLoad();})
+    .subscribe();
+}
+
 // ── Drag & drop ──
 function akbDragStart(e,id){akbDragId=id;e.dataTransfer.effectAllowed='move';setTimeout(function(){var el=e.target;if(el)el.style.opacity='0.4';},0);}
 function akbDragEnd(e){if(e.target)e.target.style.opacity='1';akbDragId=null;document.querySelectorAll('.kba-col').forEach(function(c){c.classList.remove('kba-col-over')});}
@@ -1141,7 +1341,8 @@ async function akbSaveCard(id){
     data.position=maxPos+1;
     await sb.from('kanban_cards').insert(data);
   }
-  closeAkbEditor();akbLoad();
+  closeAkbEditor();
+  if(window._akbRefresh){window._akbRefresh();window._akbRefresh=null;}else{akbLoad();}
 }
 
 async function akbDeleteCard(id){
@@ -1149,7 +1350,8 @@ async function akbDeleteCard(id){
   if(!sb)return;
   await sb.from('kanban_feedback').delete().eq('card_id',id);
   await sb.from('kanban_cards').delete().eq('id',id);
-  closeAkbEditor();akbLoad();
+  closeAkbEditor();
+  if(window._akbRefresh){window._akbRefresh();window._akbRefresh=null;}else{akbLoad();}
 }
 
 async function akbReply(){
