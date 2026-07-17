@@ -3662,7 +3662,7 @@ export default function App() {
                 <a href="https://www.fiverr.com/s/dDZARZa" target="_blank" rel="me noopener noreferrer" className="footer-link">Fiverr Profile</a>
                 <a href="https://www.createclothingdesign.com/gigs" className="footer-link">Our Services</a>
                 <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a>
-                <a href="mailto:muhamadfaizin205@gmail.com" className="footer-link">Email Us</a>
+                <a href="mailto:deanstudio16@gmail.com" className="footer-link">Email Us</a>
               </nav>
             </div>
           </div>
