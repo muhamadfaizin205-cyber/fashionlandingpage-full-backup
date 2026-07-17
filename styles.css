@@ -3556,6 +3556,16 @@ html {
 
 .gig-detail-wrap { max-width: 1100px; margin: 0 auto; }
 
+/* ═══ About page (info moved off homepage) ═══ */
+.about-page { max-width: 1120px; margin: 0 auto; padding: 40px 20px 80px; }
+.about-page-head { margin-bottom: 32px; }
+.about-page-title { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; color: #1a1a1a; margin: 16px 0 8px; }
+.about-page-sub { font-size: 15px; color: #74767E; max-width: 620px; line-height: 1.6; }
+@media (max-width: 640px) {
+  .about-page { padding: 24px 16px 60px; }
+  .about-page-title { font-size: 25px; }
+}
+
 @media (max-width: 640px) {
   .fvg-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
   .fvg-body { padding: 12px 12px 6px; }

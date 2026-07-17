@@ -2852,7 +2852,7 @@ export default function App() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home"|"articles"|"gigs"|"orders">(() => {
+  const [currentPage, setCurrentPage] = useState<"home"|"articles"|"gigs"|"orders"|"about">(() => {
     // Read initial page from URL so refresh stays on the same page
     if (typeof window !== "undefined") {
       const path = window.location.pathname.replace(/\/$/, "");
@@ -3194,6 +3194,9 @@ export default function App() {
               <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); setDrawerOpen(false); window.scrollTo(0,0); }}>
                 <i className="ri-store-2-line" style={{fontSize:18}} />Gigs
               </a>
+              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("about"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-information-line" style={{fontSize:18}} />Why Dean / FAQ
+              </a>
               <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
                 <i className="ri-article-line" style={{fontSize:18}} />Articles
               </a>
@@ -3433,6 +3436,20 @@ export default function App() {
               ))}
             </div>
           </section>
+                  </>
+      )}
+
+      {/* ══ ABOUT PAGE — long-form info moved off the homepage ══
+          Opened from the hamburger menu. Homepage now ends at the
+          services grid + wizard; all the "why order direct" content
+          lives here so the homepage stays lean and Fiverr-like. */}
+      {currentPage === "about" && (
+        <section className="about-page">
+          <div className="about-page-head">
+            <button className="gigs-back-btn" onClick={() => { setCurrentPage("home"); window.scrollTo(0,0); }}>← Back to home</button>
+            <h1 className="about-page-title">Why Dean Designers</h1>
+            <p className="about-page-sub">One designer, direct. No marketplace cut, no hidden fees - here's how it works.</p>
+          </div>
 
           {/* ══ Features grid 2x2 (Fiverr pattern) ══ */}
           <section className="fv-features">
@@ -3517,10 +3534,8 @@ export default function App() {
 
           <Testimonials />
 
-          {/* ── ABOUT SECTION ── */}
-
-
-                  </>
+          <FAQSection />
+        </section>
       )}
 
       {/* WIZARD */}
@@ -3696,8 +3711,8 @@ export default function App() {
         </section>
       )}
 
-      {/* ── FAQ Section (visible on step 1) ── */}
-      {step === 1 && <FAQSection />}
+      {/* FAQ moved to the About page (hamburger menu) to keep the
+          homepage focused on services + ordering. */}
 
       {/* ── Sticky Mobile CTA ── */}
       {step === 1 && (
