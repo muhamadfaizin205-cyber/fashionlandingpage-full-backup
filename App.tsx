@@ -310,7 +310,7 @@ const DEFAULT_GIGS: Gig[] = [
     premium_price: 200, premium_delivery: 7, premium_revisions: "3 Revisions",
     premium_features: ["Logo transparency","Vector file","Printable file","3D mockup","Source file","Social media kit"],
     premium_desc: "Complete brand identity with social media kit.",
-    rating: 5.0, review_count: 986, orders_count: 8100,
+    rating: 4.9, review_count: 986, orders_count: 8100,
     service_type: "logo" as const, is_active: true, sort_order: 2,
     seo_title: "", seo_description: "",
   },
@@ -2432,7 +2432,7 @@ function ArticlesFullPage({ onBack }: { onBack: () => void }) {
           <div style={{marginTop:48,padding:"32px 28px",background:"linear-gradient(135deg,#0F1115,#1a2420)",borderRadius:16,textAlign:"center"}}>
             <div style={{fontSize:11,fontWeight:700,color:"#1DBF73",marginBottom:8,textTransform:"uppercase",letterSpacing:1.5}}>Ready to build your brand?</div>
             <h3 style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:8,lineHeight:1.2}}>Get professional clothing & logo design</h3>
-            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>5.0★ · 136,000+ designs · 7,000+ brands · Since 2018</p>
+            <p style={{fontSize:13,color:"rgba(255,255,255,0.55)",marginBottom:20}}>4.9★ · 136,000+ designs · 7,000+ brands · Since 2018</p>
             <button onClick={onBack} style={{background:"#1DBF73",color:"#fff",border:"none",padding:"13px 28px",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
               Start Your Order →
             </button>
@@ -3329,7 +3329,7 @@ export default function App() {
                 <span className="hero-trust-lbl">Trusted by:</span>
                 <b>7,000+ brands</b>
                 <b>136K+ designs</b>
-                <b>5.0 rating</b>
+                <b>4.9 rating</b>
                 <b>No fees, no tax</b>
               </div>
             </div>
@@ -3390,7 +3390,7 @@ export default function App() {
               <div className="tb-item">
                 <div className="tb-icon tb-icon-star">★</div>
                 <div className="tb-text">
-                  <strong>5.0 / 5.0</strong>
+                  <strong>4.9 / 5.0</strong>
                   <span>Client Satisfaction</span>
                 </div>
               </div>
@@ -3627,7 +3627,7 @@ export default function App() {
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
                 {[
                   {num:"136,000+",label:"Projects Completed"},
-                  {num:"5.0★",label:"Fiverr Rating"},
+                  {num:"4.9★",label:"Fiverr Rating"},
                   {num:"25+",label:"Countries Served"},
                   {num:"7+",label:"Years Experience"}
                 ].map((s,i)=>(
