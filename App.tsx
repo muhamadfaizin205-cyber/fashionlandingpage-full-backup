@@ -583,6 +583,40 @@ function AiBriefProgress() {
 }
 
 // ─── GigCard component (Fiverr-style full layout) ───────────
+// Compact Fiverr-style gig card for the grid. Clicking opens the full
+// gig detail (GigCard). Shows thumbnail, seller, title, rating, price.
+function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }) {
+  const cover = (gig.cover_url && gig.cover_url.trim())
+    ? gig.cover_url
+    : (gig.gallery_urls && gig.gallery_urls.length > 0 ? gig.gallery_urls[0] : "");
+  const fromPrice = gig.basic_price || gig.standard_price || gig.premium_price || 0;
+  return (
+    <button className="fvg-card" onClick={() => onOpen(gig.id)}>
+      <div className="fvg-thumb">
+        {cover
+          ? <img src={cover} alt={gig.title} loading="lazy" />
+          : <div className="fvg-thumb-ph"><i className="ri-image-line" /></div>}
+      </div>
+      <div className="fvg-body">
+        <div className="fvg-seller">
+          <img className="fvg-av" src="/favicon-96x96.png" alt="Dean Designers" />
+          <span className="fvg-seller-name">Dean Designers</span>
+        </div>
+        <div className="fvg-title">{gig.title}</div>
+        <div className="fvg-rating">
+          <i className="ri-star-fill" />
+          <b>{Number(gig.rating).toFixed(1)}</b>
+          <span className="fvg-muted">({gig.review_count.toLocaleString()})</span>
+        </div>
+      </div>
+      <div className="fvg-foot">
+        <span className="fvg-from">From</span>
+        <span className="fvg-price">${fromPrice}</span>
+      </div>
+    </button>
+  );
+}
+
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
   const [slideIdx, setSlideIdx] = useState(0);
@@ -2810,6 +2844,10 @@ export default function App() {
     }, 200);
   };
 
+  // Fiverr-style flow: gigs page shows a compact grid; clicking a card
+  // opens that gig's full detail (gallery + packages + FAQ).
+  const [selectedGigId, setSelectedGigId] = useState<string | null>(null);
+
   // ── Social Proof Toast ───────────────────────────────────
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
@@ -3184,25 +3222,48 @@ export default function App() {
       {/* ══ GIGS PAGE - Fiverr-style service listings ══ */}
       {currentPage === "gigs" && (
         <section className="gigs-page">
-          <div className="gigs-page-header">
-            <button className="gigs-back-btn" onClick={() => { setCurrentPage("home"); window.scrollTo(0,0); }}>
-              ← Back
-            </button>
-            <h1 className="gigs-page-title">Our Gigs</h1>
-            <p className="gigs-page-subtitle">Professional design services - choose a gig to create clothing design, logo, or brand identity</p>
-          </div>
-          {gigs.length === 0 ? (
-            <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
-              <i className="ri-store-2-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
-              <p>No gigs available yet. Check back soon!</p>
-            </div>
-          ) : (
-            <div className="gigs-grid">
-              {gigs.map(gig => (
-                <GigCard key={gig.id} gig={gig} onOrder={handleGigOrder} />
-              ))}
-            </div>
-          )}
+          {(() => {
+            const selectedGig = selectedGigId ? gigs.find(g => g.id === selectedGigId) : null;
+            if (selectedGig) {
+              // ── Detail view (Fiverr: click a card → full gig) ──
+              return (
+                <>
+                  <div className="gigs-page-header">
+                    <button className="gigs-back-btn" onClick={() => { setSelectedGigId(null); window.scrollTo(0,0); }}>
+                      ← All services
+                    </button>
+                  </div>
+                  <div className="gig-detail-wrap">
+                    <GigCard gig={selectedGig} onOrder={handleGigOrder} />
+                  </div>
+                </>
+              );
+            }
+            // ── Grid view (Fiverr-style compact cards) ──
+            return (
+              <>
+                <div className="gigs-page-header">
+                  <button className="gigs-back-btn" onClick={() => { setCurrentPage("home"); window.scrollTo(0,0); }}>
+                    ← Back
+                  </button>
+                  <h1 className="gigs-page-title">Our Services</h1>
+                  <p className="gigs-page-subtitle">Professional design services - choose one to see packages and order</p>
+                </div>
+                {gigs.length === 0 ? (
+                  <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
+                    <i className="ri-store-2-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
+                    <p>No services available yet. Check back soon!</p>
+                  </div>
+                ) : (
+                  <div className="fvg-grid">
+                    {gigs.map(gig => (
+                      <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </section>
       )}
 
@@ -3242,9 +3303,19 @@ export default function App() {
                 {serviceCards.slice(0, 4).map((s) => (
                   <a
                     key={s.slug}
-                    href={"/" + s.slug}
+                    href="/gigs"
                     className="hero-tag"
-                    onClick={() => track("hero_tag_click", 0, { slug: s.slug })}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      track("hero_tag_click", 0, { slug: s.slug });
+                      // Open the matching gig by service type if we can infer it,
+                      // otherwise just land on the gigs grid.
+                      const wantLogo = /logo|brand/i.test(s.slug + " " + s.line1 + " " + s.line2);
+                      const match = gigs.find(g => wantLogo ? g.service_type === "logo" : g.service_type === "clothing");
+                      setSelectedGigId(match ? match.id : null);
+                      setCurrentPage("gigs");
+                      window.scrollTo(0, 0);
+                    }}
                   >
                     {s.line1} {s.line2} <i className="ri-arrow-right-line" />
                   </a>
@@ -3660,7 +3731,7 @@ export default function App() {
               <nav>
                 <a href="https://www.instagram.com/dean.designers" target="_blank" rel="me noopener noreferrer" className="footer-link">Instagram</a>
                 <a href="https://www.fiverr.com/s/dDZARZa" target="_blank" rel="me noopener noreferrer" className="footer-link">Fiverr Profile</a>
-                <a href="https://www.createclothingdesign.com/gigs" className="footer-link">Our Services</a>
+                <a href="/gigs" onClick={(e) => { e.preventDefault(); setSelectedGigId(null); setCurrentPage("gigs"); window.scrollTo(0,0); }} className="footer-link">Our Services</a>
                 <a href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a>
                 <a href="mailto:deanstudio16@gmail.com" className="footer-link">Email Us</a>
               </nav>
