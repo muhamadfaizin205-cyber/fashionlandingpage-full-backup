@@ -1314,7 +1314,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
     tips: [
       "Pay securely with your PayPal account — cards linked to your PayPal work too",
       "After payment you'll receive a confirmation email with your login link",
-      "Use email + code to track order, chat with designer, download files",
+      "Use your email to track order, chat with designer, download files",
     ],
   },
 };
@@ -2060,7 +2060,7 @@ function PayPalGuide() {
               <li>Download the <strong>PayPal</strong> app from App Store or Play Store.</li>
               <li>Create an account or log in with your email.</li>
               <li>Link your bank account, debit card, or credit card.</li>
-              <li>Tap <strong>Send</strong>, then enter <strong>muhamadfaizin205@gmail.com</strong> as recipient.</li>
+              <li>Tap <strong>Send</strong>, then enter <strong>deanastasia1312@gmail.com</strong> as recipient.</li>
               <li>Enter the total amount in <strong>USD</strong> and confirm payment.</li>
             </ol>
           </div>
@@ -2070,7 +2070,7 @@ function PayPalGuide() {
             <ol className="pp-steps">
               <li>Go to <strong>paypal.com</strong> and sign in or create a free account.</li>
               <li>Click <strong>Send &amp; Request</strong> at the top menu.</li>
-              <li>Enter <strong>muhamadfaizin205@gmail.com</strong> as recipient.</li>
+              <li>Enter <strong>deanastasia1312@gmail.com</strong> as recipient.</li>
               <li>Enter the amount in <strong>USD</strong> and add your brand name as a note.</li>
               <li>Choose <strong>Sending to a friend</strong> to avoid extra fees, then confirm.</li>
             </ol>
