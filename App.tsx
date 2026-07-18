@@ -3265,6 +3265,18 @@ export default function App() {
 
   const handleSelectService = (s: "clothing" | "logo") => {
     setWizardState((p) => ({ ...p, service: s }));
+    // Fiverr-style: show the matching gig's detail page (gallery,
+    // packages, FAQ) so the buyer picks a package there. The gig's
+    // Continue button calls handleGigOrder, which re-enters the wizard
+    // at step 2. If no gig exists for this category yet, fall back to
+    // the old behaviour so the funnel never dead-ends.
+    const match = gigs.find((g) => g.service_type === s);
+    if (match) {
+      setSelectedGigId(match.id);
+      setCurrentPage("gigs");
+      window.scrollTo(0, 0);
+      return;
+    }
     goTo(2, "forward");
   };
   const handleNextStep2 = () => {
