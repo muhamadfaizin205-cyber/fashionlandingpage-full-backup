@@ -517,6 +517,10 @@ select.thm-in{cursor:pointer}
 .thm-toggle input:checked + .thm-switch::after{transform:translateX(18px)}
 .thm-actions{display:flex;gap:10px;position:sticky;bottom:0;background:var(--bg2);padding:16px 0 4px;margin-top:8px;border-top:1px solid var(--border)}
 .thm-actions .btn-ghost{flex:0 0 auto}
+.thm-presets{display:flex;flex-wrap:wrap;gap:7px}
+.thm-preset{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--txt2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.thm-preset:hover{border-color:var(--green);color:var(--green);background:rgba(29,191,115,0.06)}
+.thm-font-sample{margin:-6px 0 14px;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:16px;color:var(--txt);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .thm-save{flex:1;transition:all .2s}
 .thm-save-dirty{box-shadow:0 0 0 3px rgba(29,191,115,0.25)}
 .thm-save-done{background:#16a34a !important}
@@ -1335,6 +1339,27 @@ var THEME_DEFAULT={
   showTrusted:true, showServices:true, showGuarantee:true, spacingScale:1,
 };
 var THEME_FONTS=["Inter","Poppins","Montserrat","Roboto","Open Sans","Lato","Raleway","Nunito","Work Sans","DM Sans","Manrope","Plus Jakarta Sans","Space Grotesk","Outfit","Sora","Playfair Display","Bebas Neue","Oswald"];
+
+// One-click looks. Each preset patches a subset of the theme.
+var THEME_PRESETS=[
+  {name:"Default", patch:{colorPrimary:"#22C55E",colorHeading:"#111111",colorText:"#444444",colorBg:"#ffffff",colorBg2:"#f8f8f8",colorBorder:"#eaeaea",fontHeading:"Inter",fontBody:"Inter",baseRadius:10}},
+  {name:"Bold Streetwear", patch:{colorPrimary:"#F97316",colorHeading:"#0A0A0A",colorText:"#333333",colorBg:"#ffffff",colorBg2:"#f5f5f5",colorBorder:"#e5e5e5",fontHeading:"Bebas Neue",fontBody:"Work Sans",baseRadius:4}},
+  {name:"Elegant Luxury", patch:{colorPrimary:"#B8860B",colorHeading:"#1a1a1a",colorText:"#555555",colorBg:"#ffffff",colorBg2:"#faf8f4",colorBorder:"#eae4d8",fontHeading:"Playfair Display",fontBody:"Lato",baseRadius:2}},
+  {name:"Modern Tech", patch:{colorPrimary:"#6366F1",colorHeading:"#0F172A",colorText:"#475569",colorBg:"#ffffff",colorBg2:"#f8fafc",colorBorder:"#e2e8f0",fontHeading:"Space Grotesk",fontBody:"Inter",baseRadius:14}},
+  {name:"Warm Minimal", patch:{colorPrimary:"#E11D48",colorHeading:"#292524",colorText:"#57534e",colorBg:"#fffdf9",colorBg2:"#faf6f0",colorBorder:"#ece6dd",fontHeading:"Poppins",fontBody:"Nunito",baseRadius:18}},
+];
+
+// Preload every editor font so the in-panel previews render immediately.
+function thmPreloadFonts(){
+  if(document.getElementById('thm-font-preload'))return;
+  var link=document.createElement('link');
+  link.id='thm-font-preload';
+  link.rel='stylesheet';
+  link.href='https://fonts.googleapis.com/css2?'+THEME_FONTS.map(function(f){
+    return 'family='+encodeURIComponent(f)+':wght@400;600;700';
+  }).join('&')+'&display=swap';
+  document.head.appendChild(link);
+}
 var thmDraft=Object.assign({},THEME_DEFAULT);
 var thmSaved=Object.assign({},THEME_DEFAULT);
 var thmDevice='desktop';
@@ -1349,13 +1374,21 @@ async function renderThemeEditor(){
   }
   thmDraft=Object.assign({},thmSaved);
   thmDirty=false;
+  thmPreloadFonts();
 
   var fontOpts=function(sel){return THEME_FONTS.map(function(f){return '<option value="'+f+'"'+(f===sel?' selected':'')+'>'+f+'</option>';}).join('');};
+  var presetChips=THEME_PRESETS.map(function(p,i){
+    return '<button class="thm-preset" onclick="thmApplyPreset('+i+')">'+p.name+'</button>';
+  }).join('');
 
   wrap.innerHTML=
     '<div class="thm-editor">'+
       '<div class="thm-controls">'+
         '<div class="thm-head"><h2>Theme Editor</h2><span class="thm-sub">Changes preview live. Click Save to publish to the homepage.</span></div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Quick Presets</div>'+
+          '<div class="thm-presets">'+presetChips+'</div>'+
+        '</div>'+
 
         '<div class="thm-group"><div class="thm-group-t">Hero Text</div>'+
           thmField('heroLine1','Title line 1','text')+
@@ -1374,8 +1407,10 @@ async function renderThemeEditor(){
         '</div>'+
 
         '<div class="thm-group"><div class="thm-group-t">Typography</div>'+
-          '<label class="thm-l">Heading font<select class="thm-in" onchange="thmSet(\'fontHeading\',this.value)">'+fontOpts(thmDraft.fontHeading)+'</select></label>'+
-          '<label class="thm-l">Body font<select class="thm-in" onchange="thmSet(\'fontBody\',this.value)">'+fontOpts(thmDraft.fontBody)+'</select></label>'+
+          '<label class="thm-l">Heading font<select class="thm-in" onchange="thmSet(\'fontHeading\',this.value);thmFontSample(\'fontHeading\',this.value)">'+fontOpts(thmDraft.fontHeading)+'</select></label>'+
+          '<div class="thm-font-sample" id="thm-fs-fontHeading" style="font-family:\''+thmDraft.fontHeading+'\'">The quick brown fox jumps</div>'+
+          '<label class="thm-l">Body font<select class="thm-in" onchange="thmSet(\'fontBody\',this.value);thmFontSample(\'fontBody\',this.value)">'+fontOpts(thmDraft.fontBody)+'</select></label>'+
+          '<div class="thm-font-sample" id="thm-fs-fontBody" style="font-family:\''+thmDraft.fontBody+'\'">The quick brown fox jumps</div>'+
           thmRange('baseRadius','Corner radius',0,28,1,'px')+
           thmRange('spacingScale','Spacing scale',0.8,1.4,0.05,'x')+
         '</div>'+
@@ -1447,6 +1482,44 @@ function thmPushToPreview(){
   if(frame&&frame.contentWindow){
     frame.contentWindow.postMessage({type:'DEAN_THEME_PREVIEW',theme:thmDraft},'*');
   }
+}
+
+// Apply a preset patch: update thmDraft + sync the on-screen inputs,
+// then push to the live preview. No full re-render, so the iframe
+// stays alive (no reload flash).
+function thmApplyPreset(i){
+  var p=THEME_PRESETS[i];if(!p)return;
+  Object.assign(thmDraft,p.patch);
+  thmDirty=true;
+  Object.keys(p.patch).forEach(function(key){
+    var val=p.patch[key];
+    // Update every input bound to this key (color swatch + hex, selects, ranges)
+    document.querySelectorAll('[oninput*="thmSet(\''+key+'\'"],[onchange*="thmSet(\''+key+'\'"]').forEach(function(inp){
+      inp.value=val;
+    });
+    // Range value labels
+    var rv=document.getElementById('thm-rv-'+key);
+    if(rv){var unit=(key==='baseRadius')?'px':(key==='spacingScale'?'x':'');rv.textContent=val+unit;}
+    // Font samples
+    if(key==='fontHeading'||key==='fontBody'){thmFontSample(key,val);}
+  });
+  var saveBtn=document.getElementById('thm-save');
+  if(saveBtn){saveBtn.classList.add('thm-save-dirty');saveBtn.textContent='Save & Publish';}
+  thmPushToPreview();
+}
+
+// Update the little font sample line under a font selector.
+function thmFontSample(key,val){
+  ensureThemeFont(val);
+  var el=document.getElementById('thm-fs-'+key);
+  if(el)el.style.fontFamily="'"+val+"'";
+}
+function ensureThemeFont(fam){
+  var id='gf-thm-'+fam.replace(/\s+/g,'-').toLowerCase();
+  if(document.getElementById(id))return;
+  var l=document.createElement('link');l.id=id;l.rel='stylesheet';
+  l.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(fam)+':wght@400;600;700&display=swap';
+  document.head.appendChild(l);
 }
 
 // When the preview iframe's app mounts it posts DEAN_PREVIEW_READY;
