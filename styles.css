@@ -4428,6 +4428,53 @@ html {
     drop-shadow(0 5px 10px rgba(45,32,6,.28));
 }
 
+/* ── Image logo (uploaded PNG) with the same shine sweep ──
+   The <img> renders normally; ::after paints a moving white
+   highlight that is masked by the logo's own alpha channel, so the
+   shine only travels across the visible artwork - never the
+   transparent background. Uses the same goldSweep keyframes and
+   timing as the text wordmark so the two look identical in motion. */
+.nav-logo-img {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  filter: drop-shadow(0 2px 4px rgba(45,32,6,.22));
+  transition: filter .3s ease;
+}
+.nav-logo-img img {
+  height: var(--logo-h, 30px);
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.nav-logo-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(104deg,
+    transparent 41%,
+    rgba(255,255,255,.45) 47%,
+    rgba(255,255,255,.85) 50%,
+    rgba(255,255,255,.45) 53%,
+    transparent 59%);
+  background-size: 300% 100%;
+  background-position: 200% 0;
+  /* Clip the highlight to the logo artwork */
+  -webkit-mask-image: var(--logo-src);
+  mask-image: var(--logo-src);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  animation: goldSweep 5.5s ease-in-out infinite;
+}
+.nav-logo:hover .nav-logo-img {
+  filter: drop-shadow(0 3px 8px rgba(45,32,6,.32));
+}
+
 .nav-act {
   font-family: 'Inter', sans-serif;
   font-size: 15px;
@@ -4657,6 +4704,7 @@ html {
 @media (max-width: 640px) {
   .nav-wrap { height: 58px; padding: 0 16px; }
   .nav-logo-3d { font-size: 15px; letter-spacing: 1.8px; }
+  .nav-logo-img img { height: calc(var(--logo-h, 30px) * 0.82); }
   .nav-cta { font-size: 14px; padding: 8px 14px; }
   .nav-right { gap: 10px; }
 

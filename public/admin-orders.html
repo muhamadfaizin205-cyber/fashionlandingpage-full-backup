@@ -522,6 +522,16 @@ select.thm-in{cursor:pointer}
 .thm-preset{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--txt2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
 .thm-preset:hover{border-color:var(--green);color:var(--green);background:rgba(29,191,115,0.06)}
 .thm-font-sample{margin:-6px 0 14px;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:16px;color:var(--txt);line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.thm-logo-box{margin-bottom:12px}
+.thm-logo-prev{display:flex;align-items:center;justify-content:center;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:9px;
+  background-color:#1a1f2b;
+  background-image:linear-gradient(45deg,#222836 25%,transparent 25%),linear-gradient(-45deg,#222836 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#222836 75%),linear-gradient(-45deg,transparent 75%,#222836 75%);
+  background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0}
+.thm-logo-prev img{max-height:46px;max-width:100%;object-fit:contain}
+.thm-logo-empty{padding:14px;border:1px dashed var(--border);border-radius:10px;font-size:12px;color:var(--txt3);text-align:center;margin-bottom:9px;line-height:1.5}
+.thm-logo-acts{display:flex;gap:8px;flex-wrap:wrap}
+.thm-logo-acts .btn-ghost{font-size:12px;padding:8px 12px}
+.thm-logo-hint{font-size:11px;color:var(--txt3);line-height:1.5;margin-top:8px}
 .thm-save{flex:1;transition:all .2s}
 .thm-save-dirty{box-shadow:0 0 0 3px rgba(29,191,115,0.25)}
 .thm-save-done{background:#16a34a !important}
@@ -1337,6 +1347,7 @@ var THEME_DEFAULT={
   heroLine1:"Custom clothing design", heroLine2:"made for your brand",
   heroSub:"Original artwork. Production-ready files. From $50.",
   heroCta:"Start your order",
+  logoUrl:"", logoHeight:30,
   showTrusted:true, showServices:true, showGuarantee:true, spacingScale:1,
 };
 var THEME_FONTS=["Inter","Poppins","Montserrat","Roboto","Open Sans","Lato","Raleway","Nunito","Work Sans","DM Sans","Manrope","Plus Jakarta Sans","Space Grotesk","Outfit","Sora","Playfair Display","Bebas Neue","Oswald"];
@@ -1389,6 +1400,12 @@ async function renderThemeEditor(){
 
         '<div class="thm-group"><div class="thm-group-t">Quick Presets</div>'+
           '<div class="thm-presets">'+presetChips+'</div>'+
+        '</div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Header Logo</div>'+
+          '<div class="thm-logo-box" id="thm-logo-box">'+thmLogoBoxHTML()+'</div>'+
+          '<input type="file" id="thm-logo-file" accept="image/png,image/svg+xml,image/webp" style="display:none" onchange="thmUploadLogo()">'+
+          thmRange('logoHeight','Logo height',18,60,1,'px')+
         '</div>'+
 
         '<div class="thm-group"><div class="thm-group-t">Hero Text</div>'+
@@ -1445,6 +1462,52 @@ async function renderThemeEditor(){
   // Push the current draft into the iframe once it loads
   var frame=document.getElementById('thm-frame');
   if(frame){frame.onload=function(){thmPushToPreview();};}
+}
+
+// ── Header logo controls ──
+function thmLogoBoxHTML(){
+  if(thmDraft.logoUrl){
+    return '<div class="thm-logo-prev"><img src="'+esc(thmDraft.logoUrl)+'" alt="logo"></div>'+
+      '<div class="thm-logo-acts">'+
+        '<button class="btn-ghost" onclick="document.getElementById(\'thm-logo-file\').click()">Replace</button>'+
+        '<button class="btn-ghost" style="color:#F87171" onclick="thmClearLogo()">Use text logo</button>'+
+      '</div>';
+  }
+  return '<div class="thm-logo-empty">Currently using the gold <b>DEAN DESIGNERS</b> text wordmark.</div>'+
+    '<div class="thm-logo-acts"><button class="btn-ghost" onclick="document.getElementById(\'thm-logo-file\').click()">Upload PNG logo</button></div>'+
+    '<div class="thm-logo-hint">PNG with transparent background works best - the gold shine sweep is masked to your artwork.</div>';
+}
+
+async function thmUploadLogo(){
+  var input=document.getElementById('thm-logo-file');
+  if(!input||!input.files||!input.files[0]||!sb)return;
+  var file=input.files[0];
+  var box=document.getElementById('thm-logo-box');
+  if(box)box.innerHTML='<div class="thm-logo-empty">Uploading...</div>';
+  var path='site/logo-'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.-]/g,'_');
+  var r=await sb.storage.from('uploads').upload(path,file);
+  if(r.error){
+    alert('Upload failed: '+r.error.message);
+    if(box)box.innerHTML=thmLogoBoxHTML();
+    return;
+  }
+  thmDraft.logoUrl=sb.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+  thmDirty=true;
+  if(box)box.innerHTML=thmLogoBoxHTML();
+  var saveBtn=document.getElementById('thm-save');
+  if(saveBtn){saveBtn.classList.add('thm-save-dirty');}
+  thmPushToPreview();
+  input.value='';
+}
+
+function thmClearLogo(){
+  thmDraft.logoUrl='';
+  thmDirty=true;
+  var box=document.getElementById('thm-logo-box');
+  if(box)box.innerHTML=thmLogoBoxHTML();
+  var saveBtn=document.getElementById('thm-save');
+  if(saveBtn){saveBtn.classList.add('thm-save-dirty');}
+  thmPushToPreview();
 }
 
 function thmField(key,label,type){

@@ -444,6 +444,9 @@ export type SiteTheme = {
   heroLine2: string;
   heroSub: string;
   heroCta: string;
+  // Header logo: empty = use the gold text wordmark; otherwise a PNG URL
+  logoUrl: string;
+  logoHeight: number;
   // Section visibility
   showTrusted: boolean;
   showServices: boolean;
@@ -466,6 +469,8 @@ export const DEFAULT_THEME: SiteTheme = {
   heroLine2: "made for your brand",
   heroSub: "Original artwork. Production-ready files. From $50.",
   heroCta: "Start your order",
+  logoUrl: "",
+  logoHeight: 30,
   showTrusted: true,
   showServices: true,
   showGuarantee: true,
@@ -3303,7 +3308,22 @@ export default function App() {
               <i className="ri-menu-line" style={{fontSize:19}} />
             </button>
             <a className="nav-logo" href="#home" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); window.scrollTo(0,0); }}>
-              <span className="nav-logo-3d" data-text="DEAN DESIGNERS">DEAN DESIGNERS</span>
+              {activeTheme.logoUrl ? (
+                // Image logo. The shine sweep is reproduced by masking a
+                // moving white gradient with the logo's own alpha channel,
+                // so only the visible pixels catch the light.
+                <span
+                  className="nav-logo-img"
+                  style={{
+                    ["--logo-src" as any]: `url("${activeTheme.logoUrl}")`,
+                    ["--logo-h" as any]: `${activeTheme.logoHeight || 30}px`,
+                  }}
+                >
+                  <img src={activeTheme.logoUrl} alt="Dean Designers" />
+                </span>
+              ) : (
+                <span className="nav-logo-3d" data-text="DEAN DESIGNERS">DEAN DESIGNERS</span>
+              )}
             </a>
           </div>
 
