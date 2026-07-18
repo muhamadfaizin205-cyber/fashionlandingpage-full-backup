@@ -750,7 +750,7 @@ function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }
 }
 
 function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig, tier: "basic"|"standard"|"premium") => void }) {
-  const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
+  const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("basic");
   const [slideIdx, setSlideIdx] = useState(0);
   const [faqOpen, setFaqOpen] = useState<number|null>(null);
   const imgs = (gig.gallery_urls && gig.gallery_urls.length > 0) ? gig.gallery_urls.slice(0,5) : (gig.cover_url ? [gig.cover_url] : []);
@@ -2997,7 +2997,7 @@ export default function App() {
   // page, then enter the wizard at step 2. Because the buyer already picked
   // a tier here, the wizard skips its own Package step (5) and goes from the
   // brief straight to Confirm & Pay.
-  const handleGigOrder = (gig: Gig, tier: "basic"|"standard"|"premium" = "standard") => {
+  const handleGigOrder = (gig: Gig, tier: "basic"|"standard"|"premium" = "basic") => {
     const t = tier === "basic"
       ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
       : tier === "premium"
