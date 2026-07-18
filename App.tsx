@@ -3913,7 +3913,7 @@ export default function App() {
               <div className="about-stats">
                 {[
                   {num:"136,000+",label:"Projects Completed"},
-                  {num:"4.9★",label:"Fiverr Rating"},
+                  {num:"4.9★",label:"Client Rating"},
                   {num:"25+",label:"Countries Served"},
                   {num:"7+",label:"Years Experience"}
                 ].map((s,i)=>(
