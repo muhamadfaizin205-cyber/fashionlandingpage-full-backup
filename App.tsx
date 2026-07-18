@@ -419,7 +419,37 @@ function useServiceCards() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// SITE THEME — editable homepage look from the admin panel.
+// GIG ORDER QUEUE — "N Orders in Queue" (Fiverr-style)
+// Reads aggregate counts only, via the get_gig_queue() SQL function.
+// The orders table itself stays private; this returns just numbers.
+// Refreshes every 60s so the badge stays roughly live without
+// hammering the database.
+// ═══════════════════════════════════════════════════════════
+function useGigQueue() {
+  const [queue, setQueue] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!supabase) return;
+    let alive = true;
+    const load = () => {
+      supabase.rpc("get_gig_queue").then((r: any) => {
+        if (!alive || r?.error || !r?.data) return;
+        const map: Record<string, number> = {};
+        r.data.forEach((row: any) => {
+          map[row.service_type] = Number(row.queue_count) || 0;
+        });
+        setQueue(map);
+      });
+    };
+    load();
+    const t = setInterval(load, 60000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+
+  return queue;
+}
+
+
 // One JSON blob in the `site_theme` table drives CSS variables, the
 // active Google Font, hero copy, and per-section visibility. The hook
 // subscribes to realtime so an admin "Save" repaints every open
@@ -717,7 +747,7 @@ function AiBriefProgress() {
 // ─── GigCard component (Fiverr-style full layout) ───────────
 // Compact Fiverr-style gig card for the grid. Clicking opens the full
 // gig detail (GigCard). Shows thumbnail, seller, title, rating, price.
-function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }) {
+function GigMiniCard({ gig, onOpen, queueCount = 0 }: { gig: Gig; onOpen: (id: string) => void; queueCount?: number }) {
   const cover = (gig.cover_url && gig.cover_url.trim())
     ? gig.cover_url
     : (gig.gallery_urls && gig.gallery_urls.length > 0 ? gig.gallery_urls[0] : "");
@@ -728,6 +758,9 @@ function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }
         {cover
           ? <img src={cover} alt={gig.title} loading="lazy" />
           : <div className="fvg-thumb-ph"><i className="ri-image-line" /></div>}
+        {queueCount > 0 && (
+          <span className="fvg-queue"><i className="ri-time-line" />{queueCount} in queue</span>
+        )}
       </div>
       <div className="fvg-body">
         <div className="fvg-seller">
@@ -749,7 +782,7 @@ function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }
   );
 }
 
-function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig, tier: "basic"|"standard"|"premium") => void }) {
+function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gig, tier: "basic"|"standard"|"premium") => void; queueCount?: number }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("basic");
   const [slideIdx, setSlideIdx] = useState(0);
   const [faqOpen, setFaqOpen] = useState<number|null>(null);
@@ -904,6 +937,13 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig, tier: "basic"
                 <li key={i}><i className="ri-check-line" />{f}</li>
               ))}
             </ul>
+
+            {queueCount > 0 && (
+              <div className="fv-queue">
+                <i className="ri-time-line" />
+                <span><b>{queueCount}</b> {queueCount === 1 ? "order" : "orders"} in queue</span>
+              </div>
+            )}
 
             <button className="fv-cta" onClick={() => onOrder(gig, activeTab)}>
               Continue <i className="ri-arrow-right-line" />
@@ -2967,6 +3007,7 @@ export default function App() {
   const { clothingPkgs, logoPkgs } = useDbPackages();
   const { gigs } = useGigs();
   const serviceCards = useServiceCards();
+  const gigQueue = useGigQueue();
   const theme = useSiteTheme();
   const [previewTheme, setPreviewTheme] = useState<SiteTheme | null>(null);
 
@@ -3478,7 +3519,7 @@ export default function App() {
                     </button>
                   </div>
                   <div className="gig-detail-wrap">
-                    <GigCard gig={selectedGig} onOrder={handleGigOrder} />
+                    <GigCard gig={selectedGig} onOrder={handleGigOrder} queueCount={gigQueue[selectedGig.service_type] || 0} />
                   </div>
                 </>
               );
@@ -3501,7 +3542,7 @@ export default function App() {
                 ) : (
                   <div className="fvg-grid">
                     {gigs.map(gig => (
-                      <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} />
+                      <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} queueCount={gigQueue[gig.service_type] || 0} />
                     ))}
                   </div>
                 )}
