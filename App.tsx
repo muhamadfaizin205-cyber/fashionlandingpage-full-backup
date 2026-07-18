@@ -418,6 +418,133 @@ function useServiceCards() {
   return cards;
 }
 
+// ═══════════════════════════════════════════════════════════
+// SITE THEME — editable homepage look from the admin panel.
+// One JSON blob in the `site_theme` table drives CSS variables, the
+// active Google Font, hero copy, and per-section visibility. The hook
+// subscribes to realtime so an admin "Save" repaints every open
+// homepage tab within ~1s. applyTheme() also runs the moment the fetch
+// resolves, and DEFAULT_THEME fills any missing key so the site never
+// breaks if the row is empty or Supabase is unreachable.
+// ═══════════════════════════════════════════════════════════
+export type SiteTheme = {
+  // Colors (map onto the :root CSS vars in styles.css)
+  colorPrimary: string;      // --green
+  colorText: string;         // --txt
+  colorHeading: string;      // --txt-dark
+  colorBg: string;           // --bg
+  colorBg2: string;          // --bg2
+  colorBorder: string;       // --border
+  // Typography
+  fontBody: string;          // Google font family name
+  fontHeading: string;
+  baseRadius: number;        // px -> --radius
+  // Hero copy
+  heroLine1: string;
+  heroLine2: string;
+  heroSub: string;
+  heroCta: string;
+  // Section visibility
+  showTrusted: boolean;
+  showServices: boolean;
+  showGuarantee: boolean;
+  // Spacing scale multiplier (1 = default)
+  spacingScale: number;
+};
+
+export const DEFAULT_THEME: SiteTheme = {
+  colorPrimary: "#22C55E",
+  colorText: "#444444",
+  colorHeading: "#111111",
+  colorBg: "#ffffff",
+  colorBg2: "#f8f8f8",
+  colorBorder: "#eaeaea",
+  fontBody: "Inter",
+  fontHeading: "Inter",
+  baseRadius: 10,
+  heroLine1: "Custom clothing design",
+  heroLine2: "made for your brand",
+  heroSub: "Original artwork. Production-ready files. From $50.",
+  heroCta: "Start your order",
+  showTrusted: true,
+  showServices: true,
+  showGuarantee: true,
+  spacingScale: 1,
+};
+
+// Curated popular Google Fonts offered in the editor.
+export const THEME_FONTS = [
+  "Inter", "Poppins", "Montserrat", "Roboto", "Open Sans", "Lato",
+  "Raleway", "Nunito", "Work Sans", "DM Sans", "Manrope", "Plus Jakarta Sans",
+  "Space Grotesk", "Outfit", "Sora", "Playfair Display", "Bebas Neue", "Oswald",
+];
+
+// Injects a Google Fonts <link> for the given families (once each).
+function ensureFontLoaded(...families: string[]) {
+  if (typeof document === "undefined") return;
+  const uniq = Array.from(new Set(families.filter(Boolean)));
+  uniq.forEach((fam) => {
+    const id = "gf-" + fam.replace(/\s+/g, "-").toLowerCase();
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=" +
+      encodeURIComponent(fam) + ":wght@400;500;600;700;800&display=swap";
+    document.head.appendChild(link);
+  });
+}
+
+// Applies a theme by writing CSS variables on :root + a few extra vars
+// the homepage reads for fonts/spacing. Non-destructive: only sets what
+// the theme defines.
+export function applyTheme(t: SiteTheme) {
+  if (typeof document === "undefined") return;
+  const r = document.documentElement.style;
+  r.setProperty("--green", t.colorPrimary);
+  r.setProperty("--green-dark", t.colorPrimary);
+  r.setProperty("--txt", t.colorText);
+  r.setProperty("--txt-dark", t.colorHeading);
+  r.setProperty("--bg", t.colorBg);
+  r.setProperty("--bg2", t.colorBg2);
+  r.setProperty("--border", t.colorBorder);
+  r.setProperty("--radius", t.baseRadius + "px");
+  r.setProperty("--theme-font-body", `'${t.fontBody}', sans-serif`);
+  r.setProperty("--theme-font-heading", `'${t.fontHeading}', sans-serif`);
+  r.setProperty("--theme-spacing", String(t.spacingScale));
+  ensureFontLoaded(t.fontBody, t.fontHeading);
+}
+
+function mergeTheme(partial: any): SiteTheme {
+  return { ...DEFAULT_THEME, ...(partial || {}) } as SiteTheme;
+}
+
+function useSiteTheme() {
+  const [theme, setTheme] = useState<SiteTheme>(DEFAULT_THEME);
+
+  const load = () => {
+    if (!supabase) { applyTheme(DEFAULT_THEME); return; }
+    supabase.from("site_theme").select("settings").eq("id", "main").single()
+      .then((r: any) => {
+        const merged = mergeTheme(r?.data?.settings);
+        setTheme(merged);
+        applyTheme(merged);
+      });
+  };
+
+  useEffect(() => {
+    load();
+    if (!supabase) return;
+    const ch = supabase
+      .channel("site-theme-realtime-" + Date.now())
+      .on("postgres_changes", { event: "*", schema: "public", table: "site_theme" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
+
+  return theme;
+}
+
 // ─── My Orders Page (customer-facing order tracker) ─────────
 function MyOrdersPage({ onBack }: { onBack: () => void }) {
   const [customerEmail, setCustomerEmail] = useState(() => {
@@ -2831,6 +2958,31 @@ export default function App() {
   const { clothingPkgs, logoPkgs } = useDbPackages();
   const { gigs } = useGigs();
   const serviceCards = useServiceCards();
+  const theme = useSiteTheme();
+  const [previewTheme, setPreviewTheme] = useState<SiteTheme | null>(null);
+
+  // Live theme preview: when this page is embedded in the admin Theme
+  // Editor iframe (URL has ?preview=1), listen for draft-theme messages
+  // and apply them instantly without saving.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isPreview = new URLSearchParams(window.location.search).has("preview");
+    if (!isPreview) return;
+    const onMsg = (e: MessageEvent) => {
+      const d = e.data;
+      if (d && d.type === "DEAN_THEME_PREVIEW" && d.theme) {
+        const merged = mergeTheme(d.theme);
+        setPreviewTheme(merged);
+        applyTheme(merged);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    try { window.parent.postMessage({ type: "DEAN_PREVIEW_READY" }, "*"); } catch {}
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  // Effective theme: live preview draft wins over the saved theme.
+  const activeTheme = previewTheme || theme;
 
   // Handle gig order - pre-select service and scroll to wizard
   const handleGigOrder = (gig: Gig) => {
@@ -3292,14 +3444,14 @@ export default function App() {
             {/* Minimal content */}
             <div className="hero-content">
               <h1 className="hero-h1">
-                <span className="hero-h1-l1">Custom clothing design</span>
-                <span className="hero-h1-l2">made for your brand</span>
+                <span className="hero-h1-l1">{activeTheme.heroLine1}</span>
+                <span className="hero-h1-l2">{activeTheme.heroLine2}</span>
               </h1>
 
-              <p className="hero-sub">Original artwork. Production-ready files. From $50.</p>
+              <p className="hero-sub">{activeTheme.heroSub}</p>
 
               <button className="hero-cta" onClick={(e) => { e.preventDefault(); e.stopPropagation(); track("cta_hero_click"); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }}>
-                Start your order
+                {activeTheme.heroCta}
               </button>
 
               <div className="hero-tags">
@@ -3399,6 +3551,7 @@ export default function App() {
 
 
           {/* ══ Trusted By strip (Fiverr pattern) ══ */}
+          {activeTheme.showTrusted && (
           <div className="fv-trusted">
             <div className="fv-trusted-inner">
               <span className="fv-trusted-lbl">Trusted by brands from</span>
@@ -3412,8 +3565,10 @@ export default function App() {
               <b>Singapore</b>
             </div>
           </div>
+          )}
 
           {/* ══ Services - horizontal scroll cards (Fiverr pattern) ══ */}
+          {activeTheme.showServices && (
           <section className="fv-services" id="services-cards">
             <div className="fv-sec-head">
               <h2 className="fv-sec-title">What we design</h2>
@@ -3436,6 +3591,7 @@ export default function App() {
               ))}
             </div>
           </section>
+          )}
                   </>
       )}
 
@@ -3673,7 +3829,7 @@ export default function App() {
       </div>
 
       {/* ── Guarantee Section (visible on step 1) ── */}
-      {step === 1 && (
+      {step === 1 && activeTheme.showGuarantee && (
         <section className="guarantee-section">
           <div className="guarantee-inner">
             <h3 className="guarantee-title">Why 7,000+ brands trust Dean Designers</h3>

@@ -30,7 +30,14 @@
   --shadow-lg: 0 8px 40px rgba(0,0,0,0.08);
   --radius:    10px;
   --radius-lg: 16px;
+  --theme-font-body: 'Inter', sans-serif;
+  --theme-font-heading: 'Inter', sans-serif;
+  --theme-spacing: 1;
 }
+
+/* Theme-editor driven fonts (override via applyTheme in App.tsx) */
+body { font-family: var(--theme-font-body); }
+.hero-h1, .fv-sec-title, .hero-cta { font-family: var(--theme-font-heading); }
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

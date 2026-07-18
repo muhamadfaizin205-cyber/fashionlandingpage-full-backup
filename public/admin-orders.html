@@ -490,6 +490,54 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
   .kbf-col{flex:0 0 84vw;width:84vw}
 }
 
+/* ═══ THEME EDITOR ═══ */
+.thm-wrap{height:100vh;overflow:hidden}
+.thm-editor{display:flex;height:100vh}
+.thm-controls{width:360px;flex-shrink:0;height:100vh;overflow-y:auto;background:var(--bg2);border-right:1px solid var(--border);padding:22px}
+.thm-head h2{font-size:19px;font-weight:800;color:var(--txt);margin:0 0 4px}
+.thm-head .thm-sub{font-size:12px;color:var(--txt3);line-height:1.5;display:block;margin-bottom:20px}
+.thm-group{margin-bottom:22px}
+.thm-group-t{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--txt3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.thm-l{display:block;font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:13px}
+.thm-in{width:100%;margin-top:6px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--txt);font-size:13px;font-family:inherit;outline:none}
+.thm-in:focus{border-color:var(--green)}
+select.thm-in{cursor:pointer}
+.thm-color{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:12px}
+.thm-color-lbl{font-size:12px;font-weight:600;color:var(--txt2)}
+.thm-color-r{display:flex;align-items:center;gap:8px}
+.thm-color-r input[type=color]{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;padding:2px}
+.thm-hex{width:82px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--txt);font-size:12px;font-family:monospace;outline:none}
+.thm-range-l b{color:var(--green);font-weight:700}
+.thm-range{width:100%;margin-top:8px;accent-color:var(--green)}
+.thm-toggle{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--txt2)}
+.thm-toggle input{display:none}
+.thm-switch{position:relative;width:40px;height:22px;background:var(--border);border-radius:20px;transition:background .2s;flex-shrink:0}
+.thm-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.thm-toggle input:checked + .thm-switch{background:var(--green)}
+.thm-toggle input:checked + .thm-switch::after{transform:translateX(18px)}
+.thm-actions{display:flex;gap:10px;position:sticky;bottom:0;background:var(--bg2);padding:16px 0 4px;margin-top:8px;border-top:1px solid var(--border)}
+.thm-actions .btn-ghost{flex:0 0 auto}
+.thm-save{flex:1;transition:all .2s}
+.thm-save-dirty{box-shadow:0 0 0 3px rgba(29,191,115,0.25)}
+.thm-save-done{background:#16a34a !important}
+.thm-preview{flex:1;display:flex;flex-direction:column;height:100vh;background:#2a2d35}
+.thm-preview-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
+.thm-device-tabs{display:flex;gap:6px}
+.thm-dev{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--txt2);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.thm-dev.active{background:var(--green);color:#fff;border-color:var(--green)}
+.thm-stage{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+.thm-frame{border:none;background:#fff;box-shadow:0 8px 40px rgba(0,0,0,0.4);border-radius:8px}
+.thm-frame.desktop{width:100%;height:100%;min-height:calc(100vh - 120px);border-radius:6px}
+.thm-frame.mobile{width:390px;height:844px;max-height:calc(100vh - 90px);border-radius:24px;border:8px solid #111}
+@media(max-width:900px){
+  .thm-editor{flex-direction:column;height:auto}
+  .thm-wrap{height:auto;overflow:visible}
+  .thm-controls{width:100%;height:auto;max-height:none}
+  .thm-preview{height:auto;min-height:70vh}
+  .thm-frame.desktop{min-height:60vh}
+  .thm-frame.mobile{width:320px;height:640px}
+}
+
 </style>
 </head>
 <body>
@@ -746,6 +794,7 @@ function renderApp(){
       '<div class="md-item '+(currentView==='gigs'?'active':'')+'" onclick="switchView(\'gigs\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Gigs</div>'+
       '<div class="md-item '+(currentView==='cards'?'active':'')+'" onclick="switchView(\'cards\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Homepage Cards</div>'+
       '<div class="md-item '+(currentView==='kanban'?'active':'')+'" onclick="switchView(\'kanban\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="8" rx="1"/></svg>Kanban</div>'+
+      '<div class="md-item '+(currentView==='theme'?'active':'')+'" onclick="switchView(\'theme\');toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2 2 2 0 0 1 2-2h1a4 4 0 0 0 4-4 10 10 0 0 0-10-10z"/></svg>Theme Editor</div>'+
       '<div class="md-divider"></div>'+
       '<div class="md-item" onclick="openAdminProfileModal();toggleMobileDrawer()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Edit Profile</div>'+
       '<div class="md-item" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Landing Page</div>'+
@@ -825,6 +874,8 @@ function renderCurrentView(){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Homepage Cards</h1><div class="page-actions"><button class="btn-ghost" onclick="renderCardsView()">↻ Refresh</button><button class="btn-primary" onclick="openCardEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Card</button></div></div><div style="font-size:13px;color:var(--txt3);margin:-8px 0 18px;max-width:640px">These are the "What we design" tone-colored cards on the homepage. Changes appear on every open homepage tab within a second (realtime).</div><div id="cards-area"></div></div>';
   } else if(currentView==='kanban'){
     body='<div class="kbf-wrap" id="kbf-wrap"><div style="padding:60px;text-align:center;color:#94A3B8">Loading board...</div></div>';
+  } else if(currentView==='theme'){
+    body='<div class="thm-wrap" id="thm-wrap"><div style="padding:60px;text-align:center;color:var(--txt3)">Loading theme editor...</div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -835,6 +886,7 @@ function renderCurrentView(){
   else if(currentView==='gigs')renderGigsView();
   else if(currentView==='cards')renderCardsView();
   else if(currentView==='kanban')renderKanbanFull();
+  else if(currentView==='theme')renderThemeEditor();
   else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
@@ -901,6 +953,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('kanban-nav-btn')){
     document.getElementById('kanban-nav-btn').className='sb-ic'+(currentView==='kanban'?' active':'');
+  }
+  // Inject Theme Editor nav button
+  if(sbIcons&&!document.getElementById('theme-nav-btn')){
+    var thBtn=document.createElement('button');
+    thBtn.id='theme-nav-btn';
+    thBtn.className='sb-ic';
+    thBtn.title='Theme Editor';
+    thBtn.onclick=function(){switchView('theme')};
+    thBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2 2 2 0 0 1 2-2h1a4 4 0 0 0 4-4 10 10 0 0 0-10-10z"/></svg>Theme<span class="sb-ic-tip">Theme Editor</span>';
+    sbIcons.appendChild(thBtn);
+  }
+  if(document.getElementById('theme-nav-btn')){
+    document.getElementById('theme-nav-btn').className='sb-ic'+(currentView==='theme'?' active':'');
   }
 }
 
@@ -1124,6 +1189,18 @@ var kbfOrderId=null,kbfSearch='';
 
 async function renderKanbanFull(){
   var wrap=document.getElementById('kbf-wrap');if(!wrap)return;
+  // Orders may not be loaded yet if the user navigated straight to the
+  // Kanban view (orders load on init but the fetch may still be in
+  // flight, or a prior fetch failed). Fetch them before deciding the
+  // board is empty.
+  if(!orders.length){
+    wrap.innerHTML='<div class="kbf-empty"><i class="ri-loader-4-line"></i><h3>Loading orders...</h3></div>';
+    try{
+      var resp=await fetch('/api/get-orders',{headers:{'x-admin-hash':adminHash}});
+      var result=await resp.json();
+      orders=result.orders||orders;
+    }catch(e){console.error('kanban loadOrders failed:',e);}
+  }
   // Pick default order: remembered, else first order
   if(!kbfOrderId||!orders.find(function(o){return o.id===kbfOrderId})){
     kbfOrderId=orders.length?orders[0].id:null;
@@ -1240,6 +1317,186 @@ function kbfSetupRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'kanban_feedback',filter:'order_id=eq.'+kbfOrderId},function(){if(currentView==='kanban')kbfLoad();})
     .subscribe();
 }
+
+// ═══════════════════════════════════════════════════════════
+// THEME EDITOR — edit homepage look with a live iframe preview.
+// Left = controls; right = an <iframe src="/"> that receives the
+// draft theme via postMessage on every change (instant, no reload).
+// Save writes to site_theme; the homepage's realtime subscription
+// then repaints all other open tabs.
+// ═══════════════════════════════════════════════════════════
+var THEME_DEFAULT={
+  colorPrimary:"#22C55E", colorText:"#444444", colorHeading:"#111111",
+  colorBg:"#ffffff", colorBg2:"#f8f8f8", colorBorder:"#eaeaea",
+  fontBody:"Inter", fontHeading:"Inter", baseRadius:10,
+  heroLine1:"Custom clothing design", heroLine2:"made for your brand",
+  heroSub:"Original artwork. Production-ready files. From $50.",
+  heroCta:"Start your order",
+  showTrusted:true, showServices:true, showGuarantee:true, spacingScale:1,
+};
+var THEME_FONTS=["Inter","Poppins","Montserrat","Roboto","Open Sans","Lato","Raleway","Nunito","Work Sans","DM Sans","Manrope","Plus Jakarta Sans","Space Grotesk","Outfit","Sora","Playfair Display","Bebas Neue","Oswald"];
+var thmDraft=Object.assign({},THEME_DEFAULT);
+var thmSaved=Object.assign({},THEME_DEFAULT);
+var thmDevice='desktop';
+var thmDirty=false;
+
+async function renderThemeEditor(){
+  var wrap=document.getElementById('thm-wrap');if(!wrap)return;
+  // Load current theme
+  if(sb){
+    var r=await sb.from('site_theme').select('settings').eq('id','main').single();
+    thmSaved=Object.assign({},THEME_DEFAULT,(r&&r.data&&r.data.settings)||{});
+  }
+  thmDraft=Object.assign({},thmSaved);
+  thmDirty=false;
+
+  var fontOpts=function(sel){return THEME_FONTS.map(function(f){return '<option value="'+f+'"'+(f===sel?' selected':'')+'>'+f+'</option>';}).join('');};
+
+  wrap.innerHTML=
+    '<div class="thm-editor">'+
+      '<div class="thm-controls">'+
+        '<div class="thm-head"><h2>Theme Editor</h2><span class="thm-sub">Changes preview live. Click Save to publish to the homepage.</span></div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Hero Text</div>'+
+          thmField('heroLine1','Title line 1','text')+
+          thmField('heroLine2','Title line 2','text')+
+          thmField('heroSub','Subtitle','text')+
+          thmField('heroCta','Button label','text')+
+        '</div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Colors</div>'+
+          thmColor('colorPrimary','Primary / accent')+
+          thmColor('colorHeading','Headings')+
+          thmColor('colorText','Body text')+
+          thmColor('colorBg','Background')+
+          thmColor('colorBg2','Section background')+
+          thmColor('colorBorder','Borders')+
+        '</div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Typography</div>'+
+          '<label class="thm-l">Heading font<select class="thm-in" onchange="thmSet(\'fontHeading\',this.value)">'+fontOpts(thmDraft.fontHeading)+'</select></label>'+
+          '<label class="thm-l">Body font<select class="thm-in" onchange="thmSet(\'fontBody\',this.value)">'+fontOpts(thmDraft.fontBody)+'</select></label>'+
+          thmRange('baseRadius','Corner radius',0,28,1,'px')+
+          thmRange('spacingScale','Spacing scale',0.8,1.4,0.05,'x')+
+        '</div>'+
+
+        '<div class="thm-group"><div class="thm-group-t">Sections</div>'+
+          thmToggle('showTrusted','"Trusted by" strip')+
+          thmToggle('showServices','"What we design" cards')+
+          thmToggle('showGuarantee','Guarantee badges')+
+        '</div>'+
+
+        '<div class="thm-actions">'+
+          '<button class="btn-ghost" onclick="thmReset()">Reset</button>'+
+          '<button class="btn-primary thm-save" id="thm-save" onclick="thmSave()">Save &amp; Publish</button>'+
+        '</div>'+
+      '</div>'+
+
+      '<div class="thm-preview">'+
+        '<div class="thm-preview-bar">'+
+          '<div class="thm-device-tabs">'+
+            '<button class="thm-dev'+(thmDevice==='desktop'?' active':'')+'" onclick="thmSetDevice(\'desktop\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Desktop</button>'+
+            '<button class="thm-dev'+(thmDevice==='mobile'?' active':'')+'" onclick="thmSetDevice(\'mobile\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg> Mobile</button>'+
+          '</div>'+
+          '<button class="btn-ghost" style="font-size:12px" onclick="thmReloadPreview()">↻ Reload</button>'+
+        '</div>'+
+        '<div class="thm-stage" id="thm-stage">'+
+          '<iframe id="thm-frame" class="thm-frame '+thmDevice+'" src="/?preview=1"></iframe>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  // Push the current draft into the iframe once it loads
+  var frame=document.getElementById('thm-frame');
+  if(frame){frame.onload=function(){thmPushToPreview();};}
+}
+
+function thmField(key,label,type){
+  return '<label class="thm-l">'+label+'<input class="thm-in" type="'+type+'" value="'+esc(thmDraft[key]||'')+'" oninput="thmSet(\''+key+'\',this.value)"></label>';
+}
+function thmColor(key,label){
+  var v=thmDraft[key]||'#000000';
+  return '<div class="thm-color"><span class="thm-color-lbl">'+label+'</span>'+
+    '<div class="thm-color-r"><input type="color" value="'+v+'" oninput="thmSet(\''+key+'\',this.value)"><input class="thm-hex" type="text" value="'+v+'" oninput="thmSet(\''+key+'\',this.value)"></div></div>';
+}
+function thmRange(key,label,min,max,step,unit){
+  return '<label class="thm-l thm-range-l">'+label+' <b id="thm-rv-'+key+'">'+thmDraft[key]+unit+'</b>'+
+    '<input class="thm-range" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+thmDraft[key]+'" oninput="thmSet(\''+key+'\',parseFloat(this.value));document.getElementById(\'thm-rv-'+key+'\').textContent=this.value+\''+unit+'\'"></label>';
+}
+function thmToggle(key,label){
+  return '<label class="thm-toggle"><span>'+label+'</span>'+
+    '<input type="checkbox" '+(thmDraft[key]?'checked':'')+' onchange="thmSet(\''+key+'\',this.checked)"><span class="thm-switch"></span></label>';
+}
+
+function thmSet(key,val){
+  thmDraft[key]=val;
+  thmDirty=true;
+  var saveBtn=document.getElementById('thm-save');
+  if(saveBtn){saveBtn.classList.add('thm-save-dirty');saveBtn.textContent='Save & Publish';}
+  // Keep the paired color swatch + hex input visually in sync
+  if(typeof val==='string'&&/^#[0-9a-fA-F]{6}$/.test(val)){
+    document.querySelectorAll('[oninput*="thmSet(\''+key+'\'"]').forEach(function(inp){
+      if(inp.value!==val)inp.value=val;
+    });
+  }
+  thmPushToPreview();
+}
+
+function thmPushToPreview(){
+  var frame=document.getElementById('thm-frame');
+  if(frame&&frame.contentWindow){
+    frame.contentWindow.postMessage({type:'DEAN_THEME_PREVIEW',theme:thmDraft},'*');
+  }
+}
+
+// When the preview iframe's app mounts it posts DEAN_PREVIEW_READY;
+// push the current draft immediately so the preview reflects unsaved
+// edits even across reloads (fixes onload race).
+if(!window._thmReadyBound){
+  window._thmReadyBound=true;
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='DEAN_PREVIEW_READY'){thmPushToPreview();}
+  });
+}
+
+function thmSetDevice(d){
+  thmDevice=d;
+  var frame=document.getElementById('thm-frame');
+  if(frame){frame.className='thm-frame '+d;}
+  document.querySelectorAll('.thm-dev').forEach(function(b){b.classList.remove('active');});
+  var active=document.querySelector('.thm-dev[onclick*="'+d+'"]');if(active)active.classList.add('active');
+}
+function thmReloadPreview(){
+  var frame=document.getElementById('thm-frame');
+  if(frame){frame.src='/?preview=1&t='+Date.now();frame.onload=function(){thmPushToPreview();};}
+}
+
+function thmReset(){
+  if(!confirm('Discard changes and reload the saved theme?'))return;
+  renderThemeEditor();
+}
+
+async function thmSave(){
+  if(!sb){alert('No database connection');return;}
+  var btn=document.getElementById('thm-save');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  var r=await sb.from('site_theme').upsert({id:'main',settings:thmDraft},{onConflict:'id'});
+  if(btn){btn.disabled=false;}
+  if(r.error){
+    if(btn){btn.textContent='Save & Publish';}
+    alert('Save failed: '+r.error.message);
+    return;
+  }
+  thmSaved=Object.assign({},thmDraft);
+  thmDirty=false;
+  if(btn){
+    btn.classList.remove('thm-save-dirty');
+    btn.classList.add('thm-save-done');
+    btn.textContent='✓ Published';
+    setTimeout(function(){if(btn){btn.classList.remove('thm-save-done');btn.textContent='Save & Publish';}},2200);
+  }
+}
+
 
 // ── Drag & drop ──
 function akbDragStart(e,id){akbDragId=id;e.dataTransfer.effectAllowed='move';setTimeout(function(){var el=e.target;if(el)el.style.opacity='0.4';},0);}
