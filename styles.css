@@ -3597,7 +3597,135 @@ html {
 }
 .fvg-queue i { font-size: 12px; }
 
-/* ═══ About page (info moved off homepage) ═══ */
+/* ═══════════════════════════════════════════════════════════
+   ABOUT SECTION — semi-dark editorial
+   Deep charcoal ground with a warm amber accent (#E7D2A8), the same
+   tone as the logo wordmark and hero line 2, so the section reads as
+   a deliberate dark interlude rather than a different site.
+   ═══════════════════════════════════════════════════════════ */
+.about-section {
+  position: relative;
+  padding: 84px 20px;
+  background:
+    /* soft warm glow behind the stats, keeps the dark from going flat */
+    radial-gradient(120% 90% at 50% 0%, rgba(231,210,168,.07) 0%, transparent 55%),
+    linear-gradient(168deg, #10151F 0%, #151B27 45%, #10141D 100%);
+  overflow: hidden;
+}
+/* Hairline top and bottom edges to separate it from the light sections */
+.about-section::before,
+.about-section::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(231,210,168,.22), transparent);
+}
+.about-section::before { top: 0; }
+.about-section::after  { bottom: 0; }
+
+.about-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.about-eyebrow {
+  display: inline-block;
+  padding: 7px 16px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(231,210,168,.28);
+  border-radius: 100px;
+  background: rgba(231,210,168,.06);
+  color: #E7D2A8;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+}
+
+.about-title {
+  margin: 0 0 12px;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.9px;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.about-lede {
+  max-width: 620px;
+  margin: 0 auto 40px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(255,255,255,.6);
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 44px;
+}
+.about-stat {
+  padding: 24px 14px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  transition: border-color .25s ease, background .25s ease, transform .25s ease;
+}
+.about-stat:hover {
+  border-color: rgba(231,210,168,.3);
+  background: rgba(231,210,168,.05);
+  transform: translateY(-2px);
+}
+.about-stat-num {
+  margin-bottom: 6px;
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  color: #E7D2A8;
+}
+.about-stat-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.42);
+}
+
+.about-copy {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: left;
+  padding-top: 34px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.about-copy p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.85;
+  color: rgba(255,255,255,.58);
+}
+.about-copy p:last-child { margin-bottom: 0; }
+.about-copy strong {
+  color: rgba(255,255,255,.92);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .about-section { padding: 60px 18px; }
+  .about-title { font-size: 26px; letter-spacing: -0.5px; }
+  .about-lede { font-size: 14px; margin-bottom: 30px; }
+  .about-stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 34px; }
+  .about-stat { padding: 18px 10px; }
+  .about-stat-num { font-size: 22px; }
+  .about-copy { padding-top: 26px; }
+  .about-copy p { font-size: 13.5px; }
+}
+
+
 .about-page { max-width: 1120px; margin: 0 auto; padding: 40px 20px 80px; }
 .about-page-head { margin-bottom: 32px; }
 .about-page-title { font-size: 32px; font-weight: 800; letter-spacing: -0.6px; color: #1a1a1a; margin: 16px 0 8px; }

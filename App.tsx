@@ -3903,34 +3903,34 @@ export default function App() {
         </div>
       </section>
 
-          <section className="about-section s2" id="about" style={{padding:"60px 20px",background:"linear-gradient(135deg,#E8F5E9 0%,#F1F8E9 50%,#E0F2F1 100%)"}}>
-            <div style={{maxWidth:800,margin:"0 auto",textAlign:"center"}}>
-              <span style={{display:"inline-block",padding:"8px 18px",background:"rgba(29,191,115,0.12)",color:"#1DBF73",borderRadius:20,fontSize:12,fontWeight:700,marginBottom:14,letterSpacing:1,border:"1px solid rgba(29,191,115,0.15)"}}>ABOUT US</span>
-              <h2 style={{fontSize:28,fontWeight:800,marginBottom:8,letterSpacing:"-0.5px"}}>About Dean Designers</h2>
-              <p style={{fontSize:14,color:"#64748B",lineHeight:1.7,marginBottom:28,maxWidth:600,margin:"0 auto 28px"}}>
+          <section className="about-section s2" id="about">
+            <div className="about-inner">
+              <span className="about-eyebrow">ABOUT US</span>
+              <h2 className="about-title">About Dean Designers</h2>
+              <p className="about-lede">
                 Professional studio to create clothing design and brand identity. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
               </p>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:32}}>
+              <div className="about-stats">
                 {[
                   {num:"136,000+",label:"Projects Completed"},
                   {num:"4.9★",label:"Fiverr Rating"},
                   {num:"25+",label:"Countries Served"},
                   {num:"7+",label:"Years Experience"}
                 ].map((s,i)=>(
-                  <div key={i} style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(10px)",borderRadius:18,padding:"20px 14px",border:"1px solid rgba(255,255,255,0.5)",boxShadow:"0 4px 16px rgba(0,0,0,0.04)",transition:"all .2s"}}>
-                    <div style={{fontSize:26,fontWeight:800,color:"#1DBF73",marginBottom:4}}>{s.num}</div>
-                    <div style={{fontSize:11,color:"#64748B",fontWeight:600}}>{s.label}</div>
+                  <div className="about-stat" key={i}>
+                    <div className="about-stat-num">{s.num}</div>
+                    <div className="about-stat-label">{s.label}</div>
                   </div>
                 ))}
               </div>
-              <div style={{textAlign:"left",maxWidth:600,margin:"0 auto"}}>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+              <div className="about-copy">
+                <p>
                   <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail - organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
                 </p>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569",marginBottom:14}}>
+                <p>
                   <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
                 </p>
-                <p style={{fontSize:13,lineHeight:1.8,color:"#475569"}}>
+                <p>
                   <strong>AI-powered workflow.</strong> Our design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes every time.
                 </p>
               </div>
