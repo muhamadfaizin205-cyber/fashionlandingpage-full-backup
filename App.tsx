@@ -749,7 +749,7 @@ function GigMiniCard({ gig, onOpen }: { gig: Gig; onOpen: (id: string) => void }
   );
 }
 
-function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
+function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig, tier: "basic"|"standard"|"premium") => void }) {
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("standard");
   const [slideIdx, setSlideIdx] = useState(0);
   const [faqOpen, setFaqOpen] = useState<number|null>(null);
@@ -905,7 +905,7 @@ function GigCard({ gig, onOrder }: { gig: Gig; onOrder: (gig: Gig) => void }) {
               ))}
             </ul>
 
-            <button className="fv-cta" onClick={() => onOrder(gig)}>
+            <button className="fv-cta" onClick={() => onOrder(gig, activeTab)}>
               Continue <i className="ri-arrow-right-line" />
             </button>
 
@@ -1243,14 +1243,18 @@ function openWA(pkg: Package, state: WizardState): void {
 }
 
 // ─── Progress Bar ──────────────────────────────────────────
-function ProgressBar({ step }: { step: number }) {
+function ProgressBar({ step, hideStep }: { step: number; hideStep?: number }) {
+  // When the package step is skipped (tier chosen on the gig page) we drop
+  // its dot and renumber, so the bar reflects the flow the buyer sees.
+  const steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1)
+    .filter((n) => n !== hideStep);
   return (
     <div className="progress-bar">
-      {Array.from({ length: TOTAL_STEPS }, (_, i) => {
-        const n = i + 1;
+      {steps.map((n, i) => {
         const isDone = n < step;
         const isActive = n === step;
         const cls = isDone ? "done" : isActive ? "active" : "pending";
+        const label = i + 1;
         return (
           <React.Fragment key={n}>
             {i > 0 && (
@@ -1261,7 +1265,7 @@ function ProgressBar({ step }: { step: number }) {
                 />
               </div>
             )}
-            <div className={`progress-dot ${cls}`}>{isDone ? "✓" : n}</div>
+            <div className={`progress-dot ${cls}`}>{isDone ? "✓" : label}</div>
           </React.Fragment>
         );
       })}
@@ -2989,9 +2993,32 @@ export default function App() {
   // Effective theme: live preview draft wins over the saved theme.
   const activeTheme = previewTheme || theme;
 
-  // Handle gig order - pre-select service and scroll to wizard
-  const handleGigOrder = (gig: Gig) => {
-    // Switch to homepage, set service, and enter wizard at step 2 (brand info)
+  // Handle gig order - pre-select service + the package chosen on the gig
+  // page, then enter the wizard at step 2. Because the buyer already picked
+  // a tier here, the wizard skips its own Package step (5) and goes from the
+  // brief straight to Confirm & Pay.
+  const handleGigOrder = (gig: Gig, tier: "basic"|"standard"|"premium" = "standard") => {
+    const t = tier === "basic"
+      ? { price: gig.basic_price, delivery: gig.basic_delivery, revisions: gig.basic_revisions, features: gig.basic_features, desc: gig.basic_desc }
+      : tier === "premium"
+      ? { price: gig.premium_price, delivery: gig.premium_delivery, revisions: gig.premium_revisions, features: gig.premium_features, desc: gig.premium_desc }
+      : { price: gig.standard_price, delivery: gig.standard_delivery, revisions: gig.standard_revisions, features: gig.standard_features, desc: gig.standard_desc };
+
+    setSelectedPkg({
+      id: tier,
+      badge: tier === "basic" ? "BASIC" : tier === "premium" ? "PREMIUM" : "STANDARD",
+      name: tier.charAt(0).toUpperCase() + tier.slice(1),
+      basePrice: t.price,
+      desc: t.desc || "",
+      features: t.features || [],
+      delivery: `${t.delivery} days`,
+      revisions: t.revisions || "",
+      featured: tier === "standard",
+    });
+    // Remember that the package came from the gig page, so the wizard
+    // can hide its package step for this order.
+    setPkgFromGig(true);
+
     setWizardState(p => ({ ...p, service: gig.service_type as "clothing" | "logo" }));
     setCurrentPage("home");
     goTo(2, "forward");
@@ -3108,6 +3135,17 @@ export default function App() {
       return saved ? JSON.parse(saved) : null;
     } catch { return null; }
   });
+  // True when the package was chosen on the gig page. The wizard then
+  // hides its own Package step (5) - the buyer already picked a tier,
+  // so asking again is a redundant step in the funnel.
+  const [pkgFromGig, setPkgFromGig] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return sessionStorage.getItem("dd_pkg_from_gig") === "1"; } catch { return false; }
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.setItem("dd_pkg_from_gig", pkgFromGig ? "1" : "0"); } catch {}
+  }, [pkgFromGig]);
   const [wizardState, setWizardState] = useState<WizardState>(() => {
     const fallback: WizardState = {
       service: null,
@@ -3277,6 +3315,9 @@ export default function App() {
       window.scrollTo(0, 0);
       return;
     }
+    // No gig for this category: run the classic wizard, which needs its
+    // own Package step.
+    setPkgFromGig(false);
     goTo(2, "forward");
   };
   const handleNextStep2 = () => {
@@ -3298,6 +3339,11 @@ export default function App() {
   const handleNextStep4 = () => {
     if (wizardState.brief.trim().length < 10) {
       showToast("Brief must be at least 10 characters for best results");
+      return;
+    }
+    // Package already chosen on the gig page -> go straight to payment.
+    if (pkgFromGig && selectedPkg) {
+      goTo(6, "forward");
       return;
     }
     goTo(5, "forward");
@@ -3742,7 +3788,7 @@ export default function App() {
       <>
       <section className="wizard-section s2" id="wizard">
         <div className="wizard-wrap">
-          <ProgressBar step={step} />
+          <ProgressBar step={step} hideStep={pkgFromGig ? 5 : undefined} />
           <div className="step-outer">
             {step === 1 && (
               <div key={`s1-${animKey}`} className={panelClass}>
@@ -3808,7 +3854,7 @@ export default function App() {
                 <Step6
                   state={wizardState}
                   pkg={selectedPkg}
-                  onBack={() => goTo(5, "back")}
+                  onBack={() => goTo(pkgFromGig ? 4 : 5, "back")}
                 />
               </div>
             )}
