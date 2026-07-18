@@ -35,16 +35,15 @@
   --theme-spacing: 1;
 }
 
-/* Theme-editor driven fonts (override via applyTheme in App.tsx) */
-body { font-family: var(--theme-font-body); }
-.hero-h1, .fv-sec-title, .hero-cta { font-family: var(--theme-font-heading); }
+/* Theme-editor driven fonts are applied directly on body / .hero-h1 /
+   .fv-sec-title via var(--theme-font-*) in their own rules below. */
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--theme-font-body), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
   color: var(--txt);
   min-height: 100vh;
@@ -3929,7 +3928,7 @@ html {
   padding: 0 24px;
 }
 .fv-sec-title {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--theme-font-heading), 'Inter', sans-serif;
   font-size: 27px;
   font-weight: 500;
   letter-spacing: -.7px;
@@ -4506,7 +4505,7 @@ html {
   padding: 0;
   display: flex;
   flex-direction: column;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--theme-font-heading), 'Inter', sans-serif;
   font-size: 54px;
   font-weight: 400;
   line-height: 1.08;
