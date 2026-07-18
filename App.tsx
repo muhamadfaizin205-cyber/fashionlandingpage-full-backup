@@ -3350,14 +3350,25 @@ export default function App() {
         <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
-              <div className="drawer-logo">
-                <i className="ri-flashlight-fill" style={{fontSize:16,color:"#fff"}} />
-              </div>
               <span className="drawer-brand">Dean <span style={{color:"#1DBF73"}}>Designers</span></span>
               <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
             </div>
             <div className="drawer-items">
-              <a className="drawer-item" href="#home" onClick={() => { setCurrentPage("home"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+              <a
+                className="drawer-item"
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Return to a clean homepage: leave any sub-page, exit the
+                  // wizard (the user may be mid-checkout, e.g. step 6), and
+                  // clear a selected gig so /gigs doesn't reopen a detail.
+                  setCurrentPage("home");
+                  setSelectedGigId(null);
+                  goTo(1, "back");
+                  setDrawerOpen(false);
+                  window.scrollTo(0, 0);
+                }}
+              >
                 <i className="ri-home-4-line" style={{fontSize:18}} />Home
               </a>
               <a className="drawer-item" href="#wizard" onClick={() => setDrawerOpen(false)}>
