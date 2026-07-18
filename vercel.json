@@ -53,7 +53,7 @@
     },
     {
       "source": "/articles",
-      "destination": "/index.html"
+      "destination": "/api/article-ssr"
     },
     {
       "source": "/gigs",

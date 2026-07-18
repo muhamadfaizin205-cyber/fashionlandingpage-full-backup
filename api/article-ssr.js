@@ -32,7 +32,88 @@ export default async function handler(req, res) {
     }
   }
 
-  if (!slug) return res.status(404).send('Not found');
+  // No slug -> the /articles listing. Previously this rewrote to the SPA
+  // shell, so Googlebot saw zero links to any article: every article was
+  // reachable only via the sitemap, which is why they sat in "Discovered -
+  // currently not indexed". Bots now get a real, crawlable index page.
+  if (!slug) {
+    try {
+      const listRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/articles?published=eq.true&select=slug,title,excerpt,content,created_at&order=created_at.desc&limit=200`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      const list = await listRes.json();
+      const items = Array.isArray(list) ? list : [];
+
+      const rows = items.map(a => {
+        const t = esc(a.title || a.slug);
+        const ex = esc((a.excerpt || stripHtml(a.content).substring(0, 160)));
+        const d = a.created_at ? new Date(a.created_at).toISOString().slice(0, 10) : '';
+        return `<li>
+      <h2><a href="${BASE_URL}/articles/${esc(a.slug)}">${t}</a></h2>
+      ${d ? `<p class="meta"><time datetime="${d}">${d}</time></p>` : ''}
+      <p>${ex}</p>
+    </li>`;
+      }).join('\n');
+
+      const itemList = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Articles - Dean Designers",
+        "itemListElement": items.map((a, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "url": `${BASE_URL}/articles/${a.slug}`,
+          "name": a.title || a.slug
+        }))
+      };
+
+      const listHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Articles &amp; Insights - Dean Designers</title>
+<meta name="description" content="Guides and insights on clothing design, streetwear graphics, logo and brand identity from Dean Designers.">
+<link rel="canonical" href="${BASE_URL}/articles">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Articles &amp; Insights - Dean Designers">
+<meta property="og:url" content="${BASE_URL}/articles">
+<script type="application/ld+json">${JSON.stringify(itemList)}</script>
+</head>
+<body>
+  <header>
+    <a href="${BASE_URL}/">Dean Designers</a>
+    <h1>Articles &amp; Insights</h1>
+    <p>Guides on clothing design, streetwear graphics, and brand identity.</p>
+  </header>
+  <main>
+    <ul>
+${rows || '    <li><p>No articles published yet.</p></li>'}
+    </ul>
+  </main>
+  <footer>
+    <nav>
+      <a href="${BASE_URL}/">Home</a>
+      <a href="${BASE_URL}/gigs">Services</a>
+      <a href="${BASE_URL}/streetwear-design">Streetwear Design</a>
+      <a href="${BASE_URL}/logo-design">Logo Design</a>
+      <a href="${BASE_URL}/tshirt-design">T-Shirt Design</a>
+      <a href="${BASE_URL}/hoodie-design">Hoodie Design</a>
+      <a href="${BASE_URL}/clothing-brand-design">Clothing Brand Design</a>
+      <a href="${BASE_URL}/merch-design">Merch Design</a>
+    </nav>
+  </footer>
+</body>
+</html>`;
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
+      return res.status(200).send(listHtml);
+    } catch (e) {
+      return res.status(500).send('Error');
+    }
+  }
 
   try {
     const apiRes = await fetch(
