@@ -490,6 +490,53 @@ button[onclick*="copyHotelPromo"]:hover{filter:brightness(1.1);transform:transla
   .kbf-col{flex:0 0 84vw;width:84vw}
 }
 
+/* ═══ KANBAN: attention bar, deadlines, checklists ═══ */
+.kbf-summary{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 22px 14px}
+.kbf-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:100px;border:1px solid transparent;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.kbf-chip b{font-weight:800}
+.kbf-chip i{font-size:14px}
+.kbf-chip-over{background:#FEF2F2;color:#B91C1C;border-color:#FECACA}
+.kbf-chip-over:hover,.kbf-chip-over.active{background:#B91C1C;color:#fff;border-color:#B91C1C}
+.kbf-chip-soon{background:#FFF7ED;color:#B45309;border-color:#FED7AA}
+.kbf-chip-soon:hover,.kbf-chip-soon.active{background:#B45309;color:#fff;border-color:#B45309}
+.kbf-chip-await{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.kbf-chip-await:hover,.kbf-chip-await.active{background:#1D4ED8;color:#fff;border-color:#1D4ED8}
+.kbf-chip-clear{background:transparent;color:#64748B;border-color:#E2E8F0}
+.kbf-chip-clear:hover{background:#F1F5F9}
+.kbf-allclear{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#15803D}
+.kbf-allclear i{font-size:15px}
+
+.kbf-due{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700}
+.kbf-due i{font-size:12px}
+.kbf-due-over{background:#FEF2F2;color:#B91C1C}
+.kbf-due-today{background:#FFF7ED;color:#B45309}
+.kbf-due-soon{background:#FFFBEB;color:#A16207}
+.kbf-due-ok{background:#F1F5F9;color:#64748B}
+.kbf-card.is-overdue{border-left:3px solid #DC2626}
+
+.kbf-cl{margin-top:9px}
+.kbf-cl-top{display:flex;justify-content:space-between;font-size:10.5px;font-weight:600;color:#64748B;margin-bottom:4px}
+.kbf-cl-top i{font-size:12px}
+.kbf-cl-bar{height:4px;border-radius:100px;background:#E2E8F0;overflow:hidden}
+.kbf-cl-fill{height:100%;background:#3B82F6;border-radius:100px;transition:width .25s}
+.kbf-cl-fill.full{background:#16A34A}
+
+.akb-cl-list{margin-top:8px}
+.akb-cl-empty{font-size:12px;color:var(--txt3);padding:8px 0}
+.akb-cl-prog{display:flex;align-items:center;gap:9px;margin-bottom:9px;font-size:11.5px;font-weight:600;color:var(--txt3)}
+.akb-cl-prog-bar{flex:1;height:5px;border-radius:100px;background:var(--border);overflow:hidden}
+.akb-cl-prog-fill{height:100%;background:#3B82F6;border-radius:100px;transition:width .25s}
+.akb-cl-prog-fill.full{background:#16A34A}
+.akb-cl-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.akb-cl-box{width:19px;height:19px;flex-shrink:0;border:1.5px solid var(--border);border-radius:5px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;padding:0}
+.akb-cl-item.done .akb-cl-box{background:#16A34A;border-color:#16A34A}
+.akb-cl-txt{flex:1;font-size:13px;color:var(--txt2)}
+.akb-cl-item.done .akb-cl-txt{text-decoration:line-through;color:var(--txt3)}
+.akb-cl-del{background:none;border:none;color:var(--txt3);font-size:17px;cursor:pointer;line-height:1;padding:0 3px}
+.akb-cl-del:hover{color:#F87171}
+.akb-cl-add{display:flex;gap:8px;margin-top:9px}
+.akb-cl-add .login-input{flex:1}
+
 /* ═══ THEME EDITOR ═══ */
 .thm-wrap{height:100vh;overflow:hidden}
 .thm-editor{display:flex;height:100vh}
@@ -1239,6 +1286,7 @@ async function renderKanbanFull(){
         '<button class="kbf-newboard" onclick="openAkbCardEditorFull(null,\'backlog\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Card</button>'+
       '</div>'+
     '</div>'+
+    '<div id="kbf-summary"></div>'+
     '<div class="kbf-board" id="kbf-board"><div style="padding:40px;color:#9AA0B4">Loading...</div></div>';
 
   await kbfLoad();
@@ -1257,12 +1305,52 @@ async function kbfLoad(){
   kbfRenderBoard();
 }
 
+// Active filter from the attention bar: '' | 'overdue' | 'soon' | 'await'
+var kbfFilter='';
+function kbfSetFilter(f){kbfFilter=(kbfFilter===f?'':f);kbfRenderBoard();}
+
+// The attention bar answers "what do I deal with first?" before the
+// board is even scanned. Each chip filters the board when clicked.
+function kbfSummaryHTML(){
+  var open=akbCards.filter(function(c){return (c.column_key||'backlog')!=='done';});
+  var over=0,soon=0;
+  open.forEach(function(c){
+    var d=kbfDueInfo(c.due_date);
+    if(!d)return;
+    if(d.overdue)over++; else if(d.soon)soon++;
+  });
+  var await_=akbCards.filter(function(c){return c.review_state==='revision';}).length;
+  var chip=function(key,cls,icon,n,label){
+    if(!n)return '';
+    return '<button class="kbf-chip '+cls+(kbfFilter===key?' active':'')+'" onclick="kbfSetFilter(\''+key+'\')">'+
+      '<i class="'+icon+'"></i><b>'+n+'</b> '+label+'</button>';
+  };
+  var chips=chip('overdue','kbf-chip-over','ri-alarm-warning-line',over,'overdue')+
+            chip('soon','kbf-chip-soon','ri-time-line',soon,'due soon')+
+            chip('await','kbf-chip-await','ri-refresh-line',await_,'need revision');
+  if(!chips) return '<div class="kbf-summary"><span class="kbf-allclear"><i class="ri-check-double-line"></i> Nothing overdue - board is on track</span></div>';
+  return '<div class="kbf-summary">'+chips+
+    (kbfFilter?'<button class="kbf-chip kbf-chip-clear" onclick="kbfSetFilter(\''+kbfFilter+'\')">Clear filter</button>':'')+
+  '</div>';
+}
+
 function kbfRenderBoard(){
   var board=document.getElementById('kbf-board');if(!board)return;
+  var sum=document.getElementById('kbf-summary');
+  if(sum)sum.innerHTML=kbfSummaryHTML();
   var q=kbfSearch.trim().toLowerCase();
   board.innerHTML=KB_COLS.map(function(col){
     var cards=akbCards.filter(function(c){return (c.column_key||'backlog')===col.key;});
     if(q)cards=cards.filter(function(c){return (c.title||'').toLowerCase().indexOf(q)>=0||(c.description||'').toLowerCase().indexOf(q)>=0;});
+    if(kbfFilter){
+      cards=cards.filter(function(c){
+        if(kbfFilter==='await')return c.review_state==='revision';
+        if((c.column_key||'backlog')==='done')return false;
+        var d=kbfDueInfo(c.due_date);
+        if(!d)return false;
+        return kbfFilter==='overdue'?!!d.overdue:!!d.soon;
+      });
+    }
     var body=cards.length?cards.map(kbfCardHTML).join(''):'<div class="kbf-empty-col">No cards</div>';
     return '<div class="kbf-col" data-col="'+col.key+'" ondragover="kbfDragOver(event)" ondragleave="kbfDragLeave(event)" ondrop="kbfDrop(event,\''+col.key+'\')">'+
       '<div class="kbf-col-head"><span class="kbf-col-title">'+col.title+'</span><span class="kbf-col-count">'+cards.length+'</span>'+
@@ -1272,6 +1360,25 @@ function kbfRenderBoard(){
       '<div class="kbf-newcard" onclick="openAkbCardEditorFull(null,\''+col.key+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</div>'+
     '</div>';
   }).join('');
+}
+
+// ── Deadline + checklist helpers ──────────────────────────
+// A board is only useful if it says what needs attention TODAY, so
+// due dates are classified rather than just printed.
+function kbfDueInfo(due){
+  if(!due) return null;
+  var today=new Date(); today.setHours(0,0,0,0);
+  var d=new Date(due+'T00:00:00');
+  var days=Math.round((d-today)/86400000);
+  if(days<0)  return {cls:'kbf-due-over',  label:(days===-1?'1 day overdue':Math.abs(days)+' days overdue'), icon:'ri-alarm-warning-line', overdue:true};
+  if(days===0)return {cls:'kbf-due-today', label:'Due today',  icon:'ri-time-line', soon:true};
+  if(days===1)return {cls:'kbf-due-soon',  label:'Due tomorrow',icon:'ri-time-line', soon:true};
+  if(days<=3) return {cls:'kbf-due-soon',  label:'Due in '+days+' days', icon:'ri-time-line', soon:true};
+  return {cls:'kbf-due-ok', label:'Due '+d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), icon:'ri-calendar-line'};
+}
+function kbfChecklist(c){
+  var l=c.checklist; if(typeof l==='string'){try{l=JSON.parse(l);}catch(e){l=[];}}
+  return Array.isArray(l)?l:[];
 }
 
 function kbfCardHTML(c){
@@ -1285,10 +1392,26 @@ function kbfCardHTML(c){
   var review='';
   if(c.review_state==='approved')review='<span class="kbf-card-review kbf-rev-approved">✓ Approved</span>';
   else if(c.review_state==='revision')review='<span class="kbf-card-review kbf-rev-revision">↻ Revision</span>';
-  return '<div class="kbf-card" draggable="true" ondragstart="kbfDragStart(event,\''+c.id+'\')" ondragend="kbfDragEnd(event)" onclick="openAkbCardEditorFull(\''+c.id+'\')">'+
+  // Deadline pill - only meaningful while work is still open, so a
+  // finished card never shouts "overdue".
+  var di=(c.column_key==='done')?null:kbfDueInfo(c.due_date);
+  var dueHTML=di?'<span class="kbf-due '+di.cls+'"><i class="'+di.icon+'"></i>'+di.label+'</span>':'';
+  // Checklist progress
+  var cl=kbfChecklist(c);
+  var done=cl.filter(function(i){return i&&i.d;}).length;
+  var clHTML='';
+  if(cl.length){
+    var pct=Math.round(done/cl.length*100);
+    clHTML='<div class="kbf-cl">'+
+      '<div class="kbf-cl-top"><span><i class="ri-list-check-2"></i> '+done+'/'+cl.length+'</span><span>'+pct+'%</span></div>'+
+      '<div class="kbf-cl-bar"><div class="kbf-cl-fill'+(pct===100?' full':'')+'" style="width:'+pct+'%"></div></div>'+
+    '</div>';
+  }
+
+  return '<div class="kbf-card'+(di&&di.overdue?' is-overdue':'')+'" draggable="true" ondragstart="kbfDragStart(event,\''+c.id+'\')" ondragend="kbfDragEnd(event)" onclick="openAkbCardEditorFull(\''+c.id+'\')">'+
     '<span class="kbf-pri '+priClass+'">'+priLabel+'</span>'+
     '<div class="kbf-card-title">'+esc(c.title||'Untitled')+'</div>'+
-    desc+img+
+    desc+img+dueHTML+clHTML+
     '<div class="kbf-card-foot">'+
       '<span class="kbf-cf-item"><i class="ri-chat-1-line"></i> '+fbCount+(newFb?' <b style="color:#2AA758">+'+newFb+'</b>':'')+'</span>'+
       (c.image_url?'<span class="kbf-cf-item"><i class="ri-image-line"></i> 1</span>':'')+
@@ -1656,10 +1779,35 @@ async function akbDrop(e,colKey){
 }
 
 // ── Card editor ──
+// ── Checklist editing (held in memory, saved with the card) ──
+var akbCl=[];
+function akbClRender(){
+  var el=document.getElementById('akb-cl-list');if(!el)return;
+  if(!akbCl.length){el.innerHTML='<div class="akb-cl-empty">No deliverables yet.</div>';return;}
+  var done=akbCl.filter(function(i){return i.d;}).length;
+  var pct=Math.round(done/akbCl.length*100);
+  el.innerHTML='<div class="akb-cl-prog"><div class="akb-cl-prog-bar"><div class="akb-cl-prog-fill'+(pct===100?' full':'')+'" style="width:'+pct+'%"></div></div><span>'+done+'/'+akbCl.length+'</span></div>'+
+    akbCl.map(function(it,i){
+      return '<div class="akb-cl-item'+(it.d?' done':'')+'">'+
+        '<button class="akb-cl-box" onclick="akbClToggle('+i+')">'+(it.d?'<i class="ri-check-line"></i>':'')+'</button>'+
+        '<span class="akb-cl-txt">'+esc(it.t)+'</span>'+
+        '<button class="akb-cl-del" onclick="akbClDel('+i+')" title="Remove">×</button>'+
+      '</div>';
+    }).join('');
+}
+function akbClAdd(){
+  var inp=document.getElementById('akb-cl-new');if(!inp)return;
+  var v=(inp.value||'').trim();if(!v)return;
+  akbCl.push({t:v,d:false});inp.value='';akbClRender();inp.focus();
+}
+function akbClToggle(i){if(akbCl[i]){akbCl[i].d=!akbCl[i].d;akbClRender();}}
+function akbClDel(i){akbCl.splice(i,1);akbClRender();}
+
 function openAkbCardEditor(id,presetCol){
   var card=id?akbCards.find(function(c){return c.id===id}):null;
   var isNew=!card;
   akbCardImg=card?(card.image_url||''):'';
+  akbCl=card?kbfChecklist(card).map(function(i){return {t:i.t||'',d:!!i.d};}):[];
   window._akbEditId=id||null;
   var defaultCol=presetCol||(card&&card.column_key)||'backlog';
   var host=document.getElementById('kanban-editor-host');
@@ -1686,6 +1834,11 @@ function openAkbCardEditor(id,presetCol){
         '<label class="kba-lbl">Column<select class="login-input" id="akb-col">'+colOpts+'</select></label>'+
         '<label class="kba-lbl">Priority<select class="login-input" id="akb-pri">'+priOpts+'</select></label>'+
       '</div>'+
+      '<label class="kba-lbl">Due date<input class="login-input" type="date" id="akb-due" value="'+esc(card&&card.due_date?String(card.due_date).slice(0,10):'')+'"></label>'+
+      '<div class="kba-lbl">Deliverables'+
+        '<div id="akb-cl-list" class="akb-cl-list"></div>'+
+        '<div class="akb-cl-add"><input class="login-input" id="akb-cl-new" placeholder="Add an item, e.g. Front print" onkeydown="if(event.key===\'Enter\'){event.preventDefault();akbClAdd();}"><button class="btn-ghost" onclick="akbClAdd()">Add</button></div>'+
+      '</div>'+
       '<div class="kba-lbl">Preview image (optional)'+
         '<div style="display:flex;gap:10px;align-items:center;margin-top:6px">'+
           '<div id="akb-img-thumb" style="width:90px;height:64px;border-radius:8px;background:#0F172A;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#475569;font-size:9px">'+(akbCardImg?'<img src="'+esc(akbCardImg)+'" style="width:100%;height:100%;object-fit:cover">':'none')+'</div>'+
@@ -1702,8 +1855,9 @@ function openAkbCardEditor(id,presetCol){
       '</div>'+
     '</div>'+
   '</div>';
+  akbClRender();
 }
-function closeAkbEditor(){var h=document.getElementById('kanban-editor-host');if(h)h.innerHTML='';akbCardImg='';}
+function closeAkbEditor(){var h=document.getElementById('kanban-editor-host');if(h)h.innerHTML='';akbCardImg='';akbCl=[];}
 
 async function akbUploadImg(){
   var input=document.getElementById('akb-img');if(!input||!input.files||!input.files[0]||!sb)return;
@@ -1726,6 +1880,8 @@ async function akbSaveCard(id){
     column_key:document.getElementById('akb-col').value,
     priority:document.getElementById('akb-pri').value,
     image_url:akbCardImg||'',
+    due_date:(document.getElementById('akb-due')||{}).value||null,
+    checklist:akbCl,
   };
   if(!data.title){alert('Title is required');return;}
   if(id){
