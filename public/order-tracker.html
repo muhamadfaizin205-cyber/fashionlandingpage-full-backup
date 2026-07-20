@@ -194,6 +194,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @media(max-width:768px){
   .side{display:none}
   .chat{display:none;width:100%;position:fixed;inset:0;z-index:100}
+  /* The collapse transform is a desktop-only affordance. Here the chat
+     is a full-screen view toggled by .show, so the transform must be
+     cancelled or the panel slides off-screen and looks like nothing
+     happened when Chat is tapped. */
+  .app.chat-collapsed .chat{transform:none}
   .chat-toggle{display:none}
   .chat.show{display:flex}
   .main{margin-left:0;margin-right:0}
@@ -457,9 +462,12 @@ function restoreChatPanel(){
 }
 
 function switchView(v){view=v;renderContent();
-  // On desktop the Chat nav item opens the side panel rather than
-  // swapping the main area (which stays on the board).
-  if(v==='chat'&&window.innerWidth>900)setChatOpen(true);
+  // Selecting Chat always opens the room. On desktop that expands the
+  // side panel; on mobile the .show class below turns it into a
+  // full-screen view. Not gated on width any more - that made the tap
+  // silently do nothing whenever the check disagreed with the CSS
+  // breakpoint (phones in desktop mode, split screen, resized windows).
+  if(v==='chat')setChatOpen(true);
   document.querySelectorAll('.side-btn').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   var ch=document.querySelector('.chat');
