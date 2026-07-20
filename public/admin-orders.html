@@ -152,7 +152,13 @@ a{color:inherit;text-decoration:none}
 .cr-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;position:relative}
 .cr-info{flex:1;min-width:0}.cr-name{font-size:13px;font-weight:700;color:#F1F5F9}.cr-sub{font-size:10px;color:var(--txt3)}
 .cr-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;background:#9CA3AF;border-radius:50%;border:2px solid var(--card)}.cr-dot.online{background:#4ADE80}
-.cr-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:5px;background:#0F1117;scroll-behavior:auto}
+.cr-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:5px;scroll-behavior:auto;
+  background-color:#0F1117;
+  background-image:radial-gradient(rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size:22px 22px}
+/* Centered date pill, matching the client chat */
+.cr-day{align-self:center;margin:12px 0 8px}
+.cr-day span{display:inline-block;padding:5px 12px;border-radius:100px;background:rgba(28,38,49,.92);color:#94A3B8;font-size:11px;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.2)}
 .cr-msgs::-webkit-scrollbar{width:4px}.cr-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .cr-empty{text-align:center;padding:50px 16px;color:#94A3B8;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .msg{display:flex;flex-direction:column;max-width:82%;animation:fadeUp .12s;position:relative}
@@ -3383,6 +3389,15 @@ function adHideTyping(){
   if(txt){txt.textContent=clientOnline?'Online':'Offline';txt.style.color='';txt.style.fontWeight=''}
 }
 function adFindMsg(id){return chatMsgs.find(function(m){return m.id===id})}
+function adDayLabel(d){
+  var t=new Date();t.setHours(0,0,0,0);
+  var y=new Date(t);y.setDate(y.getDate()-1);
+  var day=new Date(d);day.setHours(0,0,0,0);
+  if(day.getTime()===t.getTime())return 'Today';
+  if(day.getTime()===y.getTime())return 'Yesterday';
+  var sameYear=day.getFullYear()===t.getFullYear();
+  return day.toLocaleDateString(undefined,sameYear?{month:'long',day:'numeric'}:{year:'numeric',month:'long',day:'numeric'});
+}
 function adSvgReceipt(msg){if(msg.sender_type!=='admin')return'';var read=msg.read,del=msg.delivered||read;var c=read?'#53BDEB':'rgba(255,255,255,0.45)';if(!del)return'<svg class="msg-receipt" width="14" height="9" viewBox="0 0 16 11" fill="none"><path d="M11 .5L5 7 2.4 4.7 1 6.2l4 3.7L12.5 2z" fill="'+c+'"/></svg>';return'<svg class="msg-receipt" width="18" height="9" viewBox="0 0 20 11" fill="none"><path d="M14 .5L8 7l-.7-.7-1.4 1.5 2.1 2L15.5 2z" fill="'+c+'"/><path d="M10 .5L4 7 1.4 4.7 0 6.2l4 3.7L11.5 2z" fill="'+c+'"/></svg>'}
 
 function appendAdminBubble(m,isMob){
@@ -3423,7 +3438,15 @@ function renderChatRoom(target){
   h+='<div class="cr-msgs" id="cr-msgs'+sfx+'">';
   var _lastDay='';chatMsgs.forEach(function(_m){var _mDay=new Date(_m.created_at).toDateString();var _now=new Date();if(_mDay!==_lastDay){_lastDay=_mDay;var _dl=_mDay===_now.toDateString()?'Today':_mDay===new Date(_now-86400000).toDateString()?'Yesterday':new Date(_m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});h+='<div class="chat-day-sep"><span>'+_dl+'</span></div>';}});
   if(!chatMsgs.length)h+='<div class="cr-empty"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Start a conversation</p></div>';
-  else chatMsgs.forEach(function(m){
+  else {
+  var adLastDay='';
+  chatMsgs.forEach(function(m){
+    // Date pill whenever the calendar day changes
+    var w=new Date(m.created_at), dk=w.toDateString();
+    if(dk!==adLastDay){
+      h+='<div class="cr-day"><span>'+esc(adDayLabel(w))+'</span></div>';
+      adLastDay=dk;
+    }
     var isA=m.sender_type==='admin',cls=isA?'admin':'client';
     var now=Date.now(),created=new Date(m.created_at).getTime(),canEdit=isA&&(now-created)<EDIT_WIN;
     var ref=m.reply_to?adFindMsg(m.reply_to):null;
@@ -3440,6 +3463,7 @@ function renderChatRoom(target){
     if(isA)h+='<button class="msg-act" onclick="adDeleteMsg(\''+m.id+'\','+isMob+')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
     h+='</div></div>';
   });
+  }
   h+='</div><div id="cr-typing'+sfx+'" style="display:none;padding:4px 14px;font-size:11px;color:#94A3B8;align-items:center;gap:6px"><span style="display:inline-flex;gap:1px"><span style="animation:tdot 1.4s infinite;font-size:16px;font-weight:900;color:#1DBF73">.</span><span style="animation:tdot 1.4s infinite .2s;font-size:16px;font-weight:900;color:#1DBF73">.</span><span style="animation:tdot 1.4s infinite .4s;font-size:16px;font-weight:900;color:#1DBF73">.</span></span> Client is typing</div><div id="cr-action-bar'+sfx+'"></div>';
   h+='<div class="cr-input" id="cr-bar'+sfx+'"><label class="cr-att" title="Attach"><input type="file" accept="image/*,.pdf,.ai,.psd,.zip,.rar,.svg,.eps" style="display:none" onchange="sendAdminImage(\''+esc(chatEmail)+'\',this,'+isMob+')"/><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></label>';
   h+='<textarea class="cr-inp" id="cr-inp'+sfx+'" placeholder="Type a message..." rows="1" oninput="adAutoGrow(this);adBroadcastTyping()"></textarea>';
