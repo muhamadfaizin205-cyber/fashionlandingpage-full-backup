@@ -41,7 +41,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .side-bottom{margin-top:auto;padding:0 10px 16px;width:100%}
 
 /* Main */
-.main{flex:1;margin-left:72px;display:flex;flex-direction:column}
+/* The chat panel is position:fixed at 360px on the right, so the main
+   column must reserve that space or the board slides underneath it and
+   gets clipped. Collapsing the chat releases the space back. */
+.main{flex:1;margin-left:72px;margin-right:360px;display:flex;flex-direction:column;transition:margin-right .22s ease;min-width:0}
+.app.chat-collapsed .main{margin-right:0}
+.app.chat-collapsed .chat{transform:translateX(100%)}
 .main-content{flex:1;padding:24px;overflow-y:auto}
 .main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .main-title{font-size:24px;font-weight:800;letter-spacing:-.5px}
@@ -69,7 +74,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .ocard-brief{font-size:12px;color:var(--txt2);background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:8px;margin-top:8px;line-height:1.5}
 
 /* Chat Panel */
-.chat{width:360px;background:rgba(15,23,42,0.98);backdrop-filter:blur(16px);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;right:0;top:0;bottom:0;z-index:5}
+.chat{width:360px;background:rgba(15,23,42,0.98);backdrop-filter:blur(16px);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;right:0;top:0;bottom:0;z-index:5;transition:transform .22s ease}
+/* Collapse handle - lets the client give the board full width */
+.chat-toggle{position:fixed;right:360px;top:50%;transform:translateY(-50%);z-index:6;width:22px;height:56px;border-radius:8px 0 0 8px;background:rgba(15,23,42,0.98);border:1px solid var(--border);border-right:none;color:var(--txt3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:right .22s ease,color .15s}
+.chat-toggle:hover{color:var(--txt)}
+.app.chat-collapsed .chat-toggle{right:0}
 .chat-head{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .chat-av{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0}
 .chat-av img{width:100%;height:100%}
@@ -126,6 +135,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @media(max-width:768px){
   .side{display:none}
   .chat{display:none;width:100%;position:fixed;inset:0;z-index:100}
+  .chat-toggle{display:none}
   .chat.show{display:flex}
   .main{margin-left:0;margin-right:0}
   .mob-bar{display:flex}
@@ -141,8 +151,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .kb-order-chip.active{background:rgba(29,191,115,0.12);border-color:var(--g);color:var(--txt)}
 .kb-legend{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px}
 
-.kb-board{display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
-.kb-col{flex:0 0 288px;width:288px;background:rgba(255,255,255,0.028);border:1px solid var(--border);border-radius:16px;padding:14px 12px;display:flex;flex-direction:column;max-height:calc(100vh - 230px)}
+.kb-board{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding-bottom:14px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;align-items:flex-start}
+/* Visible, unobtrusive scrollbar so it is obvious the board slides */
+.kb-board::-webkit-scrollbar{height:8px}
+.kb-board::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:100px}
+.kb-board::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.14);border-radius:100px}
+.kb-board::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22)}
+/* align-items:flex-start above stops a column with one card from being
+   stretched to the height of the tallest one, which left a large dead
+   area under the board. */
+.kb-col{flex:0 0 288px;width:288px;background:rgba(255,255,255,0.028);border:1px solid var(--border);border-radius:16px;padding:14px 12px;display:flex;flex-direction:column;max-height:calc(100vh - 210px);scroll-snap-align:start}
 .kb-col-head{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding:0 6px}
 .kb-col-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .kb-col-title{font-size:14px;font-weight:700;color:var(--txt);letter-spacing:-.2px}
@@ -355,6 +373,30 @@ async function sendMsg(){
   }catch(e){console.error('sendMsg error',e)}
 }
 
+// Collapsing the chat hands its 360px back to the board. The choice is
+// remembered so a client who works mostly on the board is not forced to
+// re-collapse it on every visit.
+function toggleChatPanel(){
+  var app=document.querySelector('.app');if(!app)return;
+  var hidden=app.classList.toggle('chat-collapsed');
+  try{localStorage.setItem('dd_chat_collapsed',hidden?'1':'0');}catch(e){}
+  var btn=document.getElementById('chat-toggle');
+  if(btn){
+    btn.title=hidden?'Show chat':'Hide chat';
+    btn.innerHTML='<i class="ri-arrow-'+(hidden?'left':'right')+'-s-line" style="font-size:18px"></i>';
+  }
+}
+function restoreChatPanel(){
+  var app=document.querySelector('.app');if(!app)return;
+  var hidden=false;
+  try{hidden=localStorage.getItem('dd_chat_collapsed')==='1';}catch(e){}
+  if(hidden){
+    app.classList.add('chat-collapsed');
+    var btn=document.getElementById('chat-toggle');
+    if(btn){btn.title='Show chat';btn.innerHTML='<i class="ri-arrow-left-s-line" style="font-size:18px"></i>';}
+  }
+}
+
 function switchView(v){view=v;renderContent();
   document.querySelectorAll('.side-btn').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
@@ -394,6 +436,7 @@ function renderApp(){
       '<button onclick="logout()" style="font-size:12px;color:var(--txt3)">Sign Out</button>'+
     '</div>'+
     '<div class="main"><div class="main-content" id="content"></div></div>'+
+    '<button class="chat-toggle" id="chat-toggle" onclick="toggleChatPanel()" title="Hide chat"><i class="ri-arrow-right-s-line" style="font-size:18px"></i></button>'+
     '<div class="chat">'+
       '<div class="chat-head"><button class="chat-back" onclick="switchView(\'orders\')" style="display:none;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);align-items:center;justify-content:center;color:var(--txt2);margin-right:4px"><i class="ri-arrow-left-line" style="font-size:18px"></i></button><div class="chat-av" style="position:relative"><img src="/favicon-96x96.png" alt="DD"><span class="chat-online-dot" id="designer-dot" style="position:absolute;bottom:0;right:0;border:2px solid #161921"></span></div><div><div class="chat-name">Dean Designers</div><div class="chat-last-seen" id="designer-status">Checking...</div></div></div>'+
       '<div class="chat-msgs" id="msgs"></div>'+
@@ -402,7 +445,7 @@ function renderApp(){
       '<div class="chat-input"><button class="chat-att" onclick="document.getElementById(\'file-input\').click()" title="Send image"><i class="ri-image-add-line" style="font-size:18px"></i></button><textarea id="ci" rows="1" placeholder="Type a message..." oninput="handleTyping()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea><button class="chat-mic" id="mic-btn" onclick="toggleRecord()" title="Voice note"><i class="ri-mic-line" style="font-size:18px"></i></button><button class="chat-send" onclick="sendMsg()"><i class="ri-send-plane-2-fill" style="font-size:18px"></i></button></div>'+
     '</div>'+
     '</div>';
-  renderContent();renderMessages();setupTypingListener();
+  renderContent();renderMessages();setupTypingListener();restoreChatPanel();
 }
 
 function renderContent(){
