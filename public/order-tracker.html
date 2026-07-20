@@ -75,26 +75,69 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* Chat Panel */
 .chat{width:360px;background:rgba(15,23,42,0.98);backdrop-filter:blur(16px);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;right:0;top:0;bottom:0;z-index:5;transition:transform .22s ease}
-/* Collapse handle - lets the client give the board full width */
-.chat-toggle{position:fixed;right:360px;top:50%;transform:translateY(-50%);z-index:6;width:22px;height:56px;border-radius:8px 0 0 8px;background:rgba(15,23,42,0.98);border:1px solid var(--border);border-right:none;color:var(--txt3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:right .22s ease,color .15s}
+/* Edge handle. Closed it reads as a chat button; open it becomes a
+   slim collapse arrow so it never competes with the conversation. */
+.chat-toggle{position:fixed;right:360px;top:50%;transform:translateY(-50%);z-index:6;width:22px;height:56px;border-radius:8px 0 0 8px;background:rgba(15,23,42,0.98);border:1px solid var(--border);border-right:none;color:var(--txt3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:right .22s ease,color .15s,background .15s}
 .chat-toggle:hover{color:var(--txt)}
-.app.chat-collapsed .chat-toggle{right:0}
-.chat-head{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.chat-av{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.app.chat-collapsed .chat-toggle{right:14px;width:46px;height:46px;border-radius:50%;border:1px solid var(--border);background:var(--g);color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.app.chat-collapsed .chat-toggle:hover{filter:brightness(1.08)}
+.chat-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.chat-av{width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0}
 .chat-av img{width:100%;height:100%}
-.chat-name{font-size:14px;font-weight:700}
+.chat-name{font-size:14.5px;font-weight:700;letter-spacing:-.2px}
 .chat-status{font-size:11px;color:var(--txt3)}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:6px}
-.msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word}
-.msg.me{background:var(--g);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.msg.them{background:rgba(255,255,255,0.06);align-self:flex-start;border-bottom-left-radius:4px}
-.msg-time{font-size:10px;color:var(--txt3);margin-top:2px}
-.msg-img{max-width:200px;border-radius:8px;margin-bottom:4px}
-.chat-input{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
-.chat-input textarea{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;background:rgba(255,255,255,0.04);color:var(--txt);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:38px}
+
+/* ── Message list ── */
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 14px 10px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth}
+.chat-msgs::-webkit-scrollbar{width:6px}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:100px}
+
+/* Date separator */
+.chat-day{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.chat-day::before,.chat-day::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.chat-day span{font-size:10.5px;font-weight:600;letter-spacing:.4px;color:var(--txt3);text-transform:uppercase}
+
+/* A message run. Grouped messages sit tight; only the last of a run
+   keeps the tail and the timestamp. */
+.cmsg{display:flex;flex-direction:column;max-width:82%;margin-top:9px}
+.cmsg.grouped{margin-top:2px}
+.cmsg.me{align-self:flex-end;align-items:flex-end}
+.cmsg.them{align-self:flex-start;align-items:flex-start}
+
+.cmsg-bubble{padding:9px 13px;font-size:13.5px;line-height:1.5;word-break:break-word;border-radius:16px}
+.cmsg.me .cmsg-bubble{background:var(--g);color:#fff;border-bottom-right-radius:5px}
+.cmsg.them .cmsg-bubble{background:rgba(255,255,255,0.07);color:var(--txt);border-bottom-left-radius:5px}
+/* Mid-run bubbles lose the tail so a run reads as one block */
+.cmsg.me.has-next .cmsg-bubble{border-bottom-right-radius:16px}
+.cmsg.them.has-next .cmsg-bubble{border-bottom-left-radius:16px}
+.cmsg.me.grouped .cmsg-bubble{border-top-right-radius:6px}
+.cmsg.them.grouped .cmsg-bubble{border-top-left-radius:6px}
+
+.cmsg-img{max-width:210px;border-radius:14px;cursor:pointer;display:block;transition:opacity .15s}
+.cmsg-img:hover{opacity:.9}
+.cmsg.me .cmsg-img{border-bottom-right-radius:5px}
+.cmsg.them .cmsg-img{border-bottom-left-radius:5px}
+.cmsg-bubble+.cmsg-img,.cmsg-img+.cmsg-bubble{margin-top:3px}
+.cmsg-meta{font-size:10px;color:var(--txt3);margin-top:4px;padding:0 4px}
+.cmsg-voice-wrap{padding:7px 11px}
+.cmsg.me .msg-voice-btn{background:rgba(255,255,255,0.22)}
+.cmsg.them .msg-voice-btn{background:var(--g)}
+
+/* Empty state - introduces the room instead of showing a bare line */
+.chat-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px;gap:4px}
+.chat-empty-av{width:56px;height:56px;border-radius:50%;overflow:hidden;margin-bottom:12px;opacity:.9}
+.chat-empty-av img{width:100%;height:100%}
+.chat-empty-t{font-size:14.5px;font-weight:700;color:var(--txt)}
+.chat-empty-s{font-size:12px;color:var(--txt3);line-height:1.6;max-width:240px}
+
+/* ── Composer ── */
+.chat-input{padding:11px 12px 13px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:flex-end;flex-shrink:0}
+.chat-input textarea{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:20px;background:rgba(255,255,255,0.04);color:var(--txt);font-size:13.5px;font-family:inherit;outline:none;resize:none;min-height:40px;max-height:120px;line-height:1.45;transition:border-color .15s}
 .chat-input textarea:focus{border-color:var(--g)}
-.chat-send{width:36px;height:36px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.chat-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:13px}
+.chat-input textarea::placeholder{color:var(--txt3)}
+.chat-send{width:40px;height:40px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .12s,filter .15s}
+.chat-send:hover{filter:brightness(1.08)}
+.chat-send:active{transform:scale(.93)}
 .typing-dots span{animation:tdot 1.4s infinite;font-size:18px;font-weight:900;color:var(--g)}
 .typing-dots span:nth-child(2){animation-delay:.2s}
 .typing-dots span:nth-child(3){animation-delay:.4s}
@@ -373,31 +416,34 @@ async function sendMsg(){
   }catch(e){console.error('sendMsg error',e)}
 }
 
-// Collapsing the chat hands its 360px back to the board. The choice is
-// remembered so a client who works mostly on the board is not forced to
-// re-collapse it on every visit.
-function toggleChatPanel(){
+// The chat starts CLOSED so the board owns the full width. It opens
+// only when the client asks for it - via the Chat nav item or the
+// handle on the right edge. The last choice is remembered.
+function setChatOpen(open){
   var app=document.querySelector('.app');if(!app)return;
-  var hidden=app.classList.toggle('chat-collapsed');
-  try{localStorage.setItem('dd_chat_collapsed',hidden?'1':'0');}catch(e){}
+  app.classList.toggle('chat-collapsed',!open);
+  try{localStorage.setItem('dd_chat_open',open?'1':'0');}catch(e){}
   var btn=document.getElementById('chat-toggle');
   if(btn){
-    btn.title=hidden?'Show chat':'Hide chat';
-    btn.innerHTML='<i class="ri-arrow-'+(hidden?'left':'right')+'-s-line" style="font-size:18px"></i>';
+    btn.title=open?'Hide chat':'Open chat';
+    btn.innerHTML='<i class="ri-'+(open?'arrow-right-s-line':'chat-3-line')+'" style="font-size:'+(open?18:15)+'px"></i>';
   }
+  if(open)setTimeout(scrollChat,240);
+}
+function toggleChatPanel(){
+  var app=document.querySelector('.app');if(!app)return;
+  setChatOpen(app.classList.contains('chat-collapsed'));
 }
 function restoreChatPanel(){
-  var app=document.querySelector('.app');if(!app)return;
-  var hidden=false;
-  try{hidden=localStorage.getItem('dd_chat_collapsed')==='1';}catch(e){}
-  if(hidden){
-    app.classList.add('chat-collapsed');
-    var btn=document.getElementById('chat-toggle');
-    if(btn){btn.title='Show chat';btn.innerHTML='<i class="ri-arrow-left-s-line" style="font-size:18px"></i>';}
-  }
+  var open=false;
+  try{open=localStorage.getItem('dd_chat_open')==='1';}catch(e){}
+  setChatOpen(open);
 }
 
 function switchView(v){view=v;renderContent();
+  // On desktop the Chat nav item opens the side panel rather than
+  // swapping the main area (which stays on the board).
+  if(v==='chat'&&window.innerWidth>900)setChatOpen(true);
   document.querySelectorAll('.side-btn').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.toggle('active',b.dataset.v===v)});
   var ch=document.querySelector('.chat');
@@ -728,25 +774,77 @@ function kbSetupRealtime(){
     .subscribe();
 }
 
+// Day label used by the separators between message groups.
+function chatDayLabel(d){
+  var t=new Date();t.setHours(0,0,0,0);
+  var y=new Date(t);y.setDate(y.getDate()-1);
+  var day=new Date(d);day.setHours(0,0,0,0);
+  if(day.getTime()===t.getTime())return 'Today';
+  if(day.getTime()===y.getTime())return 'Yesterday';
+  var sameYear=day.getFullYear()===t.getFullYear();
+  return day.toLocaleDateString(undefined,sameYear?{month:'long',day:'numeric'}:{year:'numeric',month:'long',day:'numeric'});
+}
+
 function renderMessages(){
   var el=document.getElementById('msgs');if(!el)return;
-  if(!messages.length){el.innerHTML='<div class="chat-empty">No messages yet. Say hi! 👋</div>';return}
-  el.innerHTML=messages.map(function(m){
+
+  if(!messages.length){
+    el.innerHTML='<div class="chat-empty">'+
+      '<div class="chat-empty-av"><img src="/favicon-96x96.png" alt=""></div>'+
+      '<div class="chat-empty-t">Chat with your designer</div>'+
+      '<div class="chat-empty-s">Ask anything about your order - share references, request tweaks, or check progress. Replies usually come within a few hours.</div>'+
+    '</div>';
+    return;
+  }
+
+  var html='';
+  var lastDay='';
+  messages.forEach(function(m,i){
     var me=m.sender_email===email||m.sender_type==='client';
-    var t=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    var body=m.message||m.text||'';
-    var html='<div style="display:flex;flex-direction:column;align-items:'+(me?'flex-end':'flex-start')+'">';
-    if(m.image_url){
-      html+='<img class="msg-img" src="'+esc(m.image_url)+'" onclick="showImgOverlay(\''+esc(m.image_url)+'\')">';
-      if(body&&body!=='📷 Image')html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
-    }else if(m.voice_url){
-      html+='<div class="msg '+(me?'me':'them')+'"><div class="msg-voice"><button class="msg-voice-btn" onclick="playVoice(this,\''+esc(m.voice_url)+'\')" style="background:'+(me?'rgba(255,255,255,0.2)':'var(--g)')+'"><i class="ri-play-fill" style="font-size:14px"></i></button><div class="msg-voice-track"><div class="msg-voice-fill"></div></div><span class="msg-voice-dur">0s</span></div></div>';
-    }else if(body){
-      html+='<div class="msg '+(me?'me':'them')+'">'+esc(body)+'</div>';
+    var when=new Date(m.created_at);
+    var t=when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+    // Date separator whenever the calendar day changes
+    var dayKey=when.toDateString();
+    if(dayKey!==lastDay){
+      html+='<div class="chat-day"><span>'+esc(chatDayLabel(when))+'</span></div>';
+      lastDay=dayKey;
     }
-    html+='<div class="msg-time">'+t+'</div></div>';
-    return html;
-  }).join('');
+
+    // Group consecutive messages from the same sender inside 5 minutes:
+    // the tail and timestamp show only on the last of a run, which keeps
+    // a long conversation readable instead of a wall of repeated stamps.
+    var prev=messages[i-1], next=messages[i+1];
+    var samePrev=prev&&((prev.sender_email===email||prev.sender_type==='client')===me)&&
+      new Date(prev.created_at).toDateString()===dayKey&&
+      (when-new Date(prev.created_at))<300000;
+    var sameNext=next&&((next.sender_email===email||next.sender_type==='client')===me)&&
+      new Date(next.created_at).toDateString()===dayKey&&
+      (new Date(next.created_at)-when)<300000;
+
+    var cls='cmsg '+(me?'me':'them')+(samePrev?' grouped':'')+(sameNext?' has-next':'');
+    var inner='';
+    if(m.image_url){
+      inner+='<img class="cmsg-img" src="'+esc(m.image_url)+'" loading="lazy" onclick="showImgOverlay(\''+esc(m.image_url)+'\')">';
+      var cap=m.message||m.text||'';
+      if(cap&&cap!=='📷 Image')inner+='<div class="cmsg-bubble">'+esc(cap)+'</div>';
+    }else if(m.voice_url){
+      inner+='<div class="cmsg-bubble cmsg-voice-wrap"><div class="msg-voice">'+
+        '<button class="msg-voice-btn" onclick="playVoice(this,\''+esc(m.voice_url)+'\')"><i class="ri-play-fill" style="font-size:14px"></i></button>'+
+        '<div class="msg-voice-track"><div class="msg-voice-fill"></div></div>'+
+        '<span class="msg-voice-dur">0s</span></div></div>';
+    }else{
+      var body=m.message||m.text||'';
+      if(!body)return;
+      inner+='<div class="cmsg-bubble">'+esc(body)+'</div>';
+    }
+
+    html+='<div class="'+cls+'">'+inner+
+      (sameNext?'':'<div class="cmsg-meta">'+t+'</div>')+
+    '</div>';
+  });
+
+  el.innerHTML=html;
   scrollChat();
 }
 function scrollChat(){var el=document.getElementById('msgs');if(el)setTimeout(function(){el.scrollTop=el.scrollHeight},50)}
