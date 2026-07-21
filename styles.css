@@ -2345,9 +2345,9 @@ textarea.brief-ta:focus {
    GUARANTEE SECTION
    ════════════════════════════════ */
 .guarantee-section {
-  background: var(--bg2);
+  background: #0D1117;
   padding: 64px 24px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 .guarantee-inner {
   max-width: 900px;
@@ -2357,7 +2357,7 @@ textarea.brief-ta:focus {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: var(--txt-dark);
+  color: #FFFFFF;
   text-align: center;
   margin-bottom: 32px;
   letter-spacing: -0.3px;
@@ -2371,8 +2371,8 @@ textarea.brief-ta:focus {
   .guarantee-grid { grid-template-columns: 1fr; }
 }
 .g-card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 0;
   padding: 24px;
   display: flex;
@@ -2380,6 +2380,7 @@ textarea.brief-ta:focus {
   gap: 8px;
   transition: all 0.25s;
 }
+.g-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.14); }
 .g-card:hover {
   border-color: var(--green-bdr);
   box-shadow: var(--shadow-md);
@@ -2388,8 +2389,8 @@ textarea.brief-ta:focus {
   width: 40px;
   height: 40px;
   border-radius: 0;
-  background: var(--green-bg);
-  color: var(--green);
+  background: rgba(255,255,255,0.08);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2398,11 +2399,11 @@ textarea.brief-ta:focus {
 .g-card strong {
   font-size: 14px;
   font-weight: 700;
-  color: var(--txt-dark);
+  color: #FFFFFF;
 }
 .g-card p {
   font-size: 13px;
-  color: var(--muted);
+  color: rgba(255,255,255,0.6);
   line-height: 1.6;
   margin: 0;
 }
