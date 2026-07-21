@@ -41,6 +41,11 @@
          Google Fonts. -->
     <style>
       .seo-boot {
+        /* Present in the HTML for non-JS crawlers, but hidden from the
+           browser paint so it never flashes as raw unstyled text before
+           React mounts and replaces #root. Google renders the JS app,
+           so the real content is still indexed. */
+        display: none;
         max-width: 860px;
         margin: 0 auto;
         padding: 32px 20px 48px;
