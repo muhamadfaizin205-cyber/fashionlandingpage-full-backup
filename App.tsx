@@ -786,6 +786,23 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
   const [activeTab, setActiveTab] = useState<"basic"|"standard"|"premium">("basic");
   const [slideIdx, setSlideIdx] = useState(0);
   const [faqOpen, setFaqOpen] = useState<number|null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [showAllRev, setShowAllRev] = useState(false);
+
+  // Real reviews the owner entered (e.g. from their Fiverr profile).
+  useEffect(() => {
+    let ok = true;
+    (async () => {
+      if (!supabase) return;
+      const { data } = await supabase
+        .from("gig_reviews")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("reviewed_at", { ascending: false });
+      if (ok && data) setReviews(data);
+    })();
+    return () => { ok = false; };
+  }, []);
   const imgs = (gig.gallery_urls && gig.gallery_urls.length > 0) ? gig.gallery_urls.slice(0,5) : (gig.cover_url ? [gig.cover_url] : []);
 
   const tier = activeTab === "basic"
@@ -971,35 +988,88 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
         {/* Reviews + rating breakdown */}
         <div className="fv-section">
           <h3 className="fv-h3">Reviews</h3>
-          <div className="fv-reviews-head">
-            <div className="fv-rev-score">
-              <span className="fv-rev-big">{Number(gig.rating).toFixed(1)}</span>
-              <span className="fv-stars">★★★★★</span>
-              <span className="fv-muted">{gig.review_count.toLocaleString()} reviews</span>
-            </div>
-            <div className="fv-rev-bars">
-              {(() => {
-                const total = gig.review_count || 0;
-                const dist = [0.86, 0.10, 0.02, 0.01, 0.01];
-                return [5,4,3,2,1].map((star, i) => {
-                  const n = Math.round(total * dist[i]);
-                  const pct = Math.round(dist[i] * 100);
-                  return (
-                    <div key={star} className="fv-rev-bar-row">
-                      <span className="fv-rev-star-lbl">{star} Stars</span>
-                      <span className="fv-rev-track"><span className="fv-rev-fill" style={{ width: pct + "%" }} /></span>
-                      <span className="fv-rev-count">({n.toLocaleString()})</span>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-          <div className="fv-rev-break">
-            <div><span>Seller communication</span><b>{Number(gig.rating).toFixed(1)}</b></div>
-            <div><span>Quality of delivery</span><b>{Number(gig.rating).toFixed(1)}</b></div>
-            <div><span>Value of delivery</span><b>{(Math.max(0, Number(gig.rating) - 0.1)).toFixed(1)}</b></div>
-          </div>
+          {(() => {
+            const hasReal = reviews.length > 0;
+            const total = hasReal ? reviews.length : (gig.review_count || 0);
+            const avg = hasReal
+              ? reviews.reduce((s, r) => s + (r.rating || 5), 0) / reviews.length
+              : Number(gig.rating);
+            // Star distribution: from real reviews if we have them.
+            const counts = [0,0,0,0,0];
+            if (hasReal) reviews.forEach(r => { const s = Math.min(5, Math.max(1, r.rating || 5)); counts[5 - s]++; });
+            const dist = hasReal
+              ? counts.map(c => (total ? c / total : 0))
+              : [0.86, 0.10, 0.02, 0.01, 0.01];
+            return (
+              <>
+                <div className="fv-reviews-head">
+                  <div className="fv-rev-score">
+                    <span className="fv-rev-big">{avg.toFixed(1)}</span>
+                    <span className="fv-stars">★★★★★</span>
+                    <span className="fv-muted">{total.toLocaleString()} reviews</span>
+                  </div>
+                  <div className="fv-rev-bars">
+                    {[5,4,3,2,1].map((star, i) => {
+                      const n = hasReal ? counts[i] : Math.round(total * dist[i]);
+                      const pct = Math.round((dist[i] || 0) * 100);
+                      return (
+                        <div key={star} className="fv-rev-bar-row">
+                          <span className="fv-rev-star-lbl">{star} Stars</span>
+                          <span className="fv-rev-track"><span className="fv-rev-fill" style={{ width: pct + "%" }} /></span>
+                          <span className="fv-rev-count">({n.toLocaleString()})</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="fv-rev-break">
+                  <div><span>Seller communication</span><b>{avg.toFixed(1)}</b></div>
+                  <div><span>Quality of delivery</span><b>{avg.toFixed(1)}</b></div>
+                  <div><span>Value of delivery</span><b>{(Math.max(0, avg - 0.1)).toFixed(1)}</b></div>
+                </div>
+
+                {/* Individual review cards (real, owner-entered) */}
+                {hasReal ? (
+                  <div className="fv-rev-list">
+                    {(showAllRev ? reviews : reviews.slice(0, 4)).map((r) => {
+                      const cc = (r.country_code || "").toUpperCase();
+                      const flag = cc.length === 2 ? String.fromCodePoint(...[...cc].map(c => 127397 + c.charCodeAt(0))) : "";
+                      const initial = (r.author_name || "?").trim().charAt(0).toUpperCase();
+                      return (
+                        <div key={r.id} className="fv-rev-card">
+                          <div className="fv-rev-card-head">
+                            <div className="fv-rev-av">{initial}</div>
+                            <div className="fv-rev-who">
+                              <div className="fv-rev-name">{r.author_name}{r.repeat_client && <span className="fv-rev-repeat"><i className="ri-refresh-line" /> Repeat Client</span>}</div>
+                              <div className="fv-rev-loc">{flag && <span className="fv-rev-flag">{flag}</span>}{r.country}</div>
+                            </div>
+                          </div>
+                          <div className="fv-rev-card-stars"><span className="fv-stars">★★★★★</span> <b>{r.rating}</b> <span className="fv-muted">· {r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : ""}</span></div>
+                          <p className="fv-rev-body">{r.body}</p>
+                          {(r.price_range || r.duration) && (
+                            <div className="fv-rev-facts">
+                              {r.price_range && <div><span>Price</span><b>{r.price_range}</b></div>}
+                              {r.duration && <div><span>Duration</span><b>{r.duration}</b></div>}
+                            </div>
+                          )}
+                          {r.seller_response && (
+                            <div className="fv-rev-resp"><b>Dean Designers' response</b><p>{r.seller_response}</p></div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {reviews.length > 4 && (
+                      <button className="fv-rev-more" onClick={() => setShowAllRev(v => !v)}>
+                        {showAllRev ? "Show less" : `Show all ${reviews.length} reviews`}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <p className="fv-rev-empty">Individual reviews will appear here.</p>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* Related tags */}

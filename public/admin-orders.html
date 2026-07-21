@@ -973,6 +973,8 @@ function renderCurrentView(){
     body='<div class="kbf-wrap" id="kbf-wrap"><div style="padding:60px;text-align:center;color:#94A3B8">Loading board...</div></div>';
   } else if(currentView==='theme'){
     body='<div class="thm-wrap" id="thm-wrap"><div style="padding:60px;text-align:center;color:var(--txt3)">Loading theme editor...</div></div>';
+  } else if(currentView==='reviews'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Reviews</h1><div class="page-actions"><button class="btn-primary" onclick="openReviewEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Review</button></div></div><div style="font-size:13px;color:var(--txt3);margin:-8px 0 18px;max-width:660px">Enter your <b>real</b> reviews here (e.g. from your Fiverr profile). These show on the gig page. Do not enter invented reviews - fake testimonials are deceptive and illegal in many countries.</div><div id="reviews-area"></div></div>';
   }
   el.innerHTML='<style>.m-only{display:none}@media(max-width:900px){.m-only{display:flex !important}}</style>'+mobileBar+body;
   if(currentView==='orders'){renderStats();renderOrders()}
@@ -984,6 +986,7 @@ function renderCurrentView(){
   else if(currentView==='cards')renderCardsView();
   else if(currentView==='kanban')renderKanbanFull();
   else if(currentView==='theme')renderThemeEditor();
+  else if(currentView==='reviews')renderReviewsView();
   else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
@@ -1024,6 +1027,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('gigs-nav-btn')){
     document.getElementById('gigs-nav-btn').className='sb-ic'+(currentView==='gigs'?' active':'');
+  }
+  // Inject Reviews nav button
+  if(sbIcons&&!document.getElementById('reviews-nav-btn')){
+    var revBtn=document.createElement('button');
+    revBtn.id='reviews-nav-btn';
+    revBtn.className='sb-ic';
+    revBtn.title='Reviews';
+    revBtn.onclick=function(){switchView('reviews')};
+    revBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/></svg>Reviews<span class="sb-ic-tip">Manage Reviews</span>';
+    sbIcons.appendChild(revBtn);
+  }
+  if(document.getElementById('reviews-nav-btn')){
+    document.getElementById('reviews-nav-btn').className='sb-ic'+(currentView==='reviews'?' active':'');
   }
   // Inject Cards nav button
   if(sbIcons&&!document.getElementById('cards-nav-btn')){
@@ -3777,6 +3793,77 @@ async function loadGigs(){
   var r=await sb.from('gigs').select('*').order('sort_order',{ascending:true});
   if(!r.error&&r.data)allGigs=r.data;
   return allGigs;
+}
+
+
+// ═══ Reviews manager (real, owner-entered testimonials) ═══
+var _reviews=[];
+async function renderReviewsView(){
+  var area=document.getElementById('reviews-area');if(!area)return;
+  area.innerHTML='<div style="padding:40px;text-align:center;color:#94A3B8">Loading...</div>';
+  var r=await sb.from('gig_reviews').select('*').order('sort_order',{ascending:true}).order('reviewed_at',{ascending:false});
+  if(r.error){area.innerHTML='<div style="padding:20px;color:#EF4444">'+esc(r.error.message)+'<br><br>Have you run <b>gig-reviews-migration.sql</b> in Supabase?</div>';return;}
+  _reviews=r.data||[];
+  if(!_reviews.length){area.innerHTML='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:26px;text-align:center;color:#94A3B8"><div style="font-size:14px;color:#CBD5E1;margin-bottom:6px">No reviews yet</div>Add your real Fiverr reviews so they show on the gig page. Click <b>Add Review</b>.</div>';return;}
+  area.innerHTML='<div style="display:flex;flex-direction:column;gap:12px">'+_reviews.map(function(v){
+    return '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 18px">'+
+      '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">'+
+        '<div style="min-width:0"><div style="font-weight:700;color:#F1F5F9;font-size:14px">'+esc(v.author_name)+' <span style="color:#FFB33E">'+('★'.repeat(v.rating))+'</span> <span style="color:#64748B;font-size:12px">'+esc(v.country||'')+'</span></div>'+
+        '<div style="font-size:13px;color:#CBD5E1;line-height:1.6;margin-top:6px">'+esc(v.body)+'</div></div>'+
+        '<div style="display:flex;gap:6px;flex-shrink:0">'+
+          '<button class="btn-ghost" style="padding:6px 10px" onclick="openReviewEditor('+v.id+')">Edit</button>'+
+          '<button class="btn-ghost" style="padding:6px 10px;color:#EF4444" onclick="deleteReview('+v.id+')">Delete</button>'+
+        '</div>'+
+      '</div></div>';
+  }).join('')+'</div>';
+}
+
+function openReviewEditor(id){
+  var v=id?_reviews.find(function(x){return x.id===id}):null;
+  var wrap=document.createElement('div');
+  wrap.className='modal-overlay';wrap.id='review-modal';
+  wrap.innerHTML='<div class="modal" style="max-width:520px"><div class="modal-head"><h3>'+(v?'Edit':'Add')+' Review</h3><button onclick="document.getElementById(\'review-modal\').remove()" class="modal-x">&times;</button></div>'+
+    '<div class="modal-body" style="display:flex;flex-direction:column;gap:12px">'+
+      '<label class="fld"><span>Reviewer name *</span><input id="rv-name" class="msel" value="'+esc(v?v.author_name:'')+'" placeholder="e.g. james_w"></label>'+
+      '<div style="display:flex;gap:10px"><label class="fld" style="flex:1"><span>Country</span><input id="rv-country" class="msel" value="'+esc(v?v.country:'')+'" placeholder="United States"></label>'+
+      '<label class="fld" style="width:110px"><span>Code</span><input id="rv-cc" class="msel" maxlength="2" value="'+esc(v?v.country_code:'')+'" placeholder="US"></label>'+
+      '<label class="fld" style="width:90px"><span>Rating</span><select id="rv-rating" class="msel"><option '+(v&&v.rating===5?'selected':'')+'>5</option><option '+(v&&v.rating===4?'selected':'')+'>4</option><option '+(v&&v.rating===3?'selected':'')+'>3</option><option '+(v&&v.rating===2?'selected':'')+'>2</option><option '+(v&&v.rating===1?'selected':'')+'>1</option></select></label></div>'+
+      '<label class="fld"><span>Review text *</span><textarea id="rv-body" class="msel" rows="4" placeholder="Paste the real review text">'+esc(v?v.body:'')+'</textarea></label>'+
+      '<div style="display:flex;gap:10px"><label class="fld" style="flex:1"><span>Price (optional)</span><input id="rv-price" class="msel" value="'+esc(v?v.price_range:'')+'" placeholder="$100-$200"></label>'+
+      '<label class="fld" style="flex:1"><span>Duration (optional)</span><input id="rv-dur" class="msel" value="'+esc(v?v.duration:'')+'" placeholder="3 weeks"></label></div>'+
+      '<label class="fld"><span>Date</span><input id="rv-date" type="date" class="msel" value="'+esc(v&&v.reviewed_at?v.reviewed_at:'')+'"></label>'+
+      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#CBD5E1"><input type="checkbox" id="rv-repeat" '+(v&&v.repeat_client?'checked':'')+'> Repeat client</label>'+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn-ghost" onclick="document.getElementById(\'review-modal\').remove()">Cancel</button><button class="btn-primary" onclick="saveReview('+(v?v.id:'0')+')">Save</button></div></div>';
+  document.body.appendChild(wrap);
+}
+
+async function saveReview(id){
+  var name=document.getElementById('rv-name').value.trim();
+  var body=document.getElementById('rv-body').value.trim();
+  if(!name||!body){alert('Name and review text are required.');return;}
+  var row={
+    author_name:name,
+    country:document.getElementById('rv-country').value.trim(),
+    country_code:document.getElementById('rv-cc').value.trim().toUpperCase(),
+    rating:parseInt(document.getElementById('rv-rating').value)||5,
+    body:body,
+    price_range:document.getElementById('rv-price').value.trim(),
+    duration:document.getElementById('rv-dur').value.trim(),
+    repeat_client:document.getElementById('rv-repeat').checked,
+    reviewed_at:document.getElementById('rv-date').value||null
+  };
+  var res=id&&id!=='0'&&id!==0 ? await sb.from('gig_reviews').update(row).eq('id',id) : await sb.from('gig_reviews').insert(row);
+  if(res.error){alert('Could not save: '+res.error.message);return;}
+  document.getElementById('review-modal').remove();
+  renderReviewsView();
+}
+
+async function deleteReview(id){
+  if(!confirm('Delete this review?'))return;
+  var res=await sb.from('gig_reviews').delete().eq('id',id);
+  if(res.error){alert('Could not delete: '+res.error.message);return;}
+  renderReviewsView();
 }
 
 async function renderGigsView(){

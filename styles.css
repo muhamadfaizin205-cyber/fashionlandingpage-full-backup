@@ -5125,3 +5125,26 @@ html {
 .fv-tags{display:flex;flex-wrap:wrap;gap:9px}
 .fv-tag{font-size:12.5px;color:var(--txt);border:1px solid var(--border);border-radius:100px;padding:7px 15px;transition:all .15s;cursor:default}
 .fv-tag:hover{border-color:var(--green);color:var(--green)}
+
+/* Review cards (real, owner-entered) */
+.fv-rev-list{margin-top:24px;display:flex;flex-direction:column;gap:18px}
+.fv-rev-card{border:1px solid var(--border);border-radius:12px;padding:18px}
+.fv-rev-card-head{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.fv-rev-av{width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
+.fv-rev-name{font-size:14px;font-weight:700;color:var(--txt-dark);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.fv-rev-repeat{font-size:10.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:3px}
+.fv-rev-loc{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:2px}
+.fv-rev-flag{font-size:13px}
+.fv-rev-card-stars{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-bottom:9px}
+.fv-rev-card-stars .fv-stars{color:#FFB33E}
+.fv-rev-body{font-size:13.5px;line-height:1.7;color:var(--txt);margin:0}
+.fv-rev-facts{display:flex;gap:26px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.fv-rev-facts>div{display:flex;flex-direction:column;gap:2px}
+.fv-rev-facts span{font-size:11px;color:var(--muted)}
+.fv-rev-facts b{font-size:13px;color:var(--txt-dark)}
+.fv-rev-resp{margin-top:14px;padding:12px 14px;background:var(--bg2);border-radius:10px}
+.fv-rev-resp b{font-size:12.5px;color:var(--txt-dark)}
+.fv-rev-resp p{font-size:13px;line-height:1.6;color:var(--txt);margin:5px 0 0}
+.fv-rev-more{margin-top:4px;align-self:flex-start;background:transparent;border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--txt-dark);cursor:pointer;transition:all .15s}
+.fv-rev-more:hover{border-color:var(--green);color:var(--green)}
+.fv-rev-empty{margin-top:18px;font-size:13px;color:var(--muted)}
