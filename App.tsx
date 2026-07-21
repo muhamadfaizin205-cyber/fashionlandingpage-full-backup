@@ -3655,7 +3655,6 @@ export default function App() {
             <div className="drawer-brand-card" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); setSelectedGigId(null); goTo(1,"back"); setDrawerOpen(false); window.scrollTo(0,0); }}>
               <div className="drawer-brand-txt">
                 <span className="drawer-brand-logo" role="img" aria-label="Dean Designers" />
-                <span className="drawer-brand-sub">Clothing &amp; Logo Studio</span>
               </div>
               <i className="ri-arrow-right-s-line drawer-brand-chev" />
             </div>
