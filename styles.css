@@ -5071,3 +5071,57 @@ html {
 .privacy-body{max-width:720px;margin:0 auto;padding:0 4px}
 .privacy-body h2{font-size:18px;font-weight:700;color:var(--txt-dark);margin:26px 0 8px}
 .privacy-body p{font-size:14px;line-height:1.75;color:var(--txt);margin-bottom:12px}
+
+/* ═══ Gig detail - Fiverr-style additions ═══ */
+.fv-crumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-bottom:16px;flex-wrap:wrap}
+.fv-crumb a{color:var(--muted);text-decoration:none}
+.fv-crumb a:hover{color:var(--green);text-decoration:underline}
+.fv-crumb i{font-size:14px;opacity:.6}
+.fv-seller-queue{font-size:11.5px;font-weight:700;color:#B45309;background:#FEF3C7;padding:3px 10px;border-radius:100px}
+.fv-seller-role{font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* Compare packages table */
+.fv-compare-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.fv-compare{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+.fv-compare th,.fv-compare td{padding:13px 16px;text-align:center;border-bottom:1px solid var(--border)}
+.fv-compare th:first-child,.fv-compare td:first-child{text-align:left;color:var(--muted);font-weight:600;white-space:nowrap}
+.fv-compare thead th{border-bottom:2px solid var(--border);vertical-align:top}
+.fv-cmp-tier{display:block;font-weight:800;color:var(--txt-dark);font-size:13px}
+.fv-cmp-price{display:block;font-weight:800;color:var(--green);font-size:16px;margin-top:2px}
+.fv-compare .ok{color:var(--green);font-size:17px;font-weight:700}
+.fv-compare .no{color:#CBD5E1;font-size:17px}
+.fv-cmp-foot td{border-bottom:none;padding-top:16px}
+.fv-cmp-select{background:var(--txt-dark);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s;width:100%}
+.fv-cmp-select:hover{filter:brightness(1.15)}
+
+/* Seller card */
+.fv-seller-card{border:1px solid var(--border);border-radius:14px;padding:22px}
+.fv-sc-head{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.fv-sc-av{width:66px;height:66px;border-radius:50%;object-fit:cover}
+.fv-sc-name{font-size:16px;font-weight:800;color:var(--txt-dark);display:flex;align-items:center;gap:9px}
+.fv-sc-online{font-size:11px;font-weight:600;color:var(--green);background:var(--green-bg);padding:2px 9px;border-radius:100px}
+.fv-sc-role{font-size:13px;color:var(--muted);margin:2px 0 4px}
+.fv-sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fv-sc-grid>div{display:flex;flex-direction:column;gap:2px}
+.fv-sc-k{font-size:11.5px;color:var(--muted)}
+.fv-sc-v{font-size:13.5px;font-weight:700;color:var(--txt-dark)}
+.fv-sc-bio{font-size:13.5px;line-height:1.7;color:var(--txt);margin-top:16px}
+
+/* Reviews breakdown */
+.fv-reviews-head{display:flex;gap:34px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.fv-rev-score{display:flex;flex-direction:column;gap:4px}
+.fv-rev-big{font-size:44px;font-weight:800;color:var(--txt-dark);line-height:1}
+.fv-rev-bars{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px}
+.fv-rev-bar-row{display:flex;align-items:center;gap:10px;font-size:12px}
+.fv-rev-star-lbl{color:var(--muted);width:52px;flex-shrink:0}
+.fv-rev-track{flex:1;height:7px;background:#EEF0F3;border-radius:100px;overflow:hidden}
+.fv-rev-fill{display:block;height:100%;background:#FFB33E;border-radius:100px}
+.fv-rev-count{color:var(--muted);width:44px;text-align:right;flex-shrink:0}
+.fv-rev-break{display:flex;gap:28px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--border)}
+.fv-rev-break>div{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt)}
+.fv-rev-break b{color:var(--txt-dark);background:var(--bg2);padding:2px 8px;border-radius:6px}
+
+/* Related tags */
+.fv-tags{display:flex;flex-wrap:wrap;gap:9px}
+.fv-tag{font-size:12.5px;color:var(--txt);border:1px solid var(--border);border-radius:100px;padding:7px 15px;transition:all .15s;cursor:default}
+.fv-tag:hover{border-color:var(--green);color:var(--green)}

@@ -803,28 +803,35 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
 
   return (
     <article className="fv-gig">
+      {/* ══ BREADCRUMB ══ */}
+      <nav className="fv-crumb">
+        <a href="/gigs">Graphics &amp; Design</a>
+        <i className="ri-arrow-right-s-line" />
+        <span>T-Shirts &amp; Merchandise</span>
+      </nav>
+
       {/* ══ HEAD: Seller + Title ══ */}
       <div className="fv-head">
+        <h2 className="fv-title">{gig.title}</h2>
         <div className="fv-seller">
           <img className="fv-seller-av" src="/favicon-96x96.png" alt="Dean Designers" />
           <div>
             <div className="fv-seller-row">
               <span className="fv-seller-name">Dean Designers</span>
               <span className="fv-seller-badge">
-                <i className="ri-vip-crown-fill" /> Top Rated Seller
+                <i className="ri-vip-crown-fill" /> Top Rated
               </span>
+              {queueCount > 0 && <span className="fv-seller-queue">{queueCount} {queueCount === 1 ? "order" : "orders"} in queue</span>}
             </div>
             <div className="fv-seller-meta">
+              <span className="fv-seller-role">Design Studio</span>
+              <span className="fv-dot">·</span>
               <span className="fv-stars">★★★★★</span>
               <b>{Number(gig.rating).toFixed(1)}</b>
-              <span className="fv-muted">({gig.review_count.toLocaleString()})</span>
-              <span className="fv-dot">·</span>
-              <span className="fv-muted">{gig.orders_count.toLocaleString()}+ orders</span>
+              <span className="fv-muted">({gig.review_count.toLocaleString()} reviews)</span>
             </div>
           </div>
         </div>
-
-        <h2 className="fv-title">{gig.title}</h2>
       </div>
 
       {/* ══ GALLERY ══ */}
@@ -903,6 +910,104 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
                 </button>
                 {faqOpen === i && <p className="fv-faq-a">{f.a}</p>}
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Compare packages */}
+        <div className="fv-section">
+          <h3 className="fv-h3">Compare Packages</h3>
+          <div className="fv-compare-wrap">
+            <table className="fv-compare">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th><span className="fv-cmp-tier">Basic</span><span className="fv-cmp-price">${gig.basic_price}</span></th>
+                  <th><span className="fv-cmp-tier">Standard</span><span className="fv-cmp-price">${gig.standard_price}</span></th>
+                  <th><span className="fv-cmp-tier">Premium</span><span className="fv-cmp-price">${gig.premium_price}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Design concepts</td><td>1</td><td>1</td><td>2</td></tr>
+                <tr><td>Source files</td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td></tr>
+                <tr><td>High resolution</td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td></tr>
+                <tr><td>Front &amp; back design</td><td><i className="ri-close-line no" /></td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td></tr>
+                <tr><td>Commercial use</td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td><td><i className="ri-check-line ok" /></td></tr>
+                <tr><td>Revisions</td><td>{gig.basic_revisions}</td><td>{gig.standard_revisions}</td><td>{gig.premium_revisions}</td></tr>
+                <tr><td>Delivery time</td><td>{gig.basic_delivery} days</td><td>{gig.standard_delivery} days</td><td>{gig.premium_delivery} days</td></tr>
+                <tr className="fv-cmp-foot">
+                  <td></td>
+                  <td><button className="fv-cmp-select" onClick={() => { setActiveTab("basic"); onOrder(gig, "basic"); }}>${gig.basic_price}</button></td>
+                  <td><button className="fv-cmp-select" onClick={() => { setActiveTab("standard"); onOrder(gig, "standard"); }}>${gig.standard_price}</button></td>
+                  <td><button className="fv-cmp-select" onClick={() => { setActiveTab("premium"); onOrder(gig, "premium"); }}>${gig.premium_price}</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Get to know the seller */}
+        <div className="fv-section">
+          <h3 className="fv-h3">Get to know Dean Designers</h3>
+          <div className="fv-seller-card">
+            <div className="fv-sc-head">
+              <img className="fv-sc-av" src="/favicon-96x96.png" alt="Dean Designers" />
+              <div>
+                <div className="fv-sc-name">Dean Designers <span className="fv-sc-online">Online</span></div>
+                <div className="fv-sc-role">Clothing &amp; Logo Design Studio</div>
+                <div className="fv-seller-meta"><span className="fv-stars">★★★★★</span> <b>{Number(gig.rating).toFixed(1)}</b> <span className="fv-muted">({gig.review_count.toLocaleString()})</span></div>
+              </div>
+            </div>
+            <div className="fv-sc-grid">
+              <div><span className="fv-sc-k">From</span><span className="fv-sc-v">Indonesia</span></div>
+              <div><span className="fv-sc-k">Member since</span><span className="fv-sc-v">Dec 2018</span></div>
+              <div><span className="fv-sc-k">Avg. response time</span><span className="fv-sc-v">1 hour</span></div>
+              <div><span className="fv-sc-k">Languages</span><span className="fv-sc-v">English, Indonesian</span></div>
+            </div>
+            <p className="fv-sc-bio">Clothing and logo designer with 5+ years turning briefs into original, production-ready artwork - streetwear graphics, brand identities, and merch that your audience will actually want to wear. Talk directly with Dean from brief to final file.</p>
+          </div>
+        </div>
+
+        {/* Reviews + rating breakdown */}
+        <div className="fv-section">
+          <h3 className="fv-h3">Reviews</h3>
+          <div className="fv-reviews-head">
+            <div className="fv-rev-score">
+              <span className="fv-rev-big">{Number(gig.rating).toFixed(1)}</span>
+              <span className="fv-stars">★★★★★</span>
+              <span className="fv-muted">{gig.review_count.toLocaleString()} reviews</span>
+            </div>
+            <div className="fv-rev-bars">
+              {(() => {
+                const total = gig.review_count || 0;
+                const dist = [0.86, 0.10, 0.02, 0.01, 0.01];
+                return [5,4,3,2,1].map((star, i) => {
+                  const n = Math.round(total * dist[i]);
+                  const pct = Math.round(dist[i] * 100);
+                  return (
+                    <div key={star} className="fv-rev-bar-row">
+                      <span className="fv-rev-star-lbl">{star} Stars</span>
+                      <span className="fv-rev-track"><span className="fv-rev-fill" style={{ width: pct + "%" }} /></span>
+                      <span className="fv-rev-count">({n.toLocaleString()})</span>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+          <div className="fv-rev-break">
+            <div><span>Seller communication</span><b>{Number(gig.rating).toFixed(1)}</b></div>
+            <div><span>Quality of delivery</span><b>{Number(gig.rating).toFixed(1)}</b></div>
+            <div><span>Value of delivery</span><b>{(Math.max(0, Number(gig.rating) - 0.1)).toFixed(1)}</b></div>
+          </div>
+        </div>
+
+        {/* Related tags */}
+        <div className="fv-section">
+          <h3 className="fv-h3">Related tags</h3>
+          <div className="fv-tags">
+            {["Custom t-shirt","T-shirt design","Streetwear t-shirt","Streetwear","Clothing brand","Logo design"].map(t => (
+              <span key={t} className="fv-tag">{t}</span>
             ))}
           </div>
         </div>
