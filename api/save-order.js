@@ -9,6 +9,50 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
+  // ── Geo enrichment (marketing analytics) ──
+  // Reads Vercel's edge geo headers + caller IP, which the browser can
+  // never see itself, and writes them onto the visitor's session. Only
+  // called by the client AFTER the visitor accepts analytics consent.
+  if (req.body && req.body.kind === 'geo_enrich') {
+    const sid = req.body.session_id;
+    if (!sid) return res.status(400).json({ error: 'no session' });
+    const h = req.headers;
+    // GDPR: truncate the IP (drop the last IPv4 octet / IPv6 suffix) so
+    // it locates a city, not a person.
+    const rawIp = (h['x-forwarded-for'] || h['x-real-ip'] || '').toString().split(',')[0].trim();
+    let ip = '';
+    if (rawIp.includes('.')) { const p = rawIp.split('.'); p[3] = '0'; ip = p.join('.'); }
+    else if (rawIp.includes(':')) { ip = rawIp.split(':').slice(0, 3).join(':') + '::'; }
+    const country = (h['x-vercel-ip-country'] || '').toString();
+    const region  = (h['x-vercel-ip-country-region'] || '').toString();
+    let city = '';
+    try { city = decodeURIComponent((h['x-vercel-ip-city'] || '').toString()); } catch { city = ''; }
+
+    const patch = {
+      session_id: sid,
+      ip, country, region, city,
+      browser: req.body.browser || '',
+      os: req.body.os || '',
+      device_model: req.body.device_model || '',
+      consent: true,
+    };
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/visitor_sessions?on_conflict=session_id`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+        },
+        body: JSON.stringify(patch),
+      });
+      return res.status(200).json({ ok: true, country, region, city });
+    } catch (e) {
+      return res.status(200).json({ ok: false });
+    }
+  }
+
   const { orderData, capturedAmount } = req.body || {};
   if (!orderData || !orderData.email) {
     return res.status(400).json({ error: 'Missing orderData.email' });

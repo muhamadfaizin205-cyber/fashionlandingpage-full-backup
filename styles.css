@@ -5054,3 +5054,20 @@ html {
   .fv-pp-steps li { font-size: 13px; }
   .fv-pp-outcome { font-size: 12px; }
 }
+
+/* ═══ Consent banner (GDPR/CCPA) ═══ */
+.consent-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:900;max-width:560px;margin:0 auto;background:#10151F;color:#E5E7EB;border:1px solid rgba(231,210,168,.2);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.consent-text{font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.72)}
+.consent-link{background:none;border:none;color:#E7D2A8;font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0}
+.consent-actions{display:flex;gap:9px;justify-content:flex-end}
+.consent-btn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid transparent;transition:all .15s}
+.consent-btn.ghost{background:transparent;border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.75)}
+.consent-btn.ghost:hover{background:rgba(255,255,255,.06)}
+.consent-btn.accept{background:#E7D2A8;color:#1a1200}
+.consent-btn.accept:hover{filter:brightness(1.05)}
+@media(min-width:640px){.consent-banner{flex-direction:row;align-items:center;justify-content:space-between}.consent-actions{flex-shrink:0}}
+
+/* Privacy page */
+.privacy-body{max-width:720px;margin:0 auto;padding:0 4px}
+.privacy-body h2{font-size:18px;font-weight:700;color:var(--txt-dark);margin:26px 0 8px}
+.privacy-body p{font-size:14px;line-height:1.75;color:var(--txt);margin-bottom:12px}

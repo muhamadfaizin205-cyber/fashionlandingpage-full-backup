@@ -4,7 +4,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import emailjs from "@emailjs/browser";
 import { createClient } from "@supabase/supabase-js";
 import { ChatWidget } from "./ChatWidget";
-import { track, initAnalytics } from "./analytics";
+import { track, initAnalytics, hasAnalyticsConsent, setAnalyticsConsent } from "./analytics";
 
 // ─── PayPal Client ID ─────────────────────────────────────
 const PAYPAL_CLIENT_ID =
@@ -3001,6 +3001,32 @@ const FEATURE_ITEMS = [
   { icon: "ri-emotion-happy-line", title: "Only pay when happy",     sub: "100% money-back guarantee on every order" },
 ];
 
+// ── Cookie / analytics consent banner (GDPR + CCPA) ──
+// Shows once until the visitor chooses. Accept turns on geo/IP
+// enrichment; Decline leaves only anonymous counting.
+function ConsentBanner({ onPrivacy }: { onPrivacy: () => void }) {
+  const [choice, setChoice] = useState<string | null>(() => {
+    try { return localStorage.getItem("dd_consent"); } catch { return "granted"; }
+  });
+  if (choice) return null;
+  const decide = (granted: boolean) => {
+    setAnalyticsConsent(granted);
+    setChoice(granted ? "granted" : "denied");
+  };
+  return (
+    <div className="consent-banner" role="dialog" aria-label="Privacy consent">
+      <div className="consent-text">
+        We use cookies and collect basic analytics (approximate location, device, and pages viewed) to improve our service. Your IP is stored truncated and never sold.{" "}
+        <button className="consent-link" onClick={onPrivacy}>Privacy Policy</button>
+      </div>
+      <div className="consent-actions">
+        <button className="consent-btn ghost" onClick={() => decide(false)}>Decline</button>
+        <button className="consent-btn accept" onClick={() => decide(true)}>Accept</button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
 
   // ── Dynamic packages from DB (fallback to hardcoded) ────
@@ -3824,6 +3850,28 @@ export default function App() {
         </section>
       )}
 
+      {currentPage === "privacy" && (
+        <section className="about-page privacy-page">
+          <div className="about-page-head">
+            <h1 className="about-page-title">Privacy Policy</h1>
+            <p className="about-page-sub">How Dean Designers handles your data. Last updated July 2026.</p>
+          </div>
+          <div className="privacy-body">
+            <h2>What we collect</h2>
+            <p>When you accept analytics, we record: the pages you view, your device type, browser and operating system, an approximate location (country, region and city derived from your IP address), and a <strong>truncated</strong> IP address. Truncated means the final part is removed, so it points to a city rather than to you personally.</p>
+            <p>If you place an order we also store what you provide: your email, contact handle, brand name, brief and payment amount.</p>
+            <h2>What we do not do</h2>
+            <p>We do not sell your data. We do not store full IP addresses. We do not track your precise GPS location unless you explicitly allow it. We do not use your data for anything beyond running and improving this service.</p>
+            <h2>Your consent and choices</h2>
+            <p>Analytics only runs after you accept it in the banner. If you decline, we keep only anonymous, aggregate counts with no location or IP. You can change your mind any time by clearing this site's data in your browser, which resets the banner.</p>
+            <h2>Legal basis</h2>
+            <p>We rely on your consent (GDPR Art. 6(1)(a)) for analytics, and on contract necessity for order data. Under GDPR and CCPA you may request access to, or deletion of, your data.</p>
+            <h2>Contact</h2>
+            <p>For any data request, email <strong>deanstudio16@gmail.com</strong>.</p>
+          </div>
+        </section>
+      )}
+
       {/* WIZARD */}
       {currentPage === "home" && (
       <>
@@ -4039,12 +4087,13 @@ export default function App() {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} Dean Designers - createclothingdesign.com · Professional Streetwear & Logo Design Studio</p>
+            <p>© {new Date().getFullYear()} Dean Designers - createclothingdesign.com · Professional Streetwear & Logo Design Studio · <a href="/privacy" onClick={(e) => { e.preventDefault(); setCurrentPage("privacy"); window.scrollTo(0,0); }} className="footer-link" style={{display:"inline"}}>Privacy Policy</a></p>
           </div>
         </footer>
       )}
       </>
       )}
+      <ConsentBanner onPrivacy={() => { setCurrentPage("privacy"); window.scrollTo(0,0); }} />
     </div>
   );
 }

@@ -72,6 +72,70 @@ function getDevice(): string {
   return "desktop";
 }
 
+// Parse browser / OS / phone model from the user-agent. The UA is a
+// coarse signal - it gives "Chrome on Android 14", and only some
+// phones expose a model code (e.g. SM-S911B). It is NOT a precise
+// device fingerprint, and that's fine for marketing rollups.
+function parseUA() {
+  const ua = navigator.userAgent || "";
+  let browser = "Other";
+  if (/Edg\//.test(ua)) browser = "Edge";
+  else if (/OPR\/|Opera/.test(ua)) browser = "Opera";
+  else if (/SamsungBrowser/.test(ua)) browser = "Samsung Internet";
+  else if (/Chrome\//.test(ua)) browser = "Chrome";
+  else if (/Firefox\//.test(ua)) browser = "Firefox";
+  else if (/Safari\//.test(ua) && /Version\//.test(ua)) browser = "Safari";
+
+  let os = "Other";
+  let m;
+  if ((m = ua.match(/Android[ /]([\d.]+)/))) os = "Android " + m[1];
+  else if (/iPhone|iPad|iPod/.test(ua)) { m = ua.match(/OS ([\d_]+)/); os = "iOS" + (m ? " " + m[1].replace(/_/g, ".") : ""); }
+  else if (/Windows NT 10/.test(ua)) os = "Windows 10/11";
+  else if (/Windows/.test(ua)) os = "Windows";
+  else if (/Mac OS X/.test(ua)) os = "macOS";
+  else if (/Linux/.test(ua)) os = "Linux";
+
+  // Phone model, where the UA carries one (mostly Android)
+  let model = "";
+  if ((m = ua.match(/;\s*([A-Z]{2}[A-Z0-9-]{3,});?\s*(?:Build|\))/))) model = m[1];
+  else if (/iPhone/.test(ua)) model = "iPhone";
+  else if (/iPad/.test(ua)) model = "iPad";
+
+  return { browser, os, model };
+}
+
+// Consent: enrichment (IP/geo) only runs once the visitor opts in.
+export function hasAnalyticsConsent(): boolean {
+  try { return localStorage.getItem("dd_consent") === "granted"; } catch { return false; }
+}
+export function setAnalyticsConsent(granted: boolean) {
+  try { localStorage.setItem("dd_consent", granted ? "granted" : "denied"); } catch {}
+  if (granted) enrichGeoOnce();
+}
+
+// Ask the server (which can see the IP + Vercel geo headers) to stamp
+// this session with country/city/device. Runs at most once per session.
+let enriched = false;
+async function enrichGeoOnce() {
+  if (enriched || !hasAnalyticsConsent()) return;
+  enriched = true;
+  try {
+    const { browser, os, model } = parseUA();
+    await fetch("/api/save-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: "geo_enrich",
+        session_id: getSessionId(),
+        browser, os, device_model: model,
+      }),
+    });
+  } catch {
+    // never break the site over analytics
+  }
+}
+
+
 function getUtm(): string {
   try {
     const p = new URLSearchParams(window.location.search);
@@ -131,6 +195,9 @@ export function initAnalytics() {
   if (typeof window === "undefined") return;
   if (initialised) return;          // never fire twice in one page load
   initialised = true;
+
+  // If the visitor already accepted analytics on a past visit, enrich now.
+  if (hasAnalyticsConsent()) enrichGeoOnce();
 
   // Only count a page_view once per session, not on every reload
   const sid = getSessionId();

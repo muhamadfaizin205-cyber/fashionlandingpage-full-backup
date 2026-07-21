@@ -4535,11 +4535,13 @@ async function renderAnalyticsView(silent){
   h+='</div>';
   h+='</div>';
 
+  h+='<!--GEO_SLOT-->';
+
   // ── RECENT SESSIONS ──
   h+='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px">';
   h+='<h3 style="font-size:14px;font-weight:700;margin:0 0 12px;color:#F1F5F9">Recent Visitors</h3>';
   h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
-  h+='<tr style="color:#64748B;text-align:left"><th style="padding:6px 8px;font-weight:600">When</th><th style="padding:6px 8px;font-weight:600">Source</th><th style="padding:6px 8px;font-weight:600">Device</th><th style="padding:6px 8px;font-weight:600">Got to</th><th style="padding:6px 8px;font-weight:600">Time</th><th style="padding:6px 8px;font-weight:600">Result</th></tr>';
+  h+='<tr style="color:#64748B;text-align:left"><th style="padding:6px 8px;font-weight:600">When</th><th style="padding:6px 8px;font-weight:600">Source</th><th style="padding:6px 8px;font-weight:600">Location</th><th style="padding:6px 8px;font-weight:600">Device</th><th style="padding:6px 8px;font-weight:600">Got to</th><th style="padding:6px 8px;font-weight:600">Time</th><th style="padding:6px 8px;font-weight:600">Result</th></tr>';
 
   var STEPN={0:'Just landed',1:'Service',2:'Brand name',3:'Quantity',4:'Brief',5:'Package',6:'Payment',7:'PAID'};
   sessions.slice(0,30).forEach(function(s){
@@ -4554,13 +4556,46 @@ async function renderAnalyticsView(silent){
     h+='<tr style="border-top:1px solid rgba(255,255,255,.05);color:#CBD5E1">'+
        '<td style="padding:8px">'+ago+'</td>'+
        '<td style="padding:8px">'+esc(srcv)+'</td>'+
-       '<td style="padding:8px;text-transform:capitalize">'+esc(s.device||'-')+'</td>'+
+       '<td style="padding:8px;color:#CBD5E1">'+((s.city||s.country)?esc([s.city,s.country].filter(Boolean).join(', ')):'<span style="color:#475569">-</span>')+'</td>'+
+       '<td style="padding:8px;text-transform:capitalize">'+esc(s.device||'-')+((s.os||s.browser)?'<div style="font-size:10px;color:#64748B;text-transform:none">'+esc([s.browser,s.os].filter(Boolean).join(' · '))+'</div>':'')+'</td>'+
        '<td style="padding:8px"><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:'+(st>=6?'rgba(29,191,115,.12)':st>=4?'rgba(96,165,250,.12)':'rgba(255,255,255,.06)')+';color:'+(st>=6?'#1DBF73':st>=4?'#60A5FA':'#94A3B8')+'">'+(STEPN[st]||st)+'</span></td>'+
        '<td style="padding:8px;color:'+(dur<15?'#F87171':'#94A3B8')+'">'+Math.floor(dur/60)+'m '+(dur%60)+'s</td>'+
        '<td style="padding:8px">'+(s.converted?'<span style="color:#1DBF73;font-weight:700">Ordered</span>':'<span style="color:#64748B">Left</span>')+'</td>'+
        '</tr>';
   });
   h+='</table></div></div>';
+
+  // ── Geo + device breakdown (from consented, enriched sessions) ──
+  var enriched=sessions.filter(function(s){return s.country||s.city||s.browser;});
+  function tally(arr,key,fmt){
+    var m={},tot=0;
+    arr.forEach(function(s){var v=(s[key]||'').trim();if(!v)return;m[v]=(m[v]||0)+1;tot++;});
+    var rows=Object.keys(m).map(function(k){return {k:k,n:m[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,8);
+    if(!rows.length)return '<div style="color:#475569;font-size:12.5px;padding:6px 0">No data yet</div>';
+    return rows.map(function(r){
+      var pct=Math.round(r.n/tot*100);
+      return '<div style="margin-bottom:9px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#CBD5E1;margin-bottom:3px"><span>'+(fmt?fmt(r.k):esc(r.k))+'</span><b style="color:#94A3B8">'+r.n+' · '+pct+'%</b></div>'+
+        '<div style="height:5px;border-radius:100px;background:rgba(255,255,255,.06)"><div style="height:100%;width:'+pct+'%;border-radius:100px;background:#E7D2A8"></div></div>'+
+      '</div>';
+    }).join('');
+  }
+  function flag(cc){cc=(cc||'').toUpperCase();if(cc.length!==2)return cc;return String.fromCodePoint(...[...cc].map(function(c){return 127397+c.charCodeAt(0);}))+' '+cc;}
+
+  var geo='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:20px">'+
+    '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 18px">'+
+      '<div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px"><i class="ri-earth-line"></i> Top countries</div>'+tally(enriched,'country',flag)+'</div>'+
+    '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 18px">'+
+      '<div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px"><i class="ri-map-pin-line"></i> Top cities</div>'+tally(enriched,'city')+'</div>'+
+    '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 18px">'+
+      '<div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px"><i class="ri-global-line"></i> Browsers</div>'+tally(enriched,'browser')+'</div>'+
+    '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 18px">'+
+      '<div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px"><i class="ri-smartphone-line"></i> Operating systems</div>'+tally(enriched,'os')+'</div>'+
+    '</div>';
+  if(!enriched.length){
+    geo='<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px;margin-bottom:20px;color:#64748B;font-size:13px;line-height:1.6"><b style="color:#94A3B8">Geo &amp; device data will appear once visitors accept analytics.</b><br>Run <b>visitor-geo-migration.sql</b> in Supabase if you have not yet, then wait for consented visits.</div>';
+  }
+  h=h.replace('<!--GEO_SLOT-->', geo);
 
   el.innerHTML=h;
 }
