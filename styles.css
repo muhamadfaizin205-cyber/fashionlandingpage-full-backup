@@ -2345,9 +2345,9 @@ textarea.brief-ta:focus {
    GUARANTEE SECTION
    ════════════════════════════════ */
 .guarantee-section {
-  background: #0D1117;
+  background: var(--bg2);
   padding: 64px 24px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border);
 }
 .guarantee-inner {
   max-width: 900px;
@@ -2357,7 +2357,7 @@ textarea.brief-ta:focus {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--txt-dark);
   text-align: center;
   margin-bottom: 32px;
   letter-spacing: -0.3px;
@@ -2371,8 +2371,8 @@ textarea.brief-ta:focus {
   .guarantee-grid { grid-template-columns: 1fr; }
 }
 .g-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 0;
   padding: 24px;
   display: flex;
@@ -2380,7 +2380,6 @@ textarea.brief-ta:focus {
   gap: 8px;
   transition: all 0.25s;
 }
-.g-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.14); }
 .g-card:hover {
   border-color: var(--green-bdr);
   box-shadow: var(--shadow-md);
@@ -2389,8 +2388,8 @@ textarea.brief-ta:focus {
   width: 40px;
   height: 40px;
   border-radius: 0;
-  background: rgba(255,255,255,0.08);
-  color: #FFFFFF;
+  background: var(--green-bg);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2399,11 +2398,11 @@ textarea.brief-ta:focus {
 .g-card strong {
   font-size: 14px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--txt-dark);
 }
 .g-card p {
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
+  color: var(--muted);
   line-height: 1.6;
   margin: 0;
 }
@@ -4278,7 +4277,7 @@ html {
 .fv-banner {
   max-width: 1072px;
   margin: 0 auto 56px;
-  background: #0A2E1C;
+  background: #0D1117;
   border-radius: 14px;
   padding: 34px 32px;
   color: #fff;
@@ -4295,7 +4294,7 @@ html {
   right: -8%;
   width: 320px;
   height: 320px;
-  background: radial-gradient(circle, rgba(29,191,115,.16) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -4347,7 +4346,7 @@ html {
   position: absolute;
   left: 0;
   top: 0;
-  color: var(--green);
+  color: #FFFFFF;
   font-weight: 800;
   font-size: 15px;
 }
