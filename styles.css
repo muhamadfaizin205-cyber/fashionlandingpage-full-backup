@@ -4583,6 +4583,12 @@ html {
   0%, 64%   { background-position: 200% 0; }
   93%, 100% { background-position: -100% 0; }
 }
+/* Transform-driven shine for the image/mask logos - reliable on mobile
+   where an animated background-position over a CSS mask can freeze. */
+@keyframes logoShine {
+  0%, 62%   { transform: translateX(-180%) skewX(-10deg); }
+  90%, 100% { transform: translateX(320%) skewX(-10deg); }
+}
 .nav-logo:hover .nav-logo-3d {
   filter:
     drop-shadow(0 1px 0 #9A7226)
@@ -4604,6 +4610,7 @@ html {
   background: linear-gradient(176deg,#FFFBEA 0%,#FFF0BC 12%,#F3D172 27%,#DCAF44 42%,#C2902C 52%,#DCAF44 62%,#F0C85F 78%,#FFF0BC 92%,#FFFCF0 100%);
   -webkit-mask: url(/logo-dean.png) center / contain no-repeat;
   mask: url(/logo-dean.png) center / contain no-repeat;
+  overflow: hidden;
   filter:
     drop-shadow(0 1px 0 #9A7226)
     drop-shadow(0 1.5px 0 #7E5B1B)
@@ -4611,17 +4618,21 @@ html {
     drop-shadow(0 4px 7px rgba(45,32,6,.2));
   transition: filter .3s ease;
 }
+/* Shine: a bright diagonal band moved with transform (GPU-composited,
+   so it never freezes the way an animated background-position over a
+   mask does on mobile Chrome). The parent's mask + overflow:hidden clip
+   the band to the logo shape. */
 .nav-logo-mark::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(104deg,transparent 41%,rgba(255,255,255,.5) 47%,rgba(255,255,255,.92) 50%,rgba(255,255,255,.5) 53%,transparent 59%);
-  background-size: 300% 100%;
-  background-position: 200% 0;
-  -webkit-mask: url(/logo-dean.png) center / contain no-repeat;
-  mask: url(/logo-dean.png) center / contain no-repeat;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(104deg,transparent 0%,rgba(255,255,255,.55) 42%,rgba(255,255,255,.95) 50%,rgba(255,255,255,.55) 58%,transparent 100%);
+  transform: translateX(-180%) skewX(-10deg);
+  animation: logoShine 5.5s ease-in-out infinite;
   pointer-events: none;
-  animation: goldSweep 5.5s ease-in-out infinite;
 }
 .nav-logo:hover .nav-logo-mark {
   filter:
@@ -4641,6 +4652,9 @@ html {
   position: relative;
   display: inline-block;
   line-height: 0;
+  overflow: hidden;
+  -webkit-mask: var(--logo-src) center / contain no-repeat;
+  mask: var(--logo-src) center / contain no-repeat;
   filter: drop-shadow(0 2px 4px rgba(45,32,6,.22));
   transition: filter .3s ease;
 }
@@ -4653,26 +4667,14 @@ html {
 .nav-logo-img::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 42%;
   pointer-events: none;
-  background: linear-gradient(104deg,
-    transparent 41%,
-    rgba(255,255,255,.45) 47%,
-    rgba(255,255,255,.85) 50%,
-    rgba(255,255,255,.45) 53%,
-    transparent 59%);
-  background-size: 300% 100%;
-  background-position: 200% 0;
-  /* Clip the highlight to the logo artwork */
-  -webkit-mask-image: var(--logo-src);
-  mask-image: var(--logo-src);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  animation: goldSweep 5.5s ease-in-out infinite;
+  background: linear-gradient(104deg,transparent 0%,rgba(255,255,255,.5) 42%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.5) 58%,transparent 100%);
+  transform: translateX(-180%) skewX(-10deg);
+  animation: logoShine 5.5s ease-in-out infinite;
 }
 .nav-logo:hover .nav-logo-img {
   filter: drop-shadow(0 3px 8px rgba(45,32,6,.32));
