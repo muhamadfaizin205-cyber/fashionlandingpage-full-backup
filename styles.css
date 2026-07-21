@@ -170,26 +170,30 @@ body {
 
 /* Drawer */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;animation:drawerFadeIn .2s}
-.drawer{position:absolute;left:0;top:0;bottom:0;width:290px;background:#08080A;display:flex;flex-direction:column;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1);border-radius:0 20px 20px 0;overflow:hidden}
-/* RGB-cycling gradient behind the content (like PC RGB lighting). It
-   lives on a ::before layer and hue-rotates through the full spectrum,
-   so the text and logo above keep their own colours. Kept soft so dark
-   labels stay readable. */
+.drawer{position:absolute;left:0;top:0;bottom:0;width:290px;background:#000;display:flex;flex-direction:column;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1);border-radius:0 20px 20px 0;overflow:hidden}
+/* Luxury black gradient: deep pure black with pronounced graphite/
+   silver highlights that flow. Higher contrast than before so the
+   movement is clearly felt. */
 .drawer::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:linear-gradient(135deg,#050506 0%,#161619 20%,#2b2b31 40%,#3a3a41 50%,#232328 64%,#121215 82%,#050506 100%);
-  background-size:320% 320%;opacity:1;
-  animation:drawerGradient 13s ease-in-out infinite}
-/* soft top sheen for a polished, luxury feel */
-.drawer::after{content:"";position:absolute;top:0;left:0;right:0;height:180px;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.06),transparent)}
+  background:linear-gradient(135deg,#000 0%,#0a0a0c 14%,#26262d 34%,#4a4a54 50%,#26262d 66%,#0a0a0c 86%,#000 100%);
+  background-size:340% 340%;opacity:1;
+  animation:drawerGradient 11s ease-in-out infinite}
+/* A slow diagonal light sweep for a polished, metallic sheen */
+.drawer::after{content:"";position:absolute;top:-30%;bottom:-30%;left:-40%;width:45%;z-index:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,.10) 45%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.10) 55%,transparent 100%);
+  transform:skewX(-12deg);
+  animation:drawerSheen 7s ease-in-out infinite}
+@keyframes drawerGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes drawerSheen{0%,100%{transform:translateX(-40%) skewX(-12deg)}50%{transform:translateX(560%) skewX(-12deg)}}
 .drawer-brand-card,.drawer-items,.drawer-close{position:relative;z-index:1}
 @keyframes drawerGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes drawerHue{to{filter:hue-rotate(360deg)}}
 @keyframes drawerFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes drawerSlideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 /* Brand header card */
-.drawer-brand-card{display:flex;align-items:center;gap:12px;padding:24px 16px 14px;cursor:pointer}
-/* Black wordmark logo (PNG silhouette masked in near-black) */
-.drawer-brand-logo{display:block;height:32px;width:190px;max-width:100%;background:#fff;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
+.drawer-brand-card{display:flex;align-items:center;gap:12px;padding:26px 56px 16px 16px;cursor:pointer}
+/* White wordmark logo (PNG silhouette masked in white) */
+.drawer-brand-logo{display:block;height:40px;width:210px;max-width:100%;background:#fff;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
 .drawer-brand-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .drawer-brand-name{font-size:16px;font-weight:800;color:#14171F;letter-spacing:-.3px}
 .drawer-brand-sub{font-size:12px;color:#9AA0AE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
