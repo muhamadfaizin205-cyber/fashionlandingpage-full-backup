@@ -174,7 +174,9 @@ body {
 @keyframes drawerFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes drawerSlideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 .drawer-head{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(0,0,0,0.06)}
-.drawer-brand{font-size:15px;font-weight:800;color:#fff;flex:1;letter-spacing:-0.3px}
+.drawer-brand{font-size:15px;font-weight:800;color:#fff;flex:1;letter-spacing:-0.3px;display:flex;align-items:center}
+/* White logo (PNG silhouette masked over white) for the dark drawer */
+.drawer-logo{display:inline-block;height:26px;aspect-ratio:753/244;background:#fff;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
 .drawer-close{background:rgba(255,255,255,0.1);border:none;color:#94A3B8;width:30px;height:30px;border-radius: 0;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .drawer-close:hover{background:rgba(255,255,255,0.15);color:#fff}
 .drawer-items{padding:12px;flex:1;overflow-y:auto}

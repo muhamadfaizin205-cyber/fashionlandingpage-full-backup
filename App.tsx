@@ -3650,7 +3650,7 @@ export default function App() {
         <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
-              <span className="drawer-brand">Dean <span style={{color:"#1DBF73"}}>Designers</span></span>
+              <span className="drawer-brand"><span className="drawer-logo" role="img" aria-label="Dean Designers" /></span>
               <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
             </div>
             <div className="drawer-items">
