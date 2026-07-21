@@ -170,18 +170,32 @@ body {
 
 /* Drawer */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;animation:drawerFadeIn .2s}
-.drawer{position:absolute;left:0;top:0;bottom:0;width:280px;background:#0F1419;display:flex;flex-direction:column;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1)}
+.drawer{position:absolute;left:0;top:0;bottom:0;width:290px;background:linear-gradient(180deg,#FCFCFE 0%,#F4F3FB 100%);display:flex;flex-direction:column;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1);border-radius:0 20px 20px 0;overflow:hidden}
 @keyframes drawerFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes drawerSlideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-.drawer-head{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(0,0,0,0.06)}
+/* Brand header card */
+.drawer-brand-card{display:flex;align-items:center;gap:12px;padding:20px 16px 14px;cursor:pointer}
+.drawer-brand-icon{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1DBF73,#0E9F63);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bodoni Moda',serif;font-weight:700;font-size:24px;flex-shrink:0;box-shadow:0 6px 16px rgba(29,191,115,.28)}
+.drawer-brand-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.drawer-brand-name{font-size:16px;font-weight:800;color:#14171F;letter-spacing:-.3px}
+.drawer-brand-sub{font-size:12px;color:#9AA0AE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer-brand-chev{font-size:22px;color:#C6C9D4;flex-shrink:0}
 .drawer-brand{font-size:15px;font-weight:800;color:#fff;flex:1;letter-spacing:-0.3px;display:flex;align-items:center}
 /* White logo (PNG silhouette masked over white) for the dark drawer */
 .drawer-logo{display:inline-block;height:26px;aspect-ratio:753/244;background:#fff;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
-.drawer-close{background:rgba(255,255,255,0.1);border:none;color:#94A3B8;width:30px;height:30px;border-radius: 0;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.drawer-close{position:absolute;top:14px;right:14px;background:#fff;border:1px solid #ECECF3;color:#8A90A0;width:32px;height:32px;border-radius:50%;font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.05)}
 .drawer-close:hover{background:rgba(255,255,255,0.15);color:#fff}
-.drawer-items{padding:12px;flex:1;overflow-y:auto}
-.drawer-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius: 0;color:#E2E8F0;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:4px;transition:all .12s}
-.drawer-item:hover{background:rgba(29,191,115,0.12);color:#1DBF73}
+.drawer-items{padding:6px 12px 18px;flex:1;overflow-y:auto}
+.drawer-sec{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#AEB2C0;padding:16px 14px 7px}
+.drawer-item{position:relative;display:flex;align-items:center;gap:15px;padding:13px 14px;border-radius:12px;color:#5A6072;font-size:15px;font-weight:500;text-decoration:none;margin-bottom:2px;transition:all .13s}
+.drawer-item i{font-size:20px;color:#9096A6;transition:color .13s}
+.drawer-item:hover{background:rgba(20,23,31,.04);color:#14171F}
+.drawer-item:hover i{color:#5A6072}
+/* Active: bold dark label, tinted pill, tinted icon, and a left accent
+   bar pinned to the drawer edge - the reference's signature. */
+.drawer-item.active{color:#14171F;font-weight:700;background:rgba(29,191,115,.09)}
+.drawer-item.active i{color:#1DBF73}
+.drawer-item.active::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:4px;height:26px;border-radius:0 4px 4px 0;background:#1DBF73}
 .drawer-item:active{background:linear-gradient(135deg,#1DBF73,#17B169);color:#fff;box-shadow:0 4px 14px rgba(29,191,115,0.25)}
 .drawer-divider{height:1px;background:rgba(0,0,0,0.06);margin:12px 8px}
 

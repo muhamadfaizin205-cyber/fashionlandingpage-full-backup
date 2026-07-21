@@ -3649,19 +3649,25 @@ export default function App() {
       {drawerOpen && (
         <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
-            <div className="drawer-head">
-              <span className="drawer-brand"><span className="drawer-logo" role="img" aria-label="Dean Designers" /></span>
-              <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
+            <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
+
+            {/* Brand header: icon + name + subtitle + chevron */}
+            <div className="drawer-brand-card" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); setSelectedGigId(null); goTo(1,"back"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+              <span className="drawer-brand-icon">D</span>
+              <div className="drawer-brand-txt">
+                <span className="drawer-brand-name">Dean Designers</span>
+                <span className="drawer-brand-sub">Clothing &amp; Logo Studio</span>
+              </div>
+              <i className="ri-arrow-right-s-line drawer-brand-chev" />
             </div>
+
             <div className="drawer-items">
+              <div className="drawer-sec">Menu</div>
               <a
-                className="drawer-item"
+                className={`drawer-item ${currentPage === "home" ? "active" : ""}`}
                 href="/"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Return to a clean homepage: leave any sub-page, exit the
-                  // wizard (the user may be mid-checkout, e.g. step 6), and
-                  // clear a selected gig so /gigs doesn't reopen a detail.
                   setCurrentPage("home");
                   setSelectedGigId(null);
                   goTo(1, "back");
@@ -3669,26 +3675,29 @@ export default function App() {
                   window.scrollTo(0, 0);
                 }}
               >
-                <i className="ri-home-4-line" style={{fontSize:18}} />Home
+                <i className="ri-home-5-line" />Home
               </a>
               <a className="drawer-item" href="#wizard" onClick={() => setDrawerOpen(false)}>
-                <i className="ri-box-3-line" style={{fontSize:18}} />Services
+                <i className="ri-box-3-line" />Services
               </a>
-              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-                <i className="ri-store-2-line" style={{fontSize:18}} />Gigs
+              <a className={`drawer-item ${currentPage === "gigs" ? "active" : ""}`} href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("gigs"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-store-2-line" />Gigs
               </a>
-              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("about"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-                <i className="ri-information-line" style={{fontSize:18}} />Why Dean / FAQ
+
+              <div className="drawer-sec">Discover</div>
+              <a className={`drawer-item ${currentPage === "about" ? "active" : ""}`} href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("about"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-information-line" />Why Dean / FAQ
               </a>
-              <a className="drawer-item" href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-                <i className="ri-article-line" style={{fontSize:18}} />Articles
+              <a className={`drawer-item ${currentPage === "articles" ? "active" : ""}`} href="#" onClick={(e) => { e.preventDefault(); setCurrentPage("articles"); setDrawerOpen(false); window.scrollTo(0,0); }}>
+                <i className="ri-article-line" />Articles
               </a>
-              <div className="drawer-divider" />
+
+              <div className="drawer-sec">Account</div>
               <a className="drawer-item" href="/order-tracker.html" onClick={() => setDrawerOpen(false)}>
-                <i className="ri-inbox-line" style={{fontSize:18}} />My Orders
+                <i className="ri-inbox-line" />My Orders
               </a>
               <a className="drawer-item" href={`https://wa.me/${WA_NUMBER}`} target="_blank" rel="noopener noreferrer">
-                <i className="ri-whatsapp-fill" style={{fontSize:18}} />Contact Us
+                <i className="ri-whatsapp-line" />Contact Us
               </a>
             </div>
           </div>
