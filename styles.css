@@ -170,12 +170,14 @@ body {
 
 /* Drawer */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;animation:drawerFadeIn .2s}
-.drawer{position:absolute;left:0;top:0;bottom:0;width:290px;background:linear-gradient(180deg,#FCFCFE 0%,#F4F3FB 100%);display:flex;flex-direction:column;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1);border-radius:0 20px 20px 0;overflow:hidden}
+.drawer{position:absolute;left:0;top:0;bottom:0;width:290px;background:linear-gradient(135deg,rgba(252,252,254,.92) 0%,rgba(243,241,251,.92) 28%,rgba(235,239,252,.92) 52%,rgba(246,241,251,.92) 76%,rgba(251,252,254,.92) 100%);background-size:280% 280%;animation:drawerSlideIn .25s cubic-bezier(.22,1,.36,1),drawerGradient 14s ease-in-out infinite;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);display:flex;flex-direction:column;border-radius:0 20px 20px 0;overflow:hidden}
+@keyframes drawerGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes drawerFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes drawerSlideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 /* Brand header card */
-.drawer-brand-card{display:flex;align-items:center;gap:12px;padding:20px 16px 14px;cursor:pointer}
-.drawer-brand-icon{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1DBF73,#0E9F63);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bodoni Moda',serif;font-weight:700;font-size:24px;flex-shrink:0;box-shadow:0 6px 16px rgba(29,191,115,.28)}
+.drawer-brand-card{display:flex;align-items:center;gap:12px;padding:24px 16px 14px;cursor:pointer}
+/* Black wordmark logo (PNG silhouette masked in near-black) */
+.drawer-brand-logo{display:block;height:24px;width:150px;background:#12151C;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
 .drawer-brand-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .drawer-brand-name{font-size:16px;font-weight:800;color:#14171F;letter-spacing:-.3px}
 .drawer-brand-sub{font-size:12px;color:#9AA0AE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

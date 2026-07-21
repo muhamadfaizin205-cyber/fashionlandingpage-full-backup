@@ -3651,11 +3651,10 @@ export default function App() {
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
 
-            {/* Brand header: icon + name + subtitle + chevron */}
+            {/* Brand header: black PNG logo + subtitle + chevron */}
             <div className="drawer-brand-card" onClick={(e) => { e.preventDefault(); setCurrentPage("home"); setSelectedGigId(null); goTo(1,"back"); setDrawerOpen(false); window.scrollTo(0,0); }}>
-              <span className="drawer-brand-icon">D</span>
               <div className="drawer-brand-txt">
-                <span className="drawer-brand-name">Dean Designers</span>
+                <span className="drawer-brand-logo" role="img" aria-label="Dean Designers" />
                 <span className="drawer-brand-sub">Clothing &amp; Logo Studio</span>
               </div>
               <i className="ri-arrow-right-s-line drawer-brand-chev" />
