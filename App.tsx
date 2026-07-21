@@ -3421,7 +3421,7 @@ export default function App() {
                   <img src={activeTheme.logoUrl} alt="Dean Designers" />
                 </span>
               ) : (
-                <span className="nav-logo-3d" data-text="DEAN DESIGNERS">DEAN DESIGNERS</span>
+                <span className="nav-logo-mark" role="img" aria-label="Dean Designers" />
               )}
             </a>
           </div>

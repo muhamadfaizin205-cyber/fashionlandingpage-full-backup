@@ -4591,6 +4591,46 @@ html {
     drop-shadow(0 5px 10px rgba(45,32,6,.28));
 }
 
+/* ── Image wordmark (uploaded logo, gold + shine) ──
+   The logo PNG is a transparent silhouette used only as a MASK: the
+   gold gradient shows through the logo shape, and ::after sweeps the
+   same white highlight across it. Identical gold + timing to the text
+   wordmark, so swapping to the image changes nothing about the look. */
+.nav-logo-mark {
+  position: relative;
+  display: inline-block;
+  height: 30px;
+  aspect-ratio: 753 / 244;
+  background: linear-gradient(176deg,#FFFBEA 0%,#FFF0BC 12%,#F3D172 27%,#DCAF44 42%,#C2902C 52%,#DCAF44 62%,#F0C85F 78%,#FFF0BC 92%,#FFFCF0 100%);
+  -webkit-mask: url(/logo-dean.png) center / contain no-repeat;
+  mask: url(/logo-dean.png) center / contain no-repeat;
+  filter:
+    drop-shadow(0 1px 0 #9A7226)
+    drop-shadow(0 1.5px 0 #7E5B1B)
+    drop-shadow(0 2px 1px rgba(70,50,12,.3))
+    drop-shadow(0 4px 7px rgba(45,32,6,.2));
+  transition: filter .3s ease;
+}
+.nav-logo-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(104deg,transparent 41%,rgba(255,255,255,.5) 47%,rgba(255,255,255,.92) 50%,rgba(255,255,255,.5) 53%,transparent 59%);
+  background-size: 300% 100%;
+  background-position: 200% 0;
+  -webkit-mask: url(/logo-dean.png) center / contain no-repeat;
+  mask: url(/logo-dean.png) center / contain no-repeat;
+  pointer-events: none;
+  animation: goldSweep 5.5s ease-in-out infinite;
+}
+.nav-logo:hover .nav-logo-mark {
+  filter:
+    drop-shadow(0 1px 0 #9A7226)
+    drop-shadow(0 2px 0 #7E5B1B)
+    drop-shadow(0 3px 0 #674A15)
+    drop-shadow(0 5px 10px rgba(45,32,6,.28));
+}
+
 /* ── Image logo (uploaded PNG) with the same shine sweep ──
    The <img> renders normally; ::after paints a moving white
    highlight that is masked by the logo's own alpha channel, so the
@@ -4867,6 +4907,7 @@ html {
 @media (max-width: 640px) {
   .nav-wrap { height: 58px; padding: 0 16px; }
   .nav-logo-3d { font-size: 15px; letter-spacing: 1.8px; }
+  .nav-logo-mark { height: 25px; }
   .nav-logo-img img { height: calc(var(--logo-h, 30px) * 0.82); }
   .nav-cta { font-size: 14px; padding: 8px 14px; }
   .nav-right { gap: 10px; }
