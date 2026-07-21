@@ -36,25 +36,42 @@ a{color:inherit;text-decoration:none}
 /* ═══ MODERN LAYOUT - Icon Sidebar + Content + Chat Panel ═══ */
 .app{display:flex;min-height:100vh;background:#0F1117}
 /* Dark icon sidebar */
-.sidebar{width:200px;background:#161921;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:60;padding:20px 12px;border-right:1px solid rgba(255,255,255,0.06)}
+.sidebar{width:214px;background:linear-gradient(180deg,#FBFBFD 0%,#F5F6FA 100%);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:60;padding:16px 12px;border-right:1px solid #ECEDF2}
+.sb-icons{display:flex;flex-direction:column;gap:3px;flex:1;overflow-y:auto}
+.sb-icons::-webkit-scrollbar{width:0}
+
+/* Brand header - icon-less wordmark + subtitle + chevron, like the ref */
+.sb-brand{display:flex;align-items:center;gap:10px;padding:10px 10px 12px;margin-bottom:6px;cursor:pointer;border-radius:12px;transition:background .15s}
+.sb-brand:hover{background:rgba(15,23,42,.03)}
+.sb-brand-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sb-brand-logo{display:block;height:20px;width:120px;background:#12151C;-webkit-mask:url(/logo-dean.png) left center/contain no-repeat;mask:url(/logo-dean.png) left center/contain no-repeat}
+.sb-brand-sub{font-size:11px;color:#9AA0AE;font-weight:500;letter-spacing:.1px}
+.sb-brand-chev{color:#C2C6D0;font-size:18px;flex-shrink:0}
+
+/* Section label */
+.sb-sec{font-size:10.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#AEB3BF;padding:14px 12px 6px}
+
+/* Nav item */
+.sb-ic{width:100%;height:auto;padding:9px 12px;border-radius:10px;display:flex;align-items:center;gap:12px;color:#565E6E;cursor:pointer;transition:all .15s;position:relative;border:none;background:transparent;font-size:13.5px;font-weight:500;letter-spacing:.1px}
+.sb-ic svg{width:19px;height:19px;flex-shrink:0;stroke-width:2}
+.sb-ic:hover{background:rgba(15,23,42,.04);color:#2B303B}
+/* Active: left accent bar + bold dark text + faint tint */
+.sb-ic.active{background:rgba(29,191,115,.09);color:#0F1115;font-weight:700}
+.sb-ic.active::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:4px;height:22px;border-radius:0 4px 4px 0;background:#1DBF73}
+.sb-ic.active svg{stroke:#1DBF73}
+
+.sb-divider{display:none}
+.sb-ic-tip{display:none}
+.sb-ic-badge{position:absolute;top:7px;right:10px;min-width:18px;height:18px;background:#EF4444;color:#fff;font-size:10px;font-weight:800;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #F5F6FA}
+.sb-profile-ic{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1DBF73,#16a34a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;cursor:pointer;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.1);transition:all .2s}
 .sb-logo{width:100%;display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:30px}.sb-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#1DBF73,#17B169);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(29,191,115,0.3)}.sb-logo-text{font-size:14px;font-weight:800;color:#F1F5F9;letter-spacing:-0.2px}
 /* White logo (the PNG silhouette masked over solid white) */
 .sb-logo-img{display:inline-block;height:26px;aspect-ratio:753/244;background:#fff;-webkit-mask:url(/logo-dean.png) center/contain no-repeat;mask:url(/logo-dean.png) center/contain no-repeat}
-.sb-icons{display:flex;flex-direction:column;gap:4px;flex:1}
-.sb-ic{width:100%;height:auto;padding:10px 14px;border-radius:12px;display:flex;align-items:center;gap:11px;color:#64748B;cursor:pointer;transition:all .2s;position:relative;border:none;background:transparent;font-size:13px;font-weight:600;letter-spacing:0.1px}
-.sb-ic:hover{background:rgba(29,191,115,0.08);color:#E2E8F0}
-.sb-ic.active{background:rgba(29,191,115,0.1);color:#1DBF73;font-weight:700}
-.sb-ic-badge{position:absolute;top:8px;right:10px;min-width:18px;height:18px;background:#EF4444;color:#fff;font-size:10px;font-weight:800;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #0F1419}
-.sb-ic-tip{position:absolute;left:62px;top:50%;transform:translateY(-50%);background:#1E293B;color:#fff;font-size:11px;font-weight:600;padding:7px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:all .2s;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.2);letter-spacing:0.2px}
-.sb-ic:hover .sb-ic-tip{opacity:0}
-.sb-divider{width:80%;height:1px;background:rgba(255,255,255,0.06);margin:12px auto}
-/* Profile button bottom of sidebar */
-.sb-profile-ic{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1DBF73,#16a34a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;cursor:pointer;overflow:hidden;border:2px solid rgba(29,191,115,0.2);transition:all .2s}
 .sb-profile-ic:hover{border-color:#1DBF73;transform:scale(1.05)}
 .sb-profile-ic img{width:100%;height:100%;object-fit:cover}
 
 /* Main content area */
-.main{flex:1;display:flex;flex-direction:column;min-width:0;margin-left:200px;background:#0F1117;overflow:hidden;position:relative;z-index:1}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;margin-left:214px;background:#0F1117;overflow:hidden;position:relative;z-index:1}
 .main-scroll{flex:1;overflow-y:auto;padding:24px 28px;width:100%;box-sizing:border-box}
 /* Page header inside main */
 .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
@@ -834,8 +851,12 @@ function renderApp(){
   // ── Icon Sidebar ──
   const sidebarHTML=
     '<aside class="sidebar">'+
-      '<div class="sb-logo"><span class="sb-logo-img" role="img" aria-label="Dean Designers"></span></div>'+
+      '<div class="sb-brand" onclick="openAdminProfileModal()" title="Edit profile">'+
+        '<div class="sb-brand-main"><span class="sb-brand-logo" role="img" aria-label="Dean Designers"></span><span class="sb-brand-sub">Design Studio</span></div>'+
+        '<i class="ri-arrow-right-s-line sb-brand-chev"></i>'+
+      '</div>'+
       '<div class="sb-icons">'+
+        '<div class="sb-sec">Main</div>'+
         // Orders
         '<button class="sb-ic '+(currentView==='orders'?'active':'')+'" onclick="switchView(\'orders\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Orders<span class="sb-ic-tip">Orders</span></button>'+
         // Chat (toggles panel)
@@ -846,12 +867,12 @@ function renderApp(){
         '<button class="sb-ic '+(currentView==='invite'?'active':'')+'" onclick="switchView(\'invite\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Invite<span class="sb-ic-tip">Invite Customer</span></button>'+
         '<button class="sb-ic '+(currentView==='articles'?'active':'')+'" onclick="switchView(\'articles\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Articles<span class="sb-ic-tip">Articles</span></button>'+
         
-        '<div class="sb-divider"></div>'+
+        '<div class="sb-sec">Manage</div>'+
         // Landing page
         '<button class="sb-ic" onclick="window.open(\'/\',\'_blank\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Website<span class="sb-ic-tip">Landing Page</span></button>'+
       '</div>'+
       // Profile + signout at bottom
-      '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #1F2937">'+
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #ECEDF2">'+
         '<button class="sb-ic" onclick="logout()" title="Sign Out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out<span class="sb-ic-tip">Sign Out</span></button>'+
         '<div class="sb-profile-ic" id="sb-profile-area" onclick="openAdminProfileModal()" title="Edit Profile">DD</div>'+
       '</div>'+
