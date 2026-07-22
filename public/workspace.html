@@ -181,7 +181,7 @@ async function showList(){
   v.innerHTML='<div class="empty">Loading...</div>';
   // Only columns the designer needs - no client email, no price.
   const {data,error}=await sb.from('orders')
-    .select('id,service,brand_name,brief,status,created_at,package')
+    .select('id,service,brand_name,brief,status,created_at,package_name')
     .eq('assigned_designer_id',me.id)
     .order('created_at',{ascending:false});
   if(error){v.innerHTML='<div class="empty">Could not load. '+esc(error.message)+'</div>';return}
@@ -232,7 +232,7 @@ function paintBrief(){
   document.getElementById('pane').innerHTML='<div class="box">'+
     (cur.brand_name?'<div class="k">Brand</div><div class="v">'+esc(cur.brand_name)+'</div>':'')+
     '<div class="k">Service</div><div class="v">'+esc(cur.service||'-')+'</div>'+
-    (cur.package?'<div class="k">Package</div><div class="v">'+esc(cur.package)+'</div>':'')+
+    (cur.package_name?'<div class="k">Package</div><div class="v">'+esc(cur.package_name)+'</div>':'')+
     '<div class="k">Brief</div><div class="v">'+esc(cur.brief||'No brief provided.')+'</div>'+
   '</div>';
 }
