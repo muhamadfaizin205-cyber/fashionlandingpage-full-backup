@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Studio Workspace</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0F1117;--card:#161921;--bd:rgba(255,255,255,.07);--tx:#E8EBF0;--tx2:#94A3B8;--tx3:#5B6577;--ac:#6C8CFF}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;border:none;cursor:pointer}
+/* ── Login ── */
+.lg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.lg-card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:34px 26px}
+.lg-icon{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,#6C8CFF,#4A6BE8);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px;color:#fff}
+.lg-card h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:5px}
+.lg-card p{font-size:13px;color:var(--tx3);text-align:center;margin-bottom:22px}
+.lg-in{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--bd);border-radius:12px;padding:13px 15px;color:var(--tx);font-size:14px;font-family:inherit;outline:none;text-align:center;letter-spacing:1px}
+.lg-in:focus{border-color:var(--ac)}
+.lg-btn{width:100%;background:var(--ac);color:#fff;border-radius:11px;padding:13px;font-size:14px;font-weight:700;margin-top:11px}
+.lg-err{color:#F87171;font-size:12.5px;text-align:center;margin-top:11px;min-height:16px}
+/* ── Shell ── */
+.top{position:sticky;top:0;z-index:20;background:rgba(15,17,23,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:13px 16px;display:flex;align-items:center;gap:12px}
+.top-t{font-size:15px;font-weight:800;flex:1;letter-spacing:-.2px}
+.top-u{font-size:12px;color:var(--tx3)}
+.ghost{background:rgba(255,255,255,.06);color:var(--tx2);border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:600}
+.ghost:hover{background:rgba(255,255,255,.1);color:var(--tx)}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+.h2{font-size:17px;font-weight:800;margin-bottom:4px}
+.sub{font-size:13px;color:var(--tx3);margin-bottom:18px}
+/* ── Project cards ── */
+.pj{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:17px 18px;margin-bottom:12px;cursor:pointer;transition:all .15s}
+.pj:hover{border-color:rgba(108,140,255,.4);transform:translateY(-1px)}
+.pj-top{display:flex;align-items:center;gap:9px;margin-bottom:7px;flex-wrap:wrap}
+.pj-t{font-size:15px;font-weight:700}
+.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.4px}
+.p-new{background:rgba(251,191,36,.15);color:#FBBF24}
+.p-work{background:rgba(96,165,250,.15);color:#60A5FA}
+.p-done{background:rgba(74,222,128,.15);color:#4ADE80}
+.pj-b{font-size:13px;color:var(--tx2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{text-align:center;padding:60px 20px;color:var(--tx3);font-size:13.5px}
+/* ── Tabs ── */
+.tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--bd)}
+.tab{background:none;color:var(--tx3);padding:11px 15px;font-size:13.5px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac)}
+/* ── Brief ── */
+.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px}
+.k{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:5px}
+.v{font-size:14px;margin-bottom:16px;line-height:1.65;white-space:pre-wrap}
+/* ── Kanban ── */
+.kb{display:flex;gap:13px;overflow-x:auto;padding-bottom:12px;align-items:flex-start}
+.kb::-webkit-scrollbar{height:7px}
+.kb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:100px}
+.kcol{flex:0 0 250px;background:rgba(255,255,255,.025);border:1px solid var(--bd);border-radius:14px;padding:13px 11px}
+.kcol-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;margin-bottom:11px}
+.kdot{width:7px;height:7px;border-radius:50%}
+.kn{margin-left:auto;font-size:11px;color:var(--tx3);background:rgba(255,255,255,.06);padding:1px 7px;border-radius:100px}
+.kc{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:12px;margin-bottom:8px;cursor:grab}
+.kc:active{cursor:grabbing}
+.kc-t{font-size:13.5px;font-weight:600;margin-bottom:7px}
+.kc-mv{display:flex;gap:5px;flex-wrap:wrap}
+.mv{font-size:10.5px;background:rgba(255,255,255,.06);color:var(--tx3);border-radius:6px;padding:4px 8px;font-weight:600}
+.mv:hover{background:var(--ac);color:#fff}
+.kempty{font-size:12px;color:var(--tx3);text-align:center;padding:16px 0;border:1px dashed var(--bd);border-radius:9px}
+/* ── Chat ── */
+.ch{background:var(--card);border:1px solid var(--bd);border-radius:14px;display:flex;flex-direction:column;height:62vh;min-height:380px}
+.ch-b{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:3px}
+.ch-b::-webkit-scrollbar{width:6px}
+.ch-b::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:100px}
+.m{max-width:80%;padding:10px 14px;border-radius:15px;font-size:13.5px;line-height:1.55;word-break:break-word;margin-top:7px}
+.m.me{align-self:flex-end;background:var(--ac);color:#fff;border-bottom-right-radius:5px}
+.m.them{align-self:flex-start;background:rgba(255,255,255,.07);border-bottom-left-radius:5px}
+.m-img{max-width:210px;border-radius:12px;display:block;cursor:pointer;margin-top:7px}
+.m-t{font-size:10px;color:var(--tx3);margin-top:3px;padding:0 5px}
+.m-t.me{align-self:flex-end}
+.ch-i{border-top:1px solid var(--bd);padding:11px;display:flex;gap:8px;align-items:flex-end}
+.ch-in{flex:1;background:rgba(255,255,255,.05);border:1.5px solid var(--bd);border-radius:20px;padding:11px 15px;color:var(--tx);font-size:13.5px;font-family:inherit;outline:none;resize:none;min-height:42px;max-height:110px}
+.ch-in:focus{border-color:var(--ac)}
+.ch-s{width:42px;height:42px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.att{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* ── Upload ── */
+.up{border:2px dashed var(--bd);border-radius:14px;padding:34px 20px;text-align:center;cursor:pointer;transition:all .15s}
+.up:hover{border-color:var(--ac);background:rgba(108,140,255,.04)}
+.up i{font-size:32px;color:var(--tx3)}
+.up-t{font-size:14px;font-weight:600;margin:9px 0 3px}
+.up-s{font-size:12px;color:var(--tx3)}
+.files{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.f{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:11px 13px;font-size:13px}
+.f i{color:var(--ac);font-size:18px}
+.f a{color:var(--tx2);text-decoration:none;margin-left:auto;font-size:12px}
+.f a:hover{color:var(--ac)}
+.hide{display:none!important}
+@media(max-width:640px){.wrap{padding:16px 12px 50px}.kcol{flex:0 0 82vw}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="lg" id="login">
+  <div class="lg-card">
+    <div class="lg-icon"><i class="ri-shapes-line"></i></div>
+    <h1>Studio Workspace</h1>
+    <p>Enter your access code to continue</p>
+    <input class="lg-in" id="code" placeholder="ACCESS CODE" autocomplete="off">
+    <button class="lg-btn" onclick="signIn()">Sign in</button>
+    <div class="lg-err" id="err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <div class="top">
+    <div style="flex:1">
+      <div class="top-t" id="ttl">My Projects</div>
+      <div class="top-u" id="who"></div>
+    </div>
+    <button class="ghost" id="back" onclick="showList()" style="display:none">Back</button>
+    <button class="ghost" onclick="signOut()">Sign out</button>
+  </div>
+  <div class="wrap" id="view"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL='https://zqawpdspxdcmofnmrbku.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXdwZHNweGRjbW9mbm1yYmt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyODc5NzUsImV4cCI6MjA2Njg2Mzk3NX0.vRPaxLCPNPbNnHpsAClr_gr_pCpcbvBbDdAcEGhCT_E';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+const COLS=[
+  {key:'backlog', title:'Backlog',     dot:'#94A3B8'},
+  {key:'todo',    title:'To Do',       dot:'#60A5FA'},
+  {key:'progress',title:'In Progress', dot:'#FBBF24'},
+  {key:'done',    title:'Done',        dot:'#4ADE80'},
+];
+
+let me=null, projects=[], cur=null, cards=[], msgs=[], tab='brief', poll=null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function room(id){return 'designer:'+id}
+
+/* ── Auth ── */
+async function signIn(){
+  const code=document.getElementById('code').value.trim();
+  const err=document.getElementById('err');
+  if(!code){err.textContent='Enter your code.';return}
+  err.textContent='Checking...';
+  const {data,error}=await sb.from('designers').select('*').eq('access_code',code).eq('active',true).maybeSingle();
+  if(error){err.textContent='Could not connect. Try again.';return}
+  if(!data){err.textContent='Code not recognised.';return}
+  me=data;
+  try{localStorage.setItem('ws_code',code)}catch(e){}
+  start();
+}
+function signOut(){
+  try{localStorage.removeItem('ws_code')}catch(e){}
+  if(poll)clearInterval(poll);
+  location.reload();
+}
+async function boot(){
+  let saved='';try{saved=localStorage.getItem('ws_code')||''}catch(e){}
+  if(!saved)return;
+  const {data}=await sb.from('designers').select('*').eq('access_code',saved).eq('active',true).maybeSingle();
+  if(data){me=data;start()}
+}
+function start(){
+  document.getElementById('login').classList.add('hide');
+  document.getElementById('app').classList.remove('hide');
+  document.getElementById('who').textContent=me.name;
+  showList();
+}
+
+/* ── Projects ── */
+async function showList(){
+  cur=null;
+  if(poll){clearInterval(poll);poll=null}
+  document.getElementById('back').style.display='none';
+  document.getElementById('ttl').textContent='My Projects';
+  const v=document.getElementById('view');
+  v.innerHTML='<div class="empty">Loading...</div>';
+  // Only columns the designer needs - no client email, no price.
+  const {data,error}=await sb.from('orders')
+    .select('id,service,brand_name,brief,status,created_at,package')
+    .eq('assigned_designer_id',me.id)
+    .order('created_at',{ascending:false});
+  if(error){v.innerHTML='<div class="empty">Could not load. '+esc(error.message)+'</div>';return}
+  projects=data||[];
+  if(!projects.length){v.innerHTML='<div class="empty">No projects assigned yet.<br>You will see them here once work is assigned to you.</div>';return}
+  v.innerHTML='<div class="h2">Assigned to you</div><div class="sub">'+projects.length+' project'+(projects.length>1?'s':'')+'</div>'+
+    projects.map(p=>{
+      const st=(p.status||'new').toLowerCase();
+      const cls=st==='done'||st==='completed'?'p-done':(st==='new'?'p-new':'p-work');
+      return '<div class="pj" onclick="openProject(\''+p.id+'\')">'+
+        '<div class="pj-top"><span class="pj-t">'+esc(p.service||'Design project')+'</span>'+
+        '<span class="pill '+cls+'">'+esc(st)+'</span></div>'+
+        (p.brand_name?'<div style="font-size:12.5px;color:var(--tx2);margin-bottom:6px">Brand: <b>'+esc(p.brand_name)+'</b></div>':'')+
+        '<div class="pj-b">'+esc(p.brief||'No brief provided.')+'</div>'+
+      '</div>';
+    }).join('');
+}
+
+/* ── Project detail ── */
+async function openProject(id){
+  cur=projects.find(p=>String(p.id)===String(id));
+  if(!cur)return;
+  tab='brief';
+  document.getElementById('back').style.display='';
+  document.getElementById('ttl').textContent=cur.service||'Project';
+  await Promise.all([loadCards(),loadMsgs()]);
+  renderProject();
+  if(poll)clearInterval(poll);
+  poll=setInterval(async()=>{ if(!cur)return; await loadMsgs(); if(tab==='chat')paintChat(); },5000);
+}
+function renderProject(){
+  document.getElementById('view').innerHTML=
+    '<div class="tabs">'+
+      ['brief','board','files','chat'].map(t=>'<button class="tab '+(tab===t?'on':'')+'" onclick="setTab(\''+t+'\')">'+
+        ({brief:'Brief',board:'Board',files:'Deliverables',chat:'Chat'})[t]+'</button>').join('')+
+    '</div><div id="pane"></div>';
+  paint();
+}
+function setTab(t){tab=t;renderProject()}
+function paint(){
+  if(tab==='brief')paintBrief();
+  else if(tab==='board')paintBoard();
+  else if(tab==='files')paintFiles();
+  else paintChat();
+}
+
+function paintBrief(){
+  document.getElementById('pane').innerHTML='<div class="box">'+
+    (cur.brand_name?'<div class="k">Brand</div><div class="v">'+esc(cur.brand_name)+'</div>':'')+
+    '<div class="k">Service</div><div class="v">'+esc(cur.service||'-')+'</div>'+
+    (cur.package?'<div class="k">Package</div><div class="v">'+esc(cur.package)+'</div>':'')+
+    '<div class="k">Brief</div><div class="v">'+esc(cur.brief||'No brief provided.')+'</div>'+
+  '</div>';
+}
+
+/* ── Board ── */
+async function loadCards(){
+  const {data}=await sb.from('kanban_cards').select('*').eq('order_id',cur.id).order('position',{ascending:true});
+  cards=data||[];
+}
+function paintBoard(){
+  document.getElementById('pane').innerHTML='<div class="kb">'+COLS.map(c=>{
+    const list=cards.filter(k=>(k.column_key||'backlog')===c.key);
+    return '<div class="kcol"><div class="kcol-h"><span class="kdot" style="background:'+c.dot+'"></span>'+c.title+
+      '<span class="kn">'+list.length+'</span></div>'+
+      (list.length?list.map(k=>'<div class="kc"><div class="kc-t">'+esc(k.title)+'</div><div class="kc-mv">'+
+        COLS.filter(x=>x.key!==c.key).map(x=>'<button class="mv" onclick="moveCard('+k.id+',\''+x.key+'\')">'+x.title+'</button>').join('')+
+      '</div></div>').join(''):'<div class="kempty">No cards</div>')+
+    '</div>';
+  }).join('')+'</div>';
+}
+async function moveCard(id,key){
+  const c=cards.find(x=>x.id===id); if(!c)return;
+  const prev=c.column_key; c.column_key=key; paintBoard();
+  const {error}=await sb.from('kanban_cards').update({column_key:key}).eq('id',id);
+  if(error){c.column_key=prev;paintBoard();alert('Could not update: '+error.message)}
+}
+
+/* ── Deliverables ── */
+function paintFiles(){
+  const files=msgs.filter(m=>m.image_url&&m.sender_type==='designer');
+  document.getElementById('pane').innerHTML=
+    '<div class="up" onclick="document.getElementById(\'fin\').click()">'+
+      '<i class="ri-upload-cloud-2-line"></i><div class="up-t">Upload your work</div>'+
+      '<div class="up-s">Images up to 10MB - shared with the studio instantly</div>'+
+    '</div>'+
+    '<input type="file" id="fin" accept="image/*" style="display:none" onchange="upload(this)">'+
+    '<div class="files">'+(files.length?files.map(f=>
+      '<div class="f"><i class="ri-image-line"></i>'+esc((f.message||'Design file'))+
+      '<a href="'+esc(f.image_url)+'" target="_blank" rel="noopener">Open</a></div>').join('')
+      :'<div class="empty">Nothing uploaded yet.</div>')+'</div>';
+}
+async function upload(inp){
+  const f=inp.files&&inp.files[0]; if(!f)return;
+  if(f.size>10*1024*1024){alert('Max 10MB.');return}
+  const path='workspace/'+cur.id+'/'+Date.now()+'-'+f.name.replace(/[^\w.\-]/g,'_');
+  const up=await sb.storage.from('uploads').upload(path,f);
+  if(up.error){alert('Upload failed: '+up.error.message);return}
+  const {data}=sb.storage.from('uploads').getPublicUrl(path);
+  const {error}=await sb.from('messages').insert({
+    order_id:cur.id, room:room(cur.id), sender_type:'designer',
+    sender_email:me.name, message:f.name, image_url:data.publicUrl
+  });
+  if(error){alert('Could not attach: '+error.message);return}
+  inp.value='';
+  await loadMsgs(); paintFiles();
+}
+
+/* ── Chat ── */
+async function loadMsgs(){
+  const {data}=await sb.from('messages').select('*').eq('room',room(cur.id)).order('created_at',{ascending:true});
+  msgs=data||[];
+}
+function paintChat(){
+  const body=msgs.length?msgs.map(m=>{
+    const mine=m.sender_type==='designer';
+    const t=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    let h='';
+    if(m.image_url)h+='<img class="m-img" src="'+esc(m.image_url)+'" style="align-self:'+(mine?'flex-end':'flex-start')+'" onclick="window.open(this.src)">';
+    if(m.message)h+='<div class="m '+(mine?'me':'them')+'">'+esc(m.message)+'</div>';
+    h+='<div class="m-t '+(mine?'me':'')+'">'+t+'</div>';
+    return h;
+  }).join(''):'<div class="empty">No messages yet. Say hello.</div>';
+  const pane=document.getElementById('pane');
+  if(pane.querySelector('.ch-b')){
+    pane.querySelector('.ch-b').innerHTML=body;
+    const b=pane.querySelector('.ch-b'); b.scrollTop=b.scrollHeight; return;
+  }
+  pane.innerHTML='<div class="ch"><div class="ch-b">'+body+'</div>'+
+    '<div class="ch-i">'+
+      '<button class="att" onclick="document.getElementById(\'cf\').click()"><i class="ri-attachment-2"></i></button>'+
+      '<input type="file" id="cf" accept="image/*" style="display:none" onchange="upload(this)">'+
+      '<textarea class="ch-in" id="msg" rows="1" placeholder="Message the studio..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();send()}"></textarea>'+
+      '<button class="ch-s" onclick="send()"><i class="ri-send-plane-fill"></i></button>'+
+    '</div></div>';
+  const b=pane.querySelector('.ch-b'); b.scrollTop=b.scrollHeight;
+}
+async function send(){
+  const ta=document.getElementById('msg'); const body=ta.value.trim(); if(!body)return;
+  ta.value='';
+  const {error}=await sb.from('messages').insert({
+    order_id:cur.id, room:room(cur.id), sender_type:'designer',
+    sender_email:me.name, message:body
+  });
+  if(error){ta.value=body;alert('Could not send: '+error.message);return}
+  await loadMsgs(); paintChat();
+}
+
+document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});
+boot();
+</script>
+</body>
+</html>

@@ -973,6 +973,8 @@ function renderCurrentView(){
     body='<div class="kbf-wrap" id="kbf-wrap"><div style="padding:60px;text-align:center;color:#94A3B8">Loading board...</div></div>';
   } else if(currentView==='theme'){
     body='<div class="thm-wrap" id="thm-wrap"><div style="padding:60px;text-align:center;color:var(--txt3)">Loading theme editor...</div></div>';
+  } else if(currentView==='team'){
+    body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Team</h1><div class="page-actions"><button class="btn-primary" onclick="openDesignerEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Designer</button></div></div><div id="team-area"></div></div>';
   } else if(currentView==='reviews'){
     body='<div class="main-scroll"><div class="page-head"><h1 class="page-title">Reviews</h1><div class="page-actions"><button class="btn-primary" onclick="openReviewEditor()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Review</button></div></div><div style="font-size:13px;color:var(--txt3);margin:-8px 0 18px;max-width:660px">Enter your <b>real</b> reviews here (e.g. from your Fiverr profile). These show on the gig page. Do not enter invented reviews - fake testimonials are deceptive and illegal in many countries.</div><div id="reviews-area"></div></div>';
   }
@@ -987,6 +989,7 @@ function renderCurrentView(){
   else if(currentView==='kanban')renderKanbanFull();
   else if(currentView==='theme')renderThemeEditor();
   else if(currentView==='reviews')renderReviewsView();
+  else if(currentView==='team')renderTeamView();
   else if(currentView==='analytics'){renderAnalyticsView();startAnalyticsRealtime();}
   // Inject AI Agent nav button
   var sbIcons=document.querySelector('.sb-icons');
@@ -1040,6 +1043,19 @@ function renderCurrentView(){
   }
   if(document.getElementById('reviews-nav-btn')){
     document.getElementById('reviews-nav-btn').className='sb-ic'+(currentView==='reviews'?' active':'');
+  }
+  // Inject Team nav button
+  if(sbIcons&&!document.getElementById('team-nav-btn')){
+    var teamBtn=document.createElement('button');
+    teamBtn.id='team-nav-btn';
+    teamBtn.className='sb-ic';
+    teamBtn.title='Team';
+    teamBtn.onclick=function(){switchView('team')};
+    teamBtn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team<span class="sb-ic-tip">Designers</span>';
+    sbIcons.appendChild(teamBtn);
+  }
+  if(document.getElementById('team-nav-btn')){
+    document.getElementById('team-nav-btn').className='sb-ic'+(currentView==='team'?' active':'');
   }
   // Inject Cards nav button
   if(sbIcons&&!document.getElementById('cards-nav-btn')){
@@ -3864,6 +3880,134 @@ async function deleteReview(id){
   var res=await sb.from('gig_reviews').delete().eq('id',id);
   if(res.error){alert('Could not delete: '+res.error.message);return;}
   renderReviewsView();
+}
+
+
+// ═══ Team (contracted designers) ═══
+var _designers=[],_teamOrders=[],_teamChatOrder=null,_teamMsgs=[],_teamPoll=null;
+
+async function renderTeamView(){
+  var area=document.getElementById('team-area');if(!area)return;
+  area.innerHTML='<div style="padding:40px;text-align:center;color:#94A3B8">Loading...</div>';
+  var d=await sb.from('designers').select('*').order('created_at',{ascending:false});
+  if(d.error){area.innerHTML='<div style="padding:20px;color:#EF4444">'+esc(d.error.message)+'<br><br>Have you run <b>designers-migration.sql</b> in Supabase?</div>';return}
+  _designers=d.data||[];
+  var o=await sb.from('orders').select('id,service,brand_name,status,assigned_designer_id,created_at').order('created_at',{ascending:false}).limit(60);
+  _teamOrders=o.data||[];
+
+  var roster=_designers.length?_designers.map(function(x){
+    return '<div style="display:flex;align-items:center;gap:12px;background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px;margin-bottom:10px">'+
+      '<div style="width:38px;height:38px;border-radius:50%;background:#6C8CFF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">'+esc((x.name||'?').charAt(0).toUpperCase())+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="font-weight:700;color:#F1F5F9;font-size:14px">'+esc(x.name)+'</div>'+
+      '<div style="font-size:12px;color:#64748B;font-family:monospace">'+esc(x.access_code)+'</div></div>'+
+      '<button class="btn-ghost" style="padding:6px 10px" onclick="copyCode(\''+esc(x.access_code)+'\')">Copy code</button>'+
+      '<button class="btn-ghost" style="padding:6px 10px;color:#EF4444" onclick="removeDesigner('+x.id+')">Remove</button>'+
+    '</div>';
+  }).join(''):'<div style="color:#64748B;font-size:13px;padding:14px 0">No designers yet. Add one, then give them the code and your workspace URL.</div>';
+
+  var opts=function(sel){return '<option value="">- Unassigned -</option>'+_designers.map(function(x){
+    return '<option value="'+x.id+'"'+(String(sel)===String(x.id)?' selected':'')+'>'+esc(x.name)+'</option>';}).join('')};
+
+  var rows=_teamOrders.map(function(p){
+    return '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">'+
+      '<td style="padding:10px 8px"><div style="font-weight:600;color:#E2E8F0;font-size:13px">'+esc(p.service||'-')+'</div>'+
+      '<div style="font-size:11.5px;color:#64748B">'+esc(p.brand_name||'')+'</div></td>'+
+      '<td style="padding:10px 8px;font-size:12px;color:#94A3B8">'+esc(p.status||'')+'</td>'+
+      '<td style="padding:10px 8px"><select class="msel" style="min-width:150px" onchange="assignDesigner(\''+p.id+'\',this.value)">'+opts(p.assigned_designer_id)+'</select></td>'+
+      '<td style="padding:10px 8px">'+(p.assigned_designer_id?'<button class="btn-ghost" style="padding:6px 10px" onclick="openTeamChat(\''+p.id+'\')">Chat</button>':'')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  area.innerHTML=
+    '<div style="margin-bottom:26px"><h3 style="font-size:14px;font-weight:700;color:#F1F5F9;margin-bottom:12px">Designers</h3>'+roster+'</div>'+
+    '<div><h3 style="font-size:14px;font-weight:700;color:#F1F5F9;margin-bottom:4px">Project assignment</h3>'+
+    '<div style="font-size:12.5px;color:#64748B;margin-bottom:12px">Assigned designers only see the brief, board, files and chat - never the client email or price.</div>'+
+    '<div style="background:#161921;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'+
+    '<tr style="color:#64748B;text-align:left"><th style="padding:10px 8px;font-weight:600">Project</th><th style="padding:10px 8px;font-weight:600">Status</th><th style="padding:10px 8px;font-weight:600">Designer</th><th></th></tr>'+
+    rows+'</table></div></div>';
+}
+
+function copyCode(c){navigator.clipboard.writeText(c).then(function(){alert('Access code copied.')})}
+
+function openDesignerEditor(){
+  var w=document.createElement('div');w.className='modal-overlay';w.id='dz-modal';
+  w.innerHTML='<div class="modal" style="max-width:420px"><div class="modal-head"><h3>Add Designer</h3>'+
+    '<button class="modal-x" onclick="document.getElementById(\'dz-modal\').remove()">&times;</button></div>'+
+    '<div class="modal-body" style="display:flex;flex-direction:column;gap:12px">'+
+      '<label class="fld"><span>Name *</span><input id="dz-name" class="msel" placeholder="e.g. Rina"></label>'+
+      '<label class="fld"><span>Access code *</span><input id="dz-code" class="msel" style="font-family:monospace" value="'+genCode()+'"></label>'+
+      '<div style="font-size:12px;color:#64748B;line-height:1.5">This code is their password. Send it privately along with your workspace URL.</div>'+
+    '</div><div class="modal-foot"><button class="btn-ghost" onclick="document.getElementById(\'dz-modal\').remove()">Cancel</button>'+
+    '<button class="btn-primary" onclick="saveDesigner()">Add</button></div></div>';
+  document.body.appendChild(w);
+}
+function genCode(){
+  var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s=[];
+  for(var g=0;g<3;g++){var p='';for(var i=0;i<4;i++)p+=a[Math.floor(Math.random()*a.length)];s.push(p)}
+  return s.join('-');
+}
+async function saveDesigner(){
+  var n=document.getElementById('dz-name').value.trim();
+  var c=document.getElementById('dz-code').value.trim();
+  if(!n||!c){alert('Name and code are required.');return}
+  var r=await sb.from('designers').insert({name:n,access_code:c});
+  if(r.error){alert('Could not add: '+r.error.message);return}
+  document.getElementById('dz-modal').remove();
+  renderTeamView();
+}
+async function removeDesigner(id){
+  if(!confirm('Remove this designer? Their access code stops working.'))return;
+  var r=await sb.from('designers').delete().eq('id',id);
+  if(r.error){alert('Could not remove: '+r.error.message);return}
+  renderTeamView();
+}
+async function assignDesigner(orderId,val){
+  var r=await sb.from('orders').update({assigned_designer_id:val?parseInt(val):null}).eq('id',orderId);
+  if(r.error){alert('Could not assign: '+r.error.message);return}
+  renderTeamView();
+}
+
+/* Chat with the designer on a project (room: designer:<orderId>) */
+async function openTeamChat(orderId){
+  _teamChatOrder=orderId;
+  var w=document.createElement('div');w.className='modal-overlay';w.id='tc-modal';
+  w.innerHTML='<div class="modal" style="max-width:520px"><div class="modal-head"><h3>Designer chat</h3>'+
+    '<button class="modal-x" onclick="closeTeamChat()">&times;</button></div>'+
+    '<div class="modal-body" style="padding:0"><div id="tc-body" style="height:52vh;min-height:320px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:3px;background:#0F1117"></div></div>'+
+    '<div class="modal-foot" style="gap:8px"><textarea id="tc-in" class="msel" rows="1" placeholder="Reply to the designer..." style="flex:1;resize:none;min-height:40px"></textarea>'+
+    '<button class="btn-primary" onclick="sendTeamMsg()">Send</button></div></div>';
+  document.body.appendChild(w);
+  await loadTeamMsgs();paintTeamChat();
+  if(_teamPoll)clearInterval(_teamPoll);
+  _teamPoll=setInterval(async function(){if(!_teamChatOrder)return;await loadTeamMsgs();paintTeamChat()},5000);
+}
+function closeTeamChat(){
+  _teamChatOrder=null;if(_teamPoll)clearInterval(_teamPoll);
+  var m=document.getElementById('tc-modal');if(m)m.remove();
+}
+async function loadTeamMsgs(){
+  var r=await sb.from('messages').select('*').eq('room','designer:'+_teamChatOrder).order('created_at',{ascending:true});
+  _teamMsgs=r.data||[];
+}
+function paintTeamChat(){
+  var b=document.getElementById('tc-body');if(!b)return;
+  b.innerHTML=_teamMsgs.length?_teamMsgs.map(function(m){
+    var mine=m.sender_type==='admin';
+    var t=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var h='';
+    if(m.image_url)h+='<img src="'+esc(m.image_url)+'" style="max-width:200px;border-radius:10px;cursor:pointer;align-self:'+(mine?'flex-end':'flex-start')+';margin-top:6px" onclick="window.open(this.src)">';
+    if(m.message)h+='<div style="max-width:80%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.5;margin-top:6px;align-self:'+(mine?'flex-end':'flex-start')+';background:'+(mine?'#1DBF73':'rgba(255,255,255,.07)')+';color:'+(mine?'#fff':'#E2E8F0')+'">'+esc(m.message)+'</div>';
+    h+='<div style="font-size:10px;color:#64748B;align-self:'+(mine?'flex-end':'flex-start')+'">'+t+'</div>';
+    return h;
+  }).join(''):'<div style="color:#64748B;font-size:13px;text-align:center;margin:auto">No messages yet.</div>';
+  b.scrollTop=b.scrollHeight;
+}
+async function sendTeamMsg(){
+  var ta=document.getElementById('tc-in');var body=ta.value.trim();if(!body)return;
+  ta.value='';
+  var r=await sb.from('messages').insert({order_id:_teamChatOrder,room:'designer:'+_teamChatOrder,sender_type:'admin',message:body});
+  if(r.error){ta.value=body;alert('Could not send: '+r.error.message);return}
+  await loadTeamMsgs();paintTeamChat();
 }
 
 async function renderGigsView(){
