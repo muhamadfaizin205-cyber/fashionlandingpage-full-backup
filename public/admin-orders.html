@@ -267,6 +267,8 @@ a{color:inherit;text-decoration:none}
 .mbtn{padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;transition:all .12s;display:inline-flex;align-items:center;gap:5px}
 .mbtn-g{background:var(--green);color:#fff}.mbtn-g:hover{background:var(--green-dark)}
 .mbtn-r{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}.mbtn-r:hover{background:#FEE2E2}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld>span{font-size:12px;color:#94A3B8;font-weight:600}
 .msel{padding:10px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:inherit;appearance:auto;flex:1;min-width:120px;background:rgba(255,255,255,0.06);color:#F1F5F9}
 
 .empty{text-align:center;padding:50px 20px;color:var(--txt3);font-size:13px}
@@ -3837,7 +3839,7 @@ async function renderReviewsView(){
 function openReviewEditor(id){
   var v=id?_reviews.find(function(x){return x.id===id}):null;
   var wrap=document.createElement('div');
-  wrap.className='modal-overlay';wrap.id='review-modal';
+  wrap.className='modal-bg open';wrap.id='review-modal';
   wrap.innerHTML='<div class="modal" style="max-width:520px"><div class="modal-head"><h3>'+(v?'Edit':'Add')+' Review</h3><button onclick="document.getElementById(\'review-modal\').remove()" class="modal-x">&times;</button></div>'+
     '<div class="modal-body" style="display:flex;flex-direction:column;gap:12px">'+
       '<label class="fld"><span>Reviewer name *</span><input id="rv-name" class="msel" value="'+esc(v?v.author_name:'')+'" placeholder="e.g. james_w"></label>'+
@@ -3930,7 +3932,7 @@ async function renderTeamView(){
 function copyCode(c){navigator.clipboard.writeText(c).then(function(){alert('Access code copied.')})}
 
 function openDesignerEditor(){
-  var w=document.createElement('div');w.className='modal-overlay';w.id='dz-modal';
+  var w=document.createElement('div');w.className='modal-bg open';w.id='dz-modal';
   w.innerHTML='<div class="modal" style="max-width:420px"><div class="modal-head"><h3>Add Designer</h3>'+
     '<button class="modal-x" onclick="document.getElementById(\'dz-modal\').remove()">&times;</button></div>'+
     '<div class="modal-body" style="display:flex;flex-direction:column;gap:12px">'+
@@ -3970,7 +3972,7 @@ async function assignDesigner(orderId,val){
 /* Chat with the designer on a project (room: designer:<orderId>) */
 async function openTeamChat(orderId){
   _teamChatOrder=orderId;
-  var w=document.createElement('div');w.className='modal-overlay';w.id='tc-modal';
+  var w=document.createElement('div');w.className='modal-bg open';w.id='tc-modal';
   w.innerHTML='<div class="modal" style="max-width:520px"><div class="modal-head"><h3>Designer chat</h3>'+
     '<button class="modal-x" onclick="closeTeamChat()">&times;</button></div>'+
     '<div class="modal-body" style="padding:0"><div id="tc-body" style="height:52vh;min-height:320px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:3px;background:#0F1117"></div></div>'+
