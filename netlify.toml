@@ -1,0 +1,25 @@
+# Netlify config - designer workspace only.
+#
+# This repo also deploys the public site to Vercel. Netlify must NOT
+# serve that site, or designers would see the studio brand at the
+# workspace URL. So the build copies ONLY public/workspace.html into an
+# empty folder as index.html, and publishes that folder. Nothing else
+# from the repo is exposed.
+#
+# Vercel ignores this file, so the main deployment is unaffected.
+
+[build]
+  command = "rm -rf ws_out && mkdir -p ws_out && cp public/workspace.html ws_out/index.html"
+  publish = "ws_out"
+
+[build.environment]
+  # No app dependencies are needed to copy one static file.
+  NPM_FLAGS = "--no-audit --no-fund"
+
+# Keep the workspace out of search engines.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
