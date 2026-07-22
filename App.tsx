@@ -3270,6 +3270,21 @@ export default function App() {
     }, 200);
   };
 
+  // Scroll to the order wizard. The wizard only renders on the home
+  // page, so from any sub-page (About, Articles, Gigs...) we must switch
+  // back first and scroll once it has mounted - otherwise the lookup
+  // returns null and the button silently does nothing.
+  const goToWizard = (event?: string) => {
+    if (event) track(event);
+    const scroll = () => {
+      const el = document.getElementById("wizard");
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" });
+    };
+    if (document.getElementById("wizard")) { scroll(); return; }
+    setCurrentPage("home");
+    setTimeout(scroll, 120);
+  };
+
   // Fiverr-style flow: gigs page shows a compact grid; clicking a card
   // opens that gig's full detail (gallery + packages + FAQ).
   const [selectedGigId, setSelectedGigId] = useState<string | null>(null);
@@ -3637,7 +3652,7 @@ export default function App() {
             <span className="nav-sep" />
             <button
               className="nav-cta"
-              onClick={() => { track("cta_nav_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); else { setCurrentPage("home"); } }}
+              onClick={() => goToWizard("cta_nav_click")}
             >
               Order now
             </button>
@@ -3950,7 +3965,7 @@ export default function App() {
               <h2 className="fv-sec-title">Make it all happen with one designer</h2>
               <button
                 className="fv-btn-dark"
-                onClick={(e) => { e.preventDefault(); track("cta_features_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); }}
+                onClick={(e) => { e.preventDefault(); goToWizard("cta_features_click"); }}
               >
                 Start your order
               </button>
@@ -4016,7 +4031,7 @@ export default function App() {
 
             <button
               className="fv-btn-light"
-              onClick={(e) => { e.preventDefault(); track("cta_banner_click"); const el = document.getElementById("wizard"); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth" }); }}
+              onClick={(e) => { e.preventDefault(); goToWizard("cta_banner_click"); }}
             >
               Start your order
             </button>
@@ -4231,7 +4246,7 @@ export default function App() {
 
       {/* ── Sticky Mobile CTA ── */}
       {step === 1 && (
-        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); const el = document.getElementById("wizard"); if(el) { const y = el.getBoundingClientRect().top + window.pageYOffset - 20; window.scrollTo({ top: y, behavior: "smooth" }); } }} className="sticky-cta">
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goToWizard(); }} className="sticky-cta">
           Start Your Order →
         </button>
       )}
