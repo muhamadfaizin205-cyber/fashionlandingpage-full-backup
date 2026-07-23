@@ -503,7 +503,13 @@ async function send(){
     order_id:cur.id, room:room(cur.id), sender_type:'designer',
     sender_email:me.name, message:body
   });
-  if(r.error){ta.value=body;alert('Could not send: '+r.error.message);return}
+  if(r.error){
+    ta.value=body;
+    alert('Could not send: '+r.error.message+
+      (/room|column|policy|violates/i.test(r.error.message)
+        ? '\n\nThe studio still needs to run designer-chat-migration.sql.' : ''));
+    return;
+  }
   await loadMsgs(); paintChat();
 }
 
