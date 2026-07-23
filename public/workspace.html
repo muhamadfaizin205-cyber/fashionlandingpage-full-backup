@@ -48,7 +48,10 @@ input,textarea,select{font-family:inherit}
 .sb-i.on{background:rgba(255,122,77,.13);color:#fff;font-weight:700}
 .sb-i.on i{color:var(--ac)}
 .sb-i.on::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:4px;height:22px;border-radius:0 4px 4px 0;background:var(--ac)}
-.sb-i[disabled]{opacity:.35;pointer-events:none}
+.sb-i.dim{opacity:.5}
+.sb-i.dim:hover{opacity:1}
+.hint{display:flex;align-items:center;gap:9px;background:rgba(255,122,77,.12);border:1px solid rgba(255,122,77,.3);color:#FFD2C0;border-radius:12px;padding:12px 15px;font-size:13px;margin-bottom:16px}
+.hint i{font-size:17px;color:var(--ac)}
 .sb-badge{margin-left:auto;min-width:18px;height:18px;padding:0 6px;border-radius:100px;background:var(--ac);color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .sb-foot{border-top:1px solid var(--bd);padding-top:12px;display:flex;align-items:center;gap:10px}
 .sb-av{width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
@@ -293,7 +296,7 @@ function paintNav(){
   h+='<div class="sb-sec">Project</div>';
   h+=TABS.map(function(t){
     var unread=(t.k==='chat'&&cur)?Math.max(0,msgs.filter(function(m){return m.sender_type!=='designer'}).length-seen):0;
-    return '<button class="sb-i '+(cur&&tab===t.k?'on':'')+'" '+(cur?'':'disabled')+' onclick="setTab(\''+t.k+'\')">'+
+    return '<button class="sb-i '+(cur&&tab===t.k?'on':'')+(cur?'':' dim')+'" onclick="setTab(\''+t.k+'\')">'+
       '<i class="'+t.icon+'"></i>'+t.label+
       (unread>0?'<span class="sb-badge">'+unread+'</span>':'')+
     '</button>';
@@ -353,8 +356,20 @@ async function openProject(id){
     paintNav();
   },5000);
 }
-function setTab(t){
-  if(!cur)return;
+async function setTab(t){
+  // No project open yet: with a single project just open it, otherwise
+  // show the list and say what to do - never a dead click.
+  if(!cur){
+    if(!projects.length){await showList();return}
+    if(projects.length===1){await openProject(projects[0].id);await setTab(t);return}
+    await showList();
+    var v=document.getElementById('view');
+    var hint=document.createElement('div');
+    hint.className='hint';
+    hint.innerHTML='<i class="ri-information-line"></i> Choose a project below to open <b>'+t+'</b>.';
+    v.insertBefore(hint,v.firstChild);
+    return;
+  }
   tab=t; closeSb();
   if(t==='chat')seen=msgs.filter(function(m){return m.sender_type!=='designer'}).length;
   paintNav(); paint();
