@@ -2,55 +2,58 @@
 -- PRESENTATION DEMO ORDERS (36) - ADMIN UI ONLY
 -- Run in Supabase SQL Editor.
 --
--- Brand names look real for presenting, but every row is still tagged
--- by its email @sample.test - the ONLY marker. That tag:
---   * keeps them off the public site (orders are fetched by the
---     customer's own email or the admin hash; nobody owns these),
---   * lets you delete every one in a single line (see bottom).
+-- Brand names, customer names and emails all look real for presenting.
+-- The ONLY thing marking these as demo is the email domain @sample.test
+-- - a reserved test domain (RFC 6761) that can NEVER belong to a real
+-- person. That is deliberate:
+--   * it can never collide with a real customer's email (no privacy risk),
+--   * these orders can never surface on the public site (orders are
+--     fetched by the customer's own email or the admin hash),
+--   * you can delete every one in a single line (see bottom).
 --
--- The email barely shows when presenting, so the list looks genuine.
--- ⚠️ Still fake data - delete it when the presentation is done.
+-- '@sample.test' barely registers when presenting, so the list looks
+-- genuine. Still fake data - delete it when the presentation is done.
 -- ═══════════════════════════════════════════════════════════
 
 INSERT INTO orders
   (brand_name, name, service, package_name, price, qty, status, email, brief, whatsapp, created_at)
 VALUES
-  ('Kinara Apparel','Aria','Logo Design','Standard',120,1,'working','demo01@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628121429841', now() - interval '58 days'),
-  ('Nordic Wave','Ben','Logo Design','Standard',75,1,'done','demo02@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628123118992', now() - interval '57 days'),
-  ('Ember & Oak','Cara','Logo Design','Standard',75,1,'new','demo03@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628121995893', now() - interval '45 days'),
-  ('Vante Studio','Dylan','Clothing Design','Standard',200,1,'new','demo04@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628126433126', now() - interval '34 days'),
-  ('Loomis Co','Eli','Clothing Design','Standard',150,1,'new','demo05@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628126122271', now() - interval '17 days'),
-  ('Halcyon Wear','Farah','Clothing Design','Standard',120,1,'review','demo06@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628127532484', now() - interval '56 days'),
-  ('Brightside Collective','Gio','Logo Design','Standard',75,1,'revision','demo07@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628125065439', now() - interval '26 days'),
-  ('Ravel Clothing','Hana','Logo Design','Standard',75,1,'done','demo08@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628125714903', now() - interval '0 days'),
-  ('Monsoon Threads','Ivan','Clothing Design','Standard',150,1,'new','demo09@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628127856604', now() - interval '60 days'),
-  ('Cedar Lane','Jade','Logo Design','Standard',60,1,'revision','demo10@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628121962608', now() - interval '36 days'),
-  ('Union Six','Kai','Logo Design','Standard',75,1,'review','demo11@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628125720911', now() - interval '4 days'),
-  ('Palette House','Lena','Logo Design','Standard',60,1,'revision','demo12@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628122894640', now() - interval '55 days'),
-  ('Northwind Supply','Milo','Logo Design','Standard',180,1,'new','demo13@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628128204347', now() - interval '41 days'),
-  ('Vireo Studio','Nadia','Logo Design','Standard',120,1,'new','demo14@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628129585536', now() - interval '47 days'),
-  ('Basalt Goods','Owen','Flyer Design','Standard',150,1,'working','demo15@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628124062734', now() - interval '28 days'),
-  ('Marlowe & Sons','Priya','Flyer Design','Standard',75,1,'new','demo16@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628120498320', now() - interval '9 days'),
-  ('Dune & Co','Quinn','Flyer Design','Standard',150,1,'new','demo17@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628120085479', now() - interval '19 days'),
-  ('Fernweh Apparel','Rafi','Flyer Design','Standard',90,1,'new','demo18@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628122893467', now() - interval '36 days'),
-  ('Cobalt Room','Sara','Flyer Design','Standard',60,1,'new','demo19@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628128417316', now() - interval '17 days'),
-  ('Astra Label','Theo','Clothing Design','Standard',250,1,'new','demo20@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628120303376', now() - interval '18 days'),
-  ('Meridian Wear','Uma','Logo Design','Standard',120,1,'working','demo21@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628129742609', now() - interval '8 days'),
-  ('Wilder Brand','Vince','Clothing Design','Standard',200,1,'working','demo22@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628126968361', now() - interval '18 days'),
-  ('Onyx Field','Wren','Clothing Design','Standard',75,1,'new','demo23@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628129787750', now() - interval '25 days'),
-  ('Petrichor Studio','Yara','Logo Design','Standard',120,1,'new','demo24@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628123818958', now() - interval '50 days'),
-  ('Solace Threads','Zane','Logo Design','Standard',75,1,'new','demo25@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628126154626', now() - interval '32 days'),
-  ('Tindra Co','Noah','Flyer Design','Standard',60,1,'revision','demo26@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628123801447', now() - interval '18 days'),
-  ('Verano Wear','Mila','Clothing Design','Standard',75,1,'review','demo27@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628125205205', now() - interval '49 days'),
-  ('Bracken Supply','Leo','Flyer Design','Standard',150,1,'done','demo28@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628128812272', now() - interval '57 days'),
-  ('Halo Nine','Ivy','Flyer Design','Standard',60,1,'revision','demo29@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628128557697', now() - interval '41 days'),
-  ('Nova Haus','Finn','Logo Design','Standard',120,1,'new','demo30@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628124478730', now() - interval '10 days'),
-  ('Quill & Ink','Rhea','Clothing Design','Standard',75,1,'new','demo31@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628121076566', now() - interval '3 days'),
-  ('Riverbend Goods','Cole','Flyer Design','Standard',75,1,'new','demo32@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628126949032', now() - interval '49 days'),
-  ('Sable Studio','Nina','Logo Design','Standard',75,1,'review','demo33@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628125476372', now() - interval '49 days'),
-  ('Tallow & Co','Omar','Logo Design','Standard',180,1,'new','demo34@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628127368100', now() - interval '58 days'),
-  ('Cinder Label','Tess','Logo Design','Standard',120,1,'working','demo35@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628121045154', now() - interval '57 days'),
-  ('Lumen Apparel','Dara','Logo Design','Standard',75,1,'new','demo36@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628126604142', now() - interval '18 days');
+  ('Kinara Apparel','Aria Chen','Logo Design','Standard',75,1,'working','aria.chen@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628124767159', now() - interval '3 days'),
+  ('Nordic Wave','Ben Walker','Flyer Design','Standard',60,1,'new','ben.walker@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628129808708', now() - interval '3 days'),
+  ('Ember & Oak','Cara Alvarez','Logo Design','Standard',75,1,'working','cara.alvarez@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628128245334', now() - interval '55 days'),
+  ('Vante Studio','Dylan Novak','Logo Design','Standard',180,1,'new','dylan.novak@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628123641731', now() - interval '7 days'),
+  ('Loomis Co','Eli Reyes','Clothing Design','Standard',120,1,'working','eli.reyes@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628124631449', now() - interval '30 days'),
+  ('Halcyon Wear','Farah Haddad','Clothing Design','Standard',75,1,'new','farah.haddad@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628129818328', now() - interval '37 days'),
+  ('Brightside Collective','Gio Rossi','Flyer Design','Standard',60,1,'revision','gio.rossi@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628121960833', now() - interval '8 days'),
+  ('Ravel Clothing','Hana Kim','Flyer Design','Standard',90,1,'new','hana.kim@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628124836424', now() - interval '56 days'),
+  ('Monsoon Threads','Ivan Petrov','Flyer Design','Standard',60,1,'done','ivan.petrov@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628127817240', now() - interval '36 days'),
+  ('Cedar Lane','Jade Okafor','Flyer Design','Standard',90,1,'new','jade.okafor@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628122374683', now() - interval '16 days'),
+  ('Union Six','Kai Nguyen','Clothing Design','Standard',200,1,'new','kai.nguyen@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628126363719', now() - interval '6 days'),
+  ('Palette House','Lena Silva','Clothing Design','Standard',250,1,'new','lena.silva@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628124318583', now() - interval '24 days'),
+  ('Northwind Supply','Milo Brooks','Clothing Design','Standard',75,1,'review','milo.brooks@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628124220391', now() - interval '56 days'),
+  ('Vireo Studio','Nadia Patel','Flyer Design','Standard',150,1,'done','nadia.patel@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628124557898', now() - interval '26 days'),
+  ('Basalt Goods','Owen Larsen','Clothing Design','Standard',120,1,'new','owen.larsen@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628124858761', now() - interval '36 days'),
+  ('Marlowe & Sons','Priya Costa','Logo Design','Standard',180,1,'working','priya.costa@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628120985293', now() - interval '36 days'),
+  ('Dune & Co','Quinn Meyer','Logo Design','Standard',180,1,'working','quinn.meyer@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628123588769', now() - interval '41 days'),
+  ('Fernweh Apparel','Rafi Tan','Flyer Design','Standard',90,1,'new','rafi.tan@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628123151970', now() - interval '54 days'),
+  ('Cobalt Room','Sara Ford','Flyer Design','Standard',75,1,'done','sara.ford@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628120478174', now() - interval '39 days'),
+  ('Astra Label','Theo Ito','Logo Design','Standard',180,1,'done','theo.ito@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628128815583', now() - interval '59 days'),
+  ('Meridian Wear','Uma Diaz','Clothing Design','Standard',120,1,'working','uma.diaz@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628122720053', now() - interval '49 days'),
+  ('Wilder Brand','Vince Bauer','Logo Design','Standard',75,1,'working','vince.bauer@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628128409104', now() - interval '56 days'),
+  ('Onyx Field','Wren Hughes','Flyer Design','Standard',60,1,'new','wren.hughes@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628126541118', now() - interval '16 days'),
+  ('Petrichor Studio','Yara Sato','Clothing Design','Standard',120,1,'new','yara.sato@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628126354779', now() - interval '12 days'),
+  ('Solace Threads','Zane Wolfe','Flyer Design','Standard',75,1,'revision','zane.wolfe@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628122004547', now() - interval '7 days'),
+  ('Tindra Co','Noah Adams','Clothing Design','Standard',150,1,'new','noah.adams@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628125135629', now() - interval '11 days'),
+  ('Verano Wear','Mila Marsh','Clothing Design','Standard',150,1,'completed','mila.marsh@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628129013340', now() - interval '15 days'),
+  ('Bracken Supply','Leo Yates','Clothing Design','Standard',120,1,'revision','leo.yates@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628121749530', now() - interval '43 days'),
+  ('Halo Nine','Ivy Khan','Flyer Design','Standard',60,1,'new','ivy.khan@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628123111844', now() - interval '14 days'),
+  ('Nova Haus','Finn Frost','Clothing Design','Standard',250,1,'revision','finn.frost@sample.test','Streetwear graphic for a small drop - bold, original, print-ready front and back.','+628127549605', now() - interval '13 days'),
+  ('Quill & Ink','Rhea Vega','Logo Design','Standard',120,1,'done','rhea.vega@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628127837647', now() - interval '20 days'),
+  ('Riverbend Goods','Cole Boyd','Flyer Design','Standard',60,1,'new','cole.boyd@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628121163879', now() - interval '34 days'),
+  ('Sable Studio','Nina Cruz','Flyer Design','Standard',150,1,'working','nina.cruz@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628124015759', now() - interval '31 days'),
+  ('Tallow & Co','Omar Riaz','Flyer Design','Standard',90,1,'new','omar.riaz@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628123184206', now() - interval '37 days'),
+  ('Cinder Label','Tess Lowe','Logo Design','Standard',120,1,'revision','tess.lowe@sample.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628124561549', now() - interval '59 days'),
+  ('Lumen Apparel','Dara Shah','Flyer Design','Standard',150,1,'working','dara.shah@sample.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628120822189', now() - interval '4 days');
 
 -- ── Remove ALL demo orders later, run ONLY this line: ──
 -- DELETE FROM orders WHERE email LIKE '%@sample.test';
