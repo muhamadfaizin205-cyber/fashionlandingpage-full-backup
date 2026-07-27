@@ -81,7 +81,52 @@ UPDATE orders SET assigned_designer_id = d.id
 FROM o JOIN d ON (o.rn % d.total) = d.rn
 WHERE orders.id = o.id;
 
+-- ── SAMPLE DESIGNER <-> STUDIO CHATS ──
+-- Fills each sample order's private room ('designer:<id>') with a short,
+-- casual back-and-forth so the presentation shows active conversations.
+-- Requires designer-chat-migration.sql to have been run first.
+INSERT INTO messages (order_id, room, sender_type, sender_email, message, order_email, read, delivered, created_at)
+SELECT s.id, 'designer:'||s.id, t.who,
+       CASE WHEN t.who='designer' THEN s.dz ELSE NULL END,
+       t.msg, NULL, true, true,
+       now() - ((30 - t.seq*4)::text||' minutes')::interval - ((s.rn)::text||' minutes')::interval
+FROM (
+  SELECT o.id, d.name AS dz,
+         (row_number() OVER (ORDER BY o.created_at) - 1)      AS rn,
+         (row_number() OVER (ORDER BY o.created_at) - 1) % 6  AS scr
+  FROM orders o LEFT JOIN designers d ON d.id = o.assigned_designer_id
+  WHERE o.email LIKE '%@cloth.test'
+) s
+JOIN (VALUES
+  (0,0,'admin','halo, brief udah masuk ya, dicek dulu gpp'),
+  (0,1,'designer','sip udah aku baca, gas sketsa dulu'),
+  (0,2,'admin','oke kabarin kalo ada yg kurang jelas'),
+  (0,3,'designer','noted bang'),
+  (1,0,'designer','bang warnanya fix ke yg mana? biru apa item'),
+  (1,1,'admin','pake item aja biar clean'),
+  (1,2,'designer','okee gaskeun'),
+  (1,3,'admin','mantap'),
+  (2,0,'designer','ini progress logonya, cek dong'),
+  (2,1,'admin','mantul, tinggal spasi hurufnya dirapiin dikit'),
+  (2,2,'designer','siyap bentar aku fix'),
+  (2,3,'designer','udah aku update ya'),
+  (3,0,'admin','tolong revisi bagian belakang bajunya, kegedean'),
+  (3,1,'designer','oke aku kecilin 15% cukup?'),
+  (3,2,'admin','cukup, gass'),
+  (3,3,'designer','otw'),
+  (4,0,'admin','estimasi kelar kapan nih?'),
+  (4,1,'designer','besok sore kelar sih insyaAllah'),
+  (4,2,'admin','oke ditunggu ya'),
+  (4,3,'designer','aman bang'),
+  (5,0,'designer','bang minta font brandnya ada gak?'),
+  (5,1,'admin','ada nanti aku share ya'),
+  (5,2,'designer','okee makasih'),
+  (5,3,'admin','udah aku kirim cek ya'),
+  (5,4,'designer','dapet, thanks!')
+) t(scr, seq, who, msg) ON t.scr = s.scr;
+
 -- ── Remove ALL sample orders later, run ONLY this line: ──
+-- DELETE FROM messages WHERE order_id IN (SELECT id FROM orders WHERE email LIKE '%@cloth.test');
 -- UPDATE orders SET assigned_designer_id = NULL WHERE email LIKE '%@cloth.test';
 -- DELETE FROM orders    WHERE email       LIKE '%@cloth.test';
 -- DELETE FROM designers WHERE access_code IN ('RZY7-K2MQ-P19X', 'KYL4-8QT2-M6RD', 'ADT9-3XPK-72NW', 'SYF5-Q8M2-63KP', 'BMO6-4KRT-91XQ', 'DVZ3-7MPQ-K84R');
