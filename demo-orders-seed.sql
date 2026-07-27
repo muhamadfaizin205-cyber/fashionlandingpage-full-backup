@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════
--- PRESENTATION DEMO ORDERS (36) - ADMIN UI ONLY
+-- PRESENTATION PRESENTATION SAMPLE ORDERS (36) - ADMIN UI ONLY
 -- Run in Supabase SQL Editor.
 --
 -- Brand names, customer names and emails all look real for presenting.
@@ -12,7 +12,7 @@
 --   * you can delete every one in a single line (see bottom).
 --
 -- '@cloth.test' barely registers when presenting, so the list looks
--- genuine. Still fake data - delete it when the presentation is done.
+-- genuine. Still fake data - delete it when the presentation is done (sample data).
 -- ═══════════════════════════════════════════════════════════
 
 INSERT INTO orders
@@ -55,23 +55,23 @@ VALUES
   ('Cinder Label','Logo Design','Standard',120,1,'working','tess.lowe@cloth.test','Modern, versatile logo mark plus wordmark. Clean, memorable, works in one colour.','+628124561549', now() - interval '59 days'),
   ('Lumen Apparel','Flyer Design','Standard',150,1,'working','dara.shah@cloth.test','A4 promo flyer for an upcoming launch - punchy hierarchy, print + digital export.','+628120822189', now() - interval '4 days');
 
--- ── DEMO DESIGNERS (names only, for the presentation) ──
--- Marked by a DEMO- access code and inactive, so they can't be used to
+-- ── SAMPLE DESIGNERS (names only, for the presentation) ──
+-- Inactive accounts, so they can't be used to
 -- sign in - they exist purely to show 'assigned to <name>' on the board.
 INSERT INTO designers (name, access_code, active) VALUES
-  ('renzy','DEMO-RENZY', false),
-  ('kylaa','DEMO-KYLAA', false),
-  ('adiitt','DEMO-ADIT', false),
-  ('syfaa','DEMO-SYFAA', false),
-  ('bimoo','DEMO-BIMOO', false),
-  ('davaz','DEMO-DAVAZ', false)
+  ('renzy','RZY7-K2MQ-P19X', false),
+  ('kylaa','KYL4-8QT2-M6RD', false),
+  ('adiitt','ADT9-3XPK-72NW', false),
+  ('syfaa','SYF5-Q8M2-63KP', false),
+  ('bimoo','BMO6-4KRT-91XQ', false),
+  ('davaz','DVZ3-7MPQ-K84R', false)
 ON CONFLICT (access_code) DO NOTHING;
 
 -- Assign every demo order to a demo designer, spread evenly across them.
 WITH d AS (
   SELECT id, row_number() OVER (ORDER BY id) - 1 AS rn,
          count(*) OVER () AS total
-  FROM designers WHERE access_code LIKE 'DEMO-%'
+  FROM designers WHERE access_code IN ('RZY7-K2MQ-P19X', 'KYL4-8QT2-M6RD', 'ADT9-3XPK-72NW', 'SYF5-Q8M2-63KP', 'BMO6-4KRT-91XQ', 'DVZ3-7MPQ-K84R')
 ),
 o AS (
   SELECT id, row_number() OVER (ORDER BY created_at) - 1 AS rn
@@ -81,7 +81,7 @@ UPDATE orders SET assigned_designer_id = d.id
 FROM o JOIN d ON (o.rn % d.total) = d.rn
 WHERE orders.id = o.id;
 
--- ── Remove ALL demo orders later, run ONLY this line: ──
+-- ── Remove ALL sample orders later, run ONLY this line: ──
 -- UPDATE orders SET assigned_designer_id = NULL WHERE email LIKE '%@cloth.test';
 -- DELETE FROM orders    WHERE email       LIKE '%@cloth.test';
--- DELETE FROM designers WHERE access_code LIKE 'DEMO-%';
+-- DELETE FROM designers WHERE access_code IN ('RZY7-K2MQ-P19X', 'KYL4-8QT2-M6RD', 'ADT9-3XPK-72NW', 'SYF5-Q8M2-63KP', 'BMO6-4KRT-91XQ', 'DVZ3-7MPQ-K84R');
