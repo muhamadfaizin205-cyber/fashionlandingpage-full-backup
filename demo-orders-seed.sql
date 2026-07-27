@@ -59,12 +59,12 @@ VALUES
 -- Marked by a DEMO- access code and inactive, so they can't be used to
 -- sign in - they exist purely to show 'assigned to <name>' on the board.
 INSERT INTO designers (name, access_code, active) VALUES
-  ('rvnn','DEMO-RVNN', false),
-  ('kaycee','DEMO-KAYCEE', false),
-  ('zeeflow','DEMO-ZEE', false),
-  ('miloqz','DEMO-MILO', false),
-  ('naranugu','DEMO-NARA', false),
-  ('dxpixel','DEMO-DXP', false)
+  ('renzy','DEMO-RENZY', false),
+  ('kylaa','DEMO-KYLAA', false),
+  ('adiitt','DEMO-ADIT', false),
+  ('syfaa','DEMO-SYFAA', false),
+  ('bimoo','DEMO-BIMOO', false),
+  ('davaz','DEMO-DAVAZ', false)
 ON CONFLICT (access_code) DO NOTHING;
 
 -- Assign every demo order to a demo designer, spread evenly across them.
