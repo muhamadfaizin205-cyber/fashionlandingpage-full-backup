@@ -139,6 +139,8 @@ a{color:inherit;text-decoration:none}
 .ocard-price{font-size:16px;font-weight:800;color:var(--green)}
 .ocard-meta{display:flex;gap:10px;font-size:11px;color:var(--txt2);flex-wrap:wrap;align-items:center}
 .ocard-deadline{font-weight:600}
+.ocard-dz{display:inline-flex;align-items:center;gap:4px;background:rgba(108,140,255,.16);color:#9DB2FF;padding:2px 8px;border-radius:100px;font-size:10.5px;font-weight:600}
+.ocard-dz i{font-size:12px}
 .ocard-deadline.urgent{color:var(--red)}
 .ocard-deadline.warning{color:var(--yellow)}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase}
@@ -813,12 +815,14 @@ function startApp(){
   }).subscribe();
 }
 
+var designerById={};
 async function loadOrders(){
   try{
     var resp=await fetch('/api/get-orders',{headers:{'x-admin-hash':adminHash}});
     var result=await resp.json();
     orders=result.orders||[];
   }catch(e){orders=[];console.error('loadOrders failed:',e)}
+  try{var dr=await sb.from('designers').select('id,name');designerById={};(dr.data||[]).forEach(function(d){designerById[d.id]=d.name})}catch(e){}
   renderStats();renderOrders();
 }
 
@@ -828,7 +832,7 @@ async function loadConversations(){
     var result=await resp.json();
     var data=result.messages||[];
   }catch(e){data=[];}
-  const all=data||[];
+  const all=(data||[]).filter(m=>m.order_email && !String(m.room||'').startsWith('designer:'));
   const map={};
   all.forEach(m=>{if(!map[m.order_email])map[m.order_email]={email:m.order_email,last:m,unread:0,msgs:[]};map[m.order_email].msgs.push(m);if(m.sender_type==='client'&&!m.read)map[m.order_email].unread++});
   convs=Object.values(map).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
@@ -1188,7 +1192,7 @@ function renderOrders(){
       if(!t&&o.delivery){const d=parseInt(o.delivery)||3;t=new Date(new Date(o.created_at).getTime()+d*86400000)}
       if(t){const diff=t-Date.now();if(diff<=0)dl='<span class="ocard-deadline urgent">OVERDUE</span>';else{const dd=Math.floor(diff/86400000),hh=Math.floor((diff%86400000)/3600000);dl='<span class="ocard-deadline '+(dd<1?'urgent':dd<2?'warning':'')+'">'+dd+'d '+hh+'h left</span>'}}
     }
-    return '<div class="ocard'+(selId===o.id?' selected':'')+'" onclick="openDetail(\''+o.id+'\')"><div class="ocard-top"><div><div class="ocard-brand">'+esc(o.brand_name)+'</div><div class="ocard-email">'+esc(o.email||'')+'</div></div><div class="ocard-price">$'+Number(o.price||0).toFixed(0)+'</div></div><div class="ocard-meta"><span class="badge '+(SC[o.status]||'')+'">'+SL[o.status]+'</span><span>'+esc(o.service)+'</span>'+dl+'</div></div>'
+    return '<div class="ocard'+(selId===o.id?' selected':'')+'" onclick="openDetail(\''+o.id+'\')"><div class="ocard-top"><div><div class="ocard-brand">'+esc(o.brand_name)+'</div><div class="ocard-email">'+esc(o.email||'')+'</div></div><div class="ocard-price">$'+Number(o.price||0).toFixed(0)+'</div></div><div class="ocard-meta"><span class="badge '+(SC[o.status]||'')+'">'+SL[o.status]+'</span><span>'+esc(o.service)+'</span>'+(o.assigned_designer_id&&designerById[o.assigned_designer_id]?'<span class="ocard-dz"><i class="ri-user-3-line"></i>'+esc(designerById[o.assigned_designer_id])+'</span>':'')+dl+'</div></div>'
   }).join('')+'</div>';
 }
 
@@ -3386,7 +3390,7 @@ async function loadClientProfiles(){
   if(data)data.forEach(p=>{clientProfiles[p.email]=p});
 }
 function renderConvList(){
-  const html=convs.length?convs.map(c=>{var cp=clientProfiles[c.email]||{};var cname=cp.display_name||c.email;var cav=cp.avatar_url;var cinitial=(cname||c.email).charAt(0).toUpperCase();return '<div class="conv-item'+(chatEmail===c.email?' active':'')+'" onclick="selectConv(\''+esc(c.email)+'\')"><div class="conv-avatar">'+(cav?'<img src="'+cav+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':cinitial)+'</div><div class="conv-info"><div class="conv-name">'+esc(cname)+'</div><div class="conv-last">'+esc(c.last.message||'[attachment]').substring(0,40)+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="conv-time">'+fmtTime(c.last.created_at)+'</div>'+(c.unread?'<div class="conv-unread">'+(c.unread>99?'99+':c.unread)+'</div>':'')+'</div></div>'}).join(''):'<div class="empty">No conversations yet</div>';
+  const html=convs.length?convs.map(c=>{var cp=clientProfiles[c.email]||{};var cname=cp.display_name||c.email;var cav=cp.avatar_url;var cinitial=(cname||c.email||'?').charAt(0).toUpperCase();return '<div class="conv-item'+(chatEmail===c.email?' active':'')+'" onclick="selectConv(\''+esc(c.email)+'\')"><div class="conv-avatar">'+(cav?'<img src="'+cav+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>':cinitial)+'</div><div class="conv-info"><div class="conv-name">'+esc(cname)+'</div><div class="conv-last">'+esc(c.last.message||'[attachment]').substring(0,40)+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="conv-time">'+fmtTime(c.last.created_at)+'</div>'+(c.unread?'<div class="conv-unread">'+(c.unread>99?'99+':c.unread)+'</div>':'')+'</div></div>'}).join(''):'<div class="empty">No conversations yet</div>';
   const el=document.getElementById('conv-list');if(el)el.innerHTML=html;
   const mel=document.getElementById('m-conv-list');if(mel)mel.innerHTML=html.replace(/onclick="selectConv/g,'onclick="selectConvMobile');
 }
