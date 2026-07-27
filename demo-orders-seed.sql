@@ -87,7 +87,7 @@ WHERE orders.id = o.id;
 -- Requires designer-chat-migration.sql to have been run first.
 INSERT INTO messages (order_id, room, sender_type, sender_email, message, order_email, read, delivered, created_at)
 SELECT s.id, 'designer:'||s.id, t.who,
-       CASE WHEN t.who='designer' THEN s.dz ELSE NULL END,
+       CASE WHEN t.who='designer' THEN COALESCE(s.dz,'designer') ELSE 'admin' END,
        t.msg, NULL, true, true,
        now() - ((30 - t.seq*4)::text||' minutes')::interval - ((s.rn)::text||' minutes')::interval
 FROM (
