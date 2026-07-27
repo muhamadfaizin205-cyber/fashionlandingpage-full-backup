@@ -126,41 +126,48 @@ input,textarea,select{font-family:inherit}
 .f a{color:var(--tx2);text-decoration:none;margin-left:auto;font-size:12px;font-weight:600}
 .f a:hover{color:var(--ac)}
 
-/* ══ CHAT - dark header over a light thread, studio style ══ */
-.ch{background:#fff;border:1px solid var(--bd);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 190px);min-height:400px;max-width:860px}
-.ch-h{background:#1C1F26;padding:13px 17px;display:flex;align-items:center;gap:11px;flex-shrink:0}
-.ch-av{width:38px;height:38px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
-.ch-n{font-size:14.5px;font-weight:700;color:#fff}
-.ch-st{font-size:11.5px;color:var(--ac);font-weight:500}
-.ch-b{flex:1;overflow-y:auto;padding:18px 16px 12px;display:flex;flex-direction:column;gap:2px;background:#fff;scroll-behavior:smooth}
+/* ══ CHAT - WhatsApp replica (light) ══ */
+.ch{background:#efeae2;border:1px solid var(--bd);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 190px);min-height:400px;max-width:860px}
+/* WhatsApp desktop-style light header */
+.ch-h{background:#f0f2f5;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid #d9dbdf}
+.ch-av{width:40px;height:40px;border-radius:50%;background:#00a884;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+.ch-n{font-size:15px;font-weight:600;color:#111b21}
+.ch-st{font-size:12px;color:#667781;font-weight:400}
+/* Beige wallpaper with the faint WhatsApp doodle tint */
+.ch-b{flex:1;overflow-y:auto;padding:14px 7% 10px;display:flex;flex-direction:column;gap:2px;
+  background-color:#efeae2;
+  background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1px),radial-gradient(rgba(0,0,0,.03) 1px,transparent 1px);
+  background-size:26px 26px,26px 26px;background-position:0 0,13px 13px;scroll-behavior:smooth}
 .ch-b::-webkit-scrollbar{width:6px}
-.ch-b::-webkit-scrollbar-thumb{background:rgba(0,0,0,.13);border-radius:100px}
+.ch-b::-webkit-scrollbar-thumb{background:rgba(0,0,0,.18);border-radius:100px}
 .day{align-self:center;margin:12px 0 14px}
-.day span{display:inline-block;padding:6px 16px;border-radius:100px;background:#F1F2F4;color:#8E939B;font-size:11.5px;font-weight:600}
-.m{display:flex;flex-direction:column;max-width:76%;margin-top:12px}
-.m.grp{margin-top:4px}
+.day span{display:inline-block;padding:5px 13px;border-radius:8px;background:#ffffff;color:#54656f;font-size:12px;font-weight:500;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.m{position:relative;display:flex;flex-direction:column;max-width:75%;margin-top:11px}
+.m.grp{margin-top:2px}
 .m.me{align-self:flex-end;align-items:flex-end}
 .m.them{align-self:flex-start;align-items:flex-start}
-.mb{padding:12px 16px;font-size:13.5px;line-height:1.55;word-break:break-word;border-radius:20px}
-.m.me .mb{background:var(--ac);color:#fff;border-bottom-right-radius:7px;box-shadow:0 4px 14px rgba(255,122,77,.26)}
-.m.them .mb{background:#F1F2F4;color:#2B2F36;border-bottom-left-radius:7px}
-.m.me.nx .mb{border-bottom-right-radius:20px}
-.m.them.nx .mb{border-bottom-left-radius:20px}
-.m.me.grp .mb{border-top-right-radius:8px}
-.m.them.grp .mb{border-top-left-radius:8px}
-.mi{max-width:230px;border-radius:20px;display:block;cursor:pointer}
-.m.me .mi{border-bottom-right-radius:7px}
-.m.them .mi{border-bottom-left-radius:7px}
-.mt{font-size:10.5px;color:#A8ADB5;margin-top:5px;padding:0 6px}
-.ch-e{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#8E939B;font-size:12.5px;line-height:1.65}
-.ch-e b{display:block;color:#2B2F36;font-size:14.5px;font-weight:700;margin-bottom:5px}
-.ch-i{padding:12px 14px 14px;background:#fff;border-top:1px solid #EDEEF0;display:flex;gap:9px;align-items:flex-end;flex-shrink:0}
-.ch-att{width:40px;height:40px;border-radius:50%;background:#F1F2F4;color:#6B7280;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
-.ch-att:hover{background:rgba(255,122,77,.14);color:var(--ac)}
-.ch-in{flex:1;background:#F1F2F4;border:none;border-radius:22px;padding:12px 17px;color:#2B2F36;font-size:13.5px;outline:none;resize:none;min-height:44px;max-height:120px;line-height:1.45}
-.ch-in::placeholder{color:#A8ADB5}
-.ch-s{width:44px;height:44px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;box-shadow:0 4px 14px rgba(255,122,77,.32);transition:transform .12s,filter .15s}
-.ch-s:hover{filter:brightness(1.06)}
+/* bubble: time+ticks sit INSIDE, bottom-right, WhatsApp-style */
+.mb{position:relative;padding:6px 9px 8px 10px;font-size:14.2px;line-height:1.4;word-break:break-word;border-radius:8px;box-shadow:0 1px .5px rgba(11,20,26,.13);color:#111b21}
+.m.me .mb{background:#d9fdd3}
+.m.them .mb{background:#ffffff}
+/* the little tail on the first bubble of a run */
+.m.me:not(.grp) .mb::after{content:"";position:absolute;top:0;right:-8px;width:8px;height:13px;background:#d9fdd3;clip-path:polygon(0 0,0 100%,100% 0)}
+.m.them:not(.grp) .mb::after{content:"";position:absolute;top:0;left:-8px;width:8px;height:13px;background:#ffffff;clip-path:polygon(100% 0,100% 100%,0 0)}
+.mtx{white-space:pre-wrap}
+.mmeta{float:right;display:inline-flex;align-items:center;gap:3px;margin:6px 0 -2px 10px;font-size:11px;color:#667781;line-height:1;position:relative;top:3px}
+.mtick{font-size:15px;line-height:1;color:#8696a0}
+.mtick.read{color:#53bdeb}
+.mi{max-width:250px;border-radius:6px;display:block;cursor:pointer;margin-bottom:3px}
+.ch-e{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#54656f;font-size:13px;line-height:1.65}
+.ch-e b{display:block;color:#111b21;font-size:15px;font-weight:600;margin-bottom:5px}
+/* WhatsApp composer bar */
+.ch-i{padding:9px 14px;background:#f0f2f5;display:flex;gap:9px;align-items:flex-end;flex-shrink:0}
+.ch-att{width:42px;height:42px;border-radius:50%;background:transparent;color:#54656f;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px}
+.ch-att:hover{color:#3b4a54}
+.ch-in{flex:1;background:#ffffff;border:none;border-radius:9px;padding:11px 15px;color:#111b21;font-size:14.2px;outline:none;resize:none;min-height:44px;max-height:120px;line-height:1.4}
+.ch-in::placeholder{color:#8696a0}
+.ch-s{width:44px;height:44px;border-radius:50%;background:#00a884;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;transition:transform .12s,filter .15s}
+.ch-s:hover{filter:brightness(1.05)}
 .ch-s:active{transform:scale(.93)}
 
 .hide{display:none!important}
@@ -466,14 +473,15 @@ function chatBody(){
     var t=when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     var dk=when.toDateString();
     if(dk!==lastDay){h+='<div class="day"><span>'+esc(dayLabel(when))+'</span></div>';lastDay=dk}
-    var prev=msgs[i-1],next=msgs[i+1];
+    var prev=msgs[i-1];
     var grp=prev&&((prev.sender_type==='designer')===mine)&&new Date(prev.created_at).toDateString()===dk&&(when-new Date(prev.created_at))<300000;
-    var nx=next&&((next.sender_type==='designer')===mine)&&new Date(next.created_at).toDateString()===dk&&(new Date(next.created_at)-when)<300000;
-    h+='<div class="m '+(mine?'me':'them')+(grp?' grp':'')+(nx?' nx':'')+'">';
+    var ticks=mine?'<i class="ri-check-double-line mtick'+(m.read?' read':'')+'"></i>':'';
+    h+='<div class="m '+(mine?'me':'them')+(grp?' grp':'')+'">';
+    h+='<div class="mb">';
     if(m.image_url)h+='<img class="mi" src="'+esc(m.image_url)+'" loading="lazy" onclick="window.open(this.src)">';
-    if(m.message)h+='<div class="mb">'+esc(m.message)+'</div>';
-    if(!nx)h+='<div class="mt">'+t+'</div>';
-    h+='</div>';
+    if(m.message)h+='<span class="mtx">'+esc(m.message)+'</span>';
+    h+='<span class="mmeta">'+t+ticks+'</span>';
+    h+='</div></div>';
   });
   return h;
 }
@@ -486,7 +494,7 @@ function paintChat(){
     return;
   }
   v.innerHTML='<div class="ch">'+
-    '<div class="ch-h"><div class="ch-av">S</div><div><div class="ch-n">Studio</div><div class="ch-st">Usually replies within a few hours</div></div></div>'+
+    '<div class="ch-h"><div class="ch-av">S</div><div><div class="ch-n">Studio</div><div class="ch-st">online</div></div></div>'+
     '<div class="ch-b">'+chatBody()+'</div>'+
     '<div class="ch-i">'+
       '<button class="ch-att" onclick="document.getElementById(\'cf\').click()"><i class="ri-attachment-2"></i></button>'+
