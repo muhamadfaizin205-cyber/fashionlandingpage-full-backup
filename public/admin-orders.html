@@ -4012,7 +4012,7 @@ function paintTeamChat(){
 async function sendTeamMsg(){
   var ta=document.getElementById('tc-in');var body=ta.value.trim();if(!body)return;
   ta.value='';
-  var r=await sb.from('messages').insert({order_id:_teamChatOrder,room:'designer:'+_teamChatOrder,sender_type:'admin',message:body});
+  var r=await sb.from('messages').insert({order_id:_teamChatOrder,room:'designer:'+_teamChatOrder,sender_type:'admin',sender_email:'admin',message:body});
   if(r.error){ta.value=body;alert('Could not send: '+r.error.message);return}
   await loadTeamMsgs();paintTeamChat();
 }
