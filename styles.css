@@ -4641,40 +4641,19 @@ html {
   display: inline-block;
   height: 36px;
   aspect-ratio: 753 / 244;
-  /* Glossy black: lighter at the top and bottom edges, deepest in the
-     middle, like a polished / piano-black surface. */
-  background: linear-gradient(176deg,#4a4a4a 0%,#232323 20%,#0b0b0b 50%,#1c1c1c 74%,#3a3a3a 100%);
+  /* Clean flat black - monochrome, no gloss. */
+  background: #111111;
   -webkit-mask: url(/logo-dean.png) center / contain no-repeat;
   mask: url(/logo-dean.png) center / contain no-repeat;
   overflow: hidden;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.35))
-    drop-shadow(0 1px 2px rgba(0,0,0,.28))
-    drop-shadow(0 4px 8px rgba(0,0,0,.18));
-  transition: filter .3s ease;
+  transition: opacity .2s ease;
 }
 /* Shine: a bright diagonal band moved with transform (GPU-composited,
    so it never freezes the way an animated background-position over a
    mask does on mobile Chrome). The parent's mask + overflow:hidden clip
    the band to the logo shape. */
-.nav-logo-mark::after {
-  content: "";
-  position: absolute;
-  top: -25%;
-  bottom: -25%;
-  left: 0;
-  width: 42%;
-  background: linear-gradient(104deg,transparent 0%,rgba(255,255,255,.55) 42%,rgba(255,255,255,.95) 50%,rgba(255,255,255,.55) 58%,transparent 100%);
-  transform: translateX(-180%) skewX(-10deg);
-  animation: logoShine 5.5s ease-in-out infinite;
-  pointer-events: none;
-}
-.nav-logo:hover .nav-logo-mark {
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.4))
-    drop-shadow(0 2px 3px rgba(0,0,0,.32))
-    drop-shadow(0 6px 12px rgba(0,0,0,.24));
-}
+.nav-logo-mark::after { display: none; }
+.nav-logo:hover .nav-logo-mark { opacity: .8; }
 
 /* ── Image logo (uploaded PNG) with the same shine sweep ──
    The <img> renders normally; ::after paints a moving white

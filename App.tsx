@@ -1492,49 +1492,27 @@ function ProgressBar({ step, hideStep }: { step: number; hideStep?: number }) {
 const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; tips: string[] }> = {
   1: {
     icon: "ri-palette-line", title: "Choose Service", color: "#1DBF73",
-    tips: [
-      "Clothing Design - t-shirts, hoodies, jerseys, streetwear, all apparel",
-      "Logo Brand Design - logos, icons, full brand identity",
-    ],
+    tips: ["Clothing or logo & brand identity - pick one to start."],
   },
   2: {
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
-    tips: [
-      "Email - your order confirmation and login link will be sent here",
-      "WhatsApp - designer contacts you here if needed",
-      "Instagram - helps designer understand your brand style",
-    ],
+    tips: ["Your email receives the order confirmation and login link."],
   },
   3: {
     icon: "ri-apps-line", title: "Concepts", color: "#F59E0B",
-    tips: [
-      "1 concept = 1 unique design variation to choose from",
-      "More concepts = more options. We recommend 2–3",
-    ],
+    tips: ["More concepts, more options - we recommend 2-3."],
   },
   4: {
     icon: "ri-edit-line", title: "Design Brief", color: "#3B82F6",
-    tips: [
-      "Describe your style: streetwear, vintage, minimal, sporty, etc.",
-      "Mention colors, text, and any must-haves",
-      "Upload reference images for best results",
-    ],
+    tips: ["Describe your style and colors; add references if you have them."],
   },
   5: {
     icon: "ri-box-3-line", title: "Package", color: "#EC4899",
-    tips: [
-      "Basic - simple design, limited revisions",
-      "Standard - detailed design + mockup, more revisions",
-      "Premium - full package, unlimited revisions, priority",
-    ],
+    tips: ["Higher tiers add revisions, mockups and priority."],
   },
   6: {
     icon: "ri-bank-card-line", title: "Payment", color: "#14B8A6",
-    tips: [
-      "Pay securely with your PayPal account — cards linked to your PayPal work too",
-      "After payment you'll receive a confirmation email with your login link",
-      "Use your email to track order, chat with designer, download files",
-    ],
+    tips: ["Pay securely via PayPal - a confirmation email follows."],
   },
 };
 
@@ -4147,39 +4125,6 @@ export default function App() {
         </div>
       </section>
 
-          <section className="about-section s2" id="about">
-            <div className="about-inner">
-              <span className="about-eyebrow">ABOUT US</span>
-              <h2 className="about-title">About Dean Designers</h2>
-              <p className="about-lede">
-                Professional studio to create clothing design and brand identity. Founded by Dean, a renowned designer in the United States. 136,000+ designs completed for 7,000+ brands since 2018.
-              </p>
-              <div className="about-stats">
-                {[
-                  {num:"136,000+",label:"Projects Completed"},
-                  {num:"4.9★",label:"Client Rating"},
-                  {num:"25+",label:"Countries Served"},
-                  {num:"7+",label:"Years Experience"}
-                ].map((s,i)=>(
-                  <div className="about-stat" key={i}>
-                    <div className="about-stat-num">{s.num}</div>
-                    <div className="about-stat-label">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="about-copy">
-                <p>
-                  <strong>Deep expertise in streetwear aesthetics.</strong> Every design is crafted with attention to detail - organized layers, color separations, and files ready for screen printing, DTG, sublimation, or embroidery.
-                </p>
-                <p>
-                  <strong>We work with brands worldwide.</strong> From independent clothing startups to established fashion labels across the US, UK, Japan, Germany, and 20+ other countries.
-                </p>
-                <p>
-                  <strong>AI-powered workflow.</strong> Our design brief generator helps clients articulate their vision clearly, resulting in faster turnaround and better outcomes every time.
-                </p>
-              </div>
-            </div>
-          </section>
 
       {toast && <div className="toast">{toast}</div>}
 
