@@ -3267,6 +3267,52 @@ export default function App() {
   // opens that gig's full detail (gallery + packages + FAQ).
   const [selectedGigId, setSelectedGigId] = useState<string | null>(null);
 
+  // Shared gigs grid/detail UI - used both by the standalone /gigs page
+  // and inline as the wizard's Step 1, so ordering starts from a real
+  // gig (with tiers and pricing) instead of a bare service picker.
+  const renderGigsBrowser = (opts?: { onBack?: () => void; showHeader?: boolean }) => {
+    const selectedGig = selectedGigId ? gigs.find(g => g.id === selectedGigId) : null;
+    if (selectedGig) {
+      return (
+        <>
+          <div className="gigs-page-header">
+            <button className="gigs-back-btn" onClick={() => { setSelectedGigId(null); window.scrollTo(0,0); }}>
+              ← All services
+            </button>
+          </div>
+          <div className="gig-detail-wrap">
+            <GigCard gig={selectedGig} onOrder={handleGigOrder} queueCount={gigQueue[selectedGig.service_type] || 0} />
+          </div>
+        </>
+      );
+    }
+    return (
+      <>
+        {opts?.showHeader !== false && (
+          <div className="gigs-page-header">
+            {opts?.onBack && (
+              <button className="gigs-back-btn" onClick={opts.onBack}>← Back</button>
+            )}
+            <h1 className="gigs-page-title">Our Services</h1>
+            <p className="gigs-page-subtitle">Professional design services - choose one to see packages and order</p>
+          </div>
+        )}
+        {gigs.length === 0 ? (
+          <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
+            <i className="ri-store-2-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
+            <p>No services available yet. Check back soon!</p>
+          </div>
+        ) : (
+          <div className="fvg-grid">
+            {gigs.map(gig => (
+              <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} queueCount={gigQueue[gig.service_type] || 0} />
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+
   // ── Social Proof Toast ───────────────────────────────────
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({ name: "", country: "", service: "", time: "" });
@@ -3707,48 +3753,7 @@ export default function App() {
       {/* ══ GIGS PAGE - Fiverr-style service listings ══ */}
       {currentPage === "gigs" && (
         <section className="gigs-page">
-          {(() => {
-            const selectedGig = selectedGigId ? gigs.find(g => g.id === selectedGigId) : null;
-            if (selectedGig) {
-              // ── Detail view (Fiverr: click a card → full gig) ──
-              return (
-                <>
-                  <div className="gigs-page-header">
-                    <button className="gigs-back-btn" onClick={() => { setSelectedGigId(null); window.scrollTo(0,0); }}>
-                      ← All services
-                    </button>
-                  </div>
-                  <div className="gig-detail-wrap">
-                    <GigCard gig={selectedGig} onOrder={handleGigOrder} queueCount={gigQueue[selectedGig.service_type] || 0} />
-                  </div>
-                </>
-              );
-            }
-            // ── Grid view (Fiverr-style compact cards) ──
-            return (
-              <>
-                <div className="gigs-page-header">
-                  <button className="gigs-back-btn" onClick={() => { setCurrentPage("home"); window.scrollTo(0,0); }}>
-                    ← Back
-                  </button>
-                  <h1 className="gigs-page-title">Our Services</h1>
-                  <p className="gigs-page-subtitle">Professional design services - choose one to see packages and order</p>
-                </div>
-                {gigs.length === 0 ? (
-                  <div style={{textAlign:"center",padding:"60px 20px",color:"#6b7280"}}>
-                    <i className="ri-store-2-line" style={{fontSize:48,opacity:0.3,display:"block",marginBottom:12}} />
-                    <p>No services available yet. Check back soon!</p>
-                  </div>
-                ) : (
-                  <div className="fvg-grid">
-                    {gigs.map(gig => (
-                      <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} queueCount={gigQueue[gig.service_type] || 0} />
-                    ))}
-                  </div>
-                )}
-              </>
-            );
-          })()}
+          {renderGigsBrowser({ onBack: () => { setCurrentPage("home"); window.scrollTo(0,0); } })}
         </section>
       )}
 
@@ -4055,10 +4060,21 @@ export default function App() {
           <div className="step-outer">
             {step === 1 && (
               <div key={`s1-${animKey}`} className={panelClass}>
-                <Step1
-                  service={wizardState.service}
-                  onSelect={handleSelectService}
-                />
+                <div className="step-panel">
+                  <StepGuide stepNum={1} />
+                  {!selectedGigId && (
+                    <div className="step-header">
+                      <div className="step-number">STEP 1 / 6</div>
+                      <h2 className="step-question">
+                        Choose Your <span>Service</span>
+                      </h2>
+                      <p className="step-hint">Pick a service below to see packages and pricing.</p>
+                    </div>
+                  )}
+                  <div className="gigs-page gigs-page-inline">
+                    {renderGigsBrowser({ showHeader: false })}
+                  </div>
+                </div>
               </div>
             )}
             {step === 2 && (

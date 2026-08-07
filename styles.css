@@ -5154,3 +5154,8 @@ html {
 .fv-rev-more{margin-top:4px;align-self:flex-start;background:transparent;border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--txt-dark);cursor:pointer;transition:all .15s}
 .fv-rev-more:hover{border-color:var(--green);color:var(--green)}
 .fv-rev-empty{margin-top:18px;font-size:13px;color:var(--muted)}
+
+/* Gigs browser embedded inline as the wizard's Step 1 - strip the
+   standalone page's top offset and forced full-viewport height, which
+   are meant for the dedicated /gigs page's own fixed-nav layout. */
+.gigs-page-inline{padding:0 !important;min-height:0 !important;max-width:none !important;margin:0 !important}
