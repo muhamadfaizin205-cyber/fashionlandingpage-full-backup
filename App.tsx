@@ -3270,7 +3270,7 @@ export default function App() {
   // Shared gigs grid/detail UI - used both by the standalone /gigs page
   // and inline as the wizard's Step 1, so ordering starts from a real
   // gig (with tiers and pricing) instead of a bare service picker.
-  const renderGigsBrowser = (opts?: { onBack?: () => void; showHeader?: boolean }) => {
+  const renderGigsBrowser = (opts?: { onBack?: () => void; showHeader?: boolean; onOpenGig?: (id: string) => void }) => {
     const selectedGig = selectedGigId ? gigs.find(g => g.id === selectedGigId) : null;
     if (selectedGig) {
       return (
@@ -3286,6 +3286,7 @@ export default function App() {
         </>
       );
     }
+    const openGig = opts?.onOpenGig || ((id: string) => { setSelectedGigId(id); window.scrollTo(0,0); });
     return (
       <>
         {opts?.showHeader !== false && (
@@ -3305,7 +3306,7 @@ export default function App() {
         ) : (
           <div className="fvg-grid">
             {gigs.map(gig => (
-              <GigMiniCard key={gig.id} gig={gig} onOpen={(id) => { setSelectedGigId(id); window.scrollTo(0,0); }} queueCount={gigQueue[gig.service_type] || 0} />
+              <GigMiniCard key={gig.id} gig={gig} onOpen={openGig} queueCount={gigQueue[gig.service_type] || 0} />
             ))}
           </div>
         )}
@@ -4072,7 +4073,13 @@ export default function App() {
                     </div>
                   )}
                   <div className="gigs-page gigs-page-inline">
-                    {renderGigsBrowser({ showHeader: false })}
+                    {renderGigsBrowser({
+                      showHeader: false,
+                      // Opening a gig from Step 1 jumps to the dedicated,
+                      // fully-isolated Gigs page - no hero, guarantee,
+                      // banner or FAQ around it, just the gig itself.
+                      onOpenGig: (id) => { setSelectedGigId(id); setCurrentPage("gigs"); window.scrollTo(0,0); },
+                    })}
                   </div>
                 </div>
               </div>
