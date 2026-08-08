@@ -1458,11 +1458,12 @@ function openWA(pkg: Package, state: WizardState): void {
 }
 
 // ─── Progress Bar ──────────────────────────────────────────
-function ProgressBar({ step, hideStep }: { step: number; hideStep?: number }) {
-  // When the package step is skipped (tier chosen on the gig page) we drop
-  // its dot and renumber, so the bar reflects the flow the buyer sees.
+function ProgressBar({ step, hideSteps }: { step: number; hideSteps?: number[] }) {
+  // When a stage is skipped (concepts folded into the package choice;
+  // package chosen on the gig page) we drop its dot and renumber, so
+  // the bar reflects only the steps the buyer actually sees.
   const steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1)
-    .filter((n) => n !== hideStep);
+    .filter((n) => !hideSteps?.includes(n));
   return (
     <div className="progress-bar">
       {steps.map((n, i) => {
@@ -1497,10 +1498,6 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
   2: {
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
     tips: ["Your email receives the order confirmation and login link."],
-  },
-  3: {
-    icon: "ri-apps-line", title: "Concepts", color: "#F59E0B",
-    tips: ["More concepts, more options - we recommend 2-3."],
   },
   4: {
     icon: "ri-edit-line", title: "Design Brief", color: "#3B82F6",
@@ -1685,7 +1682,7 @@ function Step2({
     <div className="step-panel">
       <StepGuide stepNum={2} />
       <div className="step-header">
-        <div className="step-number">STEP 2 / 6</div>
+        <div className="step-number">STEP 2 / 4</div>
         <h2 className="step-question">
           Tell Us About <span>You</span>
         </h2>
@@ -1770,90 +1767,6 @@ function Step2({
   );
 }
 
-// ─── Step 3 ────────────────────────────────────────────────
-function Step3({
-  qty,
-  onChange,
-  onNext,
-  onBack,
-}: {
-  qty: number;
-  onChange: (q: number) => void;
-  onNext: () => void;
-  onBack: () => void;
-}) {
-  const [inputVal, setInputVal] = useState<string>(String(qty));
-  const clamp = (n: number) => Math.min(10, Math.max(1, n));
-
-  const dec = () => {
-    const next = clamp(qty - 1);
-    onChange(next);
-    setInputVal(String(next));
-  };
-  const inc = () => {
-    const next = clamp(qty + 1);
-    onChange(next);
-    setInputVal(String(next));
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    setInputVal(raw);
-    const n = parseInt(raw, 10);
-    if (!isNaN(n)) onChange(clamp(n));
-  };
-
-  const handleBlur = () => {
-    const n = parseInt(inputVal, 10);
-    const clamped = isNaN(n) ? 1 : clamp(n);
-    onChange(clamped);
-    setInputVal(String(clamped));
-  };
-
-  return (
-    <div className="step-panel">
-      <StepGuide stepNum={3} />
-      <div className="step-header">
-        <div className="step-number">STEP 3 / 6</div>
-        <h2 className="step-question">
-          How Many <span>Concepts</span> Do You Want?
-        </h2>
-        <p className="step-hint">
-          Type a number or use the + / − buttons (max. 10)
-        </p>
-      </div>
-      <div className="qty-counter-wrap">
-        <button className="qty-btn" onClick={dec} disabled={qty <= 1}>
-          −
-        </button>
-        <div className="qty-display">
-          <input
-            className="qty-input"
-            type="number"
-            min={1}
-            max={10}
-            value={inputVal}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-          />
-          <span className="qty-label">Design Concepts</span>
-        </div>
-        <button className="qty-btn" onClick={inc} disabled={qty >= 10}>
-          +
-        </button>
-      </div>
-      <div className="step-nav">
-        <button className="btn-back" onClick={onBack}>
-          ← Back
-        </button>
-        <button className="btn-next" onClick={onNext}>
-          Continue →
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Step 4 ────────────────────────────────────────────────
 function Step4({
   brief,
@@ -1932,7 +1845,7 @@ function Step4({
     <div className="step-panel">
       <StepGuide stepNum={4} />
       <div className="step-header">
-        <div className="step-number">STEP 4 / 6</div>
+        <div className="step-number">STEP 3 / 4</div>
         <h2 className="step-question">
           Describe Your Vision <span>for the Designer</span>
         </h2>
@@ -2447,7 +2360,7 @@ function Step6({
     <div className="step-panel">
       <StepGuide stepNum={6} />
       <div className="step-header">
-        <div className="step-number">STEP 6 / 6</div>
+        <div className="step-number">STEP 4 / 4</div>
         <h2 className="step-question">Confirm &amp; <span>Pay</span></h2>
         <p className="step-hint">Review your order and complete payment to get started.</p>
       </div>
@@ -3615,9 +3528,8 @@ export default function App() {
       showToast("Please enter at least one contact method (WhatsApp or Instagram)");
       return;
     }
-    goTo(3, "forward");
+    goTo(4, "forward");
   };
-  const handleNextStep3 = () => goTo(4, "forward");
   const handleNextStep4 = () => {
     if (wizardState.brief.trim().length < 10) {
       showToast("Brief must be at least 10 characters for best results");
@@ -4057,7 +3969,7 @@ export default function App() {
       <>
       <section className="wizard-section s2" id="wizard">
         <div className="wizard-wrap">
-          <ProgressBar step={step} hideStep={pkgFromGig ? 5 : undefined} />
+          <ProgressBar step={step} hideSteps={pkgFromGig ? [3, 5] : [3]} />
           <div className="step-outer">
             {step === 1 && (
               <div key={`s1-${animKey}`} className={panelClass}>
@@ -4065,7 +3977,7 @@ export default function App() {
                   <StepGuide stepNum={1} />
                   {!selectedGigId && (
                     <div className="step-header">
-                      <div className="step-number">STEP 1 / 6</div>
+                      <div className="step-number">STEP 1 / 4</div>
                       <h2 className="step-question">
                         Pick & Click <span>a Service</span>
                       </h2>
@@ -4100,23 +4012,13 @@ export default function App() {
                 />
               </div>
             )}
-            {step === 3 && (
-              <div key={`s3-${animKey}`} className={panelClass}>
-                <Step3
-                  qty={wizardState.qty}
-                  onChange={(q) => setWizardState((p) => ({ ...p, qty: q }))}
-                  onNext={handleNextStep3}
-                  onBack={() => goTo(2, "back")}
-                />
-              </div>
-            )}
             {step === 4 && (
               <div key={`s4-${animKey}`} className={panelClass}>
                 <Step4
                   brief={wizardState.brief}
                   onChange={(v) => setWizardState((p) => ({ ...p, brief: v }))}
                   onNext={handleNextStep4}
-                  onBack={() => goTo(3, "back")}
+                  onBack={() => goTo(2, "back")}
                   wizardService={wizardState.service}
                   wizardBrand={wizardState.brandName}
                   briefImages={wizardState.briefImages}
