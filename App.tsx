@@ -1491,8 +1491,8 @@ function ProgressBar({ step, hideStep }: { step: number; hideStep?: number }) {
 // ─── Contextual Step Guide (appears on each wizard step) ──
 const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; tips: string[] }> = {
   1: {
-    icon: "ri-palette-line", title: "What You Need", color: "#1DBF73",
-    tips: ["Browse the gigs below and pick whichever fits what you're after."],
+    icon: "ri-palette-line", title: "Pilih Layanan", color: "#1DBF73",
+    tips: ["Klik layanan yang paling sesuai dengan kebutuhanmu."],
   },
   2: {
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
@@ -4067,9 +4067,9 @@ export default function App() {
                     <div className="step-header">
                       <div className="step-number">STEP 1 / 6</div>
                       <h2 className="step-question">
-                        What Do You <span>Need?</span>
+                        Pilih & Klik <span>Layanan</span>
                       </h2>
-                      <p className="step-hint">Browse our gigs and pick the one that matches what you're looking for.</p>
+                      <p className="step-hint">Cari dan klik layanan yang sesuai dengan kebutuhanmu.</p>
                     </div>
                   )}
                   <div className="gigs-page gigs-page-inline">
