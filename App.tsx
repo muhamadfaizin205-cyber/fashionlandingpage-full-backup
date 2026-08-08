@@ -1499,7 +1499,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
     icon: "ri-user-line", title: "Your Info", color: "#8B5CF6",
     tips: ["Your email receives the order confirmation and login link."],
   },
-  4: {
+  3: {
     icon: "ri-edit-line", title: "Design Brief", color: "#3B82F6",
     tips: ["Describe your style and colors; add references if you have them."],
   },
@@ -1507,7 +1507,7 @@ const STEP_GUIDES: Record<number, { icon: string; title: string; color: string; 
     icon: "ri-box-3-line", title: "Package", color: "#EC4899",
     tips: ["Higher tiers add revisions, mockups and priority."],
   },
-  6: {
+  4: {
     icon: "ri-bank-card-line", title: "Payment", color: "#14B8A6",
     tips: ["Pay securely via PayPal - a confirmation email follows."],
   },
@@ -1843,7 +1843,7 @@ function Step4({
 
   return (
     <div className="step-panel">
-      <StepGuide stepNum={4} />
+      <StepGuide stepNum={3} />
       <div className="step-header">
         <div className="step-number">STEP 3 / 4</div>
         <h2 className="step-question">
@@ -2358,7 +2358,7 @@ function Step6({
 
   return (
     <div className="step-panel">
-      <StepGuide stepNum={6} />
+      <StepGuide stepNum={4} />
       <div className="step-header">
         <div className="step-number">STEP 4 / 4</div>
         <h2 className="step-question">Confirm &amp; <span>Pay</span></h2>
