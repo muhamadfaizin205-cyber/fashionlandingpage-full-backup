@@ -279,13 +279,13 @@ const DEFAULT_GIGS: Gig[] = [
     category: "clothing-design",
     cover_url: "/clothing-1.jpg",
     gallery_urls: ["/clothing-1.jpg","/clothing-2.png","/clothing-3.png"],
-    basic_price: 50, basic_delivery: 3, basic_revisions: "2 Revisions",
+    basic_price: 50, basic_delivery: 3, basic_revisions: "Unlimited Revisions",
     basic_features: ["Source file included","Print-ready resolution","Front design only"],
     basic_desc: "Simple single-side apparel graphic. Best for testing one design.",
-    standard_price: 75, standard_delivery: 3, standard_revisions: "8 Revisions",
+    standard_price: 75, standard_delivery: 3, standard_revisions: "Unlimited Revisions",
     standard_features: ["Source file included","Print-ready resolution","Front & back design","Realistic mockup","Enhanced detailing","Commercial use"],
     standard_desc: "Front & back with mockup. Most popular for brand drops.",
-    premium_price: 120, premium_delivery: 5, premium_revisions: "Unlimited",
+    premium_price: 120, premium_delivery: 5, premium_revisions: "Unlimited Revisions",
     premium_features: ["Source file included","Print-ready resolution","Front & back design","Realistic mockup","Enhanced detailing","Commercial use","Techpack included"],
     premium_desc: "Complete apparel system with techpack. Full brand-ready.",
     rating: 4.9, review_count: 1247, orders_count: 3200,
@@ -301,13 +301,13 @@ const DEFAULT_GIGS: Gig[] = [
     category: "logo-design",
     cover_url: "/logo-1.png",
     gallery_urls: ["/logo-1.png","/logo-2.png"],
-    basic_price: 80, basic_delivery: 5, basic_revisions: "2 Revisions",
+    basic_price: 80, basic_delivery: 5, basic_revisions: "Unlimited Revisions",
     basic_features: ["Logo transparency","Vector file","Printable file"],
     basic_desc: "Clean logo concept. Safe for testing your brand direction.",
-    standard_price: 150, standard_delivery: 7, standard_revisions: "3 Revisions",
+    standard_price: 150, standard_delivery: 7, standard_revisions: "Unlimited Revisions",
     standard_features: ["Logo transparency","Vector file","Printable file","3D mockup","Source file"],
     standard_desc: "Refined logo with mockup and source files. Ready for branding.",
-    premium_price: 200, premium_delivery: 7, premium_revisions: "3 Revisions",
+    premium_price: 200, premium_delivery: 7, premium_revisions: "Unlimited Revisions",
     premium_features: ["Logo transparency","Vector file","Printable file","3D mockup","Source file","Social media kit"],
     premium_desc: "Complete brand identity with social media kit.",
     rating: 4.9, review_count: 986, orders_count: 8100,
@@ -815,7 +815,7 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
     { q: "Do I own the design and commercial rights?", a: "Yes. Every package includes source files and full commercial rights. You own the artwork outright and can print it with any manufacturer, in any quantity, forever. No licensing fees, no royalties." },
     { q: "What file formats will I receive?", a: "Source files (PSD or AI), vector files (SVG, EPS), print-ready high-resolution PNG with transparency, PDF, and realistic mockups - prepared for your printing method." },
     { q: "Can you match a specific style or reference?", a: "Absolutely. Share reference images, mood boards, or brands you admire in your brief. Dean builds around your direction, not a template." },
-    { q: "What if I need changes after delivery?", a: "Revisions are included in every package. Standard includes 8 revisions, Premium is unlimited until the design is exactly right." },
+    { q: "What if I need changes after delivery?", a: "Every package includes unlimited revisions - we keep refining the design until it's exactly right." },
   ];
 
   return (
@@ -1106,6 +1106,7 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
               <span><i className="ri-time-line" /> {tier.delivery}-day delivery</span>
               <span><i className="ri-refresh-line" /> {tier.revisions}</span>
             </div>
+            <p className="fv-rev-note">A revision is a free rework of your design based on your feedback - use as many as you need until you're happy with it.</p>
 
             <ul className="fv-feats">
               {(tier.features || []).map((f, i) => (
@@ -2978,7 +2979,7 @@ function FAQSection() {
     },
     {
       q: "How many revisions do I get?",
-      a: "Each package includes a different number of revisions: Basic includes 2 revisions, Standard includes 8 revisions (clothing) or 3 revisions (logo), and Premium includes unlimited revisions. Revisions are how we make sure the design is exactly right for your brand.",
+      a: "Every package - Basic, Standard, and Premium - includes unlimited revisions. A revision is a free rework based on your feedback, so you can keep requesting changes until the design is exactly right for your brand.",
     },
     {
       q: "When will I receive my designs?",

@@ -3993,6 +3993,7 @@ html {
   font-size: 13px; font-weight: 600; color: #404145;
 }
 .fv-meta-row i { font-size: 15px; color: #62646A; }
+.fv-rev-note { font-size: 11.5px; line-height: 1.5; color: #9CA0A8; margin: -10px 0 18px; }
 .fv-feats { list-style: none; margin-bottom: 20px; padding: 0; }
 .fv-feats li {
   display: flex; align-items: flex-start; gap: 8px;
