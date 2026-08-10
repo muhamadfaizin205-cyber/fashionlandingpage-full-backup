@@ -279,7 +279,7 @@ const DEFAULT_GIGS: Gig[] = [
     category: "clothing-design",
     cover_url: "/clothing-1.jpg",
     gallery_urls: ["/clothing-1.jpg","/clothing-2.png","/clothing-3.png"],
-    basic_price: 50, basic_delivery: 3, basic_revisions: "Unlimited Revisions",
+    basic_price: 50, basic_delivery: 3, basic_revisions: "2 Revisions",
     basic_features: ["Source file included","Print-ready resolution","Front design only"],
     basic_desc: "Simple single-side apparel graphic. Best for testing one design.",
     standard_price: 75, standard_delivery: 3, standard_revisions: "Unlimited Revisions",
@@ -301,7 +301,7 @@ const DEFAULT_GIGS: Gig[] = [
     category: "logo-design",
     cover_url: "/logo-1.png",
     gallery_urls: ["/logo-1.png","/logo-2.png"],
-    basic_price: 80, basic_delivery: 5, basic_revisions: "Unlimited Revisions",
+    basic_price: 80, basic_delivery: 5, basic_revisions: "2 Revisions",
     basic_features: ["Logo transparency","Vector file","Printable file"],
     basic_desc: "Clean logo concept. Safe for testing your brand direction.",
     standard_price: 150, standard_delivery: 7, standard_revisions: "Unlimited Revisions",
@@ -815,7 +815,7 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
     { q: "Do I own the design and commercial rights?", a: "Yes. Every package includes source files and full commercial rights. You own the artwork outright and can print it with any manufacturer, in any quantity, forever. No licensing fees, no royalties." },
     { q: "What file formats will I receive?", a: "Source files (PSD or AI), vector files (SVG, EPS), print-ready high-resolution PNG with transparency, PDF, and realistic mockups - prepared for your printing method." },
     { q: "Can you match a specific style or reference?", a: "Absolutely. Share reference images, mood boards, or brands you admire in your brief. Dean builds around your direction, not a template." },
-    { q: "What if I need changes after delivery?", a: "Every package includes unlimited revisions - we keep refining the design until it's exactly right." },
+    { q: "What if I need changes after delivery?", a: "Standard and Premium include unlimited revisions - we keep refining until it's exactly right. Basic includes 2 revisions." },
   ];
 
   return (
@@ -1106,7 +1106,7 @@ function GigCard({ gig, onOrder, queueCount = 0 }: { gig: Gig; onOrder: (gig: Gi
               <span><i className="ri-time-line" /> {tier.delivery}-day delivery</span>
               <span><i className="ri-refresh-line" /> {tier.revisions}</span>
             </div>
-            <p className="fv-rev-note">A revision is a free rework of your design based on your feedback - use as many as you need until you're happy with it.</p>
+            <p className="fv-rev-note">A revision is a free rework of your design based on your feedback, so the result matches what you have in mind.</p>
 
             <ul className="fv-feats">
               {(tier.features || []).map((f, i) => (
@@ -2979,7 +2979,7 @@ function FAQSection() {
     },
     {
       q: "How many revisions do I get?",
-      a: "Every package - Basic, Standard, and Premium - includes unlimited revisions. A revision is a free rework based on your feedback, so you can keep requesting changes until the design is exactly right for your brand.",
+      a: "Basic includes 2 revisions. Standard and Premium include unlimited revisions - a revision is a free rework based on your feedback, so you can keep requesting changes until the design is exactly right for your brand.",
     },
     {
       q: "When will I receive my designs?",
