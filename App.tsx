@@ -2171,8 +2171,7 @@ function PayPalGuide() {
               <li>Download the <strong>PayPal</strong> app from App Store or Play Store.</li>
               <li>Create an account or log in with your email.</li>
               <li>Link your bank account, debit card, or credit card.</li>
-              <li>Tap <strong>Send</strong>, then enter <strong>deanastasia1312@gmail.com</strong> as recipient.</li>
-              <li>Enter the total amount in <strong>USD</strong> and confirm payment.</li>
+              <li>Come back to this page and tap the <strong>PayPal</strong> button above to pay - no need to send money manually.</li>
             </ol>
           </div>
           <div className="pp-guide-divider" />
@@ -2180,14 +2179,12 @@ function PayPalGuide() {
             <div className="pp-guide-label">From Web Browser</div>
             <ol className="pp-steps">
               <li>Go to <strong>paypal.com</strong> and sign in or create a free account.</li>
-              <li>Click <strong>Send &amp; Request</strong> at the top menu.</li>
-              <li>Enter <strong>deanastasia1312@gmail.com</strong> as recipient.</li>
-              <li>Enter the amount in <strong>USD</strong> and add your brand name as a note.</li>
-              <li>Choose <strong>Sending to a friend</strong> to avoid extra fees, then confirm.</li>
+              <li>Link your bank account, debit card, or credit card.</li>
+              <li>Come back to this page and click the <strong>PayPal</strong> button above to pay - no need to send money manually.</li>
             </ol>
           </div>
           <div className="pp-guide-tip">
-            After payment, you'll receive a confirmation email. You can log in to your Order Tracker using your email to chat directly with your designer.
+            Your order is created automatically once you pay through the button above. You'll receive a confirmation email and can log in to your Order Tracker using your email to chat directly with your designer.
           </div>
         </div>
       )}
