@@ -3552,9 +3552,23 @@ html {
   aspect-ratio: 4 / 3;
   background: #F1F1F2;
   overflow: hidden;
+  cursor: grab;
+  user-select: none;
 }
-.fvg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
-.fvg-card:hover .fvg-thumb img { transform: scale(1.04); }
+.fvg-thumb:active { cursor: grabbing; }
+.fvg-thumb-track { display: flex; width: 100%; height: 100%; will-change: transform; }
+.fvg-thumb-track img { width: 100%; height: 100%; flex: 0 0 100%; object-fit: cover; display: block; -webkit-user-drag: none; }
+.fvg-thumb-dots {
+  position: absolute; left: 0; right: 0; bottom: 8px;
+  display: flex; justify-content: center; gap: 5px; pointer-events: none;
+}
+.fvg-thumb-dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(255,255,255,.55);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08);
+  transition: background .2s ease, transform .2s ease;
+}
+.fvg-thumb-dots span.on { background: #fff; transform: scale(1.3); }
 .fvg-thumb-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #C4C5C9; font-size: 34px; }
 .fvg-body { padding: 14px 16px 8px; flex: 1; }
 .fvg-seller { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }

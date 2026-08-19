@@ -748,16 +748,81 @@ function AiBriefProgress() {
 // Compact Fiverr-style gig card for the grid. Clicking opens the full
 // gig detail (GigCard). Shows thumbnail, seller, title, rating, price.
 function GigMiniCard({ gig, onOpen, queueCount = 0 }: { gig: Gig; onOpen: (id: string) => void; queueCount?: number }) {
-  const cover = (gig.cover_url && gig.cover_url.trim())
-    ? gig.cover_url
-    : (gig.gallery_urls && gig.gallery_urls.length > 0 ? gig.gallery_urls[0] : "");
-  const fromPrice = gig.basic_price || gig.standard_price || gig.premium_price || 0;
+  const imgs = (gig.gallery_urls && gig.gallery_urls.length > 0)
+    ? gig.gallery_urls
+    : (gig.cover_url && gig.cover_url.trim() ? [gig.cover_url] : []);
+  const [imgIdx, setImgIdx] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const dragging = useRef(false);
+  const startX = useRef(0);
+  const didDrag = useRef(false);
+  const thumbWidth = useRef(0);
+
+  const onDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (imgs.length < 2) return;
+    dragging.current = true;
+    didDrag.current = false;
+    startX.current = e.clientX;
+    thumbWidth.current = e.currentTarget.offsetWidth || 1;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
+    const delta = e.clientX - startX.current;
+    if (Math.abs(delta) > 6) didDrag.current = true;
+    setDragX(delta);
+  };
+  const endDrag = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    const threshold = Math.max(30, thumbWidth.current * 0.15);
+    setImgIdx((i) => {
+      if (dragX <= -threshold) return Math.min(i + 1, imgs.length - 1);
+      if (dragX >= threshold) return Math.max(i - 1, 0);
+      return i;
+    });
+    setDragX(0);
+  };
+
   return (
-    <button className="fvg-card" onClick={() => onOpen(gig.id)}>
-      <div className="fvg-thumb">
-        {cover
-          ? <img src={cover} alt={gig.title} loading="lazy" />
-          : <div className="fvg-thumb-ph"><i className="ri-image-line" /></div>}
+    <button
+      className="fvg-card"
+      onClick={(e) => {
+        if (didDrag.current) { didDrag.current = false; e.preventDefault(); return; }
+        onOpen(gig.id);
+      }}
+    >
+      <div
+        className="fvg-thumb"
+        style={{ touchAction: imgs.length > 1 ? "pan-y" : undefined }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={endDrag}
+        onPointerLeave={endDrag}
+        onPointerCancel={endDrag}
+      >
+        {imgs.length > 0 ? (
+          <div
+            className="fvg-thumb-track"
+            style={{
+              transform: `translateX(calc(${-imgIdx * 100}% + ${dragging.current ? dragX : 0}px))`,
+              transition: dragging.current ? "none" : "transform .32s cubic-bezier(.22,1,.36,1)",
+            }}
+          >
+            {imgs.map((src, i) => (
+              <img key={i} src={src} alt={gig.title} loading="lazy" draggable={false} />
+            ))}
+          </div>
+        ) : (
+          <div className="fvg-thumb-ph"><i className="ri-image-line" /></div>
+        )}
+        {imgs.length > 1 && (
+          <div className="fvg-thumb-dots">
+            {imgs.map((_, i) => (
+              <span key={i} className={i === imgIdx ? "on" : ""} />
+            ))}
+          </div>
+        )}
         {queueCount > 0 && (
           <span className="fvg-queue"><i className="ri-time-line" />{queueCount} in queue</span>
         )}
@@ -776,7 +841,7 @@ function GigMiniCard({ gig, onOpen, queueCount = 0 }: { gig: Gig; onOpen: (id: s
       </div>
       <div className="fvg-foot">
         <span className="fvg-from">From</span>
-        <span className="fvg-price">${fromPrice}</span>
+        <span className="fvg-price">${gig.basic_price || gig.standard_price || gig.premium_price || 0}</span>
       </div>
     </button>
   );
